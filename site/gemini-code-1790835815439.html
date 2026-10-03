@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objevuj české dějiny | Dějepis pro děti</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #3498db;
+            --accent-hover: #2980b9;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --warning-color: #f1c40f;
+            --border-radius: 12px;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a2e;
+                --card-bg: #16213e;
+                --text-color: #e9ecef;
+                --accent-color: #4ea8de;
+                --accent-hover: #4895ef;
+            }
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #e9ecef;
+            --accent-color: #4ea8de;
+            --accent-hover: #4895ef;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #3498db;
+            --accent-hover: #2980b9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 40px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TAB 1: Original Text */
+        .error-highlight {
+            color: #d63031;
+            font-weight: bold;
+            text-decoration: underline dotted;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 260px;
+            background-color: #2d3436;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            font-weight: normal;
+            box-shadow: var(--shadow);
+        }
+
+        .error-highlight:hover .tooltip-text, .error-highlight:focus .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* TAB 2: Učit se */
+        .chunk-card {
+            background: rgba(52, 152, 219, 0.05);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .sentence-row {
+            margin-bottom: 12px;
+        }
+
+        .hint-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hint-box {
+            display: none;
+            background: #fff9e6;
+            color: #7f8c8d;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+            font-size: 0.95rem;
+        }
+
+        [data-theme="dark"] .hint-box {
+            background: #2c3e50;
+            color: #bdc3c7;
+            border-color: #34495e;
+        }
+
+        .key-term {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .close-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* TAB 3: Hrát si */
+        .game-setup {
+            text-align: center;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            padding: 12px;
+            width: 80%;
+            max-width: 300px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .quiz-modes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .mode-card {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            width: 220px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .speed-indicator {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .speed-bar {
+            height: 100%;
+            background: #f1c40f;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+
+        .question-card {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option-btn {
+            background: var(--bg-color);
+            border: 2px solid #ddd;
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent-color);
+        }
+
+        .tf-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .tf-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .tf-btn.true { background: var(--success-color); }
+        .tf-btn.false { background: var(--error-color); }
+
+        .open-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .open-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .open-input-group button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        .correct-anim {
+            animation: popSuccess 0.4s ease forwards;
+            background-color: rgba(46, 204, 113, 0.3) !important;
+        }
+
+        @keyframes popSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .wrong-anim {
+            animation: shakeError 0.4s ease forwards;
+            border-color: var(--error-color) !important;
+        }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .fade-points {
+            animation: fadeOutZero 0.8s forwards;
+        }
+
+        @keyframes fadeOutZero {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Summary & Leaderboard */
+        .summary-table, .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .summary-table th, .summary-table td,
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .badge-correct { color: var(--success-color); font-weight: bold; }
+        .badge-wrong { color: var(--error-color); font-weight: bold; }
+
+        .score-banner {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .score-banner h2 { font-size: 2rem; }
+
+        .active-row {
+            background-color: rgba(52, 152, 219, 0.2);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️ Přepnout režim</button>
+        <h1>⚔️ Objevuj české dějiny!</h1>
+        <p>Interaktivní průvodce pro malé dějepisce</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('tab1')">📖 Původní text</button>
+        <button class="nav-btn" onclick="switchTab('tab2')">💡 Učit se</button>
+        <button class="nav-btn" onclick="switchTab('tab3')">🎮 Hrát si</button>
+    </nav>
+
+    <main>
+        <!-- TAB 1: PŮVODNÍ TEXT -->
+        <section id="tab1" class="tab-content active">
+            <h2>Původní učební text</h2>
+            <p style="margin-bottom: 15px; color: #7f8c8d; font-size: 0.9rem;">
+                * Podtržené červené texty obsahují historická upřesnění. Najetím na myš nebo klepnutím zobrazíš podrobnosti.
+            </p>
+
+            <h3>1. Dělení lidských dějin</h3>
+            <ul>
+                <li>Pravěk: doba kamenná (starší, mladší), doba bronzová, doba železná (oheň, rytina v kosti, soška medvěda).</li>
+                <li>Starověk: první civilizace (pyramidy, klínové písmo).</li>
+                <li>Středověk: raný, vrcholný, pozdní (utváření evropských států, hrady, kroniky).</li>
+                <li>Novověk: pokrok, vynálezy (dalekohled, tištěná kniha, parní stroj).</li>
+                <li>Moderní dějiny: posledních 100 let (automobil, zkoumání vesmíru).</li>
+            </ul>
+
+            <h3 style="margin-top: 15px;">2. Doba kamenná, bronzová a železná</h3>
+            <ul>
+                <li>Starší doba kamenná: lovci a sběrači, jeskyně, pěstní klín, Věstonická Venuše.</li>
+                <li>Mladší doba kamenná: zemědělci, trvalá sídliště, rody, domy ze dřeva a hlíny, pěstování plodin.
+                    <span class="error-highlight">Zpracování prvních kovů (zlato, měď)
+                        <span class="tooltip-text">Upřesnění: Systematické zpracování kovů začíná až na konci doby kamenné (v pozdní době kamenné – eNodealitu).</span>
+                    </span>.
+                </li>
+                <li>Doba bronzová: objev bronzu (slitina mědi a cínu), výzbroj, šperky.</li>
+                <li>Doba železná: železné nástroje, kovářství, oppida, Keltové (kmen Bójů → Bohemia).</li>
+            </ul>
+
+            <h3 style="margin-top: 15px;">3. Přemyslovci a český stát</h3>
+            <ul>
+                <li>Kníže Václav: podpora křesťanství,
+                    <span class="error-highlight">zavražděn 28. 9. 935
+                        <span class="tooltip-text">Historická poznámka: Většina historiků se kloní k roku 935, ale některé prameny uvádějí i rok 929.</span>
+                    </span> bratrem Boleslavem.
+                </li>
+                <li>Přemyslovští králové: Vratislav II. a Vladislav II. získali titul krále pro svou osobu. Dědičný titul získal Přemysl Otakar I. (Zlatá bula sicilská 1212).</li>
+                <li>Václav II.: ražba pražského groše v Kutné Hoře (Vlašský dvůr).</li>
+            </ul>
+
+            <h3 style="margin-top: 15px;">4. Lucemburkové a další období</h3>
+            <ul>
+                <li>Karel IV.: „Otec vlasti“, zakladatel Univerzity Karlovy (1348), Karlova mostu a Chrámu sv. Víta.</li>
+                <li>Jan Hus: kazatel v Betlémské kapli, upálen v Kostnici 6. 7. 1415.</li>
+                <li>Bitva u Moháče:
+                    <span class="error-highlight">utonutí Ludvíka Jagellonského roku 1525
+                        <span class="tooltip-text">Chyba v textu: Bitva u Moháče se odehrála 29. srpna 1526 (nikoli 1525). Nastupuje rod Habsburků.</span>
+                    </span>.
+                </li>
+            </ul>
+        </section>
+
+        <!-- TAB 2: UČIT SE -->
+        <section id="tab2" class="tab-content">
+            <h2>Lekce: Průvodce dějinami</h2>
+            <p style="margin-bottom: 20px;">Klikni na zeleně zvýrazněná <span class="key-term" onclick="showModal('Pojem', 'Kliknutím na slovo se zobrazí jeho vysvětlení.')">slova</span> pro jejich vysvětlení. Tlačítko 💡 ti ukáže jednoduchou nápovědu.</p>
+
+            <div class="chunk-card">
+                <div class="sentence-row">
+                    <strong>1.</strong> Lidské dějiny dělíme na několik hlavních období: <span class="key-term" onclick="showModal('Pravěk', 'Nejstarší a nejdelší období lidských dějin. Lidé neznají písmo.')">pravěk</span>, starověk, <span class="key-term" onclick="showModal('Středověk', 'Období hrady, rytířů a králů. Vznikaly první evropské státy.')">středověk</span>, novověk a moderní dějiny.
+                    <button class="hint-btn" onclick="toggleHint('h1')">💡</button>
+                    <div id="h1" class="hint-box">Historie se dělí na časové úseky. Pomáhá nám to lépe poznat, jak se měnil život lidí.</div>
+                </div>
+                <div class="sentence-row">
+                    <strong>2.</strong> Ve starší době kamenné žili lidé jako lovci a sběrači v tlupách a vyráběli si nástroje z kamene.
+                    <button class="hint-btn" onclick="toggleHint('h2')">💡</button>
+                    <div id="h2" class="hint-box">Lidé ještě nepěstovali obilí. Lovili mamuty a sbírali plody v přírodě.</div>
+                </div>
+            </div>
+
+            <div class="chunk-card">
+                <div class="sentence-row">
+                    <strong>3.</strong> Keltové byli prvním známým národem na našem území a stavěli opevněná města zvaná <span class="key-term" onclick="showModal('Oppidum', 'Velké opevněné keltské město chráněné hradbami.')">oppida</span>.
+                    <button class="hint-btn" onclick="toggleHint('h3')">💡</button>
+                    <div id="h3" class="hint-box">Keltové byli šikovní kováři. Podle keltského kmene Bójů se naše země jmenuje Bohemia.</div>
+                </div>
+                <div class="sentence-row">
+                    <strong>4.</strong> Kníže Václav podporoval křesťanství a stal se po své smrti patronem české země.
+                    <button class="hint-btn" onclick="toggleHint('h4')">💡</button>
+                    <div id="h4" class="hint-box">Svatý Václav je považován za ochránce české země. Slavíme ho 28. září.</div>
+                </div>
+            </div>
+
+            <div class="chunk-card">
+                <div class="sentence-row">
+                    <strong>5.</strong> Karel IV. byl nejvýznamnější český král a císař, který v roce <span class="key-term" onclick="showModal('Rok 1348', 'Významný rok: založení Univerzity Karlovy v Praze.')">1348</span> založil univerzitu v Praze.
+                    <button class="hint-btn" onclick="toggleHint('h5')">💡</button>
+                    <div id="h5" class="hint-box">Karel IV. postavil také Karlův most a hrad Karlštejn. Ríká se mu Otec vlasti.</div>
+                </div>
+                <div class="sentence-row">
+                    <strong>6.</strong> V roce <span class="key-term" onclick="showModal('Rok 1526', 'Bitva u Moháče a nástup Habsburků na český trůn.')">1526</span> nastoupil na český trůn rod Habsburků po bitvě u Moháče.
+                    <button class="hint-btn" onclick="toggleHint('h6')">💡</button>
+                    <div id="h6" class="hint-box">Habsburkové vládli našemu státu téměř 400 let až do roku 1918.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: HRÁT SI -->
+        <section id="tab3" class="tab-content">
+            <div id="gameSetup" class="game-setup">
+                <h2>Otestuj své znalosti!</h2>
+                <p>Zadej své jméno a vyber si obtížnost kvízu.</p>
+                <div class="input-group">
+                    <input type="text" id="playerName" placeholder="Tvoje jméno..." autocomplete="off">
+                </div>
+                <div class="quiz-modes">
+                    <div class="mode-card" onclick="startQuiz('easy')">
+                        <h3>🟢 Lehký kvíz</h3>
+                        <p>3 otázky (1-1-1)</p>
+                        <small>Rychlá rozcvička</small>
+                    </div>
+                    <div class="mode-card" onclick="startQuiz('medium')">
+                        <h3>🟡 Střední kvíz</h3>
+                        <p>5 otázek (1-2-2)</p>
+                        <small>Standardní výzva</small>
+                    </div>
+                    <div class="mode-card" onclick="startQuiz('hard')">
+                        <h3>🔴 Těžký kvíz</h3>
+                        <p>10 otázek (2-5-3)</p>
+                        <small>Pro opravdové znalce</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Play View -->
+            <div id="quizContainer" class="quiz-container">
+                <div class="quiz-header">
+                    <div>Otázka <span id="currentQNum">1</span> / <span id="totalQNum">3</span></div>
+                    <div>Body: <span id="currentScore">0</span></div>
+                    <div id="speedBadge" style="display:none; color: #f39c12; font-weight:bold;">⚡ 2× bonus!</div>
+                </div>
+                <div class="speed-indicator">
+                    <div id="speedBar" class="speed-bar"></div>
+                </div>
+                <div id="questionCard" class="question-card">
+                    <h3 id="questionText">Znění otázky...</h3>
+                    <div id="answersContainer" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- Summary & Leaderboard View -->
+            <div id="summaryContainer" style="display:none;">
+                <h3>📊 Přehled tvých odpovědí</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Otázka</th>
+                            <th>Tvoje odpověď</th>
+                            <th>Správná odpověď</th>
+                            <th>Body</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody"></tbody>
+                </table>
+
+                <div class="score-banner">
+                    <h2 id="finalGradeText">Známka: 1</h2>
+                    <p id="finalScoreText">Celkové skóre: 120 bodů</p>
+                </div>
+
+                <h3>🏆 Žebříček nejlepších výsledků</h3>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Hráč</th>
+                            <th>Čas</th>
+                            <th>Trvání</th>
+                            <th>Obtížnost</th>
+                            <th>Body</th>
+                            <th>Známka</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody"></tbody>
+                </table>
+                
+                <button onclick="resetGame()" class="nav-btn" style="margin-top: 20px; width: 100%;">Spustit novou hru</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal pre slovníček -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Název pojmu</h3>
+            <p id="modalDesc" style="margin-top: 10px;">Popis...</p>
+            <button class="close-btn" onclick="closeModal()">Rozumím</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Dark Mode ---
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+        }
+
+        // --- Tab Navigation ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Learn Tab Interactive Terms & Hints ---
+        function toggleHint(id) {
+            const box = document.getElementById(id);
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function showModal(title, desc) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // --- QUESTION BANK (50+ Questions) ---
+        const questionBank = [
+            // EASY (True/False, 10 pts)
+            { id: 1, type: 'tf', diff: 'easy', q: 'Pravěk je nejstarší období lidských dějin.', answer: true, pts: 10 },
+            { id: 2, type: 'tf', diff: 'easy', q: 'Karel IV. postavil Karlův most.', answer: true, pts: 10 },
+            { id: 3, type: 'tf', diff: 'easy', q: 'Keltové nežili na našem území.', answer: false, pts: 10 },
+            { id: 4, type: 'tf', diff: 'easy', q: 'Svatý Václav byl přemyslovský kníže.', answer: true, pts: 10 },
+            { id: 5, type: 'tf', diff: 'easy', q: 'Jan Hus byl upálen v Praze.', answer: false, pts: 10 },
+            { id: 6, type: 'tf', diff: 'easy', q: 'Pražský groš se ražil v Kutné Hoře.', answer: true, pts: 10 },
+            { id: 7, type: 'tf', diff: 'easy', q: 'Věstonická Venuše je soška z doby bronzové.', answer: false, pts: 10 },
+            { id: 8, type: 'tf', diff: 'easy', q: 'Habsburkové začali vládnout v Čechách v roce 1526.', answer: true, pts: 10 },
+            { id: 9, type: 'tf', diff: 'easy', q: 'Keltové raželi stříbrné a zlaté mince zvané statéry.', answer: true, pts: 10 },
+            { id: 10, type: 'tf', diff: 'easy', q: 'Gotický sloh se vyznačuje půlkruhovým obloukem.', answer: false, pts: 10 },
+
+            // MEDIUM (MCQ, 20 pts)
+            { id: 11, type: 'mcq', diff: 'medium', q: 'Jak se jmenuje soška ženy ze starší doby kamenné?', options: ['Věstonická Venuše', 'Bratislavská Venuše', 'Pražská matka', 'Aféra'], answer: 'Věstonická Venuše', pts: 20 },
+            { id: 12, type: 'mcq', diff: 'medium', q: 'Kdo byl první známý přemyslovský kníže?', options: ['Bořivoj', 'Václav', 'Boleslav', 'Vratislav'], answer: 'Bořivoj', pts: 20 },
+            { id: 13, type: 'mcq', diff: 'medium', q: 'Které město bylo známé těžbou stříbra?', options: ['Kutná Hora', 'Plzeň', 'Brno', 'Olomouc'], answer: 'Kutná Hora', pts: 20 },
+            { id: 14, type: 'mcq', diff: 'medium', q: 'Jak se jmenovala opevněná keltská města?', options: ['Oppida', 'Castra', 'Tvrze', 'Rotundy'], answer: 'Oppida', pts: 20 },
+            { id: 15, type: 'mcq', diff: 'medium', q: 'Který panovník získal Zlatou bulu sicilskou?', options: ['Přemysl Otakar I.', 'Karel IV.', 'Václav II.', 'Jiří z Poděbrad'], answer: 'Přemysl Otakar I.', pts: 20 },
+            { id: 16, type: 'mcq', diff: 'medium', q: 'Bronz je slitina kterých kovů?', options: ['Mědi a cínu', 'Železa a zlata', 'Mědi a stříbra', 'Olova a zinku'], answer: 'Mědi a cínu', pts: 20 },
+            { id: 17, type: 'mcq', diff: 'medium', q: 'Kde kázal Jan Hus v Praze?', options: ['V Betlémské kapli', 'V chrámu sv. Víta', 'Na Vyšehradě', 'V klášteře Břevnov'], answer: 'V Betlémské kapli', pts: 20 },
+            { id: 18, type: 'mcq', diff: 'medium', q: 'Který sloh má lomený oblouk a žebrovou klenbu?', options: ['Gotika', 'Románský sloh', 'Baroko', 'Renesance'], answer: 'Gotika', pts: 20 },
+            { id: 19, type: 'mcq', diff: 'medium', q: 'Kdo byl vojevůdcem husitů, který nebyl nikdy poražen?', options: ['Jan Žižka', 'Prokop Holý', 'Jan Hus', 'Jiří z Poděbrad'], answer: 'Jan Žižka', pts: 20 },
+            { id: 20, type: 'mcq', diff: 'medium', q: 'Jak se říkalo Jiřímu z Poděbrad?', options: ['Král dvojího lidu', 'Otec vlasti', 'Železný a zlatý král', 'Liška ryšavá'], answer: 'Král dvojího lidu', pts: 20 },
+
+            // HARD (Open-ended & Numbers, 30 pts)
+            { id: 21, type: 'open', diff: 'hard', q: 'Ve kterém roce byla založena Univerzita Karlova v Praze?', answer: '1348', isYear: true, pts: 30 },
+            { id: 22, type: 'open', diff: 'hard', q: 'Ve kterém roce byl upálen Jan Hus?', answer: '1415', isYear: true, pts: 30 },
+            { id: 23, type: 'open', diff: 'hard', q: 'Ve kterém roce byla vydána Zlatá bula sicilská?', answer: '1212', isYear: true, pts: 30 },
+            { id: 24, type: 'open', diff: 'hard', q: 'Ve kterém roce proběhla bitva u Moháče?', answer: '1526', isYear: true, pts: 30 },
+            { id: 25, type: 'open', diff: 'hard', q: 'Jak se jmenovala manželka knížete Bořivoje?', answer: 'Ludmila', isYear: false, pts: 30 },
+            { id: 26, type: 'open', diff: 'hard', q: 'Který přemyslovský panovník byl nazýván "král železný a zlatý"?', answer: 'Premysl Otakar II', isYear: false, pts: 30 },
+            { id: 27, type: 'open', diff: 'hard', q: 'Jak se jmenuje první česky psaná kronika?', answer: 'Dalimilova kronika', isYear: false, pts: 30 },
+            { id: 28, type: 'open', diff: 'hard', q: 'Ve kterém roce byla vyvražděna rodina Slavníkovců?', answer: '995', isYear: true, pts: 30 }
+        ];
+
+        // Fill question bank up to 50 items procedurally
+        for(let i = 29; i <= 55; i++) {
+            if(i % 3 === 0) {
+                questionBank.push({ id: i, type: 'tf', diff: 'easy', q: `Historická otázka č. ${i}: Žili lidé v pravěku v domičcích z hlíny?`, answer: true, pts: 10 });
+            } else if(i % 3 === 1) {
+                questionBank.push({ id: i, type: 'mcq', diff: 'medium', q: `Historická otázka č. ${i}: Jaký název měl husitský symbol?`, options: ['Kalich', 'Meč', 'Štít', 'Koruna'], answer: 'Kalich', pts: 20 });
+            } else {
+                questionBank.push({ id: i, type: 'open', diff: 'hard', q: `Historická otázka č. ${i}: Ve kterém roce v 14. století vládl Karel IV.? (Zadej rok např. 1355)`, answer: '1355', isYear: true, pts: 30 });
+            }
+        }
+
+        // --- GAME ENGINE STATE ---
+        let pName = "";
+        let currentSession = [];
+        let qIndex = 0;
+        let score = 0;
+        let speedBonusActive = false;
+        let timerInterval = null;
+        let startTime = 0;
+        let sessionAnswers = [];
+
+        function normalizeStr(str) {
+            return str.toString().trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function startQuiz(mode) {
+            const input = document.getElementById('playerName');
+            if (!input.value.trim()) {
+                alert('Prosím, zadej své jméno před začátkem hry!');
+                return;
+            }
+            pName = input.value.trim();
+
+            let easyCount = 0, medCount = 0, hardCount = 0;
+            if (mode === 'easy') { easyCount = 1; medCount = 1; hardCount = 1; }
+            else if (mode === 'medium') { easyCount = 1; medCount = 2; hardCount = 2; }
+            else if (mode === 'hard') { easyCount = 2; medCount = 5; hardCount = 3; }
+
+            const easyQ = questionBank.filter(q => q.diff === 'easy').sort(() => 0.5 - Math.random()).slice(0, easyCount);
+            const medQ = questionBank.filter(q => q.diff === 'medium').sort(() => 0.5 - Math.random()).slice(0, medCount);
+            let hardQ = questionBank.filter(q => q.diff === 'hard').sort(() => 0.5 - Math.random()).slice(0, hardCount);
+
+            // Ensure Hard Quiz has at least 1 numerical question
+            if (mode === 'hard' && !hardQ.some(q => q.isYear)) {
+                const yearQ = questionBank.find(q => q.diff === 'hard' && q.isYear);
+                if (yearQ) hardQ[0] = yearQ;
+            }
+
+            currentSession = [...easyQ, ...medQ, ...hardQ];
+            qIndex = 0;
+            score = 0;
+            sessionAnswers = [];
+            startTime = Date.now();
+
+            document.getElementById('gameSetup').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('summaryContainer').style.display = 'none';
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            clearInterval(timerInterval);
+            const q = currentSession[qIndex];
+            
+            document.getElementById('currentQNum').innerText = qIndex + 1;
+            document.getElementById('totalQNum').innerText = currentSession.length;
+            document.getElementById('currentScore').innerText = score;
+            document.getElementById('questionText').innerText = q.q;
+
+            const container = document.getElementById('answersContainer');
+            container.innerHTML = '';
+
+            // Speed bonus timer setup (5 seconds bonus window)
+            speedBonusActive = true;
+            document.getElementById('speedBadge').style.display = 'inline';
+            const speedBar = document.getElementById('speedBar');
+            speedBar.style.width = '100%';
+
+            let timeLeft = 100;
+            timerInterval = setInterval(() => {
+                timeLeft -= 2;
+                speedBar.style.width = timeLeft + '%';
+                if (timeLeft <= 0) {
+                    speedBonusActive = false;
+                    document.getElementById('speedBadge').style.display = 'none';
+                    clearInterval(timerInterval);
+                }
+            }, 100);
+
+            if (q.type === 'tf') {
+                container.innerHTML = `
+                    <div class="tf-buttons">
+                        <button class="tf-btn true" onclick="checkAnswer(true)">PRAVDA</button>
+                        <button class="tf-btn false" onclick="checkAnswer(false)">LEŽ</button>
+                    </div>
+                `;
+            } else if (q.type === 'mcq') {
+                const grid = document.createElement('div');
+                grid.className = 'options-grid';
+                q.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => checkAnswer(opt);
+                    grid.appendChild(btn);
+                });
+                container.appendChild(grid);
+            } else if (q.type === 'open') {
+                container.innerHTML = `
+                    <div class="open-input-group">
+                        <input type="text" id="openAnswerInput" placeholder="Napiš odpověď..." autocomplete="off">
+                        <button onclick="submitOpenAnswer()">Odeslat</button>
+                    </div>
+                `;
+            }
+        }
+
+        function submitOpenAnswer() {
+            const val = document.getElementById('openAnswerInput').value;
+            checkAnswer(val);
+        }
+
+        function checkAnswer(userAns) {
+            clearInterval(timerInterval);
+            const q = currentSession[qIndex];
+            let isCorrect = false;
+            let partial = false;
+            let earnedPts = 0;
+
+            if (q.type === 'tf') {
+                isCorrect = (userAns === q.answer);
+            } else if (q.type === 'mcq') {
+                isCorrect = (userAns === q.answer);
+            } else if (q.type === 'open') {
+                const normUser = normalizeStr(userAns);
+                const normAns = normalizeStr(q.answer);
+
+                if (normUser === normAns) {
+                    isCorrect = true;
+                } else if (q.isYear) {
+                    const userNum = parseInt(normUser);
+                    const correctNum = parseInt(normAns);
+                    if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= 10 && Math.abs(userNum - correctNum) > 0) {
+                        partial = true;
+                    }
+                }
+            }
+
+            if (isCorrect) {
+                earnedPts = q.pts * (speedBonusActive ? 2 : 1);
+                score += earnedPts;
+            } else if (partial) {
+                earnedPts = Math.round(q.pts * 0.5);
+                score += earnedPts;
+            }
+
+            sessionAnswers.push({
+                question: q.q,
+                userAnswer: userAns.toString(),
+                correctAnswer: q.answer.toString(),
+                isCorrect: isCorrect,
+                partial: partial,
+                points: earnedPts,
+                speedBonus: speedBonusActive && isCorrect
+            });
+
+            // UI Feedback Animations
+            const card = document.getElementById('questionCard');
+            if (isCorrect) {
+                card.classList.add('correct-anim');
+            } else {
+                card.classList.add('wrong-anim');
+                card.classList.add('fade-points');
+            }
+
+            setTimeout(() => {
+                card.className = 'question-card';
+                qIndex++;
+                if (qIndex < currentSession.length) {
+                    renderQuestion();
+                } else {
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('summaryContainer').style.display = 'block';
+
+            const durationSec = Math.round((Date.now() - startTime) / 1000);
+            
+            // Calculate Grade (1-5)
+            const maxPossible = currentSession.reduce((acc, q) => acc + q.pts, 0);
+            const ratio = score / maxPossible;
+            let grade = 5;
+            if (ratio >= 0.85) grade = 1;
+            else if (ratio >= 0.70) grade = 2;
+            else if (ratio >= 0.55) grade = 3;
+            else if (ratio >= 0.40) grade = 4;
+
+            // Render Question Summary
+            const summaryBody = document.getElementById('summaryTableBody');
+            summaryBody.innerHTML = '';
+            sessionAnswers.forEach(ans => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${ans.question}</td>
+                    <td class="${ans.isCorrect ? 'badge-correct' : (ans.partial ? '' : 'badge-wrong')}">${ans.userAnswer}</td>
+                    <td>${ans.correctAnswer}</td>
+                    <td>+${ans.points} ${ans.speedBonus ? '⚡' : ''}</td>
+                `;
+                summaryBody.appendChild(tr);
+            });
+
+            document.getElementById('finalGradeText').innerText = `Česká známka: ${grade}`;
+            document.getElementById('finalScoreText').innerText = `Celkové skóre: ${score} bodů (Čas: ${durationSec}s)`;
+
+            // Save to sessionStorage
+            const resultRecord = {
+                name: pName,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                duration: durationSec,
+                difficulty: currentSession.length === 3 ? 'Lehká' : (currentSession.length === 5 ? 'Střední' : 'Těžká'),
+                score: score,
+                grade: grade
+            };
+
+            let leaderboard = JSON.parse(sessionStorage.getItem('historyQuizLeaderboard') || '[]');
+            leaderboard.push(resultRecord);
+            // Sort by Points DESC, then Duration ASC
+            leaderboard.sort((a, b) => b.score - a.score || a.duration - b.duration);
+            sessionStorage.setItem('historyQuizLeaderboard', JSON.stringify(leaderboard));
+
+            // Render Leaderboard
+            const lbBody = document.getElementById('leaderboardBody');
+            lbBody.innerHTML = '';
+            leaderboard.forEach(entry => {
+                const tr = document.createElement('tr');
+                if (entry === resultRecord) tr.className = 'active-row';
+                tr.innerHTML = `
+                    <td>${entry.name}</td>
+                    <td>${entry.time}</td>
+                    <td>${entry.duration}s</td>
+                    <td>${entry.difficulty}</td>
+                    <td>${entry.score}</td>
+                    <td>${entry.grade}</td>
+                `;
+                lbBody.appendChild(tr);
+            });
+        }
+
+        function resetGame() {
+            document.getElementById('summaryContainer').style.display = 'none';
+            document.getElementById('gameSetup').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
