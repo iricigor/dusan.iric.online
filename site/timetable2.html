@@ -104,6 +104,11 @@
       line-height: 30px;
     }
 
+    .large-letters .timetable-heading {
+      font-size: var(--title-size, 65px);
+      line-height: 1.15;
+    }
+
     .header-brand {
       display: flex;
       flex-wrap: wrap;
@@ -445,6 +450,36 @@
       line-height: 16px;
     }
 
+    /* Large letters: subject abbreviation fills the space between the top labels and the teacher.
+       Slots with two parallel lessons keep the normal layout. */
+    .large-letters .slot:not(.split-slot) .lesson {
+      inset: 2px 2px 3px;
+      justify-content: flex-start;
+      padding: 22px 3px 1px;
+    }
+
+    .large-letters .schedule.proportional .slot:not(.split-slot) .lesson {
+      left: 0;
+      right: 0;
+    }
+
+    .large-letters .slot:not(.split-slot) .subject {
+      flex: 1;
+      align-self: stretch;
+      min-height: 0;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      container-type: size;
+      line-height: 1;
+    }
+
+    .large-letters .slot:not(.split-slot) .subject-text {
+      font-size: min(88cqh, calc(96cqw / var(--ratio, 1)));
+      line-height: 1;
+    }
+
     .lesson {
       cursor: pointer;
     }
@@ -575,6 +610,11 @@
         break-after: avoid;
       }
 
+      .large-letters .timetable-heading {
+        font-size: 23px;
+        line-height: 26px;
+      }
+
       .schedule-window {
         width: max-content;
         overflow: visible;
@@ -674,6 +714,20 @@
         line-height: 7px;
       }
 
+      .large-letters .slot:not(.split-slot) .lesson {
+        inset: 1px 1px 2px;
+        padding: 8px 1px 0;
+      }
+
+      .large-letters .slot:not(.split-slot) .subject {
+        margin-top: 0;
+        line-height: 1;
+      }
+
+      .large-letters .slot:not(.split-slot) .subject-text {
+        font-size: min(80cqh, calc(96cqw / var(--ratio, 1)));
+      }
+
       .period,
       .day,
       .corner,
@@ -732,6 +786,10 @@
       <label class="axis-control">
         <input id="time-axis" type="checkbox" role="switch" aria-label="Společná časová osa podle délky hodin a přestávek" aria-controls="dusan marko petar">
         <span>Reálný čas</span>
+      </label>
+      <label class="axis-control">
+        <input id="large-letters" type="checkbox" role="switch" aria-label="Velké zkratky předmětů">
+        <span>Velké písmo</span>
       </label>
       <label class="axis-control" title="Tmavý režim">
         <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -897,12 +955,12 @@
       NOD: "NOD – úplný název se ve veřejných podkladech školy nepodařilo ověřit"
     };
     const petarTeachers = {
-      STI: "Mag. Gernot Stinglmayr", Saj: "Dr. Mathias Sajovitz",
-      OMA: "Mag. Christoph Oman", KUT: "Mgr. Marcela Kutílková",
-      FAR: "Mag. Martin Farkas", AHM: "Mgr. Ivana Ahmed", BOC: "Mgr. Jiří Bochez",
-      KAD: "Mgr. Romana Kaduchová, DiS art.", KAL: "Mag. René Kallinger",
-      LUK: "Mgr. David Lukeš", PRI: "Mgr. Jana Přibylová", SCHI: "Mag. Paul Schinninger",
-      BRH: "Teodoro Brhel", WURA: "Mag. Arnulf Wurzer", KRI: "Mag. Stefan Kriechbaumer"
+      Sti: "Mag. Gernot Stinglmayr", Saj: "Dr. Mathias Sajovitz",
+      Oma: "Mag. Christoph Oman", Kut: "Mgr. Marcela Kutílková",
+      Far: "Mag. Martin Farkas", Ahm: "Mgr. Ivana Ahmed", Boc: "Mgr. Jiří Bochez",
+      Kad: "Mgr. Romana Kaduchová, DiS art.", Kal: "Mag. René Kallinger",
+      Luk: "Mgr. David Lukeš", Pri: "Mgr. Jana Přibylová", Schi: "Mag. Paul Schinninger",
+      Brh: "Teodoro Brhel", Wura: "Mag. Arnulf Wurzer", Kri: "Mag. Stefan Kriechbaumer"
     };
     const petarRooms = Object.fromEntries(
       ["101", "102", "104", "105", "106", "109", "110", "112", "201", "204", "205", "206", "209", "210", "E14"]
@@ -915,23 +973,23 @@
       ["14:40", "15:25"], ["15:30", "16:15"]
     ];
     const petarDays = [
-      [["M", "STI", "101"], ["AJ", "Saj", "206"], ["SJ", "OMA", "E14", "4SJ1"],
-        ["CH", "KUT", "205"], ["D", "FAR", "204"], null, ["CJL", "AHM", "201"],
-        ["OSZ", "BOC", "112"], ["HO", "KAD", "E14", "4AHO"]],
-      [["NJ", "KAL", "109"],
-        [["TV", "LUK", "TURN", "4TVK"], ["TV", "PRI", "TURN", "4TKa"]],
-        [["TV", "LUK", "TURN", "4TVK"], ["TV", "PRI", "TURN", "4TKa"]],
-        ["M", "STI", "101"], ["G", "STI", "101"], ["AJ", "Saj", "209"], null,
-        ["SPSV", "SCHI", "106"], ["HO", "KAD", "E14", "4AHO"]],
-      [["NJ", "KAL", "206"], ["NJ", "KAL", "109"], ["M", "STI", "102"],
-        [["SJ", "BRH", "", "4S1a"], ["SJ", "OMA", "209", "4SJ1"]],
-        null, ["G", "STI", "105"], ["F", "WURA", "102"], ["CJL", "AHM", "110"], ["CH", "KUT", "110"]],
-      [["D", "FAR", "206"], ["NJ", "KAL", "109"], ["NJ", "KAL", "109"],
-        ["SJ", "OMA", "110", "4S1A"], null, ["CJL", "AHM", "106"], ["F", "WURA", "102"],
-        ["NOD", "KRI", "112", "NOD1"], null],
-      [["M", "STI", "102"],
-        [["TV", "LUK", "TURN", "4TMa"], ["IVT", "WURA", "104", "4ITK"]],
-        [["TV", "LUK", "TURN", "4TMa"], ["IVT", "WURA", "104", "4ITK"]],
+      [["M", "Sti", "101"], ["AJ", "Saj", "206"], ["SJ", "Oma", "E14", "4SJ1"],
+        ["CH", "Kut", "205"], ["D", "Far", "204"], null, ["CJL", "Ahm", "201"],
+        ["OSZ", "Boc", "112"], ["HO", "Kad", "E14", "4AHO"]],
+      [["NJ", "Kal", "109"],
+        [["TV", "Luk", "TURN", "4TVK"], ["TV", "Pri", "TURN", "4TKa"]],
+        [["TV", "Luk", "TURN", "4TVK"], ["TV", "Pri", "TURN", "4TKa"]],
+        ["M", "Sti", "101"], ["G", "Sti", "101"], ["AJ", "Saj", "209"], null,
+        ["SPSV", "Schi", "106"], ["HO", "Kad", "E14", "4AHO"]],
+      [["NJ", "Kal", "206"], ["NJ", "Kal", "109"], ["M", "Sti", "102"],
+        [["SJ", "Brh", "", "4S1a"], ["SJ", "Oma", "209", "4SJ1"]],
+        null, ["G", "Sti", "105"], ["F", "Wura", "102"], ["CJL", "Ahm", "110"], ["CH", "Kut", "110"]],
+      [["D", "Far", "206"], ["NJ", "Kal", "109"], ["NJ", "Kal", "109"],
+        ["SJ", "Oma", "110", "4S1A"], null, ["CJL", "Ahm", "106"], ["F", "Wura", "102"],
+        ["NOD", "Kri", "112", "NOD1"], null],
+      [["M", "Sti", "102"],
+        [["TV", "Luk", "TURN", "4TMa"], ["IVT", "Wura", "104", "4ITK"]],
+        [["TV", "Luk", "TURN", "4TMa"], ["IVT", "Wura", "104", "4ITK"]],
         ["AJ", "Saj", "210"], null, null, null, null, null]
     ];
     const makeElement = (tag, className, text) => {
@@ -992,6 +1050,28 @@
     document.querySelectorAll(".subject, .teacher, .room").forEach((detail) => {
       detail.dataset.fullName = detail.title;
       detail.removeAttribute("title");
+    });
+
+    // Width-to-font-size ratio lets CSS size each abbreviation to the card in any layout, including print.
+    const measure = document.createElement("canvas").getContext("2d");
+    measure.font = `100px ${getComputedStyle(document.body).fontFamily}`;
+    document.querySelectorAll(".subject").forEach((subject) => {
+      const text = makeElement("span", "subject-text", subject.textContent);
+      text.style.setProperty("--ratio", (measure.measureText(subject.textContent).width / 100).toFixed(3));
+      subject.replaceChildren(text);
+    });
+    const syncTitleSize = () => {
+      const sizes = [...document.querySelectorAll(".slot:not(.split-slot) .subject-text")]
+        .map((text) => parseFloat(getComputedStyle(text).fontSize));
+      document.documentElement.style.setProperty("--title-size", `${Math.max(...sizes)}px`);
+    };
+    document.querySelector("#large-letters").addEventListener("change", (event) => {
+      document.documentElement.classList.toggle("large-letters", event.target.checked);
+      if (event.target.checked) syncTitleSize();
+      requestAnimationFrame(updateTimeGuides);
+    });
+    window.addEventListener("resize", () => {
+      if (document.documentElement.classList.contains("large-letters")) syncTitleSize();
     });
 
     const popover = document.querySelector("#lesson-popover");
