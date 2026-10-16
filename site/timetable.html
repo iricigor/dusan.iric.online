@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Rozvrh Dušan</title>
+  <script>
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.dataset.theme = "dark";
+  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2300a6d6'/%3E%3Cstop offset='1' stop-color='%23005f8f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M19 14h13c11 0 18 7 18 18s-7 18-18 18H19z' fill='none' stroke='%23fff' stroke-width='7' stroke-linejoin='round'/%3E%3Ccircle cx='48' cy='16' r='5' fill='%23ffc83d'/%3E%3C/svg%3E">
   <style>
     :root {
       color-scheme: light;
@@ -19,6 +23,9 @@
       --popup: #f8fbfc;
       --hover: #e1e8eb;
       --link: #008dbf;
+      --highlight: #fff1c2;
+      --highlight-border: #e0a800;
+      --highlight-text: #3d3200;
       color: var(--text);
       background: var(--page);
     }
@@ -36,6 +43,9 @@
       --popup: #293e4c;
       --hover: #3b5262;
       --link: #73d2f4;
+      --highlight: #5a4a12;
+      --highlight-border: #f2c94c;
+      --highlight-text: #fff6d6;
     }
 
     * { box-sizing: border-box; }
@@ -202,10 +212,21 @@
       line-height: 28px;
     }
 
-    .day span {
-      color: var(--muted);
-      font-size: 16px;
-      white-space: nowrap;
+    .day.highlight {
+      background: var(--highlight);
+      color: var(--highlight-text);
+      box-shadow: inset 4px 0 0 var(--highlight-border);
+    }
+
+    .lesson {
+      transition: background-color .15s, border-color .15s, box-shadow .15s;
+    }
+
+    .lesson.highlight {
+      border-color: var(--highlight-border);
+      background: var(--highlight);
+      color: var(--highlight-text);
+      box-shadow: 0 0 0 2px var(--highlight-border), 0 3px 7px rgb(40 62 72 / 25%);
     }
 
     .slot {
@@ -283,6 +304,7 @@
     .lesson-popover {
       position: fixed;
       z-index: 5;
+      cursor: pointer;
       width: min(440px, calc(100vw - 24px));
       padding: 14px 18px;
       border: 1px solid var(--border);
@@ -340,7 +362,8 @@
       gap: 24px;
       padding: 18px 29px 24px;
       background: var(--surface);
-      font-size: 15px;
+      font-size: 25px;
+      line-height: 29px;
     }
 
     .page-footer a {
@@ -393,7 +416,7 @@
       <div class="period" role="columnheader"><span class="period-number">5</span><span class="period-times"><span>12:00</span><span>12:45</span></span></div>
       <div class="period" role="columnheader"><span class="period-number">6</span><span class="period-times"><span>12:55</span><span>13:40</span></span></div>
 
-      <div class="day" role="rowheader"><strong>Po</strong><span>12.10.</span></div>
+      <div class="day" role="rowheader"><strong>Po</strong></div>
       <div class="slot"><article class="lesson" aria-label="EV, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Etická výchova - třídnická hodina">EV</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="M, učitel Bil, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Matematika">M</span><span class="teacher" title="Mgr. Bílková Kateřina">Bil</span></article></div>
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
@@ -401,7 +424,7 @@
       <div class="slot"><article class="lesson" aria-label="M, učitel Bil, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Matematika">M</span><span class="teacher" title="Mgr. Bílková Kateřina">Bil</span></article></div>
       <div class="slot"></div>
 
-      <div class="day" role="rowheader"><strong>Út</strong><span>13.10.</span></div>
+      <div class="day" role="rowheader"><strong>Út</strong></div>
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="INF, učitel Šan, třída 5.A, učebna G3"><span class="class-name">5.A</span><span class="room">G3</span><span class="subject" title="Informatika">INF</span><span class="teacher" title="Mgr. Šanda Vladimír">Šan</span></article></div>
       <div class="slot"><article class="lesson" aria-label="M, učitel Bil, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Matematika">M</span><span class="teacher" title="Mgr. Bílková Kateřina">Bil</span></article></div>
@@ -409,7 +432,7 @@
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="Vl, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Vlastivěda">Vl</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
 
-      <div class="day" role="rowheader"><strong>St</strong><span>14.10.</span></div>
+      <div class="day" role="rowheader"><strong>St</strong></div>
       <div class="slot"><article class="lesson" aria-label="AJ, učitel Dat, třída 5.A AJ2, učebna A7"><span class="class-name">5.A AJ2</span><span class="room">A7</span><span class="subject" title="Anglický jazyk">AJ</span><span class="teacher" title="Bc. Datta Angshudhara">Dat</span></article></div>
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="M, učitel Bil, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Matematika">M</span><span class="teacher" title="Mgr. Bílková Kateřina">Bil</span></article></div>
@@ -417,7 +440,7 @@
       <div class="slot"><article class="lesson" aria-label="VV, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Výtvarná výchova">VV</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="VV, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Výtvarná výchova">VV</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
 
-      <div class="day" role="rowheader"><strong>Čt</strong><span>15.10.</span></div>
+      <div class="day" role="rowheader"><strong>Čt</strong></div>
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="M, učitel Bil, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Matematika">M</span><span class="teacher" title="Mgr. Bílková Kateřina">Bil</span></article></div>
       <div class="slot"><article class="lesson" aria-label="Vl, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Vlastivěda">Vl</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
@@ -425,7 +448,7 @@
       <div class="slot"></div>
       <div class="slot"></div>
 
-      <div class="day" role="rowheader"><strong>Pá</strong><span>16.10.</span></div>
+      <div class="day" role="rowheader"><strong>Pá</strong></div>
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="Přv, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Přírodověda">Přv</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
       <div class="slot"><article class="lesson" aria-label="ČJL, učitel Spi, třída 5.A, učebna D7"><span class="class-name">5.A</span><span class="room">D7</span><span class="subject" title="Český jazyk a literatura">ČJL</span><span class="teacher" title="PhDr. Spilka Ivo">Spi</span></article></div>
@@ -438,7 +461,7 @@
     <button class="popover-close" type="button" aria-label="Zavřít">&times;</button>
     <div class="popover-details">
       <span class="popover-label">Předmět:</span><span class="popover-value" data-field="subject"></span>
-      <span class="popover-label" lang="en">Day:</span><span class="popover-value" data-field="day" lang="en"></span>
+      <span class="popover-label">Den:</span><span class="popover-value" data-field="day"></span>
       <span class="popover-label">Čas:</span><span class="popover-value" data-field="time"></span>
       <span class="popover-label">Skupina:</span><span class="popover-value" data-field="group"></span>
       <span class="popover-label">Místnost:</span><span class="popover-value" data-field="room"></span>
@@ -468,8 +491,19 @@
     let activeLesson;
 
     const darkMode = document.querySelector("#dark-mode");
+    const osDark = window.matchMedia("(prefers-color-scheme: dark)");
+    let manualTheme = false;
+    const applyTheme = (dark) => {
+      darkMode.checked = dark;
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    };
+    applyTheme(osDark.matches);
+    osDark.addEventListener("change", (event) => {
+      if (!manualTheme) applyTheme(event.matches);
+    });
     darkMode.addEventListener("change", () => {
-      document.documentElement.dataset.theme = darkMode.checked ? "dark" : "light";
+      manualTheme = true;
+      applyTheme(darkMode.checked);
     });
 
     const timeAxis = document.querySelector("#time-axis");
@@ -505,10 +539,33 @@
       });
     });
 
-    function closePopover() {
+    let pinnedSubject = null;
+
+    function highlightSubject(subject) {
+      const days = new Set();
+      document.querySelectorAll(".lesson").forEach((lesson) => {
+        const match = subject !== null && lesson.querySelector(".subject").textContent === subject;
+        lesson.classList.toggle("highlight", match);
+        if (match) days.add(lesson.closest(".slot"));
+      });
+      const children = [...schedule.children];
+      const highlightedRows = new Set([...days].map((slot) => Math.floor(children.indexOf(slot) / 7)));
+      schedule.querySelectorAll(".day").forEach((day) => {
+        day.classList.toggle("highlight", highlightedRows.has(Math.floor(children.indexOf(day) / 7)));
+      });
+    }
+
+    function closePopover(restoreFocus = true) {
+      pinnedSubject = null;
+      highlightSubject(null);
       popover.hidden = true;
-      activeLesson?.focus();
+      if (restoreFocus) activeLesson?.focus();
       activeLesson = null;
+    }
+
+    function togglePopover(lesson) {
+      if (activeLesson === lesson && !popover.hidden) closePopover();
+      else openPopover(lesson);
     }
 
     function openPopover(lesson) {
@@ -519,7 +576,7 @@
       const rowIndex = Math.floor((slotIndex - 7) / 7);
       const period = children[1 + columnIndex];
       const day = children[7 + rowIndex * 7].querySelector("strong").textContent;
-      const dayNames = { Po: "Monday", Út: "Tuesday", St: "Wednesday", Čt: "Thursday", Pá: "Friday" };
+      const dayNames = { Po: "pondělí", Út: "úterý", St: "středa", Čt: "čtvrtek", Pá: "pátek" };
       const times = [...period.querySelectorAll(".period-times span")].map((time) => time.textContent);
       const classLabel = lesson.querySelector(".class-name").textContent.trim();
       const [className, ...subgroup] = classLabel.split(/\s+/);
@@ -536,6 +593,8 @@
       popover.querySelector('[data-field="teacher"]').textContent =
         lesson.querySelector(".teacher").dataset.fullName;
 
+      pinnedSubject = lesson.querySelector(".subject").textContent;
+      highlightSubject(pinnedSubject);
       popover.hidden = false;
       activeLesson = lesson;
       const lessonRect = lesson.getBoundingClientRect();
@@ -556,16 +615,21 @@
     document.querySelectorAll(".lesson").forEach((lesson) => {
       lesson.tabIndex = 0;
       lesson.setAttribute("role", "button");
-      lesson.addEventListener("click", () => openPopover(lesson));
+      lesson.addEventListener("click", () => togglePopover(lesson));
+      lesson.addEventListener("mouseenter", () => {
+        if (!popover.hidden && activeLesson !== lesson) closePopover(false);
+        highlightSubject(lesson.querySelector(".subject").textContent);
+      });
+      lesson.addEventListener("mouseleave", () => highlightSubject(pinnedSubject));
       lesson.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          openPopover(lesson);
+          togglePopover(lesson);
         }
       });
     });
 
-    closeButton.addEventListener("click", closePopover);
+    popover.addEventListener("click", () => closePopover());
     document.addEventListener("click", (event) => {
       if (!popover.hidden && !popover.contains(event.target) && !event.target.closest(".lesson")) {
         closePopover();
