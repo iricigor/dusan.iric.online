@@ -274,6 +274,7 @@
     }
 
     .schedule {
+      position: relative;
       display: grid;
       grid-template-columns: 49px repeat(var(--period-count, 6), 182px);
       grid-template-rows: 48px repeat(5, 124px);
@@ -410,6 +411,18 @@
       color: var(--highlight-text);
       box-shadow: 0 0 0 2px var(--highlight-border), 0 3px 7px rgb(40 62 72 / 25%);
     }
+
+    .subject-block {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      margin: 4px 3px 10px;
+      border: 3px solid #ed2542;
+      border-radius: 7px;
+      pointer-events: none;
+    }
+
+    .subject-blocks-hidden .subject-block { display: none; }
 
     .slot {
       background: repeating-linear-gradient(
@@ -781,6 +794,8 @@
         line-height: 1;
       }
 
+      .subject-block { border-color: #d71935 !important; }
+
       .large-letters .slot:not(.split-slot) .subject-text {
         font-size: min(80cqh, calc(96cqw / var(--ratio, 1)));
       }
@@ -872,6 +887,10 @@
         <label class="axis-control">
           <span>Velké písmo</span>
           <input id="large-letters" type="checkbox" role="switch" aria-label="Velké zkratky předmětů">
+        </label>
+        <label class="axis-control">
+          <span>Bloky stejných předmětů</span>
+          <input id="subject-blocks" type="checkbox" role="switch" aria-label="Zvýraznit bloky stejných po sobě jdoucích předmětů" checked>
         </label>
         <label class="axis-control">
           <span>Tmavý režim</span>
@@ -1118,6 +1137,42 @@
     renderSchedule("marko", "1.T", 1, markoTimes, markoDays, markoSubjects, markoTeachers, markoRooms);
     renderSchedule("petar", "4.A", 1, petarTimes, petarDays, petarSubjects, petarTeachers, petarRooms);
 
+    function addSubjectBlocks(schedule) {
+      const slots = [...schedule.querySelectorAll(".slot")];
+      const periodCount = schedule.querySelectorAll(".period").length;
+      for (let dayIndex = 0; dayIndex < 5; dayIndex++) {
+        let runStart = null;
+        let runSubject = null;
+        const addBlock = (lastPeriod) => {
+          if (runStart === null || lastPeriod - runStart < 1) return;
+          const block = makeElement("div", "subject-block");
+          block.setAttribute("aria-hidden", "true");
+          block.dataset.firstPeriod = runStart;
+          block.dataset.lastPeriod = lastPeriod;
+          block.style.gridRow = `${dayIndex + 2} / ${dayIndex + 3}`;
+          block.style.gridColumn = `${runStart + 2} / ${lastPeriod + 3}`;
+          schedule.append(block);
+        };
+        for (let periodIndex = 0; periodIndex < periodCount; periodIndex++) {
+          const slot = slots[dayIndex * periodCount + periodIndex];
+          const lessons = slot.querySelectorAll(".lesson");
+          const subject = lessons.length === 1 ? lessons[0].querySelector(".subject").textContent : null;
+          if (subject !== runSubject) {
+            addBlock(periodIndex - 1);
+            runStart = subject === null ? null : periodIndex;
+            runSubject = subject;
+          }
+        }
+        addBlock(periodCount - 1);
+      }
+    }
+    document.querySelectorAll(".schedule").forEach(addSubjectBlocks);
+    const subjectBlocks = document.querySelector("#subject-blocks");
+    subjectBlocks.addEventListener("change", () => {
+      document.querySelectorAll(".schedule").forEach((schedule) =>
+        schedule.classList.toggle("subject-blocks-hidden", !subjectBlocks.checked));
+    });
+
     document.querySelectorAll(".room").forEach((room) => {
       if (room.hasAttribute("title")) return;
       const location = room.textContent.trim();
@@ -1288,7 +1343,8 @@
         schedule.style.gridTemplateColumns = timeAxis.checked
           ? `49px repeat(${timelineEnd - timelineStart}, minmax(0, 1fr))`
           : "";
-        [...schedule.children].filter((cell) => !cell.classList.contains("time-guide")).forEach((cell, index) => {
+        [...schedule.children].filter((cell) =>
+          cell.matches(".corner, .period, .day, .slot")).forEach((cell, index) => {
           const column = index % columnsPerRow;
           cell.style.gridRow = timeAxis.checked ? `${Math.floor(index / columnsPerRow) + 1}` : "";
           if (!timeAxis.checked) {
@@ -1299,6 +1355,13 @@
             const [start, end] = periodTimes[column - 1];
             cell.style.gridColumn = `${start - timelineStart + 2} / span ${end - start}`;
           }
+        });
+        schedule.querySelectorAll(".subject-block").forEach((block) => {
+          const firstPeriod = Number(block.dataset.firstPeriod);
+          const lastPeriod = Number(block.dataset.lastPeriod);
+          block.style.gridColumn = timeAxis.checked
+            ? `${periodTimes[firstPeriod][0] - timelineStart + 2} / ${periodTimes[lastPeriod][1] - timelineStart + 2}`
+            : `${firstPeriod + 2} / ${lastPeriod + 3}`;
         });
       });
       if (timeAxis.checked) {
@@ -1334,7 +1397,8 @@
         lesson.classList.toggle("highlight", match);
         if (match) days.add(lesson.closest(".slot"));
       });
-      const children = [...schedule.children];
+      const children = [...schedule.children].filter((cell) =>
+        cell.matches(".corner, .period, .day, .slot"));
       const columnsPerRow = schedule.querySelectorAll(".period").length + 1;
       const highlightedRows = new Set([...days].map((slot) => Math.floor(children.indexOf(slot) / columnsPerRow)));
       schedule.querySelectorAll(".day").forEach((day) => {
@@ -1360,7 +1424,8 @@
       const schedule = lesson.closest(".schedule");
       const columnsPerRow = schedule.querySelectorAll(".period").length + 1;
       const slot = lesson.closest(".slot");
-      const children = [...schedule.children];
+      const children = [...schedule.children].filter((cell) =>
+        cell.matches(".corner, .period, .day, .slot"));
       const slotIndex = children.indexOf(slot);
       const columnIndex = slotIndex % columnsPerRow;
       const rowIndex = Math.floor(slotIndex / columnsPerRow);
