@@ -1,4 +1,4 @@
-name: Package Dusan Edu Webpage
+name: Package Skill "Dusan Edu Webpage"
 
 on:
   pull_request:
@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   package:
@@ -18,7 +19,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Verify JavaScript and update package archive
-        run: python3 .github/scripts/package_edu_webpage.py
+        id: package
+        run: |
+          python3 .github/scripts/package_edu_webpage.py
+          if git diff --quiet -- gems/dusan-edu-webpage.zip; then
+            echo "archive=unchanged" >> "$GITHUB_OUTPUT"
+          else
+            echo "archive=updated" >> "$GITHUB_OUTPUT"
+          fi
       - name: Commit updated package archive to the pull request
         if: github.event.pull_request.head.repo.full_name == github.repository
         run: |
@@ -32,3 +40,16 @@ jobs:
           git add gems/dusan-edu-webpage.zip
           git commit -m "Update Dusan Edu Webpage package"
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+      - name: Report packaging result on the pull request
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ARCHIVE_STATUS: ${{ steps.package.outputs.archive }}
+        run: |
+          if [ "$ARCHIVE_STATUS" = "updated" ]; then
+            message="Verified that app.js matches app.js.json, rebuilt the ZIP archive without app.js, and committed the updated archive."
+          else
+            message="Verified that app.js matches app.js.json; the ZIP archive was already up to date."
+          fi
+          gh pr comment "$PR_NUMBER" --body "$message"
