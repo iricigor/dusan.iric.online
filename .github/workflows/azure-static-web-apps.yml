@@ -11,7 +11,6 @@ on:
       - opened
       - synchronize
       - reopened
-      - closed
     branches:
       - main
     paths:
@@ -68,14 +67,3 @@ jobs:
           elif [[ -n "$comment_id" ]]; then
             gh api --method DELETE "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}"
           fi
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    permissions: {}
-    steps:
-      - name: Close Pull Request
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          action: "close"
