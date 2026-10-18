@@ -1,0 +1,34 @@
+name: Package Dusan Edu Webpage
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "gems/dusan-edu-webpage/**"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Verify JavaScript and update package archive
+        run: python3 .github/scripts/package_edu_webpage.py
+      - name: Commit updated package archive to the pull request
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          if git diff --quiet -- gems/dusan-edu-webpage.zip; then
+            echo "Package archive is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gems/dusan-edu-webpage.zip
+          git commit -m "Update Dusan Edu Webpage package"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
