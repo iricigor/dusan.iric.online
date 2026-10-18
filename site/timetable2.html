@@ -274,6 +274,7 @@
     }
 
     .schedule {
+      position: relative;
       display: grid;
       grid-template-columns: 49px repeat(var(--period-count, 6), 182px);
       grid-template-rows: 48px repeat(5, 124px);
@@ -1148,7 +1149,7 @@
           block.setAttribute("aria-hidden", "true");
           block.dataset.firstPeriod = runStart;
           block.dataset.lastPeriod = lastPeriod;
-          block.style.gridRow = `${dayIndex + 2}`;
+          block.style.gridRow = `${dayIndex + 2} / ${dayIndex + 3}`;
           block.style.gridColumn = `${runStart + 2} / ${lastPeriod + 3}`;
           schedule.append(block);
         };
