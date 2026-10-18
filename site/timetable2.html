@@ -89,6 +89,77 @@
       border-bottom: 1px solid var(--border);
     }
 
+    .settings-menu {
+      position: relative;
+      margin-left: auto;
+    }
+
+    .settings-menu > summary {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .settings-menu > summary::-webkit-details-marker { display: none; }
+    .settings-menu > summary:hover { background: var(--hover); }
+    .settings-menu > summary:focus-visible { outline: 3px solid #00a5df; outline-offset: 3px; }
+
+    .menu-icon {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .settings-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 11;
+      display: grid;
+      min-width: 260px;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--popup);
+      box-shadow: 0 8px 24px rgb(20 40 50 / 20%);
+    }
+
+    .settings-menu:not([open]) > .settings-panel { display: none; }
+
+    .settings-heading {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .settings-divider {
+      height: 1px;
+      border: 0;
+      background: var(--border);
+    }
+
+    .settings-panel .axis-control {
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .settings-panel .print-button {
+      justify-content: flex-start;
+      padding: 5px 0;
+    }
+
     .timetable-heading {
       margin: 0;
       padding: 22px 29px 0;
@@ -136,13 +207,6 @@
       text-decoration: underline;
     }
 
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      margin: 0;
-    }
-
     .axis-control {
       display: flex;
       align-items: center;
@@ -178,16 +242,6 @@
     .axis-control input:checked { background: #008dbf; }
     .axis-control input:checked::before { transform: translateX(18px); }
     .axis-control input:focus-visible { outline: 3px solid #00a5df; outline-offset: 3px; }
-
-    .theme-icon {
-      width: 20px;
-      height: 20px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
 
     .print-button {
       display: inline-flex;
@@ -251,7 +305,8 @@
       pointer-events: none;
     }
 
-    main.proportional .time-guides {
+    main.proportional.show-time-guides .time-guides,
+    main.print-real-time .time-guides {
       display: block;
     }
 
@@ -573,6 +628,7 @@
       .popover-details { grid-template-columns: 76px minmax(0, 1fr); }
       .header-brand { gap: 12px; }
       .section-nav { gap: 10px; font-size: 14px; }
+      .settings-panel { right: -10px; }
     }
 
     @page {
@@ -782,33 +838,54 @@
         <a href="#petar-heading">Petar</a>
       </nav>
     </div>
-    <div class="header-controls">
-      <label class="axis-control">
-        <input id="time-axis" type="checkbox" role="switch" aria-label="Společná časová osa podle délky hodin a přestávek" aria-controls="dusan marko petar">
-        <span>Reálný čas</span>
-      </label>
-      <label class="axis-control">
-        <input id="large-letters" type="checkbox" role="switch" aria-label="Velké zkratky předmětů">
-        <span>Velké písmo</span>
-      </label>
-      <label class="axis-control" title="Tmavý režim">
-        <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="4"></circle>
-          <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"></path>
+    <details class="settings-menu">
+      <summary aria-label="Otevřít nastavení" title="Nastavení">
+        <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
-        <input id="dark-mode" type="checkbox" role="switch" aria-label="Tmavý režim">
-        <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20.5 13.1A8.5 8.5 0 0 1 10.9 3.5a8.5 8.5 0 1 0 9.6 9.6Z"></path>
-        </svg>
-      </label>
-      <button class="print-button" type="button" aria-label="Tisknout rozvrhy" title="Tisknout rozvrhy">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-          <path d="M7 14h10v7H7zM18 11h.01"></path>
-        </svg>
-        <span>Tisk</span>
-      </button>
-    </div>
+      </summary>
+      <div class="settings-panel">
+        <p class="settings-heading">Rozvrhy</p>
+        <label class="axis-control">
+          <span>Rozvrh Dušan</span>
+          <input id="show-dusan" type="checkbox" role="switch" aria-label="Zobrazit rozvrh Dušan" checked>
+        </label>
+        <label class="axis-control">
+          <span>Rozvrh Marko</span>
+          <input id="show-marko" type="checkbox" role="switch" aria-label="Zobrazit rozvrh Marko" checked>
+        </label>
+        <label class="axis-control">
+          <span>Rozvrh Petar</span>
+          <input id="show-petar" type="checkbox" role="switch" aria-label="Zobrazit rozvrh Petar" checked>
+        </label>
+        <hr class="settings-divider">
+        <p class="settings-heading">Zobrazení</p>
+        <label class="axis-control">
+          <span>Reálný čas</span>
+          <input id="time-axis" type="checkbox" role="switch" aria-label="Společná časová osa podle délky hodin a přestávek" aria-controls="dusan marko petar">
+        </label>
+        <label class="axis-control">
+          <span>Svislé čáry v reálném čase</span>
+          <input id="time-guides-toggle" type="checkbox" role="switch" aria-label="Svislé čáry v reálném čase" checked>
+        </label>
+        <label class="axis-control">
+          <span>Velké písmo</span>
+          <input id="large-letters" type="checkbox" role="switch" aria-label="Velké zkratky předmětů">
+        </label>
+        <label class="axis-control">
+          <span>Tmavý režim</span>
+          <input id="dark-mode" type="checkbox" role="switch" aria-label="Tmavý režim">
+        </label>
+        <hr class="settings-divider">
+        <button class="print-button" type="button" aria-label="Tisknout rozvrhy" title="Tisknout rozvrhy">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 14h10v7H7zM18 11h.01"></path>
+          </svg>
+          <span>Tisk</span>
+        </button>
+      </div>
+    </details>
   </header>
 
   <main>
@@ -1079,11 +1156,25 @@
     let activeLesson;
 
     window.addEventListener("beforeprint", () => {
-      document.documentElement.classList.toggle("print-real-time", timeAxis.checked);
+      document.querySelector("main").classList.toggle(
+        "print-real-time",
+        timeAxis.checked && timeGuides.checked
+      );
     });
     window.addEventListener("afterprint", () =>
-      document.documentElement.classList.remove("print-real-time"));
-    document.querySelector(".print-button").addEventListener("click", () => window.print());
+      document.querySelector("main").classList.remove("print-real-time"));
+    const settingsMenu = document.querySelector(".settings-menu");
+    const menuSummary = settingsMenu.querySelector("summary");
+    document.querySelector(".print-button").addEventListener("click", () => {
+      settingsMenu.open = false;
+      window.print();
+    });
+    settingsMenu.addEventListener("toggle", () => {
+      menuSummary.setAttribute("aria-label", settingsMenu.open ? "Zavřít nastavení" : "Otevřít nastavení");
+    });
+    document.addEventListener("click", (event) => {
+      if (settingsMenu.open && !settingsMenu.contains(event.target)) settingsMenu.open = false;
+    });
 
     const darkMode = document.querySelector("#dark-mode");
     const osDark = window.matchMedia("(prefers-color-scheme: dark)");
@@ -1114,6 +1205,28 @@
       );
       return { schedule, columnsPerRow, periodTimes };
     });
+    const timetableViews = schedules.map(({schedule, periodTimes}, index) => ({
+      schedule,
+      periodTimes,
+      heading: document.getElementById(`${schedule.id}-heading`),
+      window: schedule.closest(".schedule-window"),
+      footer: document.querySelectorAll(".page-footer")[index],
+      toggle: document.getElementById(`show-${schedule.id}`)
+    }));
+    timetableViews.forEach(({schedule, heading, window: scheduleWindow, footer, toggle}) => {
+      toggle.addEventListener("change", () => {
+        heading.hidden = !toggle.checked;
+        scheduleWindow.hidden = !toggle.checked;
+        footer.hidden = !toggle.checked;
+        if (!toggle.checked && activeLesson && schedule.contains(activeLesson)) closePopover(false);
+        requestAnimationFrame(updateTimeGuides);
+      });
+    });
+    const timeGuides = document.querySelector("#time-guides-toggle");
+    document.querySelector("main").classList.toggle("show-time-guides", timeGuides.checked);
+    timeGuides.addEventListener("change", () => {
+      document.querySelector("main").classList.toggle("show-time-guides", timeGuides.checked);
+    });
     const timelineStart = Math.min(...schedules.map(({periodTimes}) => periodTimes[0][0]));
     const timelineEnd = Math.max(...schedules.map(({periodTimes}) => periodTimes.at(-1)[1]));
     const guideLayer = makeElement("div", "time-guides");
@@ -1128,13 +1241,20 @@
 
     const updateTimeGuides = () => {
       const main = document.querySelector("main");
+      const visibleViews = timetableViews.filter(({window: scheduleWindow}) => !scheduleWindow.hidden);
+      if (!visibleViews.length) {
+        guideLayer.style.display = "none";
+        return;
+      }
+      guideLayer.style.display = "";
       const mainRect = main.getBoundingClientRect();
-      const firstSlot = schedules[0].schedule.querySelector(".slot");
+      const firstView = visibleViews[0];
+      const firstSlot = firstView.schedule.querySelector(".slot");
       const firstSlotRect = firstSlot.getBoundingClientRect();
-      const firstSlotStart = schedules[0].periodTimes[0][0];
+      const firstSlotStart = firstView.periodTimes[0][0];
       const minutesPerPixel = 45 / firstSlotRect.width;
-      const firstHeading = document.querySelector("#dusan-heading");
-      const lastWindow = document.querySelector("#petar").closest(".schedule-window");
+      const firstHeading = firstView.heading;
+      const lastWindow = visibleViews.at(-1).window;
       const guideTop = firstHeading.getBoundingClientRect().top - mainRect.top + main.scrollTop;
       const guideBottom = lastWindow.getBoundingClientRect().bottom - mainRect.top + main.scrollTop;
       guideLines.forEach(({time, line}) => {
@@ -1167,18 +1287,19 @@
         });
       });
       if (timeAxis.checked) {
-        const sharedScrollLeft = document.querySelector(".schedule-window").scrollLeft;
-        document.querySelectorAll(".schedule-window").forEach((window) => {
-          window.scrollLeft = sharedScrollLeft;
-        });
+        const visibleWindows = timetableViews
+          .filter(({window: scheduleWindow}) => !scheduleWindow.hidden)
+          .map(({window: scheduleWindow}) => scheduleWindow);
+        const sharedScrollLeft = visibleWindows[0]?.scrollLeft ?? 0;
+        visibleWindows.forEach((scheduleWindow) => { scheduleWindow.scrollLeft = sharedScrollLeft; });
       }
       requestAnimationFrame(updateTimeGuides);
     });
     document.querySelectorAll(".schedule-window").forEach((window) => {
       window.addEventListener("scroll", () => {
-        if (!timeAxis.checked) return;
-        document.querySelectorAll(".schedule-window").forEach((otherWindow) => {
-          if (otherWindow !== window) otherWindow.scrollLeft = window.scrollLeft;
+        if (!timeAxis.checked || window.hidden) return;
+        timetableViews.forEach(({window: otherWindow}) => {
+          if (otherWindow !== window && !otherWindow.hidden) otherWindow.scrollLeft = window.scrollLeft;
         });
         updateTimeGuides();
       });
@@ -1292,7 +1413,13 @@
       }
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !popover.hidden) closePopover();
+      if (event.key === "Escape") {
+        if (settingsMenu.open) {
+          settingsMenu.open = false;
+          settingsMenu.querySelector("summary").focus();
+        }
+        if (!popover.hidden) closePopover();
+      }
     });
   </script>
 </body>
