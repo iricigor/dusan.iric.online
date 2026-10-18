@@ -242,6 +242,7 @@
     .axis-control input:checked { background: #008dbf; }
     .axis-control input:checked::before { transform: translateX(18px); }
     .axis-control input:focus-visible { outline: 3px solid #00a5df; outline-offset: 3px; }
+    .axis-control input:disabled { cursor: not-allowed; opacity: .65; }
 
     .print-button {
       display: inline-flex;
@@ -1211,17 +1212,31 @@
       heading: document.getElementById(`${schedule.id}-heading`),
       window: schedule.closest(".schedule-window"),
       footer: document.querySelectorAll(".page-footer")[index],
+      navLink: document.querySelector(`.section-nav a[href="#${schedule.id}-heading"]`),
       toggle: document.getElementById(`show-${schedule.id}`)
     }));
-    timetableViews.forEach(({schedule, heading, window: scheduleWindow, footer, toggle}) => {
-      toggle.addEventListener("change", () => {
+    const updateTimetableVisibility = () => {
+      const visibleCount = timetableViews.filter(({toggle}) => toggle.checked).length;
+      timetableViews.forEach(({heading, window: scheduleWindow, footer, navLink, toggle}) => {
+        toggle.disabled = visibleCount === 1 && toggle.checked;
         heading.hidden = !toggle.checked;
         scheduleWindow.hidden = !toggle.checked;
         footer.hidden = !toggle.checked;
+        navLink.hidden = !toggle.checked;
+      });
+    };
+    timetableViews.forEach(({schedule, toggle}) => {
+      toggle.addEventListener("change", () => {
+        if (!timetableViews.some(({toggle: otherToggle}) => otherToggle.checked)) {
+          toggle.checked = true;
+          return;
+        }
+        updateTimetableVisibility();
         if (!toggle.checked && activeLesson && schedule.contains(activeLesson)) closePopover(false);
         requestAnimationFrame(updateTimeGuides);
       });
     });
+    updateTimetableVisibility();
     const timeGuides = document.querySelector("#time-guides-toggle");
     document.querySelector("main").classList.toggle("show-time-guides", timeGuides.checked);
     timeGuides.addEventListener("change", () => {
