@@ -977,12 +977,12 @@
         ["CH", "Kut", "205"], ["D", "Far", "204"], null, ["CJL", "Ahm", "201"],
         ["OSZ", "Boc", "112"], ["HO", "Kad", "E14", "4AHO"]],
       [["NJ", "Kal", "109"],
-        ["TV", "Luk,Pri", "TURN"],
-        ["TV", "Luk,Pri", "TURN"],
+        ["TV", "Luk, Pri", "TURN"],
+        ["TV", "Luk, Pri", "TURN"],
         ["M", "Sti", "101"], ["G", "Sti", "101"], ["AJ", "Saj", "209"], null,
         ["SPSV", "Schi", "106"], ["HO", "Kad", "E14", "4AHO"]],
       [["NJ", "Kal", "206"], ["NJ", "Kal", "109"], ["M", "Sti", "102"],
-        ["SJ", "Brh,Oma", "209"],
+        ["SJ", "Brh, Oma", "209"],
         null, ["G", "Sti", "105"], ["F", "Wura", "102"], ["CJL", "Ahm", "110"], ["CH", "Kut", "110"]],
       [["D", "Far", "206"], ["NJ", "Kal", "109"], ["NJ", "Kal", "109"],
         ["SJ", "Oma", "110", "4S1A"], null, ["CJL", "Ahm", "106"], ["F", "Wura", "102"],
@@ -1029,7 +1029,7 @@
             const subjectElement = makeElement("span", "subject", subject);
             subjectElement.title = subjects[subject];
             const teacherElement = makeElement("span", "teacher", teachers);
-            teacherElement.title = teachers.split(",").map((teacher) => teacherNames[teacher]).join(", ");
+            teacherElement.title = teachers.split(",").map((teacher) => teacherNames[teacher.trim()]).join(", ");
             lesson.append(makeElement("span", "class-name", className), roomElement, subjectElement, teacherElement);
             slot.append(lesson);
           });
