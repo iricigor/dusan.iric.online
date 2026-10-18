@@ -46,20 +46,27 @@ jobs:
         run: |
           files="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" | jq -s 'add')"
           file_count="$(jq '[.[] | select(.filename | startswith("site/")) | select(.status != "removed")] | length' <<< "$files")"
+          comments="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" | jq -s 'add')"
+          comment_id="$(jq -r '.[] | select(.body | contains("<!-- single-file-preview -->")) | .id' <<< "$comments" | tail -n 1)"
 
           if [[ "$file_count" -eq 1 ]]; then
+            if [[ -z "$STATIC_WEB_APP_URL" ]]; then
+              echo "The deployment action did not provide a preview URL." >&2
+              exit 1
+            fi
+
             file_path="$(jq -r '[.[] | select(.filename | startswith("site/")) | select(.status != "removed")][0].filename | ltrimstr("site/")' <<< "$files")"
             encoded_path="$(python3 -c 'from urllib.parse import quote; import sys; print(quote(sys.argv[1], safe="/"))' "$file_path")"
             preview_url="${STATIC_WEB_APP_URL%/}/${encoded_path}"
-            body="<!-- single-file-preview -->"$'\n'"Direct preview: ${preview_url}"
-            comments="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" | jq -s 'add')"
-            comment_id="$(jq -r '.[] | select(.body | contains("<!-- single-file-preview -->")) | .id' <<< "$comments" | tail -n 1)"
+            body="<!-- single-file-preview -->"$'\n'"[Open the changed file preview](${preview_url})"
 
             if [[ -n "$comment_id" ]]; then
               gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -f "body=${body}"
             else
               gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f "body=${body}"
             fi
+          elif [[ -n "$comment_id" ]]; then
+            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}"
           fi
 
   close_pull_request_job:
