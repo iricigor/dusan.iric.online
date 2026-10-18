@@ -1,0 +1,49 @@
+name: Update site index
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "site/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update_site_index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate site index
+        run: python3 .github/scripts/check_site_index.py --fix
+      - name: Open or update fix pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- site/i/index.html; then
+            echo "Site index is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B automation/update-site-index
+          git add site/i/index.html
+          git commit -m "Update site index"
+          git push --force origin HEAD:automation/update-site-index
+
+          head_repo="${GITHUB_REPOSITORY%%/*}"
+          pr_number="$(gh pr list --head "$head_repo:automation/update-site-index" --base main --json number --jq '.[0].number')"
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" \
+              --title "Update site index" \
+              --body "Regenerate site/i/index.html to include every published file under site/."
+          else
+            gh pr create \
+              --base main \
+              --head automation/update-site-index \
+              --title "Update site index" \
+              --body "Regenerate site/i/index.html to include every published file under site/."
+          fi
