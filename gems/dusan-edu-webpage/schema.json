@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["topic", "target_audience", "tabs"],
+  "properties": {
+    "topic": { 
+      "type": "string",
+      "description": "The main historical or educational topic title." 
+    },
+    "target_audience": { 
+      "type": "string",
+      "description": "Target audience specification (e.g. 10-year-old non-native Czech speakers)." 
+    },
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "enum": ["original", "learning", "quiz"] },
+          "name": { "type": "string" },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["heading", "text"],
+              "properties": {
+                "heading": { "type": "string" },
+                "text": { "type": "string" }
+              }
+            }
+          },
+          "glossary": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "GUIDANCE FOR GLOSSARY / KEY TERMS: Format all historical terms, professions, dates, names, and complex vocabulary as clickable key terms."
+          },
+          "chunks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["sentences", "explanation"],
+              "properties": {
+                "sentences": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "explanation": { 
+                  "type": "string",
+                  "description": "Simplified child-friendly explanation (2-3 sentences, basic vocabulary)."
+                }
+              }
+            }
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["level", "name", "questions"],
+              "properties": {
+                "level": { "type": "string", "enum": ["easy", "medium", "hard"] },
+                "name": { "type": "string" },
+                "questions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["question", "options", "answer", "explanation"],
+                    "properties": {
+                      "question": { "type": "string" },
+                      "options": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "answer": { "type": "integer" },
+                      "explanation": { "type": "string" },
+                      "correctAnswer": {
+                        "type": "string",
+                        "description": "GENERATION RULE FOR HARD QUESTIONS: Hard questions must be open-ended requiring strictly a single word/name or a single number."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
