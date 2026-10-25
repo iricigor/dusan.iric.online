@@ -69,6 +69,7 @@ function page(subject = 'history', stored = []) {
     const documentListeners = {};
     const warnings = [];
     const context = {
+        Math: Object.assign(Object.create(Math), { random: () => .999999 }),
         innerHeight: 900,
         window: { addEventListener() {} },
         matchMedia: () => ({ matches: false, addEventListener() {} }),

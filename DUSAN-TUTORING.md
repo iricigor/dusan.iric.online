@@ -116,9 +116,13 @@ povol pouze po výslovném schválení náhrady daného souboru.
 Ukázka **Od defenestrace k Bílé hoře** obsahuje všech sedm dodaných oddílů
 původního textu beze změny slov, včetně zajímavostí a závěrečné citace.
 Předvádí také opravu věcné chyby: slovo
-*defenestrace* pochází z latiny, nikoli z němčiny. Obsahuje deset otázek
-pro vyzkoušení všech tří obtížností; výklad a kvíz zatím procvičují jen vybranou
-část kapitoly. Další tvrzení rozšířeného podkladu nebyla nově ověřena.
+*defenestrace* pochází z latiny, nikoli z němčiny. Obsahuje 30 různých otázek
+(6 lehkých, 15 středních a 9 těžkých). Výklad nyní zahrnuje také pobělohorské
+změny a třicetiletou válku. Oprava tvrzení, že válka neměla vítězů, zůstává
+oddělená od původního textu. Přehled uvádí nově porovnané zdroje i meze ověření.
+Také matematická ukázka má 30 celých cvičení v poměru 6/15/9, ne jen 30 kroků.
+Nové lekce obou tutorů vyžadují alespoň 30 různých otázek; délky jednotlivých
+kvízů a přijímání starších dat se nemění.
 Starší schválená ukázka v souboru `site\history\defenestrace.html` zůstává beze změn.
 
 Testy nástrojů spustíš takto:
@@ -194,9 +198,11 @@ HTML ani vlastní CSS do obsahu nepatří.
 
 Volitelné `icon` doplní krátké emoji k původnímu oddílu, výukovému bloku,
 řešenému příkladu, otázce, cvičení nebo pojmu ve slovníčku. Bez něj generátor
-použije výchozí ikonu. Pravý okraj části Učit se má záložku 🔖 Slovníček:
+použije výchozí ikonu. Pravý okraj obsahového panelu Učit se, nikoli okraj
+celého prohlížeče, má na široké obrazovce záložku 🔖 Slovníček:
 otevře vysouvací panel přes učivo, aniž by posouval text nebo zabíral stálý
-sloupec. Panel je zpočátku zavřený na počítači i mobilu. Zavřeš ho tlačítkem,
+sloupec. Na mobilu se záložka přidrží okraje obrazovky, aby nezakrývala text.
+Panel je zpočátku zavřený na počítači i mobilu. Zavřeš ho tlačítkem,
 klávesou Escape nebo kliknutím mimo něj; po zavření tlačítkem či klávesou
 se vrátí zaměření na záložku. Otevřenou definici zavře první Escape,
 samotný slovníček až další. Definice se otevírají u kliknutého
@@ -206,10 +212,14 @@ nikoli slovníček ani kvíz. Mají české tooltipy a přístupné popisky.
 Drobný ovladač Nápověda 💡 je uvnitř pravého horního rohu odstavce,
 text ho obtéká a vysvětlení se otevře pod celým odstavcem.
 Kroky a výsledky mají kompaktní číslované odkrývání bez rámečků.
-Dějepis používá sépiové akcenty a velmi jemný papírový podklad,
-matematika modrozelené akcenty a jemnou geometrickou mřížku.
-Textury jsou jen pod původním textem a učivem, ne pod kvízem ani výsledky;
-významové styly poznámek zůstávají odlišené. Vše má i tlumenou tmavou variantu.
+Dějepis používá sépiové akcenty a výraznější papírový podklad,
+matematika modrozelené akcenty a viditelnou geometrickou mřížku.
+Podklad pokrývá celé karty původního textu a učiva, včetně nadpisů a okrajů,
+nikoli jen proužky pod odstavci. Kvíz a výsledky zůstávají neutrální.
+Zajímavosti mají hravější zlatavý podklad, kulatý odznak ikony a jemné jiskřičky,
+ne fialovou. Ostatní významové styly zůstávají odlišené. Vše podporuje tmavý režim.
+Odznak předmětu a název lekce jsou na jednom řádku se zachováním svých stylů;
+dlouhý název se může zalomit ve svém sloupci. Motivační věta má barvu předmětu.
 Záložky s ikonami a českými popisky navazují na obsahový
 panel a podporují ovládání šipkami; obtížnosti mají výraznější barevnou výplň.
 Světlý a tmavý režim přepíná přepínač se sluncem a měsícem. Věk se v záhlaví
@@ -221,7 +231,8 @@ krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledk
 Nové stránky mají vloženou světlou ikonu s velkým modrým D a menší černou absolventskou čepicí.
 Stávající zveřejněné stránky se tímto nemění.
 
-Viditelné ozubené kolečko vpravo nahoře v nastavení kvízu rozbalí nástroje.
+Nenápadné ozubené kolečko vpravo u záložek v části Hrát si rozbalí nástroje;
+v části Učit se stejné místo využívají ikony pro rozbalení a sbalení učiva.
 Stáhnout JSON uloží celou sadu otázek se správnými odpověďmi, celkovým počtem
 a počty podle obtížnosti easy/medium/hard. Matematické cvičení se počítá jako
 jedna otázka a export obsahuje odpovědi všech jeho kroků. Export funguje místně

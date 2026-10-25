@@ -36,6 +36,11 @@ GitHub issue, then wait for explicit confirmation to start implementation.
   ask the user to resolve the conflict before generating a page.
 - Explain why an answer works, not just whether it is correct. Teach everything
   tested, use meaningful examples, and avoid duplicate questions used as padding.
+- Author at least 30 distinct questions or whole maths exercises per lesson,
+  not 30 individual maths steps. Keep all three difficulty levels represented
+  with enough tasks for every quiz mode. Ask for more source material or agree
+  a narrower lesson if 30 useful questions cannot be supported; do not pad.
+  This authoring minimum does not change quiz lengths or legacy validation.
 - Give every page a short, encouraging Czech `subtitle`, alongside its factual
   topic title. Invite discovery and celebrate progress, not speed or perfection.
   Avoid pressure, comparisons with other children, and promises of guaranteed success.

@@ -25,7 +25,7 @@ test('example preserves all seven supplied original sections verbatim with seman
     assert.equal(lesson.corrections[0].section, 3);
 });
 
-test('published example preserves the reviewed lesson data and Czech references', () => {
+test('published legacy lesson remains valid independently of the expanded prepared bank', () => {
     const lesson = example();
     lesson.sources.forEach(source => assert.equal(new URL(source.url).hostname, 'cs.wikipedia.org'));
     const published = path.join(__dirname, '..', '..', '..', 'site', 'history', 'defenestrace.html');
@@ -33,16 +33,18 @@ test('published example preserves the reviewed lesson data and Czech references'
     const payload = publishedHtml.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
     const publishedLesson = JSON.parse(payload);
     assert.equal(validateLesson('history', publishedLesson), publishedLesson);
-    const { version, subject, language, subtitle, original, review, ...content } = lesson;
-    content.chunks = content.chunks.map(({ paragraphs, icon, ...chunk }) => chunk);
-    content.questions = content.questions.map(({ assessment, icon, ...question }) => question);
-    content.glossary = content.glossary.map(({ icon, ...entry }) => entry);
-    const { original: publishedOriginal, review: publishedReview, ...publishedContent } = publishedLesson;
-    assert.deepEqual(publishedContent, { version: 1, ...content,
-        corrections: content.corrections.map(correction => ({ ...correction, section: 2 })) });
-    publishedOriginal.forEach(section => assert.ok(original.some(current => current.text.includes(section.text))));
-    assert.match(publishedReview, /úryvky/);
-    assert.match(review, /všech sedm/);
+    assert.equal(publishedLesson.version, 1);
+    assert.equal(publishedLesson.questions.length, 10);
+    assert.equal(lesson.questions.length, 30);
+    publishedLesson.questions.forEach(question => {
+        const { assessment, icon, ...current } = lesson.questions.find(item => item.id === question.id);
+        assert.deepEqual(question, current);
+    });
+    publishedLesson.original.forEach(section => assert.ok(lesson.original.some(current => current.text.includes(section.text))));
+    assert.match(publishedLesson.review, /úryvky/);
+    assert.match(lesson.review, /všech sedm/);
+    assert.match(lesson.review, /30 různých/);
+    assert.equal(lesson.corrections[1].quote, 'neměla vítězů.');
     assert.match(renderLesson('history', lesson), /function initializeTutor\(/);
 });
 
@@ -55,12 +57,12 @@ test('schema rejects malformed data and conditional question shapes', () => {
         lesson => { lesson.questions[0].answer = 2; },
         lesson => { lesson.questions[0].year = true; },
         lesson => { lesson.questions[0].options = ['Yes', 'No']; },
-        lesson => { lesson.questions[2].options.pop(); },
-        lesson => { lesson.questions[2].answer = 4; },
-        lesson => { lesson.questions[7].acceptedAnswers = []; },
-        lesson => { lesson.questions[7].acceptedAnswers = ['1618 trailing text']; },
-        lesson => { lesson.questions[7].acceptedAnswers.push('1619'); },
-        lesson => { lesson.questions[7].options = []; },
+        lesson => { lesson.questions.find(q => q.id === 'm-vira').options.pop(); },
+        lesson => { lesson.questions.find(q => q.id === 'm-vira').answer = 4; },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').acceptedAnswers = []; },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').acceptedAnswers = ['1618 trailing text']; },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').acceptedAnswers.push('1619'); },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').options = []; },
         lesson => { lesson.questions[0].difficulty = 'impossible'; },
         lesson => { lesson.sources[0].url = 'javascript:alert(1)'; },
         lesson => { lesson.sources[0].url = 'https://'; },
@@ -80,7 +82,7 @@ test('cross-field validation rejects duplicate, insufficient and ambiguous conte
         lesson => { lesson.questions[1].id = lesson.questions[0].id; },
         lesson => { lesson.questions[1].prompt = ` ${lesson.questions[0].prompt.toUpperCase()} `; },
         lesson => { lesson.questions[2].options[1] = lesson.questions[2].options[0].toUpperCase(); },
-        lesson => { lesson.questions[1] = { ...lesson.questions[2], id: 'extra', prompt: 'Extra question' }; },
+        lesson => { lesson.questions = lesson.questions.filter(q => q.difficulty !== 'easy'); },
         lesson => { lesson.questions.filter(q => q.year).forEach(q => { q.year = false; }); },
         lesson => { lesson.glossary[1].forms.push(lesson.glossary[0].term); },
         lesson => { lesson.corrections[0].section = 99; },

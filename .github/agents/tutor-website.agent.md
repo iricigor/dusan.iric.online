@@ -72,7 +72,8 @@ that preserve historical spelling/year tolerance and maths notation restrictions
 They share grade thresholds and easy-to-hard quiz progression, randomizing
 only within each difficulty. Keep subject themes in the shared stylesheet using
 trusted subject selectors: sepia/amber paper grain for history, blue/teal graph
-paper for maths. Restrict pale textures to original/learning text, preserve
+paper for maths. Cover entire original/learning cards (headings and padding
+included) with visible but readable textures, not strips behind paragraphs. Preserve
 semantic callouts and neutral quiz/results backgrounds, and support dark mode.
 Do not add separate subject stylesheets, assets or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
@@ -80,7 +81,9 @@ Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
 Use the shared Fluent-inspired attached icon-and-label tabs and soft cards, default decorative
 emoji with optional schema `icon` overrides and anchored glossary popovers.
-Use a compact right-edge 🔖 Slovníček trigger in Učit se. Its initially closed,
+Use a compact 🔖 Slovníček trigger aligned with the right edge of the Učit se
+content panel when space allows, clamped to the viewport on mobile so it does
+not cover the reading text. Its initially closed,
 nonmodal slide-out drawer overlays the lesson on all screen sizes without a
 reserved column or text reflow. Support close/Escape/outside-click dismissal,
 focus restoration and reduced motion. Definitions open on click instead of
@@ -91,7 +94,11 @@ Hints use a compact Nápověda 💡 button floated inside the top-right of the
 prompt paragraph, with text wrapping around it and explanation below.
 Keep expanded state accessible. Native numbered step/result/solution reveals
 are compact and borderless, retaining initial maths scaffolding and touch access.
-Support comment/fun/quote alongside existing paragraph styles. Original styled
+Support comment/fun/quote alongside existing paragraph styles.
+Fun-fact boxes use golden/amber styling, rounded icon badges and subtle CSS
+sparkles, not purple. The subject badge and title share one row while retaining
+their distinct typography; allow the title to wrap within its column on mobile.
+Motivational subtitles use the subject accent, not purple. Original styled
 paragraphs must reconstruct the canonical source text exactly; never insert
 labels or explanations into that text. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
@@ -105,7 +112,9 @@ row; input requirements belong in the tooltip/accessibility description and
 visible validation errors, not a long label or redundant setup privacy paragraph.
 The embedded favicon uses a pale tile, a dominant blue D and a smaller black cap
 tilted over the letter's upper-left edge.
-The visible quiz-setup cog toggles tools for a local UTF-8 JSON export of the
+The subdued quiz cog sits at the right of the tab bar, outside tablist semantics,
+in the same action area as learning controls; show it only in Hrát si. Keep its
+44px target and keyboard access. It toggles tools for a local UTF-8 JSON export of the
 complete question bank, with total/easy/medium/hard counts and correct answers
 (including every maths step). Never include learner/attempt data or make network
 requests for export; make failures visible and retain the shared quiz lifecycle.

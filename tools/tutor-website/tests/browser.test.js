@@ -236,6 +236,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             && document.documentElement.scrollWidth <= innerWidth;
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
                     assert.equal(await evaluate(`document.getElementById('learning-controls').hidden`), tab !== 'learning');
+                    assert.equal(await evaluate(`document.getElementById('quiz-tools').hidden`), tab !== 'quiz');
+                    assert.equal(await evaluate(`(() => {
+                        const badge = document.querySelector('.lesson-heading .badge');
+                        const title = document.getElementById('topic');
+                        const a = badge.getBoundingClientRect(), b = title.getBoundingClientRect();
+                        return a.right <= b.left && a.top < b.bottom && a.bottom > b.top &&
+                            parseFloat(getComputedStyle(badge).fontSize) < parseFloat(getComputedStyle(title).fontSize) &&
+                            getComputedStyle(badge).borderRadius !== '0px' &&
+                            getComputedStyle(document.getElementById('subtitle')).color === getComputedStyle(badge).color;
+                    })()`), true, `${subject}/${width}/${theme}: badge/title share a row and subtitle uses the subject accent`);
                     if (tab === 'original') {
                         assert.equal(await evaluate(`[...document.querySelectorAll('#original-content article')].every(article => {
                             const style = getComputedStyle(article);
@@ -280,6 +290,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             const toggle = document.getElementById('glossary-toggle');
                             const drawer = document.getElementById('glossary-drawer');
                             const before = document.getElementById('learning-content').getBoundingClientRect();
+                            const bookmark = toggle.getBoundingClientRect();
+                            const main = document.querySelector('main').getBoundingClientRect();
                             const initiallyClosed = !drawer.matches(':popover-open') &&
                                 toggle.getAttribute('aria-expanded') === 'false' && !toggle.hidden;
                             toggle.click();
@@ -287,6 +299,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             const after = document.getElementById('learning-content').getBoundingClientRect();
                             const bounds = drawer.getBoundingClientRect();
                             return initiallyClosed && drawer.matches(':popover-open') &&
+                                Math.abs(bookmark.left - Math.min(main.right, document.documentElement.clientWidth - bookmark.width)) <= 1 &&
+                                bookmark.left >= document.querySelector('#learning-content .hint-prompt').getBoundingClientRect().right &&
                                 toggle.getAttribute('aria-expanded') === 'true' &&
                                 toggle.textContent.includes('🔖') &&
                                 drawer.getAttribute('role') === 'dialog' &&
@@ -349,8 +363,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     }
                     if (tab === 'original' || tab === 'learning') {
                         assert.equal(await evaluate(`(() => {
-                            const text = document.querySelector('${tab === 'original' ? '#original-content .original-text' : '#learning-content .hint-prompt'}');
-                            const style = getComputedStyle(text);
+                            const cards = [...document.querySelectorAll('#${tab}-content .card:not(.callout)')];
                             const expected = getComputedStyle(document.body).getPropertyValue('--${subject}-paper').trim();
                             const canvas = document.createElement('canvas'), context = canvas.getContext('2d');
                             const rgb = color => {
@@ -358,21 +371,59 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                                 context.fillRect(0, 0, 1, 1);
                                 return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
                             };
-                            const color = rgb(style.backgroundColor), paper = rgb(expected);
+                            const paper = rgb(expected);
                             const card = rgb(getComputedStyle(document.getElementById('setup')).backgroundColor);
+                            const luminance = values => values.map(value => value / 255)
+                                .map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
+                                .reduce((total, value, index) => total + value * [.2126, .7152, .0722][index], 0);
+                            const contrast = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) /
+                                (Math.min(luminance(a), luminance(b)) + .05);
                             return document.body.dataset.subject === '${subject}' &&
-                                color.every((channel, index) => channel === paper[index]) &&
-                                color.every((channel, index) => Math.abs(channel - card[index]) <= 20) &&
-                                style.backgroundImage.includes('${subject === 'history' ? 'radial-gradient' : 'linear-gradient'}') &&
-                                style.backgroundImage.includes('0.05') &&
+                                Math.max(...paper.map((channel, index) => Math.abs(channel - card[index]))) >= 16 &&
+                                cards.every(element => {
+                                    const style = getComputedStyle(element);
+                                    return rgb(style.backgroundColor).every((channel, index) => channel === paper[index]) &&
+                                        style.backgroundClip.split(', ').every(clip => clip === 'border-box') &&
+                                        style.backgroundImage.includes('${subject === 'history' ? 'radial-gradient' : 'linear-gradient'}') &&
+                                        style.backgroundImage.includes('0.12') &&
+                                        contrast(rgb(style.color), paper) >= 4.5 &&
+                                        contrast(rgb(getComputedStyle(element.querySelector('h2')).color), paper) >= 4.5;
+                                }) &&
+                                [...document.querySelectorAll('#original-content .original-text, #learning-content .hint-prompt, #learning-content p:not(.callout)')]
+                                    .every(text => getComputedStyle(text).backgroundColor === 'rgba(0, 0, 0, 0)' &&
+                                        getComputedStyle(text).backgroundImage === 'none') &&
                                 [...document.querySelectorAll('.term, .correction')].every(term =>
                                     getComputedStyle(term).backgroundColor === 'rgba(0, 0, 0, 0)') &&
                                 [...document.querySelectorAll('.callout')].every(callout =>
                                     getComputedStyle(callout).backgroundImage === 'none') &&
+                                [...document.querySelectorAll('.callout-fun')].every(callout => {
+                                    const style = getComputedStyle(callout);
+                                    const label = getComputedStyle(callout.querySelector('.callout-label'));
+                                    const sparkle = getComputedStyle(callout, '::before');
+                                    const badge = getComputedStyle(callout.querySelector('.card-icon'));
+                                    return rgb(style.backgroundColor).every((channel, index) =>
+                                        channel === rgb(getComputedStyle(document.body).getPropertyValue('--fun-paper').trim())[index]) &&
+                                        contrast(rgb(label.color), rgb(style.backgroundColor)) >= 4.5 &&
+                                        rgb(label.color).some((channel, index) =>
+                                            channel !== rgb(getComputedStyle(document.body).getPropertyValue('--violet').trim())[index]) &&
+                                        badge.borderRadius === '50%' && parseFloat(badge.minWidth) >= 32 &&
+                                        sparkle.content === '""' && sparkle.clipPath.startsWith('polygon') &&
+                                        parseFloat(sparkle.opacity) > 0;
+                                }) &&
+                                getComputedStyle(document.getElementById('results')).backgroundImage === 'none' &&
                                 getComputedStyle(document.getElementById('setup')).backgroundImage === 'none';
-                        })()`), true, `${subject}/${width}/${theme}: pale subject texture is limited to lesson text`);
+                        })()`), true, `${subject}/${width}/${theme}: visible whole-card themes, golden fun facts and transparent text`);
                     }
                     await capture(`${subject}-${tab}-${width}-${theme}`);
+                    if (subject === 'history' && tab === 'original') {
+                        await evaluate(`(() => {
+                            const fun = document.querySelector('#original-content .callout-fun');
+                            window.scrollTo(0, scrollY + fun.getBoundingClientRect().top -
+                                document.getElementById('page-header').getBoundingClientRect().bottom - 12);
+                        })()`);
+                        await capture(`${subject}-fun-${width}-${theme}`);
+                        await evaluate('window.scrollTo(0, 0)');
+                    }
                 }
                 await evaluate(`document.querySelector('[data-tab="original"]').focus()`);
                 for (const [key, tab] of [['ArrowLeft', 'quiz'], ['Home', 'original'], ['End', 'quiz'], ['ArrowRight', 'original'], ['ArrowRight', 'learning']]) {
@@ -503,7 +554,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.equal(await evaluate(`(() => {
                 const tools = document.getElementById('quiz-tools');
                 const cog = tools.querySelector('summary');
-                const heading = document.querySelector('.quiz-setup-heading h2').getBoundingClientRect();
+                const tabs = document.querySelector('[role="tablist"]').getBoundingClientRect();
+                const restingOpacity = getComputedStyle(cog).opacity;
                 const initiallyClosed = !tools.open;
                 cog.click();
                 document.getAnimations().forEach(animation => animation.finish());
@@ -511,7 +563,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 const panel = document.getElementById('quiz-tools-panel').getBoundingClientRect();
                 return initiallyClosed && tools.open && cog.getAttribute('aria-label') === 'Nástroje kvízu' &&
                     !!cog.querySelector('svg[aria-hidden="true"]') &&
-                    trigger.left >= heading.right && trigger.width >= 44 && trigger.height >= 44 &&
+                    tools.parentElement.className === 'tab-bar' && !tools.closest('[role="tablist"]') &&
+                    !document.getElementById('setup').contains(tools) && Number(restingOpacity) <= .7 &&
+                    trigger.left >= tabs.right && trigger.width >= 44 && trigger.height >= 44 &&
                     panel.left >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight &&
                     document.documentElement.scrollWidth <= innerWidth;
             })()`), true, `${subject}/${width}: visible quiz cog opens viewport-safe export tools`);
@@ -622,7 +676,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     modes: document.querySelectorAll('[data-mode]').length,
                     timing: document.querySelectorAll('#bonus, #timer, #countdown').length
                 };
-            })()`), { examples: 4, exercises: 10, opened: true, modes: 3, timing: 0 });
+            })()`), { examples: 4, exercises: lesson.exercises.length, opened: true, modes: 3, timing: 0 });
             assert.deepEqual(await evaluate(`(() => {
                 const examples = [...document.querySelectorAll('#examples > article')];
                 const openDetails = examples.map(example => example.querySelectorAll('details[open], .hint-toggle[aria-expanded="true"]').length);
@@ -637,7 +691,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 };
             })()`), {
                 openDetails: [lesson.examples[0].steps.length + 2, 1, 0, 0], firstBeforePractice: true,
-                levels: ['Lehká skupina', 'Lehká skupina', ...Array(5).fill('Slovní úloha'), ...Array(3).fill('Úloha ve třech krocích')]
+                levels: ['easy', 'medium', 'hard'].flatMap(level =>
+                    lesson.exercises.filter(exercise => exercise.difficulty === level)
+                        .map(() => ({ easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' }[level])))
             });
             assert.equal(await evaluate(`(() => {
                 const details = document.querySelector('#examples > article:nth-child(3) details');
@@ -653,7 +709,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 Object.defineProperty(performance, 'now', { configurable: true, value: () => window.answerClock });
                 document.querySelector('[data-tab="quiz"]').click();
                 $('player').value = 'Kontrola';
+                const random = Math.random;
+                if (${policyPartial}) Math.random = () => .999999;
+                $('quiz-tools').open = true;
                 document.querySelector('[data-mode="${mode}"]').click();
+                Math.random = random;
+                if ($('quiz-tools').open) throw new Error('Export tools obscure a newly started quiz');
                 if ($('name-error').textContent || $('player').hasAttribute('aria-invalid')) throw new Error('Valid name rejected');
                 if ($('score').textContent !== 'Skóre: 0 b') throw new Error('Score did not reset');
                 if ($('quiz-progress').max !== ${count} || $('quiz-progress').value !== 0) throw new Error('Invalid initial progress');
@@ -799,7 +860,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     Object.defineProperty(performance, 'now', { configurable: true, value: () => window.answerClock });
                     document.querySelector('[data-tab="quiz"]').click();
                     $('player').value = 'Kontrola';
+                    const random = Math.random;
+                    if (${JSON.stringify(mode)} === 'hard') Math.random = () => .999999;
+                    $('quiz-tools').open = true;
                     document.querySelector('[data-mode="${mode}"]').click();
+                    Math.random = random;
+                    if ($('quiz-tools').open) throw new Error('Export tools obscure a newly started quiz');
                     const bonus = $('bonus').textContent === '' && $('bonus').getAttribute('aria-hidden') === 'true' &&
                         $('bonus-bar').style.transform === 'scaleX(1)';
                     if ($('score').textContent !== 'Skóre: 0 b' || $('quiz-progress').value !== 0 ||

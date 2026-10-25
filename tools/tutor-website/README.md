@@ -57,10 +57,10 @@ These sources are prepared once, not synthesized on each default request.
 History reuses the existing reviewed example. The maths default combines both
 requested topics in **one** lesson: fraction calculations (including a fraction
 of a whole) and length conversions across mm/cm/dm/m/km. It has four worked
-examples and 2 easy/5 medium/3 hard tasks, using integer, fraction and decimal
+examples and 30 tasks (6 easy/15 medium/9 hard), using integer, fraction and decimal
 answers. Conversion answers are numbers in the unit specified by each question.
 Several word problems
-combine the two topics. All 16 fixed-unit steps expect a number without a unit
+combine the two topics. All fixed-unit steps expect a number without a unit
 suffix: converting 2 km to metres accepts and displays `2000`, not `2000 m`.
 Worked calculations still show units. Comma and dot are accepted by value
 matchers; equivalent numeric values are accepted when the declared policy
@@ -125,8 +125,12 @@ failed verification; ask before substituting foreign-language references.
 Mark corrections with an exact, uniquely occurring quote, its zero-based original
 section, explanation and listed source URL. Describe sourced additions in
 `review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
-Prefer 50-100 questions for substantial material; request more material if it
-cannot support the minimum pool of 2 easy, 5 medium and 3 hard questions.
+Author at least 30 distinct questions per new lesson, including at least 2 easy,
+5 medium and 3 hard; prefer 50-100 for substantial material. The prepared bank
+contains 6 easy, 15 medium and 9 hard questions, with teaching extended through
+the post-battle changes and the Thirty Years' War. Request more material if 30
+useful questions cannot be supported; never pad with paraphrased duplicates.
+Legacy structural validation still accepts smaller existing banks.
 
 | Quiz mode | Easy: true/false | Medium: four options | Hard: short answer |
 |---|---|---|---|
@@ -261,13 +265,20 @@ an explanation below the entire paragraph. Native step/result/solution reveals
 retain descriptive labels in compact, borderless numbered lists; touch targets
 remain 44px on coarse pointers. Initial maths scaffolding is unchanged.
 
+The subject badge and lesson title share one row, retaining distinct badge
+and heading typography. Long titles wrap within their column on narrow screens.
+Motivational subtitles use the subject accent, not purple.
 Trusted subject selectors in the one shared stylesheet provide sepia/amber
-history accents and blue/teal maths accents. Very pale CSS-only paper grain or
-graph-paper backgrounds decorate original/learning text blocks, with restrained
-dark variants. Semantic callouts retain their own styling. Quiz/results
+history accents and blue/teal maths accents. Visible CSS-only paper grain or
+graph-paper backgrounds cover entire original/learning cards, including headings
+and padding, in both themes; paragraphs remain transparent, not separate strips.
+Fun facts use warm golden/amber boxes, rounded icon badges and CSS-only sparkles.
+Other semantic callouts retain their own styling. Quiz/results
 backgrounds remain neutral; no lesson-supplied CSS or external assets are used.
 
-A small visible cog at the top-right of quiz setup toggles native quiz tools.
+A subdued, smaller cog at the right of the tab bar toggles native quiz tools
+only in Hrát si, in the same action area as learning expand/collapse controls.
+It remains keyboard-accessible with a 44px target and brightens on focus/hover.
 `Stáhnout JSON` downloads the complete question bank locally as UTF-8 JSON,
 including correct answers, without starting a quiz or reading learner records.
 The export has `subject`, `lessonId`, `topic`, `summary` and `questions`.
@@ -294,8 +305,11 @@ from assistive technology; meaningful headings and difficulty labels remain text
 Icons use safe text nodes, never HTML, CSS, classes or asset URLs.
 
 The learning view keeps its full reading width. A compact right-edge
-`🔖 Slovníček` tab opens an initially closed slide-out drawer over the lesson
+`🔖 Slovníček` tab, aligned with the right edge of the learning content panel
+rather than the browser edge on wide screens, opens an initially closed slide-out drawer over the lesson
 on desktop and mobile, without reserving a column or shifting the text.
+The bookmark sits just outside the panel when space allows and clamps to the
+viewport on mobile, clear of the paragraph text.
 The drawer is a nonmodal native manual popover with dialog semantics: opening
 focuses its close button; closing or Escape restores the bookmark trigger.
 Outside clicks, moving keyboard focus back to the lesson and changing views
@@ -408,8 +422,10 @@ Each also has `heading`, `prompt`, `hint`, optional styled `paragraphs`, `steps`
 The child can reveal hints, each worked step, and the result independently.
 Calculations are displayed as text; no symbolic algebra is evaluated.
 
-`exercises` is a pool of 10–100 unique tasks with at least **2 easy, 5 medium,
-3 hard**. IDs and prompts must be unique ignoring case and surrounding space.
+Author `exercises` as a pool of **30–100** unique whole tasks, not individual
+steps, with at least **2 easy, 5 medium, 3 hard**. The prepared default uses
+6/15/9. The validator retains its 10-task lower bound for legacy compatibility;
+that is not the new-authoring minimum. IDs and prompts must be unique ignoring case and surrounding space.
 Each task contains `id`, `difficulty`, `prompt`, `steps`, and `explanation`.
 Each step has `prompt`, `hint`, typed canonical `answer`, `assessment`, and
 `solution` (worked explanation). History questions also require `assessment`.

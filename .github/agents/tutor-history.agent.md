@@ -41,9 +41,11 @@ This is an opt-in subject agent, not the default agent for repository work.
    Group learning facts into logical chunks of at least two sentences, with
    short explanations and glossary `forms` for inflected Czech words.
    Explicitly describe reference-backed additions in `review`.
-   Prefer 50-100 distinct, useful questions for substantial material. A short
-   lesson needs at least 2 easy true/false, 5 medium four-option and 3 hard
-   short-answer questions, including a year. Never pad the pool with unrelated
+   Author at least 30 distinct, useful questions; prefer 50-100 for substantial
+   material. Include at least 2 easy true/false, 5 medium four-option and 3 hard
+   short-answer questions, including a year, within that larger bank. A balanced
+   30-question bank can use 6 easy, 15 medium and 9 hard questions.
+   Never pad the pool with unrelated
    facts or paraphrased duplicates; request more material if it cannot support
    this minimum.
    Every answer must be taught. Save valid lesson JSON in the caller's

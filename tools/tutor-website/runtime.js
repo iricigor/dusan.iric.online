@@ -276,6 +276,8 @@ function initializeTutor(lesson, subject) {
         closeGlossary(false);
         $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
         $('learning-controls').hidden = tab.dataset.tab !== 'learning';
+        $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
+        if ($('quiz-tools').hidden) $('quiz-tools').open = false;
         pauseAnswerClock();
         tabs.forEach(other => {
             const active = other === tab;
@@ -548,6 +550,7 @@ function initializeTutor(lesson, subject) {
             index: 0, answers: [], locked: false, finished: false,
             answerDurationMs: 0, questionElapsedMs: 0, answerStarted: null
         };
+        $('quiz-tools').open = false;
         $('setup').hidden = true;
         $('results').hidden = true;
         $('leaderboard').hidden = true;

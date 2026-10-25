@@ -98,6 +98,15 @@ test('common guidance owns motivation, answer variants and easy-to-hard progress
     assert.ok(maths.includes('not length `2000 m`'));
 });
 
+test('tutors require at least 30 whole tasks without changing legacy validation or quiz lengths', () => {
+    for (const name of ['tutor-common', 'tutor-history', 'tutor-maths']) {
+        const body = profiles.find(profile => profile.name === name).body;
+        assert.ok(body.includes('at least 30'), name);
+    }
+    assert.ok(profiles.find(profile => profile.name === 'tutor-common').body.includes('not 30 individual maths steps'));
+    assert.ok(profiles.find(profile => profile.name === 'tutor-common').body.includes('legacy validation'));
+});
+
 test('both tutors reuse discoverable prepared JSON for default or empty requests', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
     for (const text of ['supplies no topic or source', 'capabilities.examplePath', 'copy it unchanged', 'Explicit topics/material take']) {
