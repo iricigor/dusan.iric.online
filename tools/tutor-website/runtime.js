@@ -147,7 +147,6 @@ function initializeTutor(lesson, subject) {
     const context = { $, node, button, disclose, paragraph, paragraphs, heading };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
-    $('audience').textContent = lesson.audience;
     if (lesson.review !== undefined) {
         $('original-review').hidden = false;
         $('review').textContent = lesson.review;
@@ -187,20 +186,43 @@ function initializeTutor(lesson, subject) {
         trigger.prepend(iconNode(entry.icon || '📖'));
         $('glossary').append(trigger);
     });
-    document.querySelectorAll('[data-tab]').forEach(tab => tab.addEventListener('click', () => {
+    const tabs = [...document.querySelectorAll('[data-tab]')];
+    const activateTab = tab => {
         closeDefinition();
         pauseAnswerClock();
-        document.querySelectorAll('[data-tab]').forEach(other => {
+        tabs.forEach(other => {
             const active = other === tab;
-            other.setAttribute('aria-pressed', String(active));
+            other.setAttribute('aria-selected', String(active));
+            other.tabIndex = active ? 0 : -1;
             $(other.dataset.tab).hidden = !active;
         });
         resumeAnswerClock();
-    }));
+    };
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activateTab(tab));
+        tab.addEventListener('keydown', event => {
+            if (event.altKey || event.ctrlKey || event.metaKey) return;
+            const target = {
+                ArrowRight: (index + 1) % tabs.length,
+                ArrowLeft: (index + tabs.length - 1) % tabs.length,
+                Home: 0,
+                End: tabs.length - 1
+            }[event.key];
+            if (target === undefined) return;
+            event.preventDefault();
+            activateTab(tabs[target]);
+            tabs[target].focus();
+        });
+    });
+    const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+    const isDark = () => document.documentElement.dataset.theme === 'dark' ||
+        (!document.documentElement.dataset.theme && systemTheme.matches);
+    const syncTheme = () => $('theme').setAttribute('aria-checked', String(isDark()));
+    syncTheme();
+    systemTheme.addEventListener('change', syncTheme);
     $('theme').addEventListener('click', () => {
-        const dark = document.documentElement.dataset.theme === 'dark' ||
-            (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+        document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+        syncTheme();
     });
     subject.rules.forEach(rule => $('scoring').append(node('li', rule)));
     $('answer-help').textContent = subject.answerHelp || '';

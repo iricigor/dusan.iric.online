@@ -74,7 +74,7 @@ only within each difficulty. Do not add subject-specific CSS or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
 Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
-Use the shared Fluent-inspired pill navigation and soft cards, default decorative
+Use the shared Fluent-inspired attached icon-and-label tabs and soft cards, default decorative
 emoji with optional schema `icon` overrides, anchored glossary popovers and an
 expandable glossary instead of a permanent sidebar. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
@@ -82,6 +82,11 @@ is a thin shrinking bar without a countdown or visible label. Celebrate every
 completed quiz with brief CSS confetti (disabled for reduced motion); show the
 attempt's rank only inside the collapsed-by-default session leaderboard.
 Keep legacy records readable without inventing missing answering durations.
+Keep the sun/moon control a binary accessible theme switch. Audience is lesson
+metadata, not a visible age badge. The compact nickname label/input share one
+row; input requirements belong in the tooltip/accessibility description and
+visible validation errors, not a long label or redundant setup privacy paragraph.
+The embedded favicon uses a pale tile, a dominant blue D and a smaller black cap.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural

@@ -70,7 +70,9 @@ function page(subject = 'history', stored = []) {
     const context = {
         innerHeight: 900,
         window: { addEventListener() {} },
+        matchMedia: () => ({ matches: false, addEventListener() {} }),
         document: {
+            documentElement: { dataset: {} },
             hidden: false,
             addEventListener: (event, listener) => { documentListeners[event] = listener; },
             baseURI: 'https://example.org/',

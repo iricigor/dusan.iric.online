@@ -228,10 +228,20 @@ No author-supplied HTML, CSS, class names or scripts are accepted.
 Source sections can be split at existing paragraph boundaries without changing
 their wording; never place generated notes inside preserved source text.
 
-Shared Fluent-inspired pill navigation, soft elevated cards and restrained
-theme-aware accents establish hierarchy without a UI library. Mode pills show
+Shared Fluent-inspired attached icon-and-label tabs, soft elevated cards and
+theme-aware accents establish hierarchy without a UI library. The active tab
+joins the content panel; all three tabs share a 12rem desktop width and shrink
+equally on smaller screens. Tab/tabpanel semantics, a single tab stop and
+Left/Right/Home/End navigation support keyboard users. The binary sun/moon
+switch exposes its current dark-mode state and follows system-theme changes
+until explicitly toggled. Audience remains authoring metadata, not a visible
+age badge. Mode pills use stronger theme-aware colored fills and show
 only difficulty (with green/yellow/red emoji) and question counts. All scoring
 rules sit in a native expandable disclosure.
+The short `Přezdívka` label and input share a row, including on mobile.
+The three-letter/60-character requirements appear in a native tooltip and an
+accessible field description; validation errors stay visible. The redundant
+privacy paragraph is omitted from setup; session-local storage remains unchanged.
 Brief animations cover new questions/answer controls,
 feedback, results, tabs, glossary popovers and opened learning hints. They never
 auto-advance, change timing/scoring or obscure answers. Reduced-motion preference
@@ -254,8 +264,8 @@ touch and keyboard. Escape, outside click, the close button or changing views
 dismiss it; explicit close/Escape returns focus to the trigger.
 The runtime requires a modern browser with the native Popover API.
 
-`favicon.svg` contains the reusable rounded deep-blue gradient tile, white
-graduation cap and bold vector D. `page.js` embeds it as a data URL in every
+`favicon.svg` contains a pale rounded tile, a small black graduation cap and
+a larger blue vector D as its dominant element. `page.js` embeds it as a data URL in every
 new standalone page: no font, network request or external asset is required.
 Existing published HTML and the independent Gems workflow remain unchanged.
 
@@ -295,7 +305,7 @@ the package archive nor existing published lessons is changed by this integratio
 | Gems detail | Shared generator decision |
 |---|---|
 | Wide desktop shell and learning/glossary columns | Replaced by a 1120px maximum shared shell and one reading column with an expandable glossary; original text keeps an 80-character reading width |
-| Subject/audience badges and prominent active tabs | Adapted with existing accessible theme colors, text labels, pressed states and explicit panel associations |
+| Subject/audience badges and prominent active tabs | Subject badge retained, audience badge omitted; attached icon-and-label tabs use selected states, keyboard navigation and labelled panels |
 | Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
 | “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |

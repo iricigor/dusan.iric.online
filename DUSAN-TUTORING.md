@@ -189,11 +189,15 @@ HTML ani vlastní CSS do obsahu nepatří.
 Volitelné `icon` doplní krátké emoji k původnímu oddílu, výukovému bloku,
 řešenému příkladu, otázce, cvičení nebo pojmu ve slovníčku. Bez něj generátor
 použije výchozí ikonu. Slovníček je rozbalovací; definice se otevírají u
-kliknutého slova. Záložky a obtížnosti mají podobu přehledných zaoblených
-tlačítek, podrobná pravidla bodování jsou rozbalovací. Dějepisný bonus ukazuje
+kliknutého slova. Záložky s ikonami a českými popisky navazují na obsahový
+panel a podporují ovládání šipkami; obtížnosti mají výraznější barevnou výplň.
+Světlý a tmavý režim přepíná přepínač se sluncem a měsícem. Věk se v záhlaví
+nezobrazuje. Krátký popisek přezdívky a vstup jsou na jednom řádku; požadavky
+na délku jsou v tooltipu a přístupném popisu. Podrobná pravidla bodování jsou
+rozbalovací. Dějepisný bonus ukazuje
 jen tenký ubývající proužek, nikoli odpočet. Dokončení každého kvízu oslaví
 krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledků.
-Nové stránky mají vloženou modrou ikonu s bílým D a absolventskou čepicí.
+Nové stránky mají vloženou světlou ikonu s velkým modrým D a menší černou absolventskou čepicí.
 Stávající zveřejněné stránky se tímto nemění.
 
 Barevnější světlý/tmavý vzhled a krátké animace otázek, zpětné vazby,

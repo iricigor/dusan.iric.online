@@ -127,7 +127,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(await evaluate('document.getElementById("subtitle").textContent'), lesson.subtitle);
         assert.equal(await evaluate('document.querySelector("#original-content .card-icon").textContent'), lesson.original[0].icon || '📄');
         assert.equal(await evaluate('document.querySelector("#glossary .card-icon").textContent'), lesson.glossary[0].icon || '📖');
-        assert.equal(await evaluate('document.querySelectorAll("img, svg").length'), 0, 'icon markup remains plain text');
+        assert.equal(await evaluate('document.querySelectorAll("img, .card-icon svg").length'), 0, 'lesson icon markup remains plain text');
+        assert.equal(await evaluate('document.getElementById("audience")'), null);
+        assert.equal(await evaluate(`document.getElementById('setup').textContent.includes('Na server nic neposíláme')`), false);
         assert.equal(await evaluate(`(() => {
             const article = document.querySelector('#original-content article');
             return article.classList.contains('callout-' + ${JSON.stringify(lesson.original[0].style)});
@@ -142,24 +144,87 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
                 await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
-                await evaluate('delete document.documentElement.dataset.theme');
+                for (let attempt = 0; attempt < 50; attempt++) {
+                    if (await evaluate(`document.getElementById('theme').getAttribute('aria-checked') === '${theme === 'dark'}'`)) break;
+                    await delay(20);
+                }
+                assert.equal(await evaluate('document.getElementById("theme").getAttribute("aria-checked")'), String(theme === 'dark'));
                 const colors = await evaluate('({bg: getComputedStyle(document.body).backgroundColor, fg: getComputedStyle(document.body).color})');
                 assert.equal(colors.bg, theme === 'light' ? 'rgb(241, 245, 249)' : 'rgb(16, 24, 39)');
                 assert.notEqual(colors.bg, colors.fg);
                 assert.equal(await evaluate('document.documentElement.scrollWidth <= innerWidth'), true, `${subject}/${width}/${theme} overflow`);
                 assert.equal(await evaluate(`(() => {
                     document.getElementById('theme').click();
-                    return document.documentElement.dataset.theme;
-                })()`), theme === 'light' ? 'dark' : 'light');
-                await evaluate('delete document.documentElement.dataset.theme');
+                    const expected = document.documentElement.dataset.theme === 'dark';
+                    return document.getElementById('theme').getAttribute('role') === 'switch' &&
+                        document.getElementById('theme').getAttribute('aria-checked') === String(expected) &&
+                        document.querySelectorAll('#theme svg').length === 2 &&
+                        expected === ${theme === 'light'};
+                })()`), true, `${subject}: binary sun/moon state`);
+                await evaluate('document.getElementById("theme").click(); delete document.documentElement.dataset.theme');
                 for (const tab of ['original', 'learning', 'quiz']) {
                     assert.equal(await evaluate(`(() => {
                         const tab = document.querySelector('[data-tab="${tab}"]');
+                        tab.focus();
                         tab.click();
-                        return !document.getElementById('${tab}').hidden && tab.getAttribute('aria-pressed') === 'true'
+                        return !document.getElementById('${tab}').hidden && tab.getAttribute('aria-selected') === 'true' &&
+                            tab.getAttribute('role') === 'tab' && tab.tabIndex === 0 &&
+                            !!tab.querySelector('svg[aria-hidden="true"]') &&
+                            document.getElementById('${tab}').getAttribute('role') === 'tabpanel' &&
+                            document.getElementById('${tab}').getAttribute('aria-labelledby') === tab.id
                             && document.documentElement.scrollWidth <= innerWidth;
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
+                    if (tab === 'quiz') {
+                        assert.equal(await evaluate(`(() => {
+                            const label = document.querySelector('label[for="player"]');
+                            const field = document.getElementById('player');
+                            const a = label.getBoundingClientRect(), b = field.getBoundingClientRect();
+                            const tabs = document.querySelector('[role="tablist"]').getBoundingClientRect();
+                            const widths = [...document.querySelectorAll('[role="tab"]')].map(tab => tab.getBoundingClientRect().width);
+                            const panel = document.querySelector('main').getBoundingClientRect();
+                            return label.textContent === 'Přezdívka' && b.left > a.right && b.width >= 100 &&
+                                Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 2 &&
+                                /3 písmena.*60 znaků/.test(field.title) &&
+                                field.getAttribute('aria-describedby').includes('name-help') &&
+                                Math.abs(tabs.bottom - panel.top) <= 1 &&
+                                Math.abs(tabs.left - panel.left) <= 1 &&
+                                Math.abs(tabs.right - panel.right) <= 1 &&
+                                Math.max(...widths) - Math.min(...widths) <= 1 &&
+                                (innerWidth < 1024 || widths.every(width => width >= 190 && width <= 194));
+                        })()`), true, `${subject}/${width}/${theme}: attached tabs and single-row name`);
+                        assert.equal(await evaluate(`(() => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = canvas.height = 1;
+                            const context = canvas.getContext('2d');
+                            const rgb = color => {
+                                context.fillStyle = color;
+                                context.fillRect(0, 0, 1, 1);
+                                return context.getImageData(0, 0, 1, 1).data.slice(0, 3);
+                            };
+                            const card = rgb(getComputedStyle(document.getElementById('setup')).backgroundColor);
+                            const luminance = values => [...values].map(v => v / 255).map(v =>
+                                v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4)
+                                .reduce((sum, v, index) => sum + v * [.2126, .7152, .0722][index], 0);
+                            return [...document.querySelectorAll('[data-mode]')].every(button => {
+                                const style = getComputedStyle(button), fill = rgb(style.backgroundColor);
+                                return Math.max(...[...fill].map((v, i) => Math.abs(v - card[i]))) >= 20 &&
+                                    [style.color, getComputedStyle(button.querySelector('.mode-count')).color].every(color => {
+                                        const a = luminance(rgb(color)), b = luminance(fill);
+                                        return (Math.max(a, b) + .05) / (Math.min(a, b) + .05) >= 4.5;
+                                    });
+                            });
+                        })()`), true, `${subject}/${width}/${theme}: solid mode colors and readable labels`);
+                    }
                     await capture(`${subject}-${tab}-${width}-${theme}`);
+                }
+                await evaluate(`document.querySelector('[data-tab="original"]').focus()`);
+                for (const [key, tab] of [['ArrowLeft', 'quiz'], ['Home', 'original'], ['End', 'quiz'], ['ArrowRight', 'original'], ['ArrowRight', 'learning']]) {
+                    await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key, code: key });
+                    await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key, code: key });
+                    assert.equal(await evaluate(`document.activeElement.dataset.tab === '${tab}' &&
+                        document.activeElement.getAttribute('aria-selected') === 'true' &&
+                        !document.getElementById('${tab}').hidden &&
+                        document.querySelectorAll('[role="tab"][tabindex="0"]').length === 1`), true, `${subject}: tab keyboard ${key}`);
                 }
                 assert.deepEqual(await evaluate(`(() => {
                     document.querySelector('[data-tab="learning"]').click();
@@ -245,14 +310,38 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 const context = canvas.getContext('2d');
                 context.drawImage(image, 0, 0, size, size);
                 const pixels = context.getImageData(0, 0, size, size).data;
-                let white = 0, blue = 0;
+                const blue = [], black = [];
+                let pale = 0;
                 for (let i = 0; i < pixels.length; i += 4) {
-                    if (pixels[i] > 220 && pixels[i + 1] > 220 && pixels[i + 2] > 220) white++;
-                    if (pixels[i + 2] > pixels[i] + 40 && pixels[i + 3] > 200) blue++;
+                    if (pixels[i] > 220 && pixels[i + 1] > 220 && pixels[i + 2] > 220) pale++;
+                    const point = { x: (i / 4) % size, y: Math.floor(i / 4 / size) };
+                    if (pixels[i + 2] > pixels[i] + 40 && pixels[i + 3] > 200) blue.push(point);
+                    if (pixels[i] < 40 && pixels[i + 1] < 40 && pixels[i + 2] < 40 && pixels[i + 3] > 200) black.push(point);
                 }
-                return white > size && blue > size * size / 3;
+                const extent = (points, axis) => Math.max(...points.map(p => p[axis])) - Math.min(...points.map(p => p[axis])) + 1;
+                return pale > size * size / 3 && blue.length > size && black.length > size / 4 &&
+                    extent(blue, 'x') > extent(black, 'x') && extent(blue, 'y') > extent(black, 'y');
             });
         })()`), true, `${subject}: offline favicon renders at 16 and 32 pixels`);
+        if (process.env.TUTOR_SCREENSHOT_DIRECTORY) {
+            const preview = await evaluate(`(async () => {
+                const image = new Image();
+                image.src = document.querySelector('link[rel="icon"]').href;
+                await image.decode();
+                const preview = document.createElement('canvas');
+                preview.width = 256; preview.height = 128;
+                const context = preview.getContext('2d');
+                context.imageSmoothingEnabled = false;
+                [16, 32].forEach((size, index) => {
+                    const icon = document.createElement('canvas');
+                    icon.width = icon.height = size;
+                    icon.getContext('2d').drawImage(image, 0, 0, size, size);
+                    context.drawImage(icon, index * 128, 0, 128, 128);
+                });
+                return preview.toDataURL('image/png').split(',')[1];
+            })()`);
+            fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, 'favicon-16-32-enlarged.png'), Buffer.from(preview, 'base64'));
+        }
         assert.deepEqual(await evaluate(`(() => {
             const $ = id => document.getElementById(id);
             document.querySelector('[data-tab="original"]').click();
