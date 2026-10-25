@@ -2,18 +2,19 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords } = require('../maths.js');
-const { mathsLesson } = require('./fixture.js');
+const { checkAnswer: checkMathsAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords } = require('../maths.js');
+const { mathsLesson, valueAssessment } = require('./fixture.js');
+const checkAnswer = (expected, raw) => checkMathsAnswer(expected, raw, valueAssessment(expected));
 
 test('integers are exact, bounded and never use history spelling or year tolerance', () => {
     const expected = { format: 'integer', value: '-12' };
     assert.equal(checkAnswer(expected, ' \t-12\n').correct, true);
     for (const raw of ['-11', '-13', '12']) {
-        assert.deepEqual(checkAnswer(expected, raw), {
-            correct: false, valid: true, message: 'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.'
-        });
+        assert.equal(checkAnswer(expected, raw).correct, false);
+        assert.equal(checkAnswer(expected, raw).valid, true);
     }
-    for (const raw of ['', ' ', '+12', '-012', '12.0', '-12/1', '1e1', '12 m', 'dvanáct', '1 000', '1,000',
+    for (const raw of ['-12.0', '-12/1']) assert.equal(checkAnswer(expected, raw).correct, true, raw);
+    for (const raw of ['', ' ', '+12', '-012', '1e1', '12 m', 'dvanáct', '1 000',
         '−12', '--12', 'NaN', 'Infinity', '12 + 0', '1234567890123', '0'.repeat(81)]) {
         assert.equal(checkAnswer(expected, raw).valid, false, raw);
     }
@@ -29,7 +30,8 @@ test('equivalent fractions compare exact cross products with either denominator 
     assert.equal(checkAnswer({ format: 'fraction', numerator: '-1', denominator: '2' }, '1/-2').correct, true);
     assert.equal(checkAnswer({ format: 'fraction', numerator: '0', denominator: '12' }, '0/-5').correct, true);
     assert.equal(checkAnswer(half, '499999999998/999999999998').correct, false);
-    for (const raw of ['0.5', '1/0', '1/-0', '1/2/3', '1.0/2', '+1/2', '01/2', '1 1/2', '1/2 kg', '/2', '1/',
+    for (const raw of ['0.5', '0,5']) assert.equal(checkAnswer(half, raw).correct, true, raw);
+    for (const raw of ['1/0', '1/-0', '1/2/3', '1.0/2', '+1/2', '01/2', '1/2 kg', '/2', '1/',
         '1/1234567890123']) {
         assert.equal(checkAnswer(half, raw).valid, false, raw);
     }
@@ -38,7 +40,7 @@ test('equivalent fractions compare exact cross products with either denominator 
 
 test('decimals accept comma or point but no approximations, expressions or ambiguous separators', () => {
     const expected = { format: 'decimal', value: '-0.125' };
-    for (const raw of ['-0,125', '-0.125', '-0.125000000000']) {
+    for (const raw of ['-0,125', '-0.125', '-0.125000000000', '-1/8']) {
         assert.equal(checkAnswer(expected, raw).correct, true, raw);
     }
     assert.equal(checkAnswer({ format: 'decimal', value: '12.000' }, '12').correct, true);
@@ -47,7 +49,7 @@ test('decimals accept comma or point but no approximations, expressions or ambig
     assert.equal(checkAnswer({ format: 'fraction', numerator: '1', denominator: '3' }, '0.333333333333').correct, false);
     assert.equal(checkAnswer({ format: 'decimal', value: '0.333333333333' }, '0.333333333334').correct, false);
     for (const raw of ['1,000.5', '1.000,5', '1,2,3', '1 000,5', '.125', '0.', '0,', '+0.125', '00.125',
-        '1e-3', '-0.125 m', '-1/8', '0.1234567890123', '0x10', 'Math.PI', '1+2']) {
+        '1e-3', '-0.125 m', '0.1234567890123', '0x10', 'Math.PI', '1+2']) {
         assert.equal(checkAnswer(expected, raw).valid, false, raw);
     }
 });
@@ -71,7 +73,36 @@ test('lengths require explicit supported units and exact conversions, never dime
     assert.equal(checkAnswer(expected, '0.001500000001 km').correct, false);
     assert.equal(checkAnswer({ format: 'length', value: '999999999999.999999999999', unit: 'km' },
         '999999999999.999999999998 km').correct, false);
-    assert.throws(() => checkAnswer({ format: 'algebra' }, 'x'), /Unsupported maths answer format/);
+    assert.throws(() => checkMathsAnswer({ format: 'algebra' }, 'x'), /Unsupported maths answer format/);
+});
+
+test('all numeric formats accept exactly equivalent mixed, fractional and decimal answers', () => {
+    const sevenFourths = [
+        { format: 'fraction', numerator: '7', denominator: '4' },
+        { format: 'decimal', value: '1.75' }
+    ];
+    for (const expected of sevenFourths) {
+        for (const raw of ['7/4', '14/8', '1 3/4', '1 6/8', '1.75', '1,75']) {
+            assert.equal(checkAnswer(expected, raw).correct, true, raw);
+        }
+        for (const raw of ['1 4/4', '1 -3/4', '1 3/-4', '1 3/0', '01 3/4', '1 03/4', '1 3/04',
+            '1 1234567890123/4', '1234567890123 1/2', '1 1/1234567890123']) {
+            assert.equal(checkAnswer(expected, raw).valid, false, raw);
+        }
+        for (const raw of ['1 1/4', '-1 3/4', '1.750000000001']) {
+            assert.equal(checkAnswer(expected, raw).correct, false, raw);
+        }
+    }
+    for (const raw of ['-1 3/4', '-7/4', '-1,75', '7/-4']) {
+        assert.equal(checkAnswer({ format: 'fraction', numerator: '-7', denominator: '4' }, raw).correct, true, raw);
+    }
+    assert.equal(checkAnswer({ format: 'decimal', value: '-0.5' }, '-0 1/2').correct, true);
+    for (const raw of ['3', '3.0', '6/2']) {
+        assert.equal(checkAnswer({ format: 'integer', value: '3' }, raw).correct, true);
+    }
+    for (const expected of [{ format: 'decimal', value: '0.5' }, { format: 'fraction', numerator: '1', denominator: '2' }]) {
+        for (const raw of ['0.5', '0,5', '1/2', '2/4']) assert.equal(checkAnswer(expected, raw).correct, true);
+    }
 });
 
 test('all easy correctness combinations award 2.5 independently and exactly one all-correct point', () => {
@@ -109,6 +140,7 @@ test('every quiz mode has its exact mix, no duplicate tasks and the true accurac
             const selected = selectExercises(lesson.exercises, mode, random);
             assert.deepEqual(['easy', 'medium', 'hard'].map(level => selected.filter(task => task.difficulty === level).length), mix);
             assert.equal(new Set(selected.map(task => task.id)).size, selected.length);
+            assert.deepEqual(selected.map(task => task.difficulty), ['easy', 'medium', 'hard'].flatMap((level, index) => Array(mix[index]).fill(level)));
             assert.equal(maximumPoints(selected), maximum);
             const total = selected.reduce((sum, task) => sum + scoreExercise(task, task.steps.map(step => step.answer.value)).total, 0);
             assert.equal(total, maximum);
@@ -137,13 +169,26 @@ test('grades use exact 80/60/40/20 boundaries and attainable half-point scores f
     assert.equal(grade(48, 61), 2);
 });
 
-test('session records are bounded to real modes, exact maxima, half-points and matching grades', () => {
+test('session records are bounded to real modes, exact maxima, quarter-points and matching grades', () => {
     const record = { mode: 'easy', total: 48, maximum: 61, grade: 2 };
     assert.equal(validRecords([]), true);
     assert.equal(validRecords([record]), true);
+    assert.equal(validRecords([{ ...record, total: 48.25 }]), true);
     for (const patch of [{ mode: 'other' }, { total: -1 }, { total: 62 }, { total: Infinity },
         { total: 48.1 }, { maximum: 60 }, { grade: 1 }]) {
         assert.equal(validRecords([{ ...record, ...patch }]), false);
     }
     for (const value of [null, {}, [null], [1]]) assert.equal(validRecords(value), false);
+});
+
+test('legacy maths keeps notation restrictions and has no implicit partial matcher', () => {
+    for (const [answer, accepted, invalid] of [
+        [{ format: 'integer', value: '3' }, ['3'], ['3.0', '6/2', '3 m']],
+        [{ format: 'fraction', numerator: '1', denominator: '2' }, ['1/2', '3/6', '-1/-2'], ['0.5', '0,5', '0 1/2']],
+        [{ format: 'decimal', value: '1.5' }, ['1.5', '1,5'], ['3/2', '1 1/2']]
+    ]) {
+        for (const raw of accepted) assert.equal(checkMathsAnswer(answer, raw).fraction, 1, raw);
+        for (const raw of invalid) assert.equal(checkMathsAnswer(answer, raw).valid, false, raw);
+        assert.equal(checkMathsAnswer(answer, '2').fraction, 0);
+    }
 });

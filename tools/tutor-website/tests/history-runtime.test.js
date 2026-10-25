@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const lesson = require('../../tutor-website/examples/defenestrace.json');
+const lesson = require('../examples/defenestrace.json');
 
 // Minimal DOM and clock for exercising the real runtime without dependencies.
 class Element {
@@ -21,6 +21,7 @@ class Element {
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
     append(...children) { this.children.push(...children); }
+    prepend(...children) { this.children.unshift(...children); }
     replaceChildren(...children) { this.text = ''; this.children = children; }
     setAttribute() {}
     removeAttribute() {}
@@ -36,7 +37,7 @@ class Element {
 }
 
 function page() {
-    const shared = path.join(__dirname, '..', '..', 'tutor-website');
+    const shared = path.join(__dirname, '..');
     const template = fs.readFileSync(path.join(shared, 'template.html'), 'utf8')
         .replace('@@TIMING@@', '<p id="bonus" role="status"></p>');
     assert.doesNotMatch(template, /type="checkbox"|id="speed"/);
@@ -72,7 +73,8 @@ function page() {
         crypto: { randomUUID: () => `run-${++serial}` },
         URL, console
     };
-    vm.runInNewContext(fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
+    vm.runInNewContext(fs.readFileSync(path.join(shared, 'assessment.js'), 'utf8') + '\n' +
+        fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
         fs.readFileSync(path.join(shared, 'history.js'), 'utf8'), context);
     return {
         get: id => context.document.getElementById(id),

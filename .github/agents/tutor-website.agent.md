@@ -14,11 +14,13 @@ Do not invoke subject agents or recursively delegate generation to yourself.
 
 ## Owned contracts and current capabilities
 
-For `subject: history`, the existing version 1 contract is defined by
-`tools\history-tutor\lesson.schema.json` and `tools\history-tutor\validate.js`.
-Read both and `tools\tutor-website\examples\defenestrace.json` before advising on
-or building a lesson. The legacy builder is `tools\history-tutor\build.js`.
-Both subjects use `tools\tutor-website\template.html` and
+Both subjects use the shared version 3 contract in
+`tools\tutor-website\lesson.schema.json`, `tools\tutor-website\validate.js`
+and `tools\tutor-website\README.md`. Read these and the subject's prepared
+example before advising or building. The shared builder is
+`tools\tutor-website\build.js`. Both subjects use this single builder and schema;
+there are no subject-specific CLI or schema aliases.
+Both subjects use `tools\tutor-website\assessment.js`, `tools\tutor-website\template.html` and
 `tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
 History and maths content/assessment adapters live alongside them in
 `history.js` and `maths.js`. Both prepared lesson sources live in
@@ -27,18 +29,21 @@ shared assets, not in per-subject copies. The independent Gems workflow is
 not an asset dependency; its selectively adapted design is documented in the
 shared generator README.
 
-For `subject: maths`, read `tools\tutor-website\maths.schema.json`,
-`tools\tutor-website\validate.js` and `tools\tutor-website\README.md`.
-The maths version 2 contract requires `original` sections. The generator
-supports progressively scaffolded learning/practice, exact typed answer
-evaluation, untimed quizzes, partial scoring, grades and named per-lesson
-browser-session results.
+The unified contract shares metadata, motivational `subtitle`, `original`,
+glossary, semantic paragraph styles and difficulty definitions. Conditional
+subject sections retain history review/corrections/questions and maths
+worked examples/typed exercises. Legacy history v1 and maths v2 still validate;
+new content and prepared defaults use v3. Never create a competing schema.
+The generator supports progressively scaffolded learning/practice, exact typed
+answer evaluation, partial scoring, grades and named per-lesson browser-session
+results. Maths quizzes are untimed; history retains its speed bonus without
+an answer deadline.
 The prepared maths default is
 `tools\tutor-website\examples\zlomky-a-prevody-delky.json`, combining fraction
 calculations and length-unit conversions in one lesson.
 Symbolic algebra evaluation and interactive geometry are unsupported.
 Disclose these limitations.
-Never coerce maths into the history schema or invent another contract.
+Never coerce maths into history-specific content or assessment rules.
 Any other unsupported subject or operation must receive an explicit explanation.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
@@ -47,6 +52,24 @@ quiz flow. Maths practice is part of Učit se, not a fourth or replacement tab.
 Do not create per-lesson or per-subject copies of the common quiz lifecycle.
 Subject adapters may vary assessment rules, not shared functionality.
 For topic-only requests, show the short Czech topic in Původní text.
+All presentation and behavior code belongs under `tools\tutor-website`.
+Keep shared CSS/motion, safe paragraph rendering, numeric input help, quiz
+utilities and lifecycle in the shared assets. Subject adapters retain only
+content rendering and scoring/timing differences: history's mandatory speed
+bonus versus maths per-step credit and no timer. Matching/normalization,
+numeric parsing and exact/partial precedence belong to the single shared
+`assessment.js` evaluator, not subject adapters. Require explicit v3 policies
+for every question/maths step; number, string, array and range matchers work in
+both `exact` and `partial.match`. Partial credit is explicitly `0.5`.
+Validate numeric bounds, endpoints, matcher fields, dimensions, and full credit
+for canonical answers. Never replace representation-sensitive string policies
+with unconditional numeric equivalence. V1/v2 inputs use compatibility policies
+that preserve historical spelling/year tolerance and maths notation restrictions.
+They share grade thresholds and easy-to-hard quiz progression, randomizing
+only within each difficulty. Do not add subject-specific CSS or quiz engines.
+Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
+Provide colorful light/dark presentation and short, reduced-motion-aware
+animations for quiz feedback, new questions, tab changes and learning reveals.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural
@@ -95,7 +118,7 @@ For `build`:
    overwrites. Set `overwriteApproved: true` only with the user's permission
    for that exact existing output. Never bypass validation or repair educational
    content without returning the problem to its subject tutor.
-3. Run `node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test.js`.
+3. Run `node --test tools\tutor-website\tests\*.test.js`.
    Return command failures and diagnostics explicitly. Do not report success
    when building or required checks failed.
 4. Return the actual absolute input/output paths, commands and their results,

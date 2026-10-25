@@ -57,7 +57,7 @@ test('subject and website profiles explicitly load common guidance and handoff i
     }
 });
 
-test('agent file references resolve and website ownership points to the existing history contract', () => {
+test('agent file references resolve and website owns the single shared contract', () => {
     profiles.forEach(({ name, body }) => {
         const references = body.matchAll(/`((?:\.github|tools)\\[^`*]+)`/g);
         for (const [, reference] of references) {
@@ -68,7 +68,7 @@ test('agent file references resolve and website ownership points to the existing
 
     const { body } = profiles.find(profile => profile.name === 'tutor-website');
     for (const filename of ['lesson.schema.json', 'validate.js', 'build.js']) {
-        assert.ok(body.includes(`\`tools\\history-tutor\\${filename}\``));
+        assert.ok(body.includes(`\`tools\\tutor-website\\${filename}\``));
     }
 });
 
@@ -84,8 +84,18 @@ test('agents require JSON-only authorship and the common page and name-required 
         assert.ok(body.includes('name/nickname'), `${name}: common name requirement`);
     }
     const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
-    assert.ok(maths.includes('version 2'));
+    assert.ok(maths.includes('version 3'));
     assert.ok(maths.includes('separate practice tab'));
+});
+
+test('common guidance owns motivation, answer variants and easy-to-hard progression', () => {
+    const common = profiles.find(profile => profile.name === 'tutor-common').body;
+    for (const rule of ['`subtitle`', '`acceptedAnswers`', 'easy to medium to hard', '`paragraphs`', '7/4, 1 3/4', '`assessment`', '`partial.credit`', '`0.5`', 'target unit', '`2000`, not `2000 m`']) {
+        assert.ok(common.includes(rule), rule);
+    }
+    const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
+    assert.ok(maths.includes('If the question fixes the target unit'));
+    assert.ok(maths.includes('not length `2000 m`'));
 });
 
 test('both tutors reuse discoverable prepared JSON for default or empty requests', () => {

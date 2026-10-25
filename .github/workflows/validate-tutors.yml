@@ -1,0 +1,174 @@
+name: Validate tutors
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - closed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      changed: ${{ steps.paths.outputs.changed }}
+    steps:
+      - name: Check all changed paths in the pull request
+        id: paths
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          changed=false
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            changed=true
+          else
+            files="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" --jq '.[] | .filename, (.previous_filename // empty)')"
+            while IFS= read -r file; do
+              case "$file" in
+                tools/tutor-website/*|.github/agents/tutor-*.agent.md|.github/workflows/validate-tutors.yml)
+                  changed=true
+                  break
+                  ;;
+              esac
+            done <<< "$files"
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+  validate:
+    needs: changes
+    if: needs.changes.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      history-url: ${{ steps.history.outputs.artifact-url }}
+      maths-url: ${{ steps.maths.outputs.artifact-url }}
+      history-id: ${{ steps.history.outputs.artifact-id }}
+      maths-id: ${{ steps.maths.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.merge_commit_sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate tutor definitions, contracts and offline pages
+        env:
+          TUTOR_BROWSER_PATH: /usr/bin/google-chrome
+        run: |
+          test -x "$TUTOR_BROWSER_PATH"
+          node --test tools/tutor-website/tests/*.test.js
+      - name: Generate both prepared default pages
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { capabilities, build } = require('./tools/tutor-website/build.js');
+          const artifactDirectory = path.join(process.env.RUNNER_TEMP, 'tutor-default-pages');
+          fs.mkdirSync(artifactDirectory);
+          for (const subject of ['history', 'maths']) {
+            const inputPath = path.join(artifactDirectory, `${subject}.json`);
+            const outputPath = path.join(artifactDirectory, `${subject}.html`);
+            fs.copyFileSync(capabilities(subject).examplePath, inputPath, fs.constants.COPYFILE_EXCL);
+            const result = build({ operation: 'build', subject, artifactDirectory, inputPath, outputPath });
+            console.log(JSON.stringify(result));
+          }
+          NODE
+      - name: Upload history default page
+        id: history
+        uses: actions/upload-artifact@v4
+        with:
+          name: history-example-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tutor-default-pages/history.html
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload maths default page
+        id: maths
+        uses: actions/upload-artifact@v4
+        with:
+          name: maths-example-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tutor-default-pages/maths.html
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    needs: validate
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download the validated example pages
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.validate.outputs.history-id }},${{ needs.validate.outputs.maths-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/tutor-release-pages
+      - name: Create or update this merged PR's tutor release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          tag="tutor-pr-${PR_NUMBER}"
+          existing_target="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --jq ".[] | select(.tag_name == \"${tag}\") | .target_commitish")"
+          if [[ -n "$existing_target" ]]; then
+            if [[ "$existing_target" != "$MERGE_SHA" ]]; then
+              echo "Release ${tag} already targets a different commit; refusing to replace its assets." >&2
+              exit 1
+            fi
+            gh release upload --repo "$GITHUB_REPOSITORY" --clobber -- "$tag" \
+              "$RUNNER_TEMP/tutor-release-pages/history.html" \
+              "$RUNNER_TEMP/tutor-release-pages/maths.html"
+          else
+            notes="Default history and maths pages generated from merged PR #${PR_NUMBER} (${MERGE_SHA}). Download the two standalone HTML assets below."
+            gh release create --repo "$GITHUB_REPOSITORY" --target "$MERGE_SHA" \
+              --title "Tutor examples - PR #${PR_NUMBER}" --notes "$notes" --latest=false -- "$tag" \
+              "$RUNNER_TEMP/tutor-release-pages/history.html" \
+              "$RUNNER_TEMP/tutor-release-pages/maths.html"
+          fi
+
+  comment:
+    needs: [changes, validate]
+    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post a new example-download comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+          HISTORY_URL: ${{ needs.validate.outputs.history-url }}
+          MATHS_URL: ${{ needs.validate.outputs.maths-url }}
+        run: |
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
+          body="### Tutor examples - run ${GITHUB_RUN_NUMBER}, attempt ${GITHUB_RUN_ATTEMPT}"$'\n\n'
+          if [[ "$VALIDATION_RESULT" == "success" && -n "$HISTORY_URL" && -n "$MATHS_URL" ]]; then
+            body+="[Download history.html (ZIP)](${HISTORY_URL})"$'\n\n'
+            body+="[Download maths.html (ZIP)](${MATHS_URL})"$'\n\n'
+            body+="Each archive contains one standalone HTML page generated from its default dataset. Sign in to GitHub to download; retention is up to 14 days. Reruns or artifact deletion can invalidate earlier links - use the newest comment. Nothing is published to the site."
+          else
+            body+="Validation or example generation did not complete successfully (${VALIDATION_RESULT}); a complete pair of downloads is unavailable."
+          fi
+          body+=$'\n\n'"[View this validation run](${run_url})"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$body"

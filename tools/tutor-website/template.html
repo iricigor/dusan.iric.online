@@ -12,6 +12,7 @@
             <div><span class="badge">@@SUBJECT@@</span><h1 id="topic"></h1></div>
             <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
         </div>
+        <p id="subtitle" class="motivation"></p>
         <p id="audience" class="audience"></p>
         <nav aria-label="Části lekce">
             <button type="button" data-tab="original" aria-controls="original" aria-pressed="true">Původní text</button>
@@ -53,6 +54,7 @@
                 </div>
                 <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
                 @@TIMING@@
+                <p id="difficulty" class="difficulty"></p>
                 <h2 id="question" tabindex="-1"></h2>
                 <p id="answer-help" hidden></p>
                 <form id="answers" novalidate></form>

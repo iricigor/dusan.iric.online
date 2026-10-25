@@ -114,6 +114,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             await delay(50);
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
+        assert.equal(await evaluate('document.getElementById("subtitle").textContent'), lesson.subtitle);
+        assert.equal(await evaluate(`(() => {
+            const article = document.querySelector('#original-content article');
+            return article.classList.contains('callout-' + ${JSON.stringify(lesson.original[0].style)});
+        })()`), true);
+        assert.equal(await evaluate(`(() => {
+            document.querySelector('[data-tab="learning"]').click();
+            return document.querySelectorAll('#learning-content .callout-label').length;
+        })()`), subject === 'maths' ? lesson.examples.reduce((sum, example) => sum + (example.paragraphs?.length || 0), 0)
+            : lesson.chunks.reduce((sum, chunk) => sum + (chunk.paragraphs?.length || 0), 0));
         assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
         for (const width of [320, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -138,6 +148,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
                     if (process.env.TUTOR_SCREENSHOT_DIRECTORY) {
                         fs.mkdirSync(process.env.TUTOR_SCREENSHOT_DIRECTORY, { recursive: true });
+                        await evaluate('Promise.all(document.getAnimations().map(animation => animation.finished))');
                         const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
                         fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${subject}-${tab}-${width}-${theme}.png`), Buffer.from(screenshot.data, 'base64'));
                     }
@@ -161,13 +172,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         await client.send('Emulation.setEmulatedMedia', {
             features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
         });
-        assert.equal(await evaluate(`(() => {
+        assert.deepEqual(await evaluate(`(() => {
             const feedback = document.getElementById('feedback');
             feedback.classList.add('failure');
             const animation = getComputedStyle(feedback).animationName;
+            const transition = getComputedStyle(document.getElementById('theme')).transitionDuration;
             feedback.classList.remove('failure');
-            return animation;
-        })()`), 'none', `${subject}: reduced motion`);
+            return { animation, transition };
+        })()`), { animation: 'none', transition: '0s' }, `${subject}: reduced motion`);
         await client.send('Emulation.setEmulatedMedia', { features: [] });
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
@@ -230,7 +242,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             })()`), true);
             // Review actual submitted pages at phone width, not only their setup screens.
             await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
-            const playMaths = (mode, count, partial = false, invalid = false) => evaluate(`(() => {
+            const playMaths = (mode, count, partial = false, invalid = false, policyPartial = false) => evaluate(`(() => {
                 const $ = id => document.getElementById(id);
                 const lesson = JSON.parse($('lesson-data').textContent);
                 document.querySelector('[data-tab="quiz"]').click();
@@ -243,9 +255,15 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 let maximum = 0;
                 const seen = [];
                 const mix = { easy: 0, medium: 0, hard: 0 };
+                let previousLevel = -1;
                 for (let index = 0; index < ${count}; index++) {
                     const exercise = lesson.exercises.find(task => task.prompt === $('question').textContent);
                     if (!exercise || seen.includes(exercise.id)) throw new Error('Unknown or duplicate task');
+                    const level = ['easy', 'medium', 'hard'].indexOf(exercise.difficulty);
+                    if (level < previousLevel) throw new Error('Difficulty went backwards');
+                    previousLevel = level;
+                    if ($('difficulty').dataset.level !== exercise.difficulty) throw new Error('Wrong difficulty badge');
+                    if (getComputedStyle($('question').firstChild).animationName !== 'reveal') throw new Error('Missing question animation');
                     seen.push(exercise.id);
                     mix[exercise.difficulty]++;
                     maximum += { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
@@ -254,6 +272,11 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     if ($('question').textContent !== prompt) throw new Error('Advanced before submitting');
                     const inputs = [...$('answers').querySelectorAll('input')];
                     if (inputs.length !== exercise.steps.length) throw new Error('Wrong answer-field count');
+                    [...$('answers').querySelectorAll('label')].forEach((label, step) => {
+                        if (label.textContent.includes('(včetně jednotky)') !== (exercise.steps[step].answer.format === 'length')) {
+                            throw new Error('Unit-bearing fields are not distinguished from numeric fields');
+                        }
+                    });
                     if (exercise.difficulty === 'easy' && ![...$('answers').querySelectorAll('label')]
                         .every((label, step) => label.textContent.startsWith(String(index + 1) + 'abcd'[step] + ':'))) {
                         throw new Error('Missing easy subitem labels');
@@ -262,33 +285,44 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         const answer = step.answer;
                         const equivalent = {
                             integer: answer.value,
-                            fraction: answer.format === 'fraction' ? (-Number(answer.numerator) * 3) + '/' + (-Number(answer.denominator) * 3) : '',
-                            decimal: ${JSON.stringify(mode)} === 'medium' ? answer.value : answer.value?.replace('.', ','),
+                            fraction: answer.format === 'fraction' ? (${JSON.stringify(mode)} === 'easy' ?
+                                String(Number(answer.numerator) / Number(answer.denominator)).replace('.', ',') :
+                                (-Number(answer.numerator) * 3) + '/' + (-Number(answer.denominator) * 3)) : '',
+                            decimal: answer.value === '1.5' ? '1 1/2' : ${JSON.stringify(mode)} === 'medium' ? answer.value : answer.value?.replace('.', ','),
                             length: Number(answer.value) * { mm: 1, cm: 10, dm: 100, m: 1000, km: 1000000 }[answer.unit] + ' mm'
                         }[answer.format];
+                        const representation = step.assessment.exact.type === 'string' ? step.assessment.exact.value : equivalent;
                         inputs[stepIndex].value = ${partial} && stepIndex === 0 ? '' :
                             ${invalid} && exercise.difficulty === 'easy' ?
-                                { integer: '3.0', fraction: '1/0', decimal: '1,2.3', length: '1.5 kg' }[answer.format] : equivalent;
+                                { integer: '3+0', fraction: '1/0', decimal: '1,2.3', length: '1.5 kg' }[answer.format] :
+                                ${policyPartial} && step.assessment.partial?.match.type === 'string' ? '3/6' : representation;
                     });
+                    const representationPartial = ${policyPartial} && exercise.steps.some(step => step.assessment.partial?.match.type === 'string');
                     const earned = ${partial} ? { easy: 7.5, medium: 0, hard: 20 }[exercise.difficulty] :
+                        representationPartial ? 8.75 :
                         ${invalid} && exercise.difficulty === 'easy' ? 0 : { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
                     total += earned;
                     $('answers').requestSubmit();
                     if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b') throw new Error('Wrong running score');
                     if ($('quiz-progress').value !== index + 1) throw new Error('Wrong submitted progress');
                     if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
+                    if (representationPartial && (!$('feedback').textContent.includes('Částečně správně') ||
+                        !$('feedback').textContent.includes('Body za výpočet: 1,25'))) throw new Error('Missing partial-credit feedback');
+                    if (!$('feedback').classList.contains(earned === { easy: 11, medium: 20, hard: 30 }[exercise.difficulty] ?
+                        'success' : earned > 0 ? 'encouragement' : 'try-again')) throw new Error('Missing shared feedback styling');
                     if (!inputs.every(input => input.disabled)) throw new Error('Answer fields remain editable');
                     if (!$('feedback').textContent.includes('Body: ' + String(earned).replace('.', ','))) {
                         throw new Error('Wrong feedback points');
                     }
                     exercise.steps.forEach(step => {
-                        if (!$('feedback').textContent.includes(formatAnswer(step.answer)) ||
+                        if (![...$('feedback').querySelectorAll('p')].some(paragraph =>
+                            paragraph.textContent.startsWith('Správná odpověď: ' + formatAnswer(step.answer) + '. ')) ||
                             !$('feedback').textContent.includes(step.solution)) throw new Error('Missing worked answer');
                     });
                     if (${partial} && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Missing blank feedback');
                     if (${invalid} && exercise.difficulty === 'easy' &&
                         !exercise.steps.every(step => $('feedback').textContent.includes({
-                            integer: 'celé číslo', fraction: 'Jmenovatel', decimal: 'desetinnou čárkou', length: 'jednotkou'
+                            integer: 'celé nebo desetinné', fraction: 'Jmenovatel', decimal: 'celé nebo desetinné', length: 'jednotkou'
                         }[step.answer.format]))) {
                         throw new Error('Malformed answers did not receive explicit feedback');
                     }
@@ -337,6 +371,10 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.match(partial.grade, /27,5\/61.*Známka: 3/);
             const invalid = await playMaths('easy', 3, false, true);
             assert.deepEqual(invalid.saved, { mode: 'easy', total: 50, maximum: 61, grade: 1 });
+            const representationPartial = await playMaths('hard', 10, false, false, true);
+            assert.deepEqual(representationPartial.saved, {
+                mode: 'hard', total: lesson.id === defaultMaths.id ? 209.75 : 207.5, maximum: 212, grade: 1
+            });
             assert.equal(await evaluate('window.timerStarts'), 0);
         } else {
             for (const [mode, count, maximum] of [['easy', 3, 60], ['medium', 5, 110], ['hard', 10, 210]]) {
@@ -350,13 +388,23 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     if ($('score').textContent !== 'Skóre: 0 b' || $('quiz-progress').value !== 0 ||
                         $('quiz-progress').max !== ${count}) throw new Error('Invalid initial quiz status');
                     let total = 0;
+                    let partials = 0;
+                    let previousLevel = -1;
                     for (let index = 0; index < ${count}; index++) {
                         const question = lesson.questions.find(q => q.prompt === $('question').textContent);
+                        const level = ['easy', 'medium', 'hard'].indexOf(question.difficulty);
+                        if (level < previousLevel) throw new Error('History difficulty went backwards');
+                        previousLevel = level;
                         if (question.type === 'text') {
-                            $('answer-input').value = question.acceptedAnswers[0];
+                            const partialYear = ${JSON.stringify(mode)} === 'hard' && question.id === 'h-bitva';
+                            $('answer-input').value = partialYear ? '1618' : question.acceptedAnswers[0];
+                            if (partialYear) partials++;
                             $('answers').requestSubmit();
                         } else $('answers').querySelectorAll('button')[question.answer].click();
-                        total += { easy: 10, medium: 20, hard: 30 }[question.difficulty] * 2;
+                        const partialYear = ${JSON.stringify(mode)} === 'hard' && question.id === 'h-bitva';
+                        total += partialYear ? 15 : { easy: 10, medium: 20, hard: 30 }[question.difficulty] * 2;
+                        if (partialYear && (!$('feedback').textContent.includes('polovinu bodů') ||
+                            $('feedback').textContent.includes('bonus +'))) throw new Error('Incorrect history partial feedback/bonus');
                         if ($('score').textContent !== 'Skóre: ' + total + ' b' ||
                             $('quiz-progress').value !== index + 1) throw new Error('Wrong history quiz status');
                         if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
@@ -366,7 +414,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         $('next').click();
                     }
                     const result = {
-                        bonus, summary: $('summary').children.length,
+                        bonus, partials, summary: $('summary').children.length,
                         grade: $('grade').textContent, visible: !$('results').hidden,
                         saved: JSON.parse(sessionStorage.getItem('history-tutor:v1:' + lesson.id)).at(-1).total,
                         fits: document.documentElement.scrollWidth <= innerWidth
@@ -378,12 +426,15 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 assert.equal(result.summary, count);
                 assert.equal(result.visible, true);
                 assert.equal(result.fits, true);
-                assert.equal(result.saved, maximum * 2);
-                assert.match(result.grade, new RegExp(`základ ${maximum}/${maximum}, bonus ${maximum}.*Známka: 1`));
+                const base = maximum - (mode === 'hard' ? 15 : 0);
+                const bonus = maximum - (mode === 'hard' ? 30 : 0);
+                assert.equal(result.partials, mode === 'hard' ? 1 : 0);
+                assert.equal(result.saved, base + bonus);
+                assert.match(result.grade, new RegExp(`základ ${base}/${maximum}, bonus ${bonus}.*Známka: 1`));
             }
         }
         const storageKey = `${subject}-tutor:v${subject === 'maths' ? 2 : 1}:${lesson.id}`;
-        const savedCount = subject === 'maths' ? 5 : 3;
+        const savedCount = subject === 'maths' ? 6 : 3;
         await client.send('Page.navigate', { url: pathToFileURL(file).href + '?reload' });
         for (let attempt = 0; attempt < 100; attempt++) {
             if (await evaluate(`location.search === "?reload" && document.querySelectorAll("#leaderboard-content tbody tr").length === ${savedCount}`)) break;

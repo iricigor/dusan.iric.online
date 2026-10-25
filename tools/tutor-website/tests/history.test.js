@@ -2,8 +2,12 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const lesson = require('../../tutor-website/examples/defenestrace.json');
-const { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults } = require('../../tutor-website/history.js');
+const lesson = require('../examples/defenestrace.json');
+const { normalizeAnswer, shuffle, selectQuestions, scoreAnswer: assessAnswer, grade, compareResults } = require('../history.js');
+const scoreAnswer = (...args) => {
+    const { assessment, ...score } = assessAnswer(...args);
+    return score;
+};
 
 test('all modes have exact counts, unique questions and hard always includes a year', () => {
     const pool = [
@@ -18,6 +22,7 @@ test('all modes have exact counts, unique questions and hard always includes a y
             const selected = selectQuestions(pool, mode);
             assert.deepEqual(['easy', 'medium', 'hard'].map(level => selected.filter(q => q.difficulty === level).length), counts);
             assert.equal(new Set(selected.map(q => q.id)).size, selected.length);
+            assert.deepEqual(selected.map(q => q.difficulty), ['easy', 'medium', 'hard'].flatMap((level, index) => Array(counts[index]).fill(level)));
             if (mode === 'hard') assert.ok(selected.some(q => q.year));
         }
     }
@@ -37,16 +42,21 @@ test('text normalization supports Czech spelling tolerance and accepted alternat
     };
     assert.equal(scoreAnswer(question, ' FALCKI ', 1000).base, 30);
     assert.equal(scoreAnswer(question, '<img src=x>', 1000).base, 0);
+    const name = { ...question, acceptedAnswers: ['Komenský', 'Jan Komenský', 'Jan Amos Komenský'] };
+    for (const answer of ['Komensky', 'Jan Komensky', 'Jan Amos Komenský']) {
+        assert.equal(scoreAnswer(name, answer, 1000).fraction, 1, answer);
+    }
+    assert.equal(scoreAnswer(name, 'Jan', 1000).fraction, 0);
 });
 
-test('only marked years receive partial credit, strictly less than ten years', () => {
-    const question = lesson.questions.find(q => q.id === 'h-defenestrace');
+test('legacy marked years retain strict notation and less-than-ten partial credit', () => {
+    const question = { ...lesson.questions.find(q => q.id === 'h-defenestrace'), assessment: undefined };
     for (const answer of ['1618', ' 1618 ']) assert.equal(scoreAnswer(question, answer, 0).fraction, 1);
     for (const answer of ['1609', '1627']) assert.equal(scoreAnswer(question, answer, 0).base, 15);
     for (const answer of ['1608', '1628', '1618foo', '1618.0', '1.618', '', '-1618', '0', 'Infinity']) {
         assert.equal(scoreAnswer(question, answer, 0).base, 0, answer);
     }
-    const countQuestion = { ...question, year: false, acceptedAnswers: ['27'] };
+    const countQuestion = { ...question, assessment: undefined, year: false, acceptedAnswers: ['27'] };
     assert.equal(scoreAnswer(countQuestion, '28', 0).base, 0);
 });
 
