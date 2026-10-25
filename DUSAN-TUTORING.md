@@ -235,6 +235,7 @@ na délku jsou v tooltipu a přístupném popisu. Podrobná pravidla bodování 
 rozbalovací. Dějepisný bonus ukazuje
 jen tenký ubývající proužek, nikoli odpočet. Dokončení každého kvízu oslaví
 krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledků.
+Síň slávy je v úvodním nastavení sbalená, po dokončení kvízu se sama rozbalí.
 Nové stránky mají vloženou světlou ikonu s velkým modrým D a menší černou absolventskou čepicí.
 Stávající zveřejněné stránky se tímto nemění.
 Dějepisné ověření a zdroje zůstávají v metadatech lekce, nikoli v samostatné
@@ -246,6 +247,9 @@ Stáhnout JSON uloží celou sadu otázek se správnými odpověďmi, celkovým 
 a počty podle obtížnosti easy/medium/hard. Matematické cvičení se počítá jako
 jedna otázka a export obsahuje odpovědi všech jeho kroků. Export funguje místně
 bez sítě, neobsahuje přezdívku ani výsledky žáka a nespustí kvíz.
+Panel je kompaktní; vysvětlení je v tooltipu a přístupném popisu tlačítka.
+Po zahájení stažení, kliknutí mimo panel nebo stisku Escape se zavře.
+Při chybě zůstane otevřený s viditelnou zprávou a možností opakovat stažení.
 
 Barevnější světlý/tmavý vzhled a krátké animace otázek, zpětné vazby,
 výsledků a odkrývání nápověd jsou společné. Nastavení omezeného pohybu je vypne.

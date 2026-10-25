@@ -30,8 +30,8 @@
         <details id="quiz-tools" hidden>
             <summary aria-label="Nástroje kvízu" title="Nástroje kvízu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 3h3l1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-3Z"/><circle cx="11.5" cy="10.5" r="3"/></svg></summary>
             <div id="quiz-tools-panel">
-                <p>Export obsahuje celou sadu otázek včetně správných odpovědí.</p>
-                <button id="quiz-export" type="button">Stáhnout JSON</button>
+                <button id="quiz-export" type="button" title="Celá sada otázek včetně správných odpovědí." aria-describedby="quiz-export-help">Stáhnout JSON</button>
+                <span id="quiz-export-help" class="visually-hidden">Export obsahuje celou sadu otázek včetně správných odpovědí.</span>
                 <p id="export-error" role="alert" hidden></p>
             </div>
         </details>

@@ -300,7 +300,11 @@ The export has `subject`, `lessonId`, `topic`, `summary` and `questions`.
 History entries preserve question data and add a `correctAnswers` array;
 maths exercises preserve typed step answers/assessment and add a formatted
 `correctAnswer` to each step. No attempt, nickname or student answers are exported.
-The disclosure can be collapsed with its cog; failures produce a visible alert.
+The compact panel contains just the download action; its explanation is in a
+tooltip and accessible description. It closes after successfully starting a
+download, on outside click/focus, Escape or its cog. Download/Escape restore cog
+focus; outside dismissal does not steal focus. Failures keep the panel open with
+a visible alert and retry action.
 
 Brief animations cover new questions/answer controls,
 feedback, results, tabs, glossary popovers and opened learning hints. They never
@@ -346,8 +350,9 @@ Every completion receives an encouraging summary, points/grade and a brief,
 nonblocking CSS confetti burst. Reduced-motion users get the same summary
 without confetti. Answer explanations remain available in a disclosure; the
 learner still explicitly advances after every question. The session leaderboard
-is collapsed by default, with the latest attempt's position inside it rather
-than emphasized in the main completion summary.
+is collapsed in quiz setup, expands automatically at completion, and can still
+be manually collapsed. Restarting closes it again. The latest attempt's position
+stays inside it rather than emphasized in the main completion summary.
 
 Both subjects save `answerDurationMs`: the sum of active question-answering
 intervals, stopped on submission and restarted when the next question is shown.

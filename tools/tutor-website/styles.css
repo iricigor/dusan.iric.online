@@ -135,9 +135,9 @@ input[type="text"] { width: 100%; max-width: 35rem; border: 1px solid var(--bord
 #quiz-tools > summary:hover { background: var(--bg); }
 #quiz-tools[open] > summary, #quiz-tools > summary:is(:hover, :focus-visible) { opacity: 1; }
 #quiz-tools svg { width: 1rem; height: 1rem; }
-#quiz-tools-panel { position: absolute; z-index: 1; top: calc(100% + .25rem); right: 0; width: min(20rem, calc(100vw - 2rem)); padding: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: .75rem; box-shadow: var(--shadow); }
-#quiz-tools-panel > p:first-child { margin-top: 0; }
-#export-error { color: var(--bad); }
+#quiz-tools-panel { position: absolute; z-index: 1; top: calc(100% + .25rem); right: 0; width: max-content; max-width: min(14rem, calc(100vw - 2rem)); padding: .5rem; background: var(--card); border: 1px solid var(--border); border-radius: .6rem; box-shadow: var(--shadow); }
+#quiz-export { padding: .35rem .65rem; font-size: .9rem; }
+#export-error { color: var(--bad); margin: .5rem 0 0; font-size: .85rem; line-height: 1.5; }
 .modes > button { flex: 1 1 10rem; padding: .8rem 1.2rem; border-radius: 1.5rem; font-weight: bold; }
 .modes > button { border-color: var(--mode-color); background: color-mix(in srgb, var(--mode-color) 24%, var(--card)); }
 .modes > [data-mode="easy"] { --mode-color: var(--good); }

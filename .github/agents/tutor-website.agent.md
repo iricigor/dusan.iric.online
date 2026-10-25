@@ -113,7 +113,8 @@ correction popovers. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
 is a thin shrinking bar without a countdown or visible label. Celebrate every
 completed quiz with brief CSS confetti (disabled for reduced motion); show the
-attempt's rank only inside the collapsed-by-default session leaderboard.
+attempt's rank inside the session leaderboard. Keep the leaderboard collapsed
+in quiz setup, but expand it automatically when a quiz finishes.
 Keep legacy records readable without inventing missing answering durations.
 Keep the sun/moon control a binary accessible theme switch. Audience is lesson
 metadata, not a visible age badge. The compact nickname label/input share one
@@ -127,6 +128,10 @@ in the same action area as learning controls; show it only in Hrát si. Keep its
 complete question bank, with total/easy/medium/hard counts and correct answers
 (including every maths step). Never include learner/attempt data or make network
 requests for export; make failures visible and retain the shared quiz lifecycle.
+Keep its panel compact: a download action with a tooltip/accessibility description
+instead of a visible explanatory paragraph. Close after a successful download,
+on outside click/focus or Escape; restore cog focus after download/Escape without
+stealing focus on outside dismissal. Keep failures visible and open for retry.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural
@@ -185,7 +190,8 @@ For `build`:
    user's approval. Maths has no running timing UI or speed bonus; history keeps its
    mandatory strict-before-15000ms bonus and existing scoring.
    Verify both subjects' answer-only duration in results, excluding feedback
-   reading, plus popover dismissal/focus, collapsed rules/leaderboard and favicon.
+   reading, plus popover dismissal/focus, collapsed setup rules/leaderboard,
+   expanded completion leaderboard and favicon.
 
 Do not write to `site`, change its index, commit, or open a PR. Publication is a
 separate approved action owned by the calling workflow.

@@ -163,6 +163,11 @@ function initializeTutor(lesson, subject) {
         $('glossary-close').focus({ preventScroll: true });
     });
     $('glossary-close').addEventListener('click', () => closeGlossary());
+    const closeQuizTools = (restoreFocus = false) => {
+        if (!$('quiz-tools').open) return;
+        $('quiz-tools').open = false;
+        if (restoreFocus) $('quiz-tools').querySelector('summary').focus({ preventScroll: true });
+    };
     const dismissGlossaryOutside = event => {
         if ($('glossary-drawer').matches(':popover-open') &&
             !$('glossary-drawer').contains(event.target) &&
@@ -171,6 +176,11 @@ function initializeTutor(lesson, subject) {
     };
     document.addEventListener('pointerdown', dismissGlossaryOutside);
     document.addEventListener('focusin', dismissGlossaryOutside);
+    const dismissQuizToolsOutside = event => {
+        if (!$('quiz-tools').contains(event.target)) closeQuizTools();
+    };
+    document.addEventListener('pointerdown', dismissQuizToolsOutside);
+    document.addEventListener('focusin', dismissQuizToolsOutside);
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && $('definition').matches(':popover-open')) {
             event.preventDefault();
@@ -178,6 +188,9 @@ function initializeTutor(lesson, subject) {
         } else if (event.key === 'Escape' && $('glossary-drawer').matches(':popover-open')) {
             event.preventDefault();
             closeGlossary();
+        } else if (event.key === 'Escape' && $('quiz-tools').open) {
+            event.preventDefault();
+            closeQuizTools(true);
         }
     });
     window.addEventListener('resize', positionDefinition);
@@ -345,6 +358,7 @@ function initializeTutor(lesson, subject) {
             link.download = `${lesson.id}-otazky.json`;
             document.body.append(link);
             link.click();
+            closeQuizTools(true);
         } catch (error) {
             console.error('Tutor: cannot export question bank.', error);
             $('export-error').textContent = 'JSON se nepodařilo stáhnout. Zkus to znovu.';
@@ -464,7 +478,7 @@ function initializeTutor(lesson, subject) {
             }
         }
         renderLeaderboard();
-        $('leaderboard').open = false;
+        $('leaderboard').open = true;
         $('leaderboard').hidden = false;
         focusContent($('results-title'));
     }
@@ -585,6 +599,7 @@ function initializeTutor(lesson, subject) {
         if (!quiz?.finished) return;
         $('results').hidden = true;
         $('setup').hidden = false;
+        $('leaderboard').open = false;
         $('player').focus();
     });
     renderLeaderboard();

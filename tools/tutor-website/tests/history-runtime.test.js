@@ -153,8 +153,10 @@ test('every mode and restarted run enables the bonus, waits for progression and 
         assert.equal(record.duration, Math.round(count * 14999 / 1000));
         assert.equal(runtime.get('score').textContent, `Skóre: ${record.total} b`);
         assert.ok(runtime.get('leaderboard-content').textContent.includes(`${2 * maximum} b`));
+        assert.equal(runtime.get('leaderboard').open, true);
         runtime.get('restart').dispatch('click');
         assert.equal(runtime.get('setup').hidden, false);
+        assert.equal(runtime.get('leaderboard').open, false);
     }
     assert.equal(runtime.records().length, 3);
 });
@@ -221,7 +223,7 @@ test('both subjects record answering only, excluding feedback and time outside t
         assert.equal(record.answerDurationMs, 10500, subject);
         assert.equal(runtime.intervals.size, 0);
         assert.match(runtime.get('answer-duration').textContent, /Doba odpovídání: 11 s/);
-        assert.equal(runtime.get('leaderboard').open, false);
+        assert.equal(runtime.get('leaderboard').open, true);
         assert.match(runtime.get('leaderboard-rank').textContent, /1\. místo z 1 pokusů/);
         assert.match(runtime.get('leaderboard-content').textContent, /KdyDoba odpovídání/);
         if (subject === 'maths') assert.equal(record.duration, undefined);
