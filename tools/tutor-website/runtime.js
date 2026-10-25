@@ -61,7 +61,7 @@ function initializeTutor(lesson, subject) {
         return element;
     };
     const hints = [];
-    const hint = (text, explanation, open = false, tag = 'p') => {
+    const hint = (text, explanation, tag = 'p') => {
         const block = node('div', undefined, 'hint');
         const prompt = paragraph(text, tag);
         prompt.className = 'hint-prompt';
@@ -78,7 +78,7 @@ function initializeTutor(lesson, subject) {
         }, 'hint-toggle');
         trigger.append(iconNode('💡'));
         trigger.setAttribute('aria-controls', content.id);
-        setOpen(open);
+        setOpen(false);
         prompt.prepend(trigger);
         block.append(prompt, content);
         hints.push({ content, setOpen });
@@ -213,19 +213,6 @@ function initializeTutor(lesson, subject) {
     const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
-    if (lesson.review !== undefined) {
-        $('original-review').hidden = false;
-        $('review').textContent = lesson.review;
-        lesson.sources.forEach(source => {
-            const item = node('li');
-            const link = node('a', source.title);
-            link.href = source.url;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            item.append(link);
-            $('sources').append(item);
-        });
-    }
     lesson.original.forEach((section, index) => {
         const article = node('article', undefined, 'card');
         article.append(heading(section.heading, section.icon, '📄'));

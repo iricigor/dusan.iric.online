@@ -5,7 +5,7 @@
     --warning: #875300; --shadow: 0 4px 12px #1720330d;
     --violet: #7036b0; --teal: #087574;
     --history-accent: #80551d; --maths-accent: #086e79;
-    --history-paper: #f5e7c9; --maths-paper: #dfedf2;
+    --history-paper: #f9f0dd; --maths-paper: #eaf4f7;
     --fun: #955900; --fun-paper: #fff0c2;
 }
 @media (prefers-color-scheme: dark) {
@@ -16,7 +16,7 @@
         --warning: #ffd082; --shadow: 0 4px 12px #0003;
         --violet: #d7b1ff; --teal: #77dfda;
         --history-accent: #e2c28f; --maths-accent: #8bd5df;
-        --history-paper: #343029; --maths-paper: #203a43;
+        --history-paper: #2c2e2f; --maths-paper: #1e343f;
         --fun: #ffd47b; --fun-paper: #46371f;
     }
 }
@@ -27,11 +27,11 @@
     --warning: #ffd082; --shadow: 0 4px 12px #0003;
     --violet: #d7b1ff; --teal: #77dfda;
     --history-accent: #e2c28f; --maths-accent: #8bd5df;
-    --history-paper: #343029; --maths-paper: #203a43;
+    --history-paper: #2c2e2f; --maths-paper: #1e343f;
     --fun: #ffd47b; --fun-paper: #46371f;
 }
-body[data-subject="history"] { --subject-accent: var(--history-accent); --subject-paper: var(--history-paper); --subject-pattern: radial-gradient(color-mix(in srgb, var(--subject-accent) 12%, transparent) .75px, transparent 1px); --subject-pattern-size: 5px 7px; }
-body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-paper: var(--maths-paper); --subject-pattern: linear-gradient(color-mix(in srgb, var(--subject-accent) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 12%, transparent) 1px, transparent 1px); --subject-pattern-size: 1rem 1rem; }
+body[data-subject="history"] { --subject-accent: var(--history-accent); --subject-paper: var(--history-paper); --subject-pattern: radial-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) .675px, transparent .9px); --subject-pattern-size: 5px 7px; }
+body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-paper: var(--maths-paper); --subject-pattern: linear-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px); --subject-pattern-size: 1rem 1rem; }
 body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
 body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }
 * { box-sizing: border-box; }

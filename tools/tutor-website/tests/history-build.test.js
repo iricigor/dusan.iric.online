@@ -17,12 +17,19 @@ test('example preserves all seven supplied original sections verbatim with seman
     const sections = original.tabs.find(tab => tab.id === 'original').content;
     assert.equal(sections.length, 7);
     assert.deepEqual(lesson.original.map(({ heading, text }) => ({ heading, text })), sections);
+    assert.equal(lesson.original[0].style, undefined);
+    assert.equal(lesson.original[0].style, lesson.original[1].style);
     assert.deepEqual(lesson.original.filter(section => section.style === 'fun').map(section => section.heading),
         ['VÍŠ, ŽE...?', 'VÍŠ, ŽE...?']);
     const final = lesson.original.at(-1);
     assert.equal(final.paragraphs.at(-1).style, 'quote');
     assert.equal(final.paragraphs.map(block => block.text).join('\n\n'), final.text);
     assert.equal(lesson.corrections[0].section, 3);
+    const html = renderLesson('history', lesson);
+    assert.doesNotMatch(html, /id="original-review"|Ověření a doplnění/);
+    const embedded = JSON.parse(html.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+    assert.equal(embedded.review, lesson.review);
+    assert.deepEqual(embedded.sources, lesson.sources);
 });
 
 test('published legacy lesson remains valid independently of the expanded prepared bank', () => {

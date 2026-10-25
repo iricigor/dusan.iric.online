@@ -73,20 +73,18 @@ const mathsSubject = {
     renderLearning({ $, node, paragraph, paragraphs, disclose, hint, heading }, lesson) {
         const examples = node('div');
         examples.id = 'examples';
-        lesson.examples.forEach((example, index) => {
+        lesson.examples.forEach(example => {
             const article = node('article', undefined, 'card');
             article.append(heading(example.heading, example.icon, '📐'),
-                hint(example.prompt, example.hint, index === 0), ...paragraphs(example.paragraphs));
+                hint(example.prompt, example.hint), ...paragraphs(example.paragraphs));
             const steps = node('ol');
-            example.steps.forEach((step, stepIndex) => {
+            example.steps.forEach(step => {
                 const item = node('li');
                 const detail = disclose('Odkrýt krok', paragraph(step.calculation), paragraph(step.explanation));
-                detail.open = index === 0 || (index === 1 && stepIndex === 0);
                 item.append(detail);
                 steps.append(item);
             });
             const answer = disclose('Výsledek', paragraph(example.answer));
-            answer.open = index === 0;
             article.append(steps, answer);
             examples.append(article);
         });
@@ -102,7 +100,7 @@ const mathsSubject = {
             article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'), paragraph(exercise.prompt));
             exercise.steps.forEach((step, stepIndex) => {
                 const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
-                article.append(hint(`${label}: ${step.prompt}`, step.hint, false, 'h3'),
+                article.append(hint(`${label}: ${step.prompt}`, step.hint, 'h3'),
                     disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`), paragraph(step.solution)));
             });
             article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation)));

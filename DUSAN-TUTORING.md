@@ -212,8 +212,11 @@ nikoli slovníček ani kvíz. Mají české tooltipy a přístupné popisky.
 Drobný ovladač Nápověda 💡 je uvnitř pravého horního rohu odstavce,
 text ho obtéká a vysvětlení se otevře pod celým odstavcem.
 Kroky a výsledky mají kompaktní číslované odkrývání bez rámečků.
-Dějepis používá sépiové akcenty a výraznější papírový podklad,
-matematika modrozelené akcenty a viditelnou geometrickou mřížku.
+V části Učit se jsou všechny nápovědy, kroky, výsledky a řešení zpočátku sbalené
+v obou předmětech; samotný text učiva zůstává viditelný.
+Dějepis používá sépiové akcenty a jemný papírový podklad,
+matematika modrozelené akcenty a jemnou geometrickou mřížku.
+Síla podkladu je mezi původní velmi světlou a pozdější výraznější variantou.
 Podklad pokrývá celé karty původního textu a učiva, včetně nadpisů a okrajů,
 nikoli jen proužky pod odstavci. Kvíz a výsledky zůstávají neutrální.
 Zajímavosti mají hravější zlatavý podklad, kulatý odznak ikony a jemné jiskřičky,
@@ -230,6 +233,8 @@ jen tenký ubývající proužek, nikoli odpočet. Dokončení každého kvízu 
 krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledků.
 Nové stránky mají vloženou světlou ikonu s velkým modrým D a menší černou absolventskou čepicí.
 Stávající zveřejněné stránky se tímto nemění.
+Dějepisné ověření a zdroje zůstávají v metadatech lekce, nikoli v samostatné
+viditelné kartě Ověření a doplnění. Opravy podtržených tvrzení zůstávají dostupné.
 
 Nenápadné ozubené kolečko vpravo u záložek v části Hrát si rozbalí nástroje;
 v části Učit se stejné místo využívají ikony pro rozbalení a sbalení učiva.

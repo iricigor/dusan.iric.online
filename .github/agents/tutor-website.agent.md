@@ -73,7 +73,7 @@ They share grade thresholds and easy-to-hard quiz progression, randomizing
 only within each difficulty. Keep subject themes in the shared stylesheet using
 trusted subject selectors: sepia/amber paper grain for history, blue/teal graph
 paper for maths. Cover entire original/learning cards (headings and padding
-included) with visible but readable textures, not strips behind paragraphs. Preserve
+included) with softly visible textures at moderate strength, not strips behind paragraphs. Preserve
 semantic callouts and neutral quiz/results backgrounds, and support dark mode.
 Do not add separate subject stylesheets, assets or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
@@ -93,14 +93,18 @@ tablist semantics, with Czech tooltips, accessible labels and 44px targets.
 Hints use a compact Nápověda 💡 button floated inside the top-right of the
 prompt paragraph, with text wrapping around it and explanation below.
 Keep expanded state accessible. Native numbered step/result/solution reveals
-are compact and borderless, retaining initial maths scaffolding and touch access.
+are compact and borderless, retaining touch access. All learning hints, steps,
+results and solutions start collapsed in both subjects; keep the main lesson
+text visible and offer help on demand.
 Support comment/fun/quote alongside existing paragraph styles.
 Fun-fact boxes use golden/amber styling, rounded icon badges and subtle CSS
 sparkles, not purple. The subject badge and title share one row while retaining
 their distinct typography; allow the title to wrap within its column on mobile.
 Motivational subtitles use the subject accent, not purple. Original styled
 paragraphs must reconstruct the canonical source text exactly; never insert
-labels or explanations into that text. Quiz mode pills show only
+labels or explanations into that text. Keep history review and source information
+in lesson metadata, not a visible Ověření a doplnění card; retain separate factual
+correction popovers. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
 is a thin shrinking bar without a countdown or visible label. Celebrate every
 completed quiz with brief CSS confetti (disabled for reduced motion); show the

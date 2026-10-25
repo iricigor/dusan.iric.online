@@ -138,7 +138,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(await evaluate(`document.getElementById('setup').textContent.includes('Na server nic neposíláme')`), false);
         assert.equal(await evaluate(`(() => {
             const article = document.querySelector('#original-content article');
-            return article.classList.contains('callout-' + ${JSON.stringify(lesson.original[0].style)});
+            const style = ${JSON.stringify(lesson.original[0].style || 'plain')};
+            return style === 'plain' ? !article.classList.contains('callout') :
+                article.classList.contains('callout-' + style);
         })()`), true);
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
@@ -146,6 +148,15 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         })()`), subject === 'maths' ? lesson.examples.reduce((sum, example) => sum + (example.paragraphs?.length || 0), 0)
             : lesson.chunks.reduce((sum, chunk) => sum + (chunk.paragraphs?.length || 0), 0));
         assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
+        assert.equal(await evaluate(`(() => {
+            const details = [...document.querySelectorAll('#learning-content details')];
+            const hints = [...document.querySelectorAll('#learning-content .hint-toggle')];
+            return hints.length > 0 && details.every(item => !item.open) &&
+                hints.every(item => item.getAttribute('aria-expanded') === 'false' &&
+                    document.getElementById(item.getAttribute('aria-controls')).hidden) &&
+                document.getElementById('collapse-learning').disabled &&
+                !document.getElementById('expand-learning').disabled;
+        })()`), true, `${subject}: all learning help starts collapsed`);
         assert.equal(await evaluate(`(() => {
             const details = [...document.querySelectorAll('#learning-content details')];
             const hints = [...document.querySelectorAll('#learning-content .hint-toggle')];
@@ -190,6 +201,19 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         `${subject}: compact hint opens with keyboard and updates controls`);
         await evaluate(`document.getElementById('collapse-learning').click()`);
         if (subject === 'history') {
+            assert.deepEqual(await evaluate(`(() => {
+                const data = JSON.parse(document.getElementById('lesson-data').textContent);
+                const cards = document.querySelectorAll('#original-content > article');
+                return {
+                    reviewCard: document.getElementById('original-review'),
+                    review: data.review, sources: data.sources,
+                    corrections: document.querySelectorAll('#original-content .correction').length,
+                    plainSections: [cards[0], cards[1]].every(card =>
+                        card.className === 'card' && !card.querySelector('.callout-label'))
+                };
+            })()`), { reviewCard: null, review: lesson.review, sources: lesson.sources,
+                corrections: lesson.corrections.length, plainSections: true },
+            'history: no review card, retained provenance/corrections and matching regular first sections');
             assert.equal(await evaluate(`document.querySelectorAll('#original-content .callout-fun').length`), 2);
             assert.equal(await evaluate(`document.querySelector('#original-content blockquote.callout-quote').textContent`),
                 lesson.original.at(-1).paragraphs.at(-1).text);
@@ -372,6 +396,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                                 return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
                             };
                             const paper = rgb(expected);
+                            const [pale, strong] = ${JSON.stringify({
+                                history: {
+                                    light: [[252, 249, 240], [245, 231, 201]],
+                                    dark: [[36, 43, 52], [52, 48, 41]]
+                                },
+                                maths: {
+                                    light: [[245, 250, 251], [223, 237, 242]],
+                                    dark: [[27, 45, 58], [32, 58, 67]]
+                                }
+                            }[subject][theme])};
                             const card = rgb(getComputedStyle(document.getElementById('setup')).backgroundColor);
                             const luminance = values => values.map(value => value / 255)
                                 .map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
@@ -379,13 +413,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             const contrast = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) /
                                 (Math.min(luminance(a), luminance(b)) + .05);
                             return document.body.dataset.subject === '${subject}' &&
-                                Math.max(...paper.map((channel, index) => Math.abs(channel - card[index]))) >= 16 &&
+                                paper.every((channel, index) => channel === Math.round((pale[index] + strong[index]) / 2)) &&
+                                Math.max(...paper.map((channel, index) => Math.abs(channel - card[index]))) >= 10 &&
                                 cards.every(element => {
                                     const style = getComputedStyle(element);
                                     return rgb(style.backgroundColor).every((channel, index) => channel === paper[index]) &&
                                         style.backgroundClip.split(', ').every(clip => clip === 'border-box') &&
                                         style.backgroundImage.includes('${subject === 'history' ? 'radial-gradient' : 'linear-gradient'}') &&
-                                        style.backgroundImage.includes('0.12') &&
+                                        style.backgroundImage.includes('0.085') &&
                                         contrast(rgb(style.color), paper) >= 4.5 &&
                                         contrast(rgb(getComputedStyle(element.querySelector('h2')).color), paper) >= 4.5;
                                 }) &&
@@ -412,7 +447,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                                 }) &&
                                 getComputedStyle(document.getElementById('results')).backgroundImage === 'none' &&
                                 getComputedStyle(document.getElementById('setup')).backgroundImage === 'none';
-                        })()`), true, `${subject}/${width}/${theme}: visible whole-card themes, golden fun facts and transparent text`);
+                        })()`), true, `${subject}/${width}/${theme}: midpoint whole-card themes, golden fun facts and transparent text`);
                     }
                     await capture(`${subject}-${tab}-${width}-${theme}`);
                     if (subject === 'history' && tab === 'original') {
@@ -690,7 +725,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     levels: exercises.map(exercise => exercise.querySelector('.heading-text').textContent.replace(/^\\d+\\. /, ''))
                 };
             })()`), {
-                openDetails: [lesson.examples[0].steps.length + 2, 1, 0, 0], firstBeforePractice: true,
+                openDetails: [0, 0, 0, 0], firstBeforePractice: true,
                 levels: ['easy', 'medium', 'hard'].flatMap(level =>
                     lesson.exercises.filter(exercise => exercise.difficulty === level)
                         .map(() => ({ easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' }[level])))

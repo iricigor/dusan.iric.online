@@ -125,6 +125,8 @@ failed verification; ask before substituting foreign-language references.
 Mark corrections with an exact, uniquely occurring quote, its zero-based original
 section, explanation and listed source URL. Describe sourced additions in
 `review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
+Review and source information remain in the embedded lesson metadata, not a
+visible Ověření a doplnění card. Exact-quote factual correction popovers remain.
 Author at least 30 distinct questions per new lesson, including at least 2 easy,
 5 medium and 3 hard; prefer 50-100 for substantial material. The prepared bank
 contains 6 easy, 15 medium and 9 hard questions, with teaching extended through
@@ -263,15 +265,18 @@ Individual disclosures remain independently operable. Hints share a small
 with text wrapping around it. The button exposes its expanded state and controls
 an explanation below the entire paragraph. Native step/result/solution reveals
 retain descriptive labels in compact, borderless numbered lists; touch targets
-remain 44px on coarse pointers. Initial maths scaffolding is unchanged.
+remain 44px on coarse pointers. All hints, steps, results and solutions start
+collapsed in both subjects; the main lesson text stays visible.
 
 The subject badge and lesson title share one row, retaining distinct badge
 and heading typography. Long titles wrap within their column on narrow screens.
 Motivational subtitles use the subject accent, not purple.
 Trusted subject selectors in the one shared stylesheet provide sepia/amber
-history accents and blue/teal maths accents. Visible CSS-only paper grain or
+history accents and blue/teal maths accents. Softly visible CSS-only paper grain or
 graph-paper backgrounds cover entire original/learning cards, including headings
 and padding, in both themes; paragraphs remain transparent, not separate strips.
+Card tints are midway between the original pale and stronger palettes; pattern
+opacity is 8.5%, halfway between the earlier 5% and 12% treatments.
 Fun facts use warm golden/amber boxes, rounded icon badges and CSS-only sparkles.
 Other semantic callouts retain their own styling. Quiz/results
 backgrounds remain neutral; no lesson-supplied CSS or external assets are used.
@@ -364,7 +369,7 @@ the package archive nor existing published lessons is changed by this integratio
 |---|---|
 | Wide desktop shell and learning/glossary columns | A 1120px maximum shared shell and a bookmark-triggered overlay glossary drawer, with no reserved column; original text fills its card's inner width |
 | Subject/audience badges and prominent active tabs | Subject badge retained, audience badge omitted; attached icon-and-label tabs use selected states, keyboard navigation and labelled panels |
-| Difficulty cards, visible hints and grade banner | Adapted in the common CSS; inline hint buttons expose expanded state and control explanations, with existing maths scaffolding unchanged |
+| Difficulty cards, on-demand hints and grade banner | Adapted in the common CSS; inline hint buttons expose expanded state and control explanations; all learning help starts collapsed |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
 | “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |
 | Glossary modal, themes and success/failure animations | Shared anchored native popovers, system-theme support and reduced-motion-aware feedback instead of duplicate implementations |
@@ -383,10 +388,9 @@ Both quizzes require a name or nickname containing at least three Unicode
 letters, at most 60 characters. It is entered in the browser, never embedded
 in lesson JSON, and shown in the session-local results table.
 
-Maths examples and exercises share Učit se. The simple example initially shows
-its hint, every step and answer. The complex example initially shows only its
-first worked step; the everyday example and challenge leave help collapsed.
-Independent practice follows, ordered easy, medium, hard, with help collapsed.
+Maths examples and exercises share Učit se. All four worked examples initially
+leave hints, steps and results collapsed. Independent practice follows, ordered
+easy, medium, hard, with hints and solutions collapsed.
 All hints, steps and solutions remain available on demand.
 
 ## Shared v3 content contract and maths section
