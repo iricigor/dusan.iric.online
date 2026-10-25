@@ -24,6 +24,28 @@ test('both subjects discover one v3 contract and require shared motivational met
     }
 });
 
+test('optional plain-text icons cover section, card, quiz and glossary headers without requiring migration', () => {
+    for (const [subject, source, keys] of [
+        ['history', history, ['original', 'chunks', 'questions', 'glossary']],
+        ['maths', mathsLesson(), ['original', 'examples', 'exercises', 'glossary']]
+    ]) {
+        for (const key of keys) {
+            const lesson = structuredClone(source);
+            for (const icon of ['🏰', '⚖️', '📐', '👩🏽‍🏫', '<img src=x onerror=alert(1)>']) {
+                lesson[key][0].icon = icon;
+                assert.equal(validateLesson(subject, lesson), lesson);
+                const html = renderLesson(subject, lesson);
+                assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
+                assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
+            }
+            for (const icon of ['', ' ', null, 1, {}, 'a'.repeat(33)]) {
+                lesson[key][0].icon = icon;
+                assert.throws(() => validateLesson(subject, lesson), /icon/);
+            }
+        }
+    }
+});
+
 test('legacy history v1 and maths v2 use the same validator without inventing original material', () => {
     const legacyHistory = structuredClone(history);
     legacyHistory.version = 1;

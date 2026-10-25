@@ -35,13 +35,18 @@ function scoreAnswer(question, answer, elapsedMs) {
 }
 
 function compareResults(a, b) {
-    return b.total - a.total || a.duration - b.duration;
+    return b.total - a.total || (a.answerDurationMs ?? a.duration * 1000) - (b.answerDurationMs ?? b.duration * 1000);
 }
 
 const historySubject = {
     storagePrefix: 'history-tutor:v1',
     speedBonus: true,
-    rules: 'Lehká otázka: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů. Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Potom můžeš dál odpovídat za základní body. Známka nezávisí na rychlosti: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5.',
+    rules: [
+        'Lehká otázka: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
+        'Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Tenký proužek ukazuje, dokud je bonus dostupný. Potom můžeš dál odpovídat za základní body. Nemusíš spěchat.',
+        'Známka nezávisí na rychlosti: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5.',
+        'Pokusy řadíme podle bodů. Při stejných bodech rozhoduje kratší doba odpovídání. Čtení vysvětlení ani pobyt mimo kvíz se do ní nepočítají. U starších pokusů zůstává původní celková doba.'
+    ],
     select: (lesson, mode) => selectQuestions(lesson.questions, mode),
     maximum: questions => questions.reduce((sum, question) => sum + POINTS[question.difficulty], 0),
     score: (question, values, elapsed) => scoreAnswer(question, values[0], elapsed),
@@ -50,12 +55,12 @@ const historySubject = {
     compareResults,
     validRecord: row => Object.hasOwn(MODES, row.mode) && Number.isFinite(row.total) && row.total >= 0 &&
         Number.isFinite(row.duration) && row.duration >= 0 && Number.isInteger(row.grade) && row.grade >= 1 && row.grade <= 5,
-    renderLearning({ $, node, paragraph, paragraphs, disclose }, lesson) {
+    renderLearning({ $, node, paragraph, paragraphs, disclose, heading }, lesson) {
         const chunks = node('div');
         chunks.id = 'chunks';
         lesson.chunks.forEach(chunk => {
             const article = node('article', undefined, 'card');
-            article.append(node('h2', chunk.heading), paragraph(chunk.sentences.join(' ')), ...paragraphs(chunk.paragraphs),
+            article.append(heading(chunk.heading, chunk.icon, '🏰'), paragraph(chunk.sentences.join(' ')), ...paragraphs(chunk.paragraphs),
                 disclose('Nápověda: jednodušeji', node('p', chunk.explanation)));
             chunks.append(article);
         });

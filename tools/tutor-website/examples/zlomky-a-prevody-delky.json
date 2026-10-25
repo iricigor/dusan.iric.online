@@ -7,11 +7,12 @@
   "topic": "Zlomky a převody jednotek délky",
   "audience": "Pro děti kolem 10 let.",
   "original": [
-    {"heading": "Zadání", "style": "example", "text": "Výpočet části z celku pomocí zlomků a převody jednotek délky."}
+    {"heading": "Zadání", "icon": "📐", "style": "example", "text": "Výpočet části z celku pomocí zlomků a převody jednotek délky."}
   ],
   "glossary": [
     {
       "term": "zlomek",
+      "icon": "🍰",
       "definition": "Zapisuje část celku, například 3/4. Celek rozdělíme na čtyři stejně velké části a vezmeme tři z nich.",
       "forms": ["zlomky", "zlomku", "zlomků"]
     },
@@ -50,6 +51,7 @@
     {
       "kind": "simple",
       "heading": "1. Zlomek jako část celku",
+      "icon": "🍰",
       "paragraphs": [
         {"style": "note", "text": "Různé zápisy mohou znamenat stejnou hodnotu: 0,5 = 1/2 a 7/4 = 1 3/4 = 1,75."},
         {"style": "tip", "text": "Nejdřív si celek představ rozdělený na stejně velké části. Potom počítej."}
@@ -117,6 +119,7 @@
     },
     {
       "id": "ctyri-prevody",
+      "icon": "📏",
       "difficulty": "easy",
       "prompt": "Čtyři samostatné převody délky. Napiš pouze číslo v jednotce určené otázkou.",
       "steps": [

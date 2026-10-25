@@ -101,11 +101,21 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(response.exceptionDetails, undefined, JSON.stringify(response.exceptionDetails));
         return response.result.value;
     };
+    const capture = async name => {
+        if (!process.env.TUTOR_SCREENSHOT_DIRECTORY) return;
+        fs.mkdirSync(process.env.TUTOR_SCREENSHOT_DIRECTORY, { recursive: true });
+        await evaluate('Promise.all(document.getAnimations().map(animation => animation.finished))');
+        const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
+        fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${name}.png`), Buffer.from(screenshot.data, 'base64'));
+    };
     for (const [subject, lesson] of [
         ['maths', { ...mathsAssessmentLesson(), id: 'shared-lesson-id' }],
         ['history', { ...history, id: 'shared-lesson-id' }],
         ['maths', defaultMaths]
     ]) {
+        if (subject === 'maths' && lesson.id === 'shared-lesson-id') {
+            lesson.glossary[0].icon = '<img src=x onerror=alert(1)>';
+        }
         const file = path.join(directory, `${subject}-${lesson.id}.html`);
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
@@ -115,6 +125,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
         assert.equal(await evaluate('document.getElementById("subtitle").textContent'), lesson.subtitle);
+        assert.equal(await evaluate('document.querySelector("#original-content .card-icon").textContent'), lesson.original[0].icon || '📄');
+        assert.equal(await evaluate('document.querySelector("#glossary .card-icon").textContent'), lesson.glossary[0].icon || '📖');
+        assert.equal(await evaluate('document.querySelectorAll("img, svg").length'), 0, 'icon markup remains plain text');
         assert.equal(await evaluate(`(() => {
             const article = document.querySelector('#original-content article');
             return article.classList.contains('callout-' + ${JSON.stringify(lesson.original[0].style)});
@@ -146,12 +159,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         return !document.getElementById('${tab}').hidden && tab.getAttribute('aria-pressed') === 'true'
                             && document.documentElement.scrollWidth <= innerWidth;
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
-                    if (process.env.TUTOR_SCREENSHOT_DIRECTORY) {
-                        fs.mkdirSync(process.env.TUTOR_SCREENSHOT_DIRECTORY, { recursive: true });
-                        await evaluate('Promise.all(document.getAnimations().map(animation => animation.finished))');
-                        const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
-                        fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${subject}-${tab}-${width}-${theme}.png`), Buffer.from(screenshot.data, 'base64'));
-                    }
+                    await capture(`${subject}-${tab}-${width}-${theme}`);
                 }
                 assert.deepEqual(await evaluate(`(() => {
                     document.querySelector('[data-tab="learning"]').click();
@@ -164,7 +172,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             tab.getAttribute('aria-controls') === tab.dataset.tab)
                     };
                 })()`), {
-                    sideBySide: width > 1024, stacked: width <= 1024,
+                    sideBySide: false, stacked: true,
                     labelled: true
                 }, `${subject}/${width}/${theme} shared layout`);
             }
@@ -183,11 +191,68 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         await client.send('Emulation.setEmulatedMedia', { features: [] });
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
+            document.querySelector('.glossary-card').open = true;
             document.querySelector('#glossary button').click();
-            const open = document.getElementById('definition').open;
-            document.getElementById('definition').close();
+            const open = document.getElementById('definition').matches(':popover-open');
+            document.getElementById('definition-close').click();
             return open && !!document.getElementById('definition-text').textContent;
         })()`), true);
+        assert.equal(await evaluate('document.activeElement === document.querySelector("#glossary button")'), true);
+        for (const width of [320, 1600]) {
+            await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+            assert.equal(await evaluate(`(async () => {
+                const trigger = document.querySelector('#learning-content .term');
+                trigger.scrollIntoView({ block: 'center' });
+                trigger.click();
+                await Promise.all(document.getAnimations().map(animation => animation.finished));
+                const panel = document.getElementById('definition');
+                const bounds = panel.getBoundingClientRect();
+                return panel.matches(':popover-open') && bounds.left >= 0 && bounds.right <= innerWidth &&
+                    bounds.top >= 0 && bounds.bottom <= innerHeight &&
+                    trigger.getAttribute('aria-expanded') === 'true' &&
+                    document.activeElement === document.getElementById('definition-close');
+            })()`), true, `${subject}/${width}: anchored glossary fits viewport`);
+            await capture(`${subject}-popover-${width}`);
+            await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+            await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+            await delay(50);
+            assert.equal(await evaluate(`!document.getElementById('definition').matches(':popover-open') &&
+                document.activeElement.classList.contains('term') &&
+                document.activeElement.getAttribute('aria-expanded') === 'false'`), true, `${subject}: Escape restores focus`);
+            await evaluate(`document.activeElement.click()`);
+            await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: 2, y: 895, button: 'left', clickCount: 1 });
+            await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: 2, y: 895, button: 'left', clickCount: 1 });
+            await delay(50);
+            assert.equal(await evaluate(`!document.getElementById('definition').matches(':popover-open') &&
+                document.querySelector('#learning-content .term').getAttribute('aria-expanded') === 'false'`), true, `${subject}: light dismiss`);
+        }
+        assert.equal(await evaluate(`(() => {
+            document.querySelector('#glossary button').click();
+            document.querySelector('[data-tab="quiz"]').click();
+            return !document.getElementById('definition').matches(':popover-open') &&
+                !document.getElementById('scoring-rules').open && !document.getElementById('leaderboard').open &&
+                [...document.querySelectorAll('[data-mode]')].every(mode => !/bod/.test(mode.textContent)) &&
+                [...document.querySelectorAll('#original-content h2, #learning-content article h2')]
+                    .every(title => title.querySelector('.card-icon[aria-hidden="true"]'));
+        })()`), true, `${subject}: quiet setup and decorative card icons`);
+        assert.equal(await evaluate(`(async () => {
+            const image = new Image();
+            image.src = document.querySelector('link[rel="icon"]').href;
+            await image.decode();
+            return [16, 32].every(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = size;
+                const context = canvas.getContext('2d');
+                context.drawImage(image, 0, 0, size, size);
+                const pixels = context.getImageData(0, 0, size, size).data;
+                let white = 0, blue = 0;
+                for (let i = 0; i < pixels.length; i += 4) {
+                    if (pixels[i] > 220 && pixels[i + 1] > 220 && pixels[i + 2] > 220) white++;
+                    if (pixels[i + 2] > pixels[i] + 40 && pixels[i + 3] > 200) blue++;
+                }
+                return white > size && blue > size * size / 3;
+            });
+        })()`), true, `${subject}: offline favicon renders at 16 and 32 pixels`);
         assert.deepEqual(await evaluate(`(() => {
             const $ = id => document.getElementById(id);
             document.querySelector('[data-tab="original"]').click();
@@ -229,7 +294,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 return {
                     openDetails,
                     firstBeforePractice: !!(document.getElementById('examples').compareDocumentPosition(document.getElementById('exercises')) & Node.DOCUMENT_POSITION_FOLLOWING),
-                    levels: exercises.map(exercise => exercise.querySelector('h2').textContent.replace(/^\\d+\\. /, ''))
+                    levels: exercises.map(exercise => exercise.querySelector('.heading-text').textContent.replace(/^\\d+\\. /, ''))
                 };
             })()`), {
                 openDetails: [lesson.examples[0].steps.length + 2, 1, 0, 0], firstBeforePractice: true,
@@ -245,6 +310,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             const playMaths = (mode, count, partial = false, invalid = false, policyPartial = false) => evaluate(`(() => {
                 const $ = id => document.getElementById(id);
                 const lesson = JSON.parse($('lesson-data').textContent);
+                window.answerClock = 0;
+                Object.defineProperty(performance, 'now', { configurable: true, value: () => window.answerClock });
                 document.querySelector('[data-tab="quiz"]').click();
                 $('player').value = 'Kontrola';
                 document.querySelector('[data-mode="${mode}"]').click();
@@ -263,6 +330,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     if (level < previousLevel) throw new Error('Difficulty went backwards');
                     previousLevel = level;
                     if ($('difficulty').dataset.level !== exercise.difficulty) throw new Error('Wrong difficulty badge');
+                    if ($('question').getBoundingClientRect().top < $('page-header').getBoundingClientRect().bottom) throw new Error('Question covered by sticky header');
                     if (getComputedStyle($('question').firstChild).animationName !== 'reveal') throw new Error('Missing question animation');
                     seen.push(exercise.id);
                     mix[exercise.difficulty]++;
@@ -302,6 +370,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         representationPartial ? 8.75 :
                         ${invalid} && exercise.difficulty === 'easy' ? 0 : { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
                     total += earned;
+                    window.answerClock += 2000;
                     $('answers').requestSubmit();
                     if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b') throw new Error('Wrong running score');
                     if ($('quiz-progress').value !== index + 1) throw new Error('Wrong submitted progress');
@@ -332,10 +401,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b' ||
                         $('quiz-progress').value !== index + 1) throw new Error('Duplicate submission changed status');
                     if (document.documentElement.scrollWidth > innerWidth) throw new Error('Feedback overflows');
+                    window.answerClock += 30000;
                     $('next').click();
                 }
                 const record = JSON.parse(sessionStorage.getItem('maths-tutor:v2:' + lesson.id)).at(-1);
                 if (record.name !== 'Kontrola' || !record.id || !record.time || 'duration' in record) throw new Error('Invalid named untimed result');
+                if (record.answerDurationMs !== ${count} * 2000) throw new Error('Maths duration includes feedback');
+                if ($('results-title').getBoundingClientRect().top < $('page-header').getBoundingClientRect().bottom) throw new Error('Completion covered by sticky header');
+                if (!$('answer-duration').textContent.includes('Doba odpovídání:') ||
+                    $('leaderboard').open || !$('leaderboard-rank').textContent.includes('místo')) throw new Error('Missing quiet completion');
+                if (getComputedStyle(document.querySelector('.confetti span')).animationName !== 'confetti') throw new Error('Missing completion confetti');
                 if (!$('leaderboard-content').textContent.includes(record.name)) throw new Error('Missing player result');
                 const saved = { mode: record.mode, total: record.total, maximum: record.maximum, grade: record.grade };
                 const records = $('leaderboard-content').querySelectorAll('tbody tr').length;
@@ -381,10 +456,13 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 const result = await evaluate(`(() => {
                     const $ = id => document.getElementById(id);
                     const lesson = JSON.parse($('lesson-data').textContent);
+                    window.answerClock = 0;
+                    Object.defineProperty(performance, 'now', { configurable: true, value: () => window.answerClock });
                     document.querySelector('[data-tab="quiz"]').click();
                     $('player').value = 'Kontrola';
                     document.querySelector('[data-mode="${mode}"]').click();
-                    const bonus = $('bonus').textContent;
+                    const bonus = $('bonus').textContent === '' && $('bonus').getAttribute('aria-hidden') === 'true' &&
+                        $('bonus-bar').style.transform === 'scaleX(1)';
                     if ($('score').textContent !== 'Skóre: 0 b' || $('quiz-progress').value !== 0 ||
                         $('quiz-progress').max !== ${count}) throw new Error('Invalid initial quiz status');
                     let total = 0;
@@ -395,6 +473,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         const level = ['easy', 'medium', 'hard'].indexOf(question.difficulty);
                         if (level < previousLevel) throw new Error('History difficulty went backwards');
                         previousLevel = level;
+                        window.answerClock += 2000;
                         if (question.type === 'text') {
                             const partialYear = ${JSON.stringify(mode)} === 'hard' && question.id === 'h-bitva';
                             $('answer-input').value = partialYear ? '1618' : question.acceptedAnswers[0];
@@ -411,8 +490,13 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         const feedback = $('feedback').textContent;
                         $('answers').dispatchEvent(new Event('submit', { cancelable: true }));
                         if ($('feedback').textContent !== feedback) throw new Error('Duplicate submission changed feedback');
+                        window.answerClock += 30000;
                         $('next').click();
                     }
+                    const record = JSON.parse(sessionStorage.getItem('history-tutor:v1:' + lesson.id)).at(-1);
+                    if (record.answerDurationMs !== ${count} * 2000 || record.duration !== ${count} * 2) throw new Error('History duration includes feedback');
+                    if ($('results-title').getBoundingClientRect().top < $('page-header').getBoundingClientRect().bottom) throw new Error('History completion covered by sticky header');
+                    if ($('leaderboard').open || !$('leaderboard-rank').textContent.includes('místo')) throw new Error('Rank not in collapsed leaderboard');
                     const result = {
                         bonus, partials, summary: $('summary').children.length,
                         grade: $('grade').textContent, visible: !$('results').hidden,
@@ -422,7 +506,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     $('restart').click();
                     return result;
                 })()`);
-                assert.match(result.bonus, /bonus/);
+                assert.equal(result.bonus, true);
                 assert.equal(result.summary, count);
                 assert.equal(result.visible, true);
                 assert.equal(result.fits, true);
@@ -493,6 +577,13 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true);
                 assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('${storageKey}')).length`), 2);
             }
+            await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+            assert.deepEqual(await evaluate(`(() => {
+                const confetti = getComputedStyle(document.querySelector('.confetti span'));
+                return { animation: confetti.animationName, opacity: confetti.opacity };
+            })()`), { animation: 'none', opacity: '0' }, `${subject}: no confetti with reduced motion`);
+            await capture(`${subject}-completion-320`);
+            await client.send('Emulation.setEmulatedMedia', { features: [] });
             await evaluate(`document.getElementById('restart').click(); document.getElementById('player').value = '';
                 document.querySelector('[data-mode="easy"]').click();`);
             assert.equal(await evaluate('!document.getElementById("setup").hidden && !!document.getElementById("name-error").textContent'), true);

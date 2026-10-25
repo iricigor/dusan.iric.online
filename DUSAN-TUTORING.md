@@ -166,6 +166,10 @@ Při odpovědi přesně za 15 sekund nebo později bonus nepřidáváme. Chybná
 částečně správná odpověď bonus nezíská. Odpovídat lze i po vypršení bonusu
 a dítě samo volí, kdy pokračovat. Známka vychází jen ze základních bodů,
 nikoli z rychlosti. Matematika nemá časovač ani rychlostní bonus.
+Oba předměty ve výsledku zobrazují **Dobu odpovídání**: součet času při
+odpovídání, bez čtení zpětné vazby, pobytu v jiné části lekce nebo skryté
+stránce prohlížeče. Matematika během kvízu čas neukazuje a doba nemění její
+body, známku ani pořadí. Sloupec **Kdy** označuje datum a čas pokusu.
 Výsledky se ukládají do úložiště relace prohlížeče, zvlášť pro každou
 lekci. Neodesílají se na server a neslouží jako trvalý záznam.
 
@@ -181,6 +185,16 @@ příklad, tip nebo upozornění. V původním textu nastav `original[].style`;
 jeho znění se nemění. V matematických příkladech a dějepisných výukových
 blocích lze přidat pole `paragraphs` s položkami `{ "style", "text" }`.
 HTML ani vlastní CSS do obsahu nepatří.
+
+Volitelné `icon` doplní krátké emoji k původnímu oddílu, výukovému bloku,
+řešenému příkladu, otázce, cvičení nebo pojmu ve slovníčku. Bez něj generátor
+použije výchozí ikonu. Slovníček je rozbalovací; definice se otevírají u
+kliknutého slova. Záložky a obtížnosti mají podobu přehledných zaoblených
+tlačítek, podrobná pravidla bodování jsou rozbalovací. Dějepisný bonus ukazuje
+jen tenký ubývající proužek, nikoli odpočet. Dokončení každého kvízu oslaví
+krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledků.
+Nové stránky mají vloženou modrou ikonu s bílým D a absolventskou čepicí.
+Stávající zveřejněné stránky se tímto nemění.
 
 Barevnější světlý/tmavý vzhled a krátké animace otázek, zpětné vazby,
 výsledků a odkrývání nápověd jsou společné. Nastavení omezeného pohybu je vypne.

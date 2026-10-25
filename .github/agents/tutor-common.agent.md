@@ -92,6 +92,11 @@ GitHub issue, then wait for explicit confirmation to start implementation.
   optional `paragraphs` in maths examples/history chunks add clearly labelled
   teaching notes. Never put generated explanations into the original text.
   Website owns all CSS, animations, JavaScript and schema/validation logic.
+- The shared schema accepts optional plain-text emoji `icon` overrides on
+  original sections, learning/example cards, quiz questions/maths exercises
+  and glossary entries. The website supplies defaults; use a relevant icon
+  without repeating it inside the heading or changing preserved source text.
+  Do not author HTML, asset URLs or custom visual behavior.
 - `tutor-website` owns the JSON contract and validated page-generation workflow.
   Ask it for current capabilities before preparing lesson data. The executable
   schema and validator it identifies are authoritative; do not copy or invent a
@@ -105,8 +110,12 @@ GitHub issue, then wait for explicit confirmation to start implementation.
 - Preserve subject-specific scoring/timing rules. Declare spelling normalization
   and approximate numeric intervals explicitly; never infer history tolerance
   for maths. Legacy lessons retain their documented grading through compatibility
-  policies, not a second evaluator. Maths must have no timer or
-  speed bonus. History's speed bonus is always enabled: fully correct answers
+  policies, not a second evaluator. Maths must have no visible running timer,
+  countdown or speed bonus. Both subjects passively record active answering
+  duration, excluding feedback reading, hidden browser pages and other lesson
+  tabs. Show it only in results as `Doba odpovídání`; `Kdy` is the attempt
+  timestamp. Maths duration must not affect scores, grades or ranking.
+  History's speed bonus is always enabled: fully correct answers
   in less than 15 seconds earn twice their base points. History grades exclude
   speed bonus points; the bonus deadline never prevents answering or controls
   progression.

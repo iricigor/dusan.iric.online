@@ -23,6 +23,7 @@ test('discovery identifies real contracts and available untimed maths assessment
         assert.equal(result.version, 3);
         assert.deepEqual(result.tabs, ['original', 'learning', 'quiz']);
         assert.equal(result.playerNameRequired, true);
+        assert.equal(result.answerDuration, 'active-answering-only-excludes-feedback-and-hidden-quiz');
     }
     assert.equal(capabilities('maths').assessment, 'available');
     assert.equal(capabilities('maths').generation, 'lesson-and-quiz');
@@ -184,13 +185,26 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.ok(!html.includes(hostile));
     assert.match(html, /&lt;\/script&gt;/);
     assert.equal((html.match(/<script(?:\s|>)/g) || []).length, 2);
-    assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)=|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
+    assert.doesNotMatch(html, /<(?:script|img)[^>]+src=|<link[^>]+href="(?!data:)|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
     assert.match(html, /speedBonus: false/);
     assert.doesNotMatch(html, /zatím nejsou dostupné|@@(?:DATA|STYLES|APP)@@/);
     assert.match(html, /data-mode="hard"/);
     assert.match(html, /id="results"/);
     assert.match(html, /sessionStorage/);
     assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
+});
+
+test('both subjects embed a standalone blue cap-and-D SVG favicon', () => {
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const html = renderLesson(subject, lesson);
+        const icon = html.match(/<link rel="icon" type="image\/svg\+xml" sizes="any" href="data:image\/svg\+xml,([^"]+)">/);
+        assert.ok(icon);
+        const svg = decodeURIComponent(icon[1]);
+        assert.match(svg, /viewBox="0 0 32 32"/);
+        for (const color of ['#1e3c72', '#2a5298', '#fff']) assert.ok(svg.includes(color));
+        assert.doesNotMatch(svg, /<(?:script|image|text)|href=/);
+        assert.equal((html.match(/<link /g) || []).length, 1);
+    }
 });
 
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {

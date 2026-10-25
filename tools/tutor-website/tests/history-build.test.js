@@ -27,9 +27,10 @@ test('published example preserves the reviewed lesson data and Czech references'
     const publishedLesson = JSON.parse(payload);
     assert.equal(validateLesson('history', publishedLesson), publishedLesson);
     const { version, subject, language, subtitle, ...content } = lesson;
-    content.original = content.original.map(({ style, ...section }) => section);
-    content.chunks = content.chunks.map(({ paragraphs, ...chunk }) => chunk);
-    content.questions = content.questions.map(({ assessment, ...question }) => question);
+    content.original = content.original.map(({ style, icon, ...section }) => section);
+    content.chunks = content.chunks.map(({ paragraphs, icon, ...chunk }) => chunk);
+    content.questions = content.questions.map(({ assessment, icon, ...question }) => question);
+    content.glossary = content.glossary.map(({ icon, ...entry }) => entry);
     assert.deepEqual(publishedLesson, { version: 1, ...content });
     assert.match(renderLesson('history', lesson), /function initializeTutor\(/);
 });
@@ -96,7 +97,7 @@ test('HTML is self-contained and payload cannot close a script or title', () => 
     assert.deepEqual(JSON.parse(data), lesson);
     assert.ok(!data.includes('<'));
     assert.equal((html.match(/<script(?:\s|>)/gi) || []).length, 2);
-    assert.ok(!/<(?:script|link)[^>]+(?:src|href)=/.test(html));
+    assert.doesNotMatch(html, /<script[^>]+src=|<link[^>]+href="(?!data:image\/svg\+xml,)/);
     assert.ok(!/\b(?:fetch|XMLHttpRequest)\(/.test(html));
     assert.ok(!/@@(?:STYLES|DATA)@@/.test(html));
 });

@@ -24,6 +24,7 @@
   "original": [
     {
       "heading": "STAVOVSKÉ POVSTÁNÍ",
+      "icon": "🏰",
       "style": "note",
       "text": "Pražskou defenestrací byla zahájena otevřená vzpoura proti panovníkovi a začalo stavovské povstání. Stavy požadovaly rovnoprávné postavení českých zemí v habsburské monarchii, možnost volby krále a svobodu náboženského vyznání."
     },
@@ -52,6 +53,7 @@
     },
     {
       "term": "stavy",
+      "icon": "⚖️",
       "forms": ["stavů"],
       "definition": "Skupiny lidí s politickými právy, například šlechta a zástupci některých měst. Nešlo o všechny obyvatele země."
     },
@@ -94,6 +96,7 @@
   "chunks": [
     {
       "heading": "Proč začalo povstání?",
+      "icon": "⚖️",
       "paragraphs": [
         {"style": "tip", "text": "Zkus vlastními slovy říct, co stavy chtěly. Potom se podívej na vysvětlení."}
       ],

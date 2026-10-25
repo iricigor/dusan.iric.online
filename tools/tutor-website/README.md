@@ -18,7 +18,7 @@ node --test tools\tutor-website\tests\*.test.js
 
 `capabilities` returns absolute schema, validator, documentation and builder
 paths, version, timing policy, generation/assessment status, shared tabs,
-the name requirement and limitations.
+the name requirement, passive answer-duration policy and limitations.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
 `examplePath` identifies prepared, reusable default lesson JSON for both subjects.
 The structural test fixture is not teaching material. Both subjects use
@@ -141,9 +141,11 @@ documented below, including all full-credit name variants in `acceptedAnswers`.
 Only fully correct answers strictly before **15000 ms** earn the mandatory
 double-points speed bonus. Late answers remain available; incorrect and partial
 answers never earn a bonus. Grades use base points only, with 80/60/40/20 percent
-boundaries. The leaderboard sorts total points first, then shorter duration.
-Maths never starts the shared controller's timer and has no countdown, duration
-display, speed indicator or bonus.
+boundaries. The leaderboard sorts total points first, then shorter active answering duration.
+The speed deadline continues while another lesson tab/browser page is shown;
+it is separate from the answer-duration measurement described below.
+Maths never starts the shared controller's bonus timer and has no countdown,
+running duration display, speed indicator or bonus.
 
 ### Existing lesson data
 
@@ -226,11 +228,61 @@ No author-supplied HTML, CSS, class names or scripts are accepted.
 Source sections can be split at existing paragraph boundaries without changing
 their wording; never place generated notes inside preserved source text.
 
-Shared theme-aware violet/teal/green/amber accents distinguish cards, modes,
-callouts and difficulty. Brief animations cover new questions/answer controls,
-feedback, results, tabs, glossary dialogs and opened learning hints. They never
+Shared Fluent-inspired pill navigation, soft elevated cards and restrained
+theme-aware accents establish hierarchy without a UI library. Mode pills show
+only difficulty (with green/yellow/red emoji) and question counts. All scoring
+rules sit in a native expandable disclosure.
+Brief animations cover new questions/answer controls,
+feedback, results, tabs, glossary popovers and opened learning hints. They never
 auto-advance, change timing/scoring or obscure answers. Reduced-motion preference
 disables animations, transitions and hover movement across both subjects.
+
+### Icons, glossary and standalone branding
+
+Optional `icon` is a nonblank plain-text string of at most 32 characters, intended
+for a short emoji such as `🏰`, `⚖️` or `📐`. It is supported on `original[]`,
+`chunks[]`, `examples[]`, `questions[]`, `exercises[]` and `glossary[]`. Defaults
+decorate cards and glossary headings when omitted; existing JSON needs no
+migration. Original section text is unchanged. Emoji are decorative and hidden
+from assistive technology; meaningful headings and difficulty labels remain text.
+Icons use safe text nodes, never HTML, CSS, classes or asset URLs.
+
+The learning view is a single reading column with inline clickable glossary
+terms and an expandable all-terms list below the content. Definitions open
+beside the trigger in a viewport-constrained native popover, usable by mouse,
+touch and keyboard. Escape, outside click, the close button or changing views
+dismiss it; explicit close/Escape returns focus to the trigger.
+The runtime requires a modern browser with the native Popover API.
+
+`favicon.svg` contains the reusable rounded deep-blue gradient tile, white
+graduation cap and bold vector D. `page.js` embeds it as a data URL in every
+new standalone page: no font, network request or external asset is required.
+Existing published HTML and the independent Gems workflow remain unchanged.
+
+### Completion, local ranking and answer duration
+
+Every completion receives an encouraging summary, points/grade and a brief,
+nonblocking CSS confetti burst. Reduced-motion users get the same summary
+without confetti. Answer explanations remain available in a disclosure; the
+learner still explicitly advances after every question. The session leaderboard
+is collapsed by default, with the latest attempt's position inside it rather
+than emphasized in the main completion summary.
+
+Both subjects save `answerDurationMs`: the sum of active question-answering
+intervals, stopped on submission and restarted when the next question is shown.
+Feedback reading (including the final feedback), other lesson tabs and hidden
+browser pages are excluded. No duration ticks or countdown is shown during maths.
+Results label duration **Doba odpovídání** and the attempt timestamp **Kdy**,
+including a local date and time for new attempts.
+
+History retains its points-first, shorter-duration tie-break, using precise
+answer duration for new results and the original total duration for legacy
+results. Maths ordering remains points-only. The legacy history `duration`
+field is retained in seconds for compatibility; new records derive it from
+active answering time. Old history/maths records without `answerDurationMs`
+remain valid and display “Nezaznamenáno” in the answering-duration column, not a
+made-up value. Invalid new duration fields produce the existing visible storage
+warning and never overwrite the original stored data.
 
 ### Selective Gems integration
 
@@ -242,17 +294,18 @@ the package archive nor existing published lessons is changed by this integratio
 
 | Gems detail | Shared generator decision |
 |---|---|
-| Wide desktop shell and learning/glossary columns | Adapted to a 1600px maximum shell and 2:1 learning grid, stacked at 1024px and below; original text keeps an 80-character reading width |
+| Wide desktop shell and learning/glossary columns | Replaced by a 1120px maximum shared shell and one reading column with an expandable glossary; original text keeps an 80-character reading width |
 | Subject/audience badges and prominent active tabs | Adapted with existing accessible theme colors, text labels, pressed states and explicit panel associations |
 | Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
 | “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |
-| Glossary modal, themes and success/failure animations | Existing native dialog, system-theme support and reduced-motion-aware feedback retained instead of copying duplicate implementations |
+| Glossary modal, themes and success/failure animations | Shared anchored native popovers, system-theme support and reduced-motion-aware feedback instead of duplicate implementations |
 | Gems quiz engine, schema, DOM and HTML-string rendering | Not imported; existing contracts, safe text nodes, sampling and assessment adapters remain authoritative |
 | Placeholder-name rejection and automatic feedback progression | Not imported; valid names/nicknames are not rejected for matching an example, and the learner explicitly continues after feedback |
 
-Stored quiz-result namespaces, score maxima, grade thresholds and timing rules
-are unchanged by v3. New lessons declare their acceptance policies explicitly;
+Stored quiz-result namespaces, score maxima, grade thresholds and speed-bonus rules
+are unchanged by v3. Answer-only duration is additive for both subjects.
+New lessons declare their acceptance policies explicitly;
 legacy lesson grading and stored result values are not rewritten.
 
 Every page has exactly **Původní text → Učit se → Hrát si**. Original material
@@ -485,8 +538,9 @@ the next task. Results repeat all feedback and show a Czech grade. Grades use
 the exact score, not the rounded display percentage.
 
 Maths results store run id, entered name/nickname, mode, score, attainable
-maximum, grade and local time of day under `maths-tutor:v2:<lesson-id>` in
-`sessionStorage`. No elapsed duration is recorded for maths. Old anonymous
+maximum, grade, local date/time and active `answerDurationMs` under
+`maths-tutor:v2:<lesson-id>` in `sessionStorage`. Older named results without
+answer duration remain readable. Duration never affects maths ranking. Old anonymous
 v1 results remain untouched under their old key and are not migrated to a
 fabricated player name. Results remain per-subject, per-lesson and session-local,
 never transmitted. Read errors or corrupt records

@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@@TITLE@@</title>
+    <link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,@@FAVICON@@">
     <style>@@STYLES@@</style>
 </head>
 <body>
-    <header>
+    <header id="page-header">
         <div class="heading">
             <div><span class="badge">@@SUBJECT@@</span><h1 id="topic"></h1></div>
             <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
@@ -25,27 +26,31 @@
         <p id="storage-warning" role="alert" hidden></p>
         <section id="original" aria-label="Původní text">
             <article id="original-review" class="card" hidden>
-                <h2>Ověření a doplnění</h2><p id="review"></p><ul id="sources"></ul>
+                <h2><span class="card-icon" aria-hidden="true">🔎</span>Ověření a doplnění</h2><p id="review"></p><ul id="sources"></ul>
             </article>
             <div id="original-content"></div>
         </section>
         <section id="learning" aria-label="Učit se" hidden>
             <div id="learning-content"></div>
-            <aside class="card glossary-card" aria-labelledby="glossary-title"><h2 id="glossary-title">Slovníček</h2><div id="glossary"></div></aside>
+            <details class="card glossary-card">
+                <summary id="glossary-title"><span class="card-icon" aria-hidden="true">📖</span>Slovníček</summary>
+                <p>Podtržená slova v učivu si můžeš rozkliknout. Tady najdeš všechna pohromadě.</p>
+                <div id="glossary"></div>
+            </details>
         </section>
         <section id="quiz" aria-label="Hrát si" hidden>
             <article id="setup" class="card">
-                <h2>Vyber si kvíz</h2>
+                <h2><span class="card-icon" aria-hidden="true">🎯</span>Vyber si kvíz</h2>
                 <label for="player">Tvoje jméno nebo přezdívka (alespoň 3 písmena)</label>
                 <input id="player" type="text" autocomplete="off" maxlength="60" placeholder="Tvoje přezdívka" aria-describedby="name-error">
                 <p id="name-error" role="alert"></p>
                 <p>Jméno nebo přezdívka zůstane jen ve výsledcích v tomto prohlížeči. Na server nic neposíláme.</p>
-                <p id="scoring"></p>
                 <div class="modes">
-                    <button type="button" data-mode="easy">Lehká: 3 úlohy</button>
-                    <button type="button" data-mode="medium">Střední: 5 úloh</button>
-                    <button type="button" data-mode="hard">Těžká: 10 úloh</button>
+                    <button type="button" data-mode="easy"><span aria-hidden="true">🟢</span> Lehká <span class="mode-count">3 úlohy</span></button>
+                    <button type="button" data-mode="medium"><span aria-hidden="true">🟡</span> Střední <span class="mode-count">5 úloh</span></button>
+                    <button type="button" data-mode="hard"><span aria-hidden="true">🔴</span> Těžká <span class="mode-count">10 úloh</span></button>
                 </div>
+                <details id="scoring-rules"><summary>Jak se počítají body?</summary><ul id="scoring"></ul></details>
             </article>
             <article id="game" class="card" hidden>
                 <div class="quiz-status">
@@ -55,30 +60,38 @@
                 <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
                 @@TIMING@@
                 <p id="difficulty" class="difficulty"></p>
-                <h2 id="question" tabindex="-1"></h2>
+                <div class="question-heading"><span id="question-icon" class="card-icon" aria-hidden="true"></span><h2 id="question" tabindex="-1"></h2></div>
                 <p id="answer-help" hidden></p>
                 <form id="answers" novalidate></form>
                 <div id="feedback" role="status" hidden></div>
                 <button id="next" type="button" hidden>Další úloha</button>
             </article>
             <article id="results" class="card" hidden>
-                <h2 id="results-title" tabindex="-1">Výsledek kvízu</h2>
+                <div class="confetti" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <h2 id="results-title" tabindex="-1"><span class="card-icon" aria-hidden="true">🎉</span>Hotovo! Kvíz máš za sebou.</h2>
+                <p>Každý pokus ti pomáhá učit se. Podívej se, co už umíš a co si ještě procvičíš.</p>
                 <p id="grade" class="grade"></p>
-                <ol id="summary"></ol>
+                <p id="answer-duration"></p>
+                <details><summary>Prohlédnout odpovědi a vysvětlení</summary><ol id="summary"></ol></details>
                 <button id="restart" type="button">Nový kvíz</button>
             </article>
-            <article id="leaderboard" class="card">
-                <h2>Síň slávy této lekce</h2>
+            <details id="leaderboard" class="card">
+                <summary><span class="card-icon" aria-hidden="true">🏅</span>Síň slávy této lekce</summary>
                 <p>Výsledky pouze v tomto prohlížeči a této relaci. Po ukončení relace mohou zmizet.</p>
+                <p id="leaderboard-rank" hidden></p>
                 <div id="leaderboard-content" class="table-scroll"></div>
-            </article>
+            </details>
         </section>
     </main>
-    <dialog id="definition" aria-labelledby="definition-title">
+    <div id="definition" popover="auto" role="dialog" aria-labelledby="definition-title" aria-describedby="definition-text">
         <h2 id="definition-title"></h2>
         <p id="definition-text"></p>
-        <form method="dialog"><button>Zavřít</button></form>
-    </dialog>
+        <button id="definition-close" type="button">Zavřít</button>
+    </div>
     <script id="lesson-data" type="application/json">@@DATA@@</script>
     <script>@@APP@@</script>
 </body>

@@ -14,6 +14,11 @@ const tutorQuiz = {
     grade(total, maximum) {
         return total >= maximum * 80 / 100 ? 1 : total >= maximum * 60 / 100 ? 2 :
             total >= maximum * 40 / 100 ? 3 : total >= maximum * 20 / 100 ? 4 : 5;
+    },
+    formatDuration(milliseconds) {
+        if (milliseconds < 1000) return 'méně než 1 s';
+        const seconds = Math.round(milliseconds / 1000);
+        return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
     }
 };
 
@@ -38,11 +43,81 @@ function initializeTutor(lesson, subject) {
         details.append(node('summary', label), ...content);
         return details;
     };
-    const definition = (title, text) => {
-        $('definition-title').textContent = title;
-        $('definition-text').textContent = text;
-        $('definition').showModal();
+    const iconNode = icon => {
+        const element = node('span', icon, 'card-icon');
+        element.setAttribute('aria-hidden', 'true');
+        return element;
     };
+    const heading = (text, icon, fallback) => {
+        const element = node('h2');
+        element.append(iconNode(icon || fallback), node('span', text, 'heading-text'));
+        return element;
+    };
+    const focusContent = element => {
+        element.focus({ preventScroll: true });
+        const top = $('page-header').getBoundingClientRect().bottom + 16;
+        const bounds = element.getBoundingClientRect();
+        if (bounds.top < top || bounds.bottom > innerHeight) {
+            element.style.scrollMarginTop = `${top}px`;
+            element.scrollIntoView({ block: 'start' });
+        }
+    };
+    let definitionTrigger = null;
+    const positionDefinition = () => {
+        if (!definitionTrigger || !$('definition').matches(':popover-open')) return;
+        const anchor = definitionTrigger.getBoundingClientRect();
+        const panel = $('definition');
+        const bounds = panel.getBoundingClientRect();
+        const gap = 12;
+        const top = anchor.bottom + gap + bounds.height <= innerHeight
+            ? anchor.bottom + gap : anchor.top - gap - bounds.height;
+        panel.style.left = `${Math.max(gap, Math.min(anchor.left, innerWidth - bounds.width - gap))}px`;
+        panel.style.top = `${Math.max(gap, Math.min(top, innerHeight - bounds.height - gap))}px`;
+    };
+    const closeDefinition = (restoreFocus = false) => {
+        const trigger = definitionTrigger;
+        $('definition').hidePopover();
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        definitionTrigger = null;
+        if (restoreFocus && trigger) trigger.focus({ preventScroll: true });
+    };
+    const definition = (trigger, title, text, icon = '📖') => {
+        if (definitionTrigger === trigger && $('definition').matches(':popover-open')) {
+            closeDefinition(true);
+            return;
+        }
+        if (definitionTrigger) definitionTrigger.setAttribute('aria-expanded', 'false');
+        definitionTrigger = trigger;
+        trigger.setAttribute('aria-controls', 'definition');
+        trigger.setAttribute('aria-expanded', 'true');
+        $('definition-title').replaceChildren(iconNode(icon), node('span', title));
+        $('definition-text').textContent = text;
+        $('definition').showPopover();
+        positionDefinition();
+        $('definition-close').focus({ preventScroll: true });
+    };
+    const definitionButton = (label, title, text, className, icon) => {
+        const trigger = button(label, () => definition(trigger, title, text, icon), className);
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.setAttribute('aria-controls', 'definition');
+        trigger.setAttribute('aria-expanded', 'false');
+        return trigger;
+    };
+    $('definition-close').addEventListener('click', () => closeDefinition(true));
+    $('definition').addEventListener('toggle', event => {
+        if (event.newState === 'closed' && definitionTrigger) {
+            const restoreFocus = $('definition').contains(document.activeElement) || document.activeElement === document.body;
+            closeDefinition(restoreFocus);
+        }
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && $('definition').matches(':popover-open')) {
+            event.preventDefault();
+            closeDefinition(true);
+        }
+    });
+    window.addEventListener('resize', positionDefinition);
+    document.addEventListener('scroll', positionDefinition, true);
     const forms = new Map();
     lesson.glossary.forEach(entry => [entry.term, ...entry.forms].forEach(form => forms.set(form.toLocaleLowerCase('cs'), entry)));
     const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -53,7 +128,7 @@ function initializeTutor(lesson, subject) {
         for (const match of text.matchAll(pattern)) {
             element.append(document.createTextNode(text.slice(offset, match.index)));
             const entry = forms.get(match[0].toLocaleLowerCase('cs'));
-            element.append(button(match[0], () => definition(entry.term, entry.definition), 'term'));
+            element.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
             offset = match.index + match[0].length;
         }
         element.append(document.createTextNode(text.slice(offset)));
@@ -69,7 +144,7 @@ function initializeTutor(lesson, subject) {
         return element;
     };
     const paragraphs = blocks => (blocks || []).map(block => styleParagraph(paragraph(block.text), block.style));
-    const context = { $, node, button, disclose, paragraph, paragraphs };
+    const context = { $, node, button, disclose, paragraph, paragraphs, heading };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
     $('audience').textContent = lesson.audience;
@@ -88,7 +163,7 @@ function initializeTutor(lesson, subject) {
     }
     lesson.original.forEach((section, index) => {
         const article = node('article', undefined, 'card');
-        article.append(node('h2', section.heading));
+        article.append(heading(section.heading, section.icon, '📄'));
         const text = node('p', undefined, 'original-text');
         const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
             .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
@@ -96,7 +171,7 @@ function initializeTutor(lesson, subject) {
         for (const correction of corrections) {
             const start = section.text.indexOf(correction.quote);
             text.append(document.createTextNode(section.text.slice(offset, start)));
-            const mark = button(correction.quote, () => definition('Historická oprava', correction.explanation), 'correction');
+            const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
             mark.title = correction.explanation;
             text.append(mark);
             offset = start + correction.quote.length;
@@ -107,20 +182,27 @@ function initializeTutor(lesson, subject) {
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);
-    lesson.glossary.forEach(entry => $('glossary').append(button(entry.term, () => definition(entry.term, entry.definition))));
+    lesson.glossary.forEach(entry => {
+        const trigger = definitionButton(entry.term, entry.term, entry.definition, undefined, entry.icon);
+        trigger.prepend(iconNode(entry.icon || '📖'));
+        $('glossary').append(trigger);
+    });
     document.querySelectorAll('[data-tab]').forEach(tab => tab.addEventListener('click', () => {
+        closeDefinition();
+        pauseAnswerClock();
         document.querySelectorAll('[data-tab]').forEach(other => {
             const active = other === tab;
             other.setAttribute('aria-pressed', String(active));
             $(other.dataset.tab).hidden = !active;
         });
+        resumeAnswerClock();
     }));
     $('theme').addEventListener('click', () => {
         const dark = document.documentElement.dataset.theme === 'dark' ||
             (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.dataset.theme = dark ? 'light' : 'dark';
     });
-    $('scoring').textContent = subject.rules;
+    subject.rules.forEach(rule => $('scoring').append(node('li', rule)));
     $('answer-help').textContent = subject.answerHelp || '';
     $('answer-help').hidden = !subject.answerHelp;
     const storageKey = `${subject.storagePrefix}:${lesson.id}`;
@@ -138,7 +220,8 @@ function initializeTutor(lesson, subject) {
         if (!Array.isArray(stored) || stored.some(row =>
             !row || typeof row.id !== 'string' || typeof row.name !== 'string' ||
             (row.name.match(/\p{L}/gu) || []).length < 3 || row.name.length > 60 ||
-            typeof row.time !== 'string' || !subject.validRecord(row))) {
+            typeof row.time !== 'string' || !subject.validRecord(row) ||
+            (row.answerDurationMs !== undefined && (!Number.isSafeInteger(row.answerDurationMs) || row.answerDurationMs < 0)))) {
             throw new Error('Invalid tutor session results');
         }
         records = stored;
@@ -148,6 +231,21 @@ function initializeTutor(lesson, subject) {
         warnStorage('Uložené výsledky nelze načíst. Nové výsledky zůstanou jen v této stránce; původní úložiště nepřepíšeme.');
     }
     const points = value => String(value).replace('.', ',');
+    function pauseAnswerClock() {
+        if (quiz && quiz.answerStarted !== null) {
+            quiz.questionElapsedMs += Math.max(0, performance.now() - quiz.answerStarted);
+            quiz.answerStarted = null;
+        }
+    }
+    function resumeAnswerClock() {
+        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden && quiz.answerStarted === null) {
+            quiz.answerStarted = performance.now();
+        }
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseAnswerClock();
+        else resumeAnswerClock();
+    });
     function renderLeaderboard() {
         const container = $('leaderboard-content');
         container.replaceChildren();
@@ -156,22 +254,26 @@ function initializeTutor(lesson, subject) {
             return;
         }
         const table = node('table');
+        table.append(node('caption', 'Pořadí pokusů v této relaci. Doba odpovídání nezahrnuje čtení zpětné vazby. Starší pokusy ji nemají zaznamenanou.'));
         const head = node('thead');
         const labels = node('tr');
-        ['Hráč', 'Čas', ...(subject.speedBonus ? ['Délka'] : []), 'Obtížnost', 'Body', 'Známka'].forEach(label => {
+        ['Pořadí', 'Hráč', 'Kdy', 'Doba odpovídání', 'Obtížnost', 'Body', 'Známka'].forEach(label => {
             const cell = node('th', label);
             cell.scope = 'col';
             labels.append(cell);
         });
         head.append(labels);
         const body = node('tbody');
-        [...records].sort(subject.compareResults).forEach(record => {
+        [...records].sort(subject.compareResults).forEach((record, index) => {
             const row = node('tr');
             if (record.id === currentRunId) {
                 row.className = 'current';
                 row.setAttribute('aria-current', 'true');
+                $('leaderboard-rank').textContent = `Tvůj poslední pokus: ${index + 1}. místo z ${records.length} pokusů v této relaci.`;
+                $('leaderboard-rank').hidden = false;
             }
-            [record.name, record.time, ...(subject.speedBonus ? [`${record.duration} s`] : []),
+            [`${index + 1}.`, record.name, record.time,
+                record.answerDurationMs === undefined ? 'Nezaznamenáno' : tutorQuiz.formatDuration(record.answerDurationMs),
                 { easy: 'Lehká', medium: 'Střední', hard: 'Těžká' }[record.mode], `${points(record.total)} b`, String(record.grade)]
                 .forEach(value => row.append(node('td', value)));
             body.append(row);
@@ -186,6 +288,8 @@ function initializeTutor(lesson, subject) {
         $('results').hidden = false;
         const result = subject.result(quiz.answers, quiz.questions);
         $('grade').textContent = result.text;
+        const answerDurationMs = Math.round(quiz.answerDurationMs);
+        $('answer-duration').textContent = `Doba odpovídání: ${tutorQuiz.formatDuration(answerDurationMs)}. Čtení vysvětlení se nepočítá.`;
         $('summary').replaceChildren();
         quiz.answers.forEach((answer, index) => {
             const item = node('li');
@@ -196,8 +300,9 @@ function initializeTutor(lesson, subject) {
         currentRunId = crypto.randomUUID();
         records.push({
             id: currentRunId, name: quiz.name, mode: quiz.mode, total: result.total, grade: result.grade,
-            time: new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' }),
-            ...(subject.speedBonus ? { duration: Math.round((performance.now() - quiz.started) / 1000) } : { maximum: result.maximum })
+            time: new Date().toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' }),
+            answerDurationMs,
+            ...(subject.speedBonus ? { duration: Math.round(answerDurationMs / 1000) } : { maximum: result.maximum })
         });
         if (storageReadable) {
             try {
@@ -210,8 +315,9 @@ function initializeTutor(lesson, subject) {
             }
         }
         renderLeaderboard();
+        $('leaderboard').open = false;
         $('leaderboard').hidden = false;
-        $('results-title').focus();
+        focusContent($('results-title'));
     }
     function submit(values) {
         if (!quiz || quiz.locked || quiz.finished) return;
@@ -220,7 +326,9 @@ function initializeTutor(lesson, subject) {
             $('feedback').hidden = false;
             return;
         }
+        pauseAnswerClock();
         quiz.locked = true;
+        quiz.answerDurationMs += quiz.questionElapsedMs;
         clearInterval(timer);
         const question = quiz.questions[quiz.index];
         const elapsed = subject.speedBonus ? performance.now() - quiz.questionStarted : 0;
@@ -242,11 +350,14 @@ function initializeTutor(lesson, subject) {
     function showQuestion() {
         clearInterval(timer);
         quiz.locked = false;
+        quiz.questionElapsedMs = 0;
+        quiz.answerStarted = null;
         const question = quiz.questions[quiz.index];
         $('progress').textContent = `Úloha ${quiz.index + 1} / ${quiz.questions.length} · nejvýše ${subject.maximum([question])} b`;
         $('quiz-progress').max = quiz.questions.length;
         $('quiz-progress').value = quiz.answers.length;
         $('question').replaceChildren(node('span', question.prompt, 'question-enter'));
+        $('question-icon').textContent = question.icon || (subject.speedBonus ? '🏰' : '📐');
         $('difficulty').textContent = { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' }[question.difficulty];
         $('difficulty').dataset.level = question.difficulty;
         $('answers').replaceChildren();
@@ -275,14 +386,15 @@ function initializeTutor(lesson, subject) {
         if (subject.speedBonus) {
             quiz.questionStarted = performance.now();
             const update = () => {
-                const remaining = Math.max(0, Math.ceil((15000 - (performance.now() - quiz.questionStarted)) / 1000));
-                $('bonus').textContent = remaining ? `2× bonus: ${remaining} s` : 'Bonus skončil. Na odpověď máš stále čas.';
+                const remaining = Math.max(0, 1 - (performance.now() - quiz.questionStarted) / 15000);
+                $('bonus-bar').style.transform = `scaleX(${remaining})`;
                 if (!remaining) clearInterval(timer);
             };
             update();
-            timer = setInterval(update, 1000);
+            timer = setInterval(update, 100);
         }
-        $('question').focus();
+        focusContent($('question'));
+        resumeAnswerClock();
     }
     $('answers').addEventListener('submit', event => {
         event.preventDefault();
@@ -304,7 +416,7 @@ function initializeTutor(lesson, subject) {
         quiz = {
             name, mode: control.dataset.mode, questions: subject.select(lesson, control.dataset.mode),
             index: 0, answers: [], locked: false, finished: false,
-            ...(subject.speedBonus ? { started: performance.now() } : {})
+            answerDurationMs: 0, questionElapsedMs: 0, answerStarted: null
         };
         $('setup').hidden = true;
         $('results').hidden = true;

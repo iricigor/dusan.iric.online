@@ -22,6 +22,8 @@ example before advising or building. The shared builder is
 there are no subject-specific CLI or schema aliases.
 Both subjects use `tools\tutor-website\assessment.js`, `tools\tutor-website\template.html` and
 `tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
+The favicon source is `tools\tutor-website\favicon.svg`, embedded into each new
+standalone page as a data URL. Do not retrofit published pages.
 History and maths content/assessment adapters live alongside them in
 `history.js` and `maths.js`. Both prepared lesson sources live in
 `tools\tutor-website\examples`. Keep common presentation and lifecycle changes in the
@@ -36,8 +38,10 @@ worked examples/typed exercises. Legacy history v1 and maths v2 still validate;
 new content and prepared defaults use v3. Never create a competing schema.
 The generator supports progressively scaffolded learning/practice, exact typed
 answer evaluation, partial scoring, grades and named per-lesson browser-session
-results. Maths quizzes are untimed; history retains its speed bonus without
-an answer deadline.
+results. Maths quizzes have no running time display or speed bonus; history retains its
+speed bonus without an answer deadline. Both record active answering duration
+only, excluding feedback, other tabs and hidden browser pages. `Doba odpovídání`
+is duration; `Kdy` is the attempt timestamp. Maths duration never affects ranking.
 The prepared maths default is
 `tools\tutor-website\examples\zlomky-a-prevody-delky.json`, combining fraction
 calculations and length-unit conversions in one lesson.
@@ -56,7 +60,7 @@ All presentation and behavior code belongs under `tools\tutor-website`.
 Keep shared CSS/motion, safe paragraph rendering, numeric input help, quiz
 utilities and lifecycle in the shared assets. Subject adapters retain only
 content rendering and scoring/timing differences: history's mandatory speed
-bonus versus maths per-step credit and no timer. Matching/normalization,
+bonus versus maths per-step credit and no running timer. Matching/normalization,
 numeric parsing and exact/partial precedence belong to the single shared
 `assessment.js` evaluator, not subject adapters. Require explicit v3 policies
 for every question/maths step; number, string, array and range matchers work in
@@ -70,6 +74,14 @@ only within each difficulty. Do not add subject-specific CSS or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
 Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
+Use the shared Fluent-inspired pill navigation and soft cards, default decorative
+emoji with optional schema `icon` overrides, anchored glossary popovers and an
+expandable glossary instead of a permanent sidebar. Quiz mode pills show only
+difficulty and question counts; scoring rules are expandable. History's bonus
+is a thin shrinking bar without a countdown or visible label. Celebrate every
+completed quiz with brief CSS confetti (disabled for reduced motion); show the
+attempt's rank only inside the collapsed-by-default session leaderboard.
+Keep legacy records readable without inventing missing answering durations.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural
@@ -125,8 +137,10 @@ For `build`:
    and any limitations. The subject tutor must still inspect the local page,
    exercise the three shared tabs, name validation, glossary, progressively
    reduced learning scaffolding and all subject quiz modes, and request the
-   user's approval. Maths has no timing UI or speed bonus; history keeps its
+   user's approval. Maths has no running timing UI or speed bonus; history keeps its
    mandatory strict-before-15000ms bonus and existing scoring.
+   Verify both subjects' answer-only duration in results, excluding feedback
+   reading, plus popover dismissal/focus, collapsed rules/leaderboard and favicon.
 
 Do not write to `site`, change its index, commit, or open a PR. Publication is a
 separate approved action owned by the calling workflow.

@@ -60,6 +60,12 @@ This is an opt-in subject agent, not the default agent for repository work.
 History's speed bonus is always enabled, never a lesson setting: fully correct
 answers in less than 15 seconds earn twice their base points. Late, incorrect,
 and partially correct answers get no bonus. Grades use base points only.
+The shared website shows only a thin shrinking bonus bar, with its explanation
+in expandable rules. Results record active answering duration, excluding
+feedback reading, other lesson tabs and hidden browser pages. The bonus deadline
+still uses elapsed time since the question appeared; it is not paused.
+Optional schema `icon` fields override default emoji on original sections,
+learning chunks, questions and glossary entries without changing source text.
 Do not change the quiz runtime, schema, published example, or speed-bonus
 behavior while creating a lesson.
 Only publish an explicitly approved lesson through the documented workflow.

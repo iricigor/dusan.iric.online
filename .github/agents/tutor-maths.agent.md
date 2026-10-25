@@ -92,5 +92,10 @@ of its step's points; it never earns the all-correct bonus. Maxima are 61, 111 a
 accuracy bonuses. Czech grades use 80/60/40/20% thresholds against those maxima.
 Feedback shows correct answers and worked solutions; the child chooses when
 to continue. Results stay per-lesson in browser session storage, with visible
-failure warnings and no server transmission. Maths has no timer, countdown,
-speed indicator or speed bonus. Do not change history's mandatory speed bonus.
+failure warnings and no server transmission. Maths has no running timer, countdown,
+speed indicator or speed bonus. Passive answer-only duration appears after
+completion and in the expandable local results, never affecting scores, grades
+or ranking. Feedback-reading time is excluded. Use optional schema `icon`
+overrides for relevant emoji on examples, exercises, original sections and
+glossary terms; the shared website provides defaults and owns all rendering.
+Do not change history's mandatory speed bonus.

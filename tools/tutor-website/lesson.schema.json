@@ -18,6 +18,7 @@
         "type": "object", "additionalProperties": false, "required": ["heading", "text"],
         "properties": {
           "heading": { "$ref": "#/$defs/text" },
+          "icon": { "$ref": "#/$defs/icon" },
           "text": { "$ref": "#/$defs/text" },
           "style": { "$ref": "#/$defs/style" }
         }
@@ -29,6 +30,7 @@
         "type": "object", "additionalProperties": false, "required": ["term", "definition", "forms"],
         "properties": {
           "term": { "$ref": "#/$defs/text" },
+          "icon": { "$ref": "#/$defs/icon" },
           "definition": { "$ref": "#/$defs/text" },
           "forms": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } }
         }
@@ -61,6 +63,7 @@
         "type": "object", "additionalProperties": false, "required": ["heading", "sentences", "explanation"],
         "properties": {
           "heading": { "$ref": "#/$defs/text" },
+          "icon": { "$ref": "#/$defs/icon" },
           "sentences": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/text" } },
           "explanation": { "$ref": "#/$defs/text" },
           "paragraphs": { "$ref": "#/$defs/paragraphs" }
@@ -76,6 +79,7 @@
         "properties": {
           "kind": { "enum": ["simple", "complex", "everyday", "challenge"] },
           "heading": { "$ref": "#/$defs/text" },
+          "icon": { "$ref": "#/$defs/icon" },
           "prompt": { "$ref": "#/$defs/text" },
           "hint": { "$ref": "#/$defs/text" },
           "answer": { "$ref": "#/$defs/text" },
@@ -134,6 +138,7 @@
   ],
   "$defs": {
     "text": { "type": "string", "minLength": 1 },
+    "icon": { "type": "string", "minLength": 1, "maxLength": 32 },
     "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
     "url": { "type": "string", "pattern": "^https://[^\\s]+$" },
     "difficulty": { "enum": ["easy", "medium", "hard"] },
@@ -208,6 +213,7 @@
       "required": ["id", "difficulty", "type", "prompt", "explanation"],
       "properties": {
         "id": { "$ref": "#/$defs/text" },
+        "icon": { "$ref": "#/$defs/icon" },
         "difficulty": { "$ref": "#/$defs/difficulty" },
         "type": { "enum": ["trueFalse", "choice", "text"] },
         "prompt": { "$ref": "#/$defs/text" },
@@ -254,6 +260,7 @@
       "required": ["id", "difficulty", "prompt", "steps", "explanation"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
+        "icon": { "$ref": "#/$defs/icon" },
         "difficulty": { "$ref": "#/$defs/difficulty" },
         "prompt": { "$ref": "#/$defs/text" },
         "explanation": { "$ref": "#/$defs/text" },
