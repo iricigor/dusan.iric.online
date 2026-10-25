@@ -259,6 +259,11 @@ odpovědí a zpětnou vazbou. Nemá časovač, odpočet, ukazatel rychlosti ani 
 Schéma vyžaduje lehké skupiny čtyř výpočtů, střední slovní úlohy
 a těžké úlohy se třemi kroky. Zachovává zásobu pro režimy 1/1/1, 1/2/2 a 2/5/3.
 Odpovědi jsou typovaná celá čísla, zlomky, desetinná čísla nebo délky s jednotkou.
+Když otázka určuje jednotku („Převeď 2 km na metry“, „Kolik centimetrů?“),
+očekává se pouze číslo v této jednotce, například `2000`, nikoli `2000 m`.
+Takové otázky používají číselný vstup. Jednotku dítě dopisuje jen při výslovném
+požadavku na délku s jednotkou; pole je označené „včetně jednotky“.
+Ve vysvětlení postupu jednotky zůstávají.
 Kontrakt popisuje přesné porovnávání, rovnocenné zlomky, desetinnou čárku/tečku
 a převody jednotek. Číselné formáty uznávají přesně rovnocenné zápisy:
 7/4, 1 3/4 i 1,75; nebo 0.5 i 1/2, pokud to pravidlo `number` povoluje.
@@ -266,7 +271,8 @@ Pravidlo `string` rozlišuje konkrétní zápisy a může jinému zápisu přid�
 částečné body. Záporné smíšené číslo -1 3/4 znamená -7/4.
 Zaokrouhlené přiblížení nezíská body bez výslovného částečného pravidla.
 Každý krok se kontroluje přesně, bez automatické tolerance dějepisných
-odpovědí. Chybějící nebo neplatná jednotka má výslovné vysvětlení.
+odpovědí. Pokud pole výslovně vyžaduje jednotku, její chybění nebo neplatný
+zápis má výslovné vysvětlení.
 Pravidla bodů jsou 10 bodů rozdělených mezi čtyři lehké výpočty a 1 bod
 za všechny zcela správně, 20 bodů za střední úlohu a 30 bodů rozdělených do tří těžkých
 kroků. Částečně správný krok získá polovinu svých bodů, nikoli bonus za vše správně.

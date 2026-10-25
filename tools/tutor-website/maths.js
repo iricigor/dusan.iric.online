@@ -49,14 +49,14 @@ const mathsSubject = {
     storagePrefix: 'maths-tutor:v2',
     speedBonus: false,
     rules: 'Lehká skupina: 4 × 2,5 bodu + 1 bod za vše zcela správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů. Každý krok má vlastní body. Pokud úloha uznává částečnou odpověď, získáš polovinu bodů za krok. Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Počítají se i body za všechny správné lehké výpočty. Nemusíš spěchat.',
-    answerHelp: 'Řiď se zadáním. Stejnou hodnotu lze zapsat různě: 7/4 = 1 3/4 = 1,75 a 0.5 = 1/2. Pokud úloha žádá určitý zápis, jiný zápis může získat jen část bodů nebo žádné. Délka musí mít jednotku mm, cm, dm, m nebo km (například 1,5 m). Prázdná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.',
+    answerHelp: 'Řiď se zadáním. V číselném poli napiš jen číslo v jednotce určené otázkou. Jednotku připiš jen v poli označeném „včetně jednotky“: mm, cm, dm, m nebo km (například 1,5 m). Stejnou hodnotu lze zapsat různě: 7/4 = 1 3/4 = 1,75 a 0.5 = 1/2. Pokud úloha žádá určitý zápis, jiný zápis může získat jen část bodů nebo žádné. Prázdná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.',
     select: (lesson, mode) => selectExercises(lesson.exercises, mode),
     maximum: maximumPoints,
     score: scoreExercise,
     acceptSubmission: () => true,
     fields: (exercise, index) => exercise.steps.map((step, stepIndex) => ({
         id: `answer-${stepIndex}`,
-        label: `${index + 1}${exercise.difficulty === 'easy' ? 'abcd'[stepIndex] : `.${stepIndex + 1}`}: ${step.prompt}`
+        label: `${index + 1}${exercise.difficulty === 'easy' ? 'abcd'[stepIndex] : `.${stepIndex + 1}`}: ${step.prompt}${step.answer.format === 'length' ? ' (včetně jednotky)' : ''}`
     })),
     compareResults: (a, b) => b.total - a.total,
     validRecord: row => validRecords([row]),

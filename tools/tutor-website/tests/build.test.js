@@ -57,9 +57,9 @@ test('one prepared maths lesson combines fraction calculations and length conver
     assert.equal(maths.id, 'zlomky-a-prevody-delky');
     assert.equal(maths.topic, 'Zlomky a převody jednotek délky');
     assert.deepEqual(maths.exercises.map(exercise => exercise.steps.map(step => formatAnswer(step.answer))), [
-        ['6', '15', '1/2', '0,25'], ['300 cm', '5 cm', '2000 m', '15 dm'],
-        ['12'], ['95 cm'], ['150 cm'], ['2/5'], ['750 m'],
-        ['200 cm', '400 cm', '100 cm'], ['600 m', '1800 m', '600 m'], ['45 cm', '75 cm', '15 cm']
+        ['6', '15', '1/2', '0,25'], ['300', '5', '2000', '15'],
+        ['12'], ['95'], ['150'], ['2/5'], ['750'],
+        ['200', '400', '100'], ['600', '1800', '600'], ['45', '75', '15']
     ]);
     for (const [mode, count, maximum] of [['easy', 3, 61], ['medium', 5, 111], ['hard', 10, 212]]) {
         for (const random of [() => 0, () => .999999, Math.random]) {
@@ -67,7 +67,7 @@ test('one prepared maths lesson combines fraction calculations and length conver
             assert.equal(questions.length, count);
             assert.equal(new Set(questions.map(question => question.id)).size, count);
             assert.equal(maximumPoints(questions), maximum);
-            assert.ok(questions.some(question => question.steps.some(step => step.answer.format === 'length')));
+            assert.ok(questions.some(question => /centimetr|metr|decimetr/.test(question.steps[0].prompt)));
             assert.ok(questions.some(question => /[1-3]\/[2348]/.test(question.prompt) || question.id === 'ctyri-zlomky'));
             const score = questions.reduce((sum, question) =>
                 sum + scoreExercise(question, question.steps.map(step => formatAnswer(step.answer))).total, 0);
@@ -77,10 +77,37 @@ test('one prepared maths lesson combines fraction calculations and length conver
     assert.equal(scoreExercise(maths.exercises[0], ['6', '15', '3/6', '0.25']).steps[2].fraction, .5);
     assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0,25').correct, true);
     assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0.25').correct, true);
-    assert.equal(checkAnswer(maths.exercises[1].steps[0].answer, '0.003 km').correct, true);
-    assert.equal(checkAnswer(maths.exercises[1].steps[0].answer, '300').valid, false);
     const hard = maths.exercises[7];
     assert.equal(scoreExercise(hard, ['', ...hard.steps.slice(1).map(step => formatAnswer(step.answer))]).total, 20);
+});
+
+test('all default fixed-unit questions accept and display numbers without requiring unit suffixes', () => {
+    const { checkAnswer, scoreExercise } = require('../maths.js');
+    const maths = require('../examples/zlomky-a-prevody-delky.json');
+    const expected = {
+        'ctyri-prevody': ['300', '5', '2000', '15'],
+        'dve-tycky': ['95'],
+        'stuha-na-darek': ['150'],
+        'cesta-do-knihovny': ['750'],
+        'provaz-na-kusy': ['200', '400', '100'],
+        'vylet-na-etapy': ['600', '1800', '600'],
+        'stuzka-na-masle': ['45', '75', '15']
+    };
+    for (const [id, answers] of Object.entries(expected)) {
+        const exercise = maths.exercises.find(task => task.id === id);
+        const result = scoreExercise(exercise, answers);
+        assert.ok(result.steps.every(step => step.correct), id);
+        exercise.steps.forEach((step, index) => {
+            assert.equal(step.answer.format, 'integer');
+            assert.equal(step.assessment.input, 'number');
+            assert.equal(formatAnswer(step.answer), answers[index]);
+            assert.equal(checkAnswer(step.answer, String(Number(answers[index]) + 1), step.assessment).correct, false);
+        });
+    }
+    const conversion = maths.exercises.find(task => task.id === 'ctyri-prevody').steps[2];
+    assert.equal(checkAnswer(conversion.answer, '2000', conversion.assessment).fraction, 1);
+    assert.equal(checkAnswer(conversion.answer, '2', conversion.assessment).fraction, 0);
+    assert.equal(checkAnswer(conversion.answer, '2000 m', conversion.assessment).valid, false);
 });
 
 test('maths accepts all agreed typed answers without evaluating or converting them', () => {

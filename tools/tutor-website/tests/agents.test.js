@@ -90,9 +90,12 @@ test('agents require JSON-only authorship and the common page and name-required 
 
 test('common guidance owns motivation, answer variants and easy-to-hard progression', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
-    for (const rule of ['`subtitle`', '`acceptedAnswers`', 'easy to medium to hard', '`paragraphs`', '7/4, 1 3/4', '`assessment`', '`partial.credit`', '`0.5`']) {
+    for (const rule of ['`subtitle`', '`acceptedAnswers`', 'easy to medium to hard', '`paragraphs`', '7/4, 1 3/4', '`assessment`', '`partial.credit`', '`0.5`', 'target unit', '`2000`, not `2000 m`']) {
         assert.ok(common.includes(rule), rule);
     }
+    const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
+    assert.ok(maths.includes('If the question fixes the target unit'));
+    assert.ok(maths.includes('not length `2000 m`'));
 });
 
 test('both tutors reuse discoverable prepared JSON for default or empty requests', () => {

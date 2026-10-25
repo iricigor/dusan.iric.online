@@ -61,7 +61,13 @@ When asked for a maths lesson:
    for simplification, `1/2` can earn full credit and declared `3/6` half.
    Explain that requirement in the prompt. Do not automatically accept every
    equivalent form. Decimal comma or point works with value matchers.
-   Length policies require `input: "length"` and the expected unit; numeric
+   If the question fixes the target unit ("Převeď 2 km na metry", "Kolik
+   centimetrů?"), expect only the number in that unit: integer `2000` with
+   `input: "number"`, not length `2000 m`. Use decimal for non-integer results.
+   Keep units in worked calculations, but do not require children to repeat
+   them in these numeric fields. Use length answers only when the prompt
+   explicitly asks for a length including its unit.
+   Such length policies require `input: "length"` and the expected unit; numeric
    matchers/ranges use that unit after exact conversion of learner input.
    Prefer integer results when appropriate; use the decimal format for
    non-integer numerical answers, never integer-only input for a decimal result.

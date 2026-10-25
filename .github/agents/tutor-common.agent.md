@@ -127,7 +127,10 @@ these instructions to unrelated repository work.
   either a comma or a dot. Fraction and length tasks retain their explicit
   expected formats. Choose value-based or representation-sensitive matchers
   explicitly, rather than relying on the expected format to choose credit.
-  Lengths still require explicit supported units. A tutor must not introduce
+  When a question specifies the target unit (such as "convert 2 km to metres"),
+  expect a number in that unit, not a unit-bearing length: `2000`, not `2000 m`.
+  Use the length format only when the answer explicitly requires a supported
+  unit; make that requirement clear in the prompt. A tutor must not introduce
   a custom numerical checker.
 
 ## Drafts, review, and publication

@@ -57,11 +57,15 @@ These sources are prepared once, not synthesized on each default request.
 History reuses the existing reviewed example. The maths default combines both
 requested topics in **one** lesson: fraction calculations (including a fraction
 of a whole) and length conversions across mm/cm/dm/m/km. It has four worked
-examples and 2 easy/5 medium/3 hard tasks, using integer, fraction, decimal and
-length answers. Several word problems combine the two topics. Comma and dot
-are accepted by value matchers; equivalent numeric values and length units are
-accepted when the declared policy permits them. The fraction-simplification
-step deliberately gives `1/2` full credit and `3/6` half credit.
+examples and 2 easy/5 medium/3 hard tasks, using integer, fraction and decimal
+answers. Conversion answers are numbers in the unit specified by each question.
+Several word problems
+combine the two topics. All 16 fixed-unit steps expect a number without a unit
+suffix: converting 2 km to metres accepts and displays `2000`, not `2000 m`.
+Worked calculations still show units. Comma and dot are accepted by value
+matchers; equivalent numeric values are accepted when the declared policy
+permits them. The fraction-simplification step deliberately gives `1/2` full
+credit and `3/6` half credit.
 Both topics stay together in this single default.
 
 The tutor reads and copies the source JSON unchanged to a **new** file in its
@@ -430,6 +434,16 @@ Prefer integer numerical results when suitable. For a non-integer numerical
 answer, use `decimal` so the child can type a comma or a dot; never require
 one particular decimal separator. Explicit fraction and length tasks retain
 their respective formats.
+
+Choose the answer dimension from what the learner is asked to enter, not just
+the topic. If the question specifies the target unit ("convert 2 km to metres",
+"how many centimetres?"), use an integer/decimal answer with `input: "number"`;
+the answer is `2000`, not `2000 m`. Do not require the learner to repeat the
+given unit or accept another unit in place of performing the requested
+conversion. Reserve `format: "length"` and `input: "length"` for prompts
+explicitly asking for an answer including a unit. Those fields are labelled
+"včetně jednotky"; other numeric fields take numbers only. Keep units in worked
+calculations and explanations regardless of the input format.
 
 The runtime compares exact rational values using bounded BigInt arithmetic, not
 floating-point epsilon, spelling normalization, approximate-year credit, or

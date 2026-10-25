@@ -272,6 +272,11 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     if ($('question').textContent !== prompt) throw new Error('Advanced before submitting');
                     const inputs = [...$('answers').querySelectorAll('input')];
                     if (inputs.length !== exercise.steps.length) throw new Error('Wrong answer-field count');
+                    [...$('answers').querySelectorAll('label')].forEach((label, step) => {
+                        if (label.textContent.includes('(včetně jednotky)') !== (exercise.steps[step].answer.format === 'length')) {
+                            throw new Error('Unit-bearing fields are not distinguished from numeric fields');
+                        }
+                    });
                     if (exercise.difficulty === 'easy' && ![...$('answers').querySelectorAll('label')]
                         .every((label, step) => label.textContent.startsWith(String(index + 1) + 'abcd'[step] + ':'))) {
                         throw new Error('Missing easy subitem labels');
@@ -310,7 +315,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         throw new Error('Wrong feedback points');
                     }
                     exercise.steps.forEach(step => {
-                        if (!$('feedback').textContent.includes(formatAnswer(step.answer)) ||
+                        if (![...$('feedback').querySelectorAll('p')].some(paragraph =>
+                            paragraph.textContent.startsWith('Správná odpověď: ' + formatAnswer(step.answer) + '. ')) ||
                             !$('feedback').textContent.includes(step.solution)) throw new Error('Missing worked answer');
                     });
                     if (${partial} && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Missing blank feedback');
