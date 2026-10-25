@@ -44,8 +44,11 @@ When asked for a maths lesson:
    gradually reduce visible details, and end with independent easy-to-hard
    exercises. Do not request or create a separate practice tab.
    Define glossary terms and their forms. Teach every concept tested.
-5. Author a varied pool of at least 2 easy groups, 5 medium word problems and
-   3 hard word problems. Do not pad the pool with duplicate tasks.
+5. Author a varied pool of at least 30 whole exercises, including at least
+   2 easy groups, 5 medium word problems and 3 hard word problems. A balanced
+   bank can contain 6 easy, 15 medium and 9 hard exercises. Count an easy group
+   or a multi-step hard problem once, not once per answer field.
+   Do not pad the pool with duplicate tasks.
    Each easy group has four independent short calculations (1a–1d); each
    medium problem has one answer; each hard problem combines three simple
    calculations with three separately labelled answer fields. Explain how
@@ -92,5 +95,10 @@ of its step's points; it never earns the all-correct bonus. Maxima are 61, 111 a
 accuracy bonuses. Czech grades use 80/60/40/20% thresholds against those maxima.
 Feedback shows correct answers and worked solutions; the child chooses when
 to continue. Results stay per-lesson in browser session storage, with visible
-failure warnings and no server transmission. Maths has no timer, countdown,
-speed indicator or speed bonus. Do not change history's mandatory speed bonus.
+failure warnings and no server transmission. Maths has no running timer, countdown,
+speed indicator or speed bonus. Passive answer-only duration appears after
+completion and in the expandable local results, never affecting scores, grades
+or ranking. Feedback-reading time is excluded. Use optional schema `icon`
+overrides for relevant emoji on examples, exercises, original sections and
+glossary terms; the shared website provides defaults and owns all rendering.
+Do not change history's mandatory speed bonus.

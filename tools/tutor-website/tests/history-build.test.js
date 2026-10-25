@@ -11,14 +11,28 @@ const { validateLesson } = require('../validate.js');
 const examplePath = path.join(__dirname, '..', 'examples', 'defenestrace.json');
 const example = () => JSON.parse(fs.readFileSync(examplePath, 'utf8'));
 
-test('example validates, preserving the selected original excerpts verbatim', () => {
+test('example preserves all seven supplied original sections verbatim with semantic styling', () => {
     const lesson = validateLesson('history', example());
     const original = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'gems', 'dusan-edu-webpage', 'sample.json'), 'utf8'));
-    const text = original.tabs.find(tab => tab.id === 'original').content.map(section => section.text).join('\n');
-    lesson.original.forEach(section => assert.ok(text.includes(section.text)));
+    const sections = original.tabs.find(tab => tab.id === 'original').content;
+    assert.equal(sections.length, 7);
+    assert.deepEqual(lesson.original.map(({ heading, text }) => ({ heading, text })), sections);
+    assert.equal(lesson.original[0].style, undefined);
+    assert.equal(lesson.original[0].style, lesson.original[1].style);
+    assert.deepEqual(lesson.original.filter(section => section.style === 'fun').map(section => section.heading),
+        ['VÍŠ, ŽE...?', 'VÍŠ, ŽE...?']);
+    const final = lesson.original.at(-1);
+    assert.equal(final.paragraphs.at(-1).style, 'quote');
+    assert.equal(final.paragraphs.map(block => block.text).join('\n\n'), final.text);
+    assert.equal(lesson.corrections[0].section, 3);
+    const html = renderLesson('history', lesson);
+    assert.doesNotMatch(html, /id="original-review"|Ověření a doplnění/);
+    const embedded = JSON.parse(html.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+    assert.equal(embedded.review, lesson.review);
+    assert.deepEqual(embedded.sources, lesson.sources);
 });
 
-test('published example preserves the reviewed lesson data and Czech references', () => {
+test('published legacy lesson remains valid independently of the expanded prepared bank', () => {
     const lesson = example();
     lesson.sources.forEach(source => assert.equal(new URL(source.url).hostname, 'cs.wikipedia.org'));
     const published = path.join(__dirname, '..', '..', '..', 'site', 'history', 'defenestrace.html');
@@ -26,11 +40,18 @@ test('published example preserves the reviewed lesson data and Czech references'
     const payload = publishedHtml.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
     const publishedLesson = JSON.parse(payload);
     assert.equal(validateLesson('history', publishedLesson), publishedLesson);
-    const { version, subject, language, subtitle, ...content } = lesson;
-    content.original = content.original.map(({ style, ...section }) => section);
-    content.chunks = content.chunks.map(({ paragraphs, ...chunk }) => chunk);
-    content.questions = content.questions.map(({ assessment, ...question }) => question);
-    assert.deepEqual(publishedLesson, { version: 1, ...content });
+    assert.equal(publishedLesson.version, 1);
+    assert.equal(publishedLesson.questions.length, 10);
+    assert.equal(lesson.questions.length, 30);
+    publishedLesson.questions.forEach(question => {
+        const { assessment, icon, ...current } = lesson.questions.find(item => item.id === question.id);
+        assert.deepEqual(question, current);
+    });
+    publishedLesson.original.forEach(section => assert.ok(lesson.original.some(current => current.text.includes(section.text))));
+    assert.match(publishedLesson.review, /úryvky/);
+    assert.match(lesson.review, /všech sedm/);
+    assert.match(lesson.review, /30 různých/);
+    assert.equal(lesson.corrections[1].quote, 'neměla vítězů.');
     assert.match(renderLesson('history', lesson), /function initializeTutor\(/);
 });
 
@@ -43,12 +64,12 @@ test('schema rejects malformed data and conditional question shapes', () => {
         lesson => { lesson.questions[0].answer = 2; },
         lesson => { lesson.questions[0].year = true; },
         lesson => { lesson.questions[0].options = ['Yes', 'No']; },
-        lesson => { lesson.questions[2].options.pop(); },
-        lesson => { lesson.questions[2].answer = 4; },
-        lesson => { lesson.questions[7].acceptedAnswers = []; },
-        lesson => { lesson.questions[7].acceptedAnswers = ['1618 trailing text']; },
-        lesson => { lesson.questions[7].acceptedAnswers.push('1619'); },
-        lesson => { lesson.questions[7].options = []; },
+        lesson => { lesson.questions.find(q => q.id === 'm-vira').options.pop(); },
+        lesson => { lesson.questions.find(q => q.id === 'm-vira').answer = 4; },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').acceptedAnswers = []; },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').acceptedAnswers = ['1618 trailing text']; },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').acceptedAnswers.push('1619'); },
+        lesson => { lesson.questions.find(q => q.id === 'h-defenestrace').options = []; },
         lesson => { lesson.questions[0].difficulty = 'impossible'; },
         lesson => { lesson.sources[0].url = 'javascript:alert(1)'; },
         lesson => { lesson.sources[0].url = 'https://'; },
@@ -68,12 +89,12 @@ test('cross-field validation rejects duplicate, insufficient and ambiguous conte
         lesson => { lesson.questions[1].id = lesson.questions[0].id; },
         lesson => { lesson.questions[1].prompt = ` ${lesson.questions[0].prompt.toUpperCase()} `; },
         lesson => { lesson.questions[2].options[1] = lesson.questions[2].options[0].toUpperCase(); },
-        lesson => { lesson.questions[1] = { ...lesson.questions[2], id: 'extra', prompt: 'Extra question' }; },
+        lesson => { lesson.questions = lesson.questions.filter(q => q.difficulty !== 'easy'); },
         lesson => { lesson.questions.filter(q => q.year).forEach(q => { q.year = false; }); },
         lesson => { lesson.glossary[1].forms.push(lesson.glossary[0].term); },
         lesson => { lesson.corrections[0].section = 99; },
         lesson => { lesson.corrections[0].quote = 'not in original'; },
-        lesson => { lesson.original[2].text += lesson.corrections[0].quote; },
+        lesson => { lesson.original[3].text += lesson.corrections[0].quote; },
         lesson => { lesson.corrections[0].sourceUrl = 'https://example.org/not-listed'; },
         lesson => { lesson.corrections.push({ ...lesson.corrections[0] }); }
     ];
@@ -96,7 +117,7 @@ test('HTML is self-contained and payload cannot close a script or title', () => 
     assert.deepEqual(JSON.parse(data), lesson);
     assert.ok(!data.includes('<'));
     assert.equal((html.match(/<script(?:\s|>)/gi) || []).length, 2);
-    assert.ok(!/<(?:script|link)[^>]+(?:src|href)=/.test(html));
+    assert.doesNotMatch(html, /<script[^>]+src=|<link[^>]+href="(?!data:image\/svg\+xml,)/);
     assert.ok(!/\b(?:fetch|XMLHttpRequest)\(/.test(html));
     assert.ok(!/@@(?:STYLES|DATA)@@/.test(html));
 });

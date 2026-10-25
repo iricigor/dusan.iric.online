@@ -113,11 +113,17 @@ Oba předměty používají tentýž generátor a schéma. Náhledy musí být m
 Existující HTML se nepřepisuje; `overwriteApproved: true` v předávacím objektu
 povol pouze po výslovném schválení náhrady daného souboru.
 
-Ukázka **Od defenestrace k Bílé hoře** používá vybrané nezměněné úryvky
-ze stávající dějepisné ukázky. Předvádí také opravu věcné chyby: slovo
-*defenestrace* pochází z latiny, nikoli z němčiny. Obsahuje deset otázek
-pro vyzkoušení všech tří obtížností; nejde o celou učebnicovou kapitolu.
-Schválená ukázka pro web je v souboru `site\history\defenestrace.html`.
+Ukázka **Od defenestrace k Bílé hoře** obsahuje všech sedm dodaných oddílů
+původního textu beze změny slov, včetně zajímavostí a závěrečné citace.
+Předvádí také opravu věcné chyby: slovo
+*defenestrace* pochází z latiny, nikoli z němčiny. Obsahuje 30 různých otázek
+(6 lehkých, 15 středních a 9 těžkých). Výklad nyní zahrnuje také pobělohorské
+změny a třicetiletou válku. Oprava tvrzení, že válka neměla vítězů, zůstává
+oddělená od původního textu. Přehled uvádí nově porovnané zdroje i meze ověření.
+Také matematická ukázka má 30 celých cvičení v poměru 6/15/9, ne jen 30 kroků.
+Nové lekce obou tutorů vyžadují alespoň 30 různých otázek; délky jednotlivých
+kvízů a přijímání starších dat se nemění.
+Starší schválená ukázka v souboru `site\history\defenestrace.html` zůstává beze změn.
 
 Testy nástrojů spustíš takto:
 
@@ -166,6 +172,10 @@ Při odpovědi přesně za 15 sekund nebo později bonus nepřidáváme. Chybná
 částečně správná odpověď bonus nezíská. Odpovídat lze i po vypršení bonusu
 a dítě samo volí, kdy pokračovat. Známka vychází jen ze základních bodů,
 nikoli z rychlosti. Matematika nemá časovač ani rychlostní bonus.
+Oba předměty ve výsledku zobrazují **Dobu odpovídání**: součet času při
+odpovídání, bez čtení zpětné vazby, pobytu v jiné části lekce nebo skryté
+stránce prohlížeče. Matematika během kvízu čas neukazuje a doba nemění její
+body, známku ani pořadí. Sloupec **Kdy** označuje datum a čas pokusu.
 Výsledky se ukládají do úložiště relace prohlížeče, zvlášť pro každou
 lekci. Neodesílají se na server a neslouží jako trvalý záznam.
 
@@ -176,11 +186,70 @@ Závazné pokyny pro generování a pravidla kvízu obsahuje
 Nové lekce obou předmětů mají společná metadata, původní text, slovníček
 a povinný krátký motivační podtitulek `subtitle`. Pravidlo povzbudivého jazyka
 patří do `tutor-common`; schéma a zobrazení vlastní `tutor-website`.
-Styly `plain`, `note`, `example`, `tip`, `warning` umožňují odlišit poznámku,
-příklad, tip nebo upozornění. V původním textu nastav `original[].style`;
-jeho znění se nemění. V matematických příkladech a dějepisných výukových
+Styly `plain`, `note`, `example`, `tip`, `warning`, `comment`, `fun`, `quote`
+odliší běžný text, poznámku, příklad, tip, upozornění, komentář, zajímavost a citaci.
+V původním textu nastav `original[].style`; jeho znění se nemění.
+Pro jednotlivé původní odstavce lze použít `original[].paragraphs`: jejich text
+spojený dvěma konci řádku musí přesně odpovídat `original[].text`.
+Citace se zobrazí jako samostatný citovaný blok bez přidaných slov.
+V matematických příkladech a dějepisných výukových
 blocích lze přidat pole `paragraphs` s položkami `{ "style", "text" }`.
 HTML ani vlastní CSS do obsahu nepatří.
+
+Volitelné `icon` doplní krátké emoji k původnímu oddílu, výukovému bloku,
+řešenému příkladu, otázce, cvičení nebo pojmu ve slovníčku. Bez něj generátor
+použije výchozí ikonu. Pravý okraj obsahového panelu Učit se, nikoli okraj
+celého prohlížeče, má na široké obrazovce záložku 🔖 Slovníček:
+otevře vysouvací panel přes učivo, aniž by posouval text nebo zabíral stálý
+sloupec. Na mobilu se záložka přidrží okraje obrazovky, aby nezakrývala text.
+Panel je zpočátku zavřený na počítači i mobilu. Zavřeš ho tlačítkem,
+klávesou Escape nebo kliknutím mimo něj; po zavření tlačítkem či klávesou
+se vrátí zaměření na záložku. Otevřenou definici zavře první Escape,
+samotný slovníček až další. Definice se otevírají u kliknutého
+pojmu nebo podtrženého slova v učivu. Dvě malé ikony Rozbalit vše / Sbalit vše
+jsou vpravo u záložek pouze v části Učit se a mění jen nápovědy a řešení,
+nikoli slovníček ani kvíz. Mají české tooltipy a přístupné popisky.
+Drobný ovladač Nápověda 💡 je uvnitř pravého horního rohu odstavce,
+text ho obtéká a vysvětlení se otevře pod celým odstavcem.
+Kroky a výsledky mají kompaktní číslované odkrývání bez rámečků.
+V části Učit se jsou všechny nápovědy, kroky, výsledky a řešení zpočátku sbalené
+v obou předmětech; samotný text učiva zůstává viditelný.
+Dějepis používá sépiové akcenty a jemný papírový podklad,
+matematika modrozelené akcenty a jemnou geometrickou mřížku.
+Síla podkladu je mezi původní velmi světlou a pozdější výraznější variantou.
+Podklad pokrývá celé karty původního textu a učiva, včetně nadpisů a okrajů,
+nikoli jen proužky pod odstavci. Kvíz a výsledky zůstávají neutrální.
+Zajímavosti mají hravější zlatavý podklad, kulatý odznak ikony a jemné jiskřičky,
+ne fialovou. Ostatní významové styly zůstávají odlišené. Vše podporuje tmavý režim.
+Odznak předmětu a název lekce jsou na jednom řádku se zachováním svých stylů;
+dlouhý název se může zalomit ve svém sloupci. Motivační věta má barvu předmětu.
+Záložky s ikonami a českými popisky navazují na obsahový
+panel a podporují ovládání šipkami; obtížnosti mají výraznější barevnou výplň.
+Přepnutí záložek zjemňuje krátké prolnutí s drobným svislým posunem.
+Prohlížeče bez View Transitions animují jen příchod nového obsahu.
+Omezený pohyb animace vypne. Vyhrazené místo pro svislý posuvník brání
+poskakování do stran mezi krátkým a dlouhým obsahem; stránka se posouvá přirozeně.
+Světlý a tmavý režim přepíná přepínač se sluncem a měsícem. Věk se v záhlaví
+nezobrazuje. Krátký popisek přezdívky a vstup jsou na jednom řádku; požadavky
+na délku jsou v tooltipu a přístupném popisu. Podrobná pravidla bodování jsou
+rozbalovací. Dějepisný bonus ukazuje
+jen tenký ubývající proužek, nikoli odpočet. Dokončení každého kvízu oslaví
+krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledků.
+Síň slávy je v úvodním nastavení sbalená, po dokončení kvízu se sama rozbalí.
+Nové stránky mají vloženou světlou ikonu s velkým modrým D a menší černou absolventskou čepicí.
+Stávající zveřejněné stránky se tímto nemění.
+Dějepisné ověření a zdroje zůstávají v metadatech lekce, nikoli v samostatné
+viditelné kartě Ověření a doplnění. Opravy podtržených tvrzení zůstávají dostupné.
+
+Nenápadné ozubené kolečko vpravo u záložek v části Hrát si rozbalí nástroje;
+v části Učit se stejné místo využívají ikony pro rozbalení a sbalení učiva.
+Stáhnout JSON uloží celou sadu otázek se správnými odpověďmi, celkovým počtem
+a počty podle obtížnosti easy/medium/hard. Matematické cvičení se počítá jako
+jedna otázka a export obsahuje odpovědi všech jeho kroků. Export funguje místně
+bez sítě, neobsahuje přezdívku ani výsledky žáka a nespustí kvíz.
+Panel je kompaktní; vysvětlení je v tooltipu a přístupném popisu tlačítka.
+Po zahájení stažení, kliknutí mimo panel nebo stisku Escape se zavře.
+Při chybě zůstane otevřený s viditelnou zprávou a možností opakovat stažení.
 
 Barevnější světlý/tmavý vzhled a krátké animace otázek, zpětné vazby,
 výsledků a odkrývání nápověd jsou společné. Nastavení omezeného pohybu je vypne.

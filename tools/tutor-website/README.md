@@ -18,7 +18,7 @@ node --test tools\tutor-website\tests\*.test.js
 
 `capabilities` returns absolute schema, validator, documentation and builder
 paths, version, timing policy, generation/assessment status, shared tabs,
-the name requirement and limitations.
+the name requirement, passive answer-duration policy and limitations.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
 `examplePath` identifies prepared, reusable default lesson JSON for both subjects.
 The structural test fixture is not teaching material. Both subjects use
@@ -57,10 +57,10 @@ These sources are prepared once, not synthesized on each default request.
 History reuses the existing reviewed example. The maths default combines both
 requested topics in **one** lesson: fraction calculations (including a fraction
 of a whole) and length conversions across mm/cm/dm/m/km. It has four worked
-examples and 2 easy/5 medium/3 hard tasks, using integer, fraction and decimal
+examples and 30 tasks (6 easy/15 medium/9 hard), using integer, fraction and decimal
 answers. Conversion answers are numbers in the unit specified by each question.
 Several word problems
-combine the two topics. All 16 fixed-unit steps expect a number without a unit
+combine the two topics. All fixed-unit steps expect a number without a unit
 suffix: converting 2 km to metres accepts and displays `2000`, not `2000 m`.
 Worked calculations still show units. Comma and dot are accepted by value
 matchers; equivalent numeric values are accepted when the declared policy
@@ -125,8 +125,14 @@ failed verification; ask before substituting foreign-language references.
 Mark corrections with an exact, uniquely occurring quote, its zero-based original
 section, explanation and listed source URL. Describe sourced additions in
 `review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
-Prefer 50-100 questions for substantial material; request more material if it
-cannot support the minimum pool of 2 easy, 5 medium and 3 hard questions.
+Review and source information remain in the embedded lesson metadata, not a
+visible Ověření a doplnění card. Exact-quote factual correction popovers remain.
+Author at least 30 distinct questions per new lesson, including at least 2 easy,
+5 medium and 3 hard; prefer 50-100 for substantial material. The prepared bank
+contains 6 easy, 15 medium and 9 hard questions, with teaching extended through
+the post-battle changes and the Thirty Years' War. Request more material if 30
+useful questions cannot be supported; never pad with paraphrased duplicates.
+Legacy structural validation still accepts smaller existing banks.
 
 | Quiz mode | Easy: true/false | Medium: four options | Hard: short answer |
 |---|---|---|---|
@@ -141,17 +147,21 @@ documented below, including all full-credit name variants in `acceptedAnswers`.
 Only fully correct answers strictly before **15000 ms** earn the mandatory
 double-points speed bonus. Late answers remain available; incorrect and partial
 answers never earn a bonus. Grades use base points only, with 80/60/40/20 percent
-boundaries. The leaderboard sorts total points first, then shorter duration.
-Maths never starts the shared controller's timer and has no countdown, duration
-display, speed indicator or bonus.
+boundaries. The leaderboard sorts total points first, then shorter active answering duration.
+The speed deadline continues while another lesson tab/browser page is shown;
+it is separate from the answer-duration measurement described below.
+Maths never starts the shared controller's bonus timer and has no countdown,
+running duration display, speed indicator or bonus.
 
 ### Existing lesson data
 
 Existing history v1 and maths v2 JSON still use the shared builder and validator.
 Previously published HTML remains unchanged until separately
 approved publication; the published example retains its reviewed v1 data.
-The reusable default adds v3 metadata and styled teaching notes without
-rewriting the reviewed source excerpts. Its year ranges are now declared
+The reusable default adds v3 metadata and styled teaching notes, and now includes
+all seven supplied original sections verbatim, including fun facts and the closing
+quotation. Teaching and assessment still cover the selected uprising/White Mountain
+material, not the entire expanded chapter. Its year ranges are now declared
 explicitly; the 1620 question uses inclusive 1615–1625 for partial credit.
 Published HTML is self-contained and does not depend on the generator. The
 removed history CLI/validation wrappers and subject schema aliases are not
@@ -219,18 +229,146 @@ and history learning chunks may add an optional `paragraphs` array:
 }
 ```
 
-Allowed styles are `plain`, `note`, `example`, `tip`, `warning`. Labels are Czech
+Allowed styles are `plain`, `note`, `example`, `tip`, `warning`, `comment`, `fun`
+(fun fact) and `quote` (quotation). Labels are Czech
 text, not color alone; source labels sit outside the preserved source paragraph.
 All values remain inert plain text with glossary support in teaching notes.
 No author-supplied HTML, CSS, class names or scripts are accepted.
-Source sections can be split at existing paragraph boundaries without changing
-their wording; never place generated notes inside preserved source text.
+Original sections may also supply `paragraphs` to style existing paragraphs
+individually, for example a final `quote`. Their `text` values joined with exactly
+`\n\n` must equal the section's canonical `text`; the validator rejects changes,
+omissions or inserted explanations. Correction quotes must fit within one styled
+paragraph. Quotations use semantic blockquotes, and original paragraph styling
+adds no visible label inside source text. Existing sections without `paragraphs`
+remain supported. Never place generated notes inside preserved source text.
 
-Shared theme-aware violet/teal/green/amber accents distinguish cards, modes,
-callouts and difficulty. Brief animations cover new questions/answer controls,
-feedback, results, tabs, glossary dialogs and opened learning hints. They never
+Shared Fluent-inspired attached icon-and-label tabs, soft elevated cards and
+theme-aware accents establish hierarchy without a UI library. The active tab
+joins the content panel; all three tabs share a 12rem desktop width and shrink
+equally on smaller screens. Tab/tabpanel semantics, a single tab stop and
+Left/Right/Home/End navigation support keyboard users.
+Tab switches crossfade the outgoing/incoming main panel with a subtle vertical
+slide over 300ms using native View Transitions where available. Other browsers
+receive an entrance-only fade/slide without delaying activation. Rapid selections
+replace pending transitions rather than queueing outdated tabs. Reduced motion
+disables both paths. A stable root scrollbar gutter (always-reserved scrollbar
+fallback on older browsers) prevents sideways jumps between short and long tabs;
+the document scrolls naturally without fixed-height or nested scrolling panels.
+The binary sun/moon
+switch exposes its current dark-mode state and follows system-theme changes
+until explicitly toggled. Audience remains authoring metadata, not a visible
+age badge. Mode pills use stronger theme-aware colored fills and show
+only difficulty (with green/yellow/red emoji) and question counts. All scoring
+rules sit in a native expandable disclosure.
+The short `Přezdívka` label and input share a row, including on mobile.
+The three-letter/60-character requirements appear in a native tooltip and an
+accessible field description; validation errors stay visible. The redundant
+privacy paragraph is omitted from setup; session-local storage remains unchanged.
+In Učit se, two icon-only `Rozbalit vše` / `Sbalit vše` controls sit at the right
+of the tab bar, outside tablist semantics, with Czech tooltips, accessible labels
+and 44px targets. They affect only learning
+hints, steps, answers and explanations, never the glossary or quiz disclosures.
+Individual disclosures remain independently operable. Hints share a small
+`Nápověda 💡` button floated inside the top-right of its prompt paragraph,
+with text wrapping around it. The button exposes its expanded state and controls
+an explanation below the entire paragraph. Native step/result/solution reveals
+retain descriptive labels in compact, borderless numbered lists; touch targets
+remain 44px on coarse pointers. All hints, steps, results and solutions start
+collapsed in both subjects; the main lesson text stays visible.
+
+The subject badge and lesson title share one row, retaining distinct badge
+and heading typography. Long titles wrap within their column on narrow screens.
+Motivational subtitles use the subject accent, not purple.
+Trusted subject selectors in the one shared stylesheet provide sepia/amber
+history accents and blue/teal maths accents. Softly visible CSS-only paper grain or
+graph-paper backgrounds cover entire original/learning cards, including headings
+and padding, in both themes; paragraphs remain transparent, not separate strips.
+Card tints are midway between the original pale and stronger palettes; pattern
+opacity is 8.5%, halfway between the earlier 5% and 12% treatments.
+Fun facts use warm golden/amber boxes, rounded icon badges and CSS-only sparkles.
+Other semantic callouts retain their own styling. Quiz/results
+backgrounds remain neutral; no lesson-supplied CSS or external assets are used.
+
+A subdued, smaller cog at the right of the tab bar toggles native quiz tools
+only in Hrát si, in the same action area as learning expand/collapse controls.
+It remains keyboard-accessible with a 44px target and brightens on focus/hover.
+`Stáhnout JSON` downloads the complete question bank locally as UTF-8 JSON,
+including correct answers, without starting a quiz or reading learner records.
+The export has `subject`, `lessonId`, `topic`, `summary` and `questions`.
+`summary.totalQuestions` counts history questions or whole maths exercises;
+`summary.byDifficulty` contains `easy`, `medium` and `hard` counts.
+History entries preserve question data and add a `correctAnswers` array;
+maths exercises preserve typed step answers/assessment and add a formatted
+`correctAnswer` to each step. No attempt, nickname or student answers are exported.
+The compact panel contains just the download action; its explanation is in a
+tooltip and accessible description. It closes after successfully starting a
+download, on outside click/focus, Escape or its cog. Download/Escape restore cog
+focus; outside dismissal does not steal focus. Failures keep the panel open with
+a visible alert and retry action.
+
+Brief animations cover new questions/answer controls,
+feedback, results, tabs, glossary popovers and opened learning hints. They never
 auto-advance, change timing/scoring or obscure answers. Reduced-motion preference
 disables animations, transitions and hover movement across both subjects.
+
+### Icons, glossary and standalone branding
+
+Optional `icon` is a nonblank plain-text string of at most 32 characters, intended
+for a short emoji such as `🏰`, `⚖️` or `📐`. It is supported on `original[]`,
+`chunks[]`, `examples[]`, `questions[]`, `exercises[]` and `glossary[]`. Defaults
+decorate cards and glossary headings when omitted; existing JSON needs no
+migration. Original section text is unchanged. Emoji are decorative and hidden
+from assistive technology; meaningful headings and difficulty labels remain text.
+Icons use safe text nodes, never HTML, CSS, classes or asset URLs.
+
+The learning view keeps its full reading width. A compact right-edge
+`🔖 Slovníček` tab, aligned with the right edge of the learning content panel
+rather than the browser edge on wide screens, opens an initially closed slide-out drawer over the lesson
+on desktop and mobile, without reserving a column or shifting the text.
+The bookmark sits just outside the panel when space allows and clamps to the
+viewport on mobile, clear of the paragraph text.
+The drawer is a nonmodal native manual popover with dialog semantics: opening
+focuses its close button; closing or Escape restores the bookmark trigger.
+Outside clicks, moving keyboard focus back to the lesson and changing views
+also dismiss it, so the nonmodal overlay never obscures the newly focused content. With a definition
+open, Escape closes the definition first, then the drawer on a second press.
+The drawer scrolls independently, fits the viewport and respects reduced motion.
+Only term buttons are shown, not a wall of definitions. Definitions open
+beside the trigger in a viewport-constrained native popover, usable by mouse,
+touch and keyboard. Escape, outside click, the close button or changing views
+dismiss it; explicit close/Escape returns focus to the trigger.
+The runtime requires a modern browser with the native Popover API.
+
+`favicon.svg` contains a pale rounded tile and a dominant blue vector D, with
+a smaller black cap tilted over its upper-left edge. `page.js` embeds it as a data URL in every
+new standalone page: no font, network request or external asset is required.
+Existing published HTML and the independent Gems workflow remain unchanged.
+
+### Completion, local ranking and answer duration
+
+Every completion receives an encouraging summary, points/grade and a brief,
+nonblocking CSS confetti burst. Reduced-motion users get the same summary
+without confetti. Answer explanations remain available in a disclosure; the
+learner still explicitly advances after every question. The session leaderboard
+is collapsed in quiz setup, expands automatically at completion, and can still
+be manually collapsed. Restarting closes it again. The latest attempt's position
+stays inside it rather than emphasized in the main completion summary.
+
+Both subjects save `answerDurationMs`: the sum of active question-answering
+intervals, stopped on submission and restarted when the next question is shown.
+Feedback reading (including the final feedback), other lesson tabs and hidden
+browser pages are excluded. No duration ticks or countdown is shown during maths.
+Results label duration **Doba odpovídání** and the attempt timestamp **Kdy**,
+including a local date and time for new attempts.
+
+History retains its points-first, shorter-duration tie-break, using precise
+answer duration for new results and the original total duration for legacy
+results. Maths ordering remains points-only. The legacy history `duration`
+field is retained in seconds for compatibility; new records derive it from
+active answering time. Old history/maths records without `answerDurationMs`
+remain valid and display “Nezaznamenáno” in the answering-duration column, not a
+made-up value. Invalid new duration fields produce the existing visible storage
+warning and never overwrite the original stored data.
 
 ### Selective Gems integration
 
@@ -242,17 +380,18 @@ the package archive nor existing published lessons is changed by this integratio
 
 | Gems detail | Shared generator decision |
 |---|---|
-| Wide desktop shell and learning/glossary columns | Adapted to a 1600px maximum shell and 2:1 learning grid, stacked at 1024px and below; original text keeps an 80-character reading width |
-| Subject/audience badges and prominent active tabs | Adapted with existing accessible theme colors, text labels, pressed states and explicit panel associations |
-| Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
+| Wide desktop shell and learning/glossary columns | A 1120px maximum shared shell and a bookmark-triggered overlay glossary drawer, with no reserved column; original text fills its card's inner width |
+| Subject/audience badges and prominent active tabs | Subject badge retained, audience badge omitted; attached icon-and-label tabs use selected states, keyboard navigation and labelled panels |
+| Difficulty cards, on-demand hints and grade banner | Adapted in the common CSS; inline hint buttons expose expanded state and control explanations; all learning help starts collapsed |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
 | “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |
-| Glossary modal, themes and success/failure animations | Existing native dialog, system-theme support and reduced-motion-aware feedback retained instead of copying duplicate implementations |
+| Glossary modal, themes and success/failure animations | Shared anchored native popovers, system-theme support and reduced-motion-aware feedback instead of duplicate implementations |
 | Gems quiz engine, schema, DOM and HTML-string rendering | Not imported; existing contracts, safe text nodes, sampling and assessment adapters remain authoritative |
 | Placeholder-name rejection and automatic feedback progression | Not imported; valid names/nicknames are not rejected for matching an example, and the learner explicitly continues after feedback |
 
-Stored quiz-result namespaces, score maxima, grade thresholds and timing rules
-are unchanged by v3. New lessons declare their acceptance policies explicitly;
+Stored quiz-result namespaces, score maxima, grade thresholds and speed-bonus rules
+are unchanged by v3. Answer-only duration is additive for both subjects.
+New lessons declare their acceptance policies explicitly;
 legacy lesson grading and stored result values are not rewritten.
 
 Every page has exactly **Původní text → Učit se → Hrát si**. Original material
@@ -262,10 +401,9 @@ Both quizzes require a name or nickname containing at least three Unicode
 letters, at most 60 characters. It is entered in the browser, never embedded
 in lesson JSON, and shown in the session-local results table.
 
-Maths examples and exercises share Učit se. The simple example initially shows
-its hint, every step and answer. The complex example initially shows only its
-first worked step; the everyday example and challenge leave help collapsed.
-Independent practice follows, ordered easy, medium, hard, with help collapsed.
+Maths examples and exercises share Učit se. All four worked examples initially
+leave hints, steps and results collapsed. Independent practice follows, ordered
+easy, medium, hard, with hints and solutions collapsed.
 All hints, steps and solutions remain available on demand.
 
 ## Shared v3 content contract and maths section
@@ -281,7 +419,8 @@ cannot prove those educational properties.
 Maths top-level keys are `version: 3`, `subject: "maths"`, `language: "cs-CZ"`,
 `id` (stable lowercase kebab-case), `topic`, `subtitle`, `audience`, `original`, `glossary`,
 `examples`, and `exercises`. `original` is a nonempty array of plain-text
-`{ "heading", "text", "style" }` sections (`style` optional). Unknown keys, including history source/year fields or
+`{ "heading", "text", "style", "paragraphs" }` sections (`style` and `paragraphs`
+optional; styled paragraphs must preserve the source exactly). Unknown keys, including history source/year fields or
 timing settings, are rejected. History sources and history-specific review
 metadata are not part of the maths section. Version 1 maths JSON must be explicitly updated to v3
 with the actual original material; the builder never invents missing source text.
@@ -300,8 +439,10 @@ Each also has `heading`, `prompt`, `hint`, optional styled `paragraphs`, `steps`
 The child can reveal hints, each worked step, and the result independently.
 Calculations are displayed as text; no symbolic algebra is evaluated.
 
-`exercises` is a pool of 10–100 unique tasks with at least **2 easy, 5 medium,
-3 hard**. IDs and prompts must be unique ignoring case and surrounding space.
+Author `exercises` as a pool of **30–100** unique whole tasks, not individual
+steps, with at least **2 easy, 5 medium, 3 hard**. The prepared default uses
+6/15/9. The validator retains its 10-task lower bound for legacy compatibility;
+that is not the new-authoring minimum. IDs and prompts must be unique ignoring case and surrounding space.
 Each task contains `id`, `difficulty`, `prompt`, `steps`, and `explanation`.
 Each step has `prompt`, `hint`, typed canonical `answer`, `assessment`, and
 `solution` (worked explanation). History questions also require `assessment`.
@@ -485,8 +626,9 @@ the next task. Results repeat all feedback and show a Czech grade. Grades use
 the exact score, not the rounded display percentage.
 
 Maths results store run id, entered name/nickname, mode, score, attainable
-maximum, grade and local time of day under `maths-tutor:v2:<lesson-id>` in
-`sessionStorage`. No elapsed duration is recorded for maths. Old anonymous
+maximum, grade, local date/time and active `answerDurationMs` under
+`maths-tutor:v2:<lesson-id>` in `sessionStorage`. Older named results without
+answer duration remain readable. Duration never affects maths ranking. Old anonymous
 v1 results remain untouched under their old key and are not migrated to a
 fabricated player name. Results remain per-subject, per-lesson and session-local,
 never transmitted. Read errors or corrupt records

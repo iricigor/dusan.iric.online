@@ -11,6 +11,38 @@ const { validateLesson } = require('../validate.js');
 const { mathsLesson, valueAssessment } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
 const { formatAnswer } = require('../maths.js');
+const { questionBank } = require('../runtime.js');
+
+test('question bank export counts complete tasks and includes canonical answers without learner data', () => {
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const before = JSON.stringify(lesson);
+        const adapter = require(`../${subject}.js`);
+        const result = questionBank(lesson, adapter);
+        const tasks = lesson.questions || lesson.exercises;
+        assert.deepEqual(Object.keys(result), ['subject', 'lessonId', 'topic', 'summary', 'questions']);
+        assert.equal(result.subject, subject);
+        assert.equal(result.lessonId, lesson.id);
+        assert.equal(result.summary.totalQuestions, tasks.length);
+        assert.deepEqual(result.summary.byDifficulty, subject === 'history'
+            ? { easy: 6, medium: 15, hard: 9 } : { easy: 2, medium: 5, hard: 3 });
+        assert.deepEqual(result.questions.map(question => question.id), tasks.map(question => question.id));
+        result.questions.forEach((question, index) => {
+            if (subject === 'history') {
+                assert.deepEqual(question.correctAnswers, tasks[index].type === 'text'
+                    ? tasks[index].acceptedAnswers : [tasks[index].options[tasks[index].answer]]);
+            } else {
+                assert.deepEqual(question.steps.map(step => step.correctAnswer), tasks[index].steps.map(step => formatAnswer(step.answer)));
+                assert.deepEqual(question.steps.map(step => step.answer), tasks[index].steps.map(step => step.answer));
+            }
+            assert.deepEqual(question.assessment, tasks[index].assessment);
+        });
+        assert.equal(JSON.stringify(lesson), before);
+        assert.deepEqual(JSON.parse(JSON.stringify(result)), result);
+    }
+    const legacy = { ...history, version: 1 };
+    delete legacy.subject;
+    assert.equal(questionBank(legacy, require('../history.js')).subject, 'history');
+});
 
 test('discovery identifies real contracts and available untimed maths assessment', () => {
     for (const subject of ['history', 'maths']) {
@@ -23,6 +55,7 @@ test('discovery identifies real contracts and available untimed maths assessment
         assert.equal(result.version, 3);
         assert.deepEqual(result.tabs, ['original', 'learning', 'quiz']);
         assert.equal(result.playerNameRequired, true);
+        assert.equal(result.answerDuration, 'active-answering-only-excludes-feedback-and-hidden-quiz');
     }
     assert.equal(capabilities('maths').assessment, 'available');
     assert.equal(capabilities('maths').generation, 'lesson-and-quiz');
@@ -59,7 +92,12 @@ test('one prepared maths lesson combines fraction calculations and length conver
     assert.deepEqual(maths.exercises.map(exercise => exercise.steps.map(step => formatAnswer(step.answer))), [
         ['6', '15', '1/2', '0,25'], ['300', '5', '2000', '15'],
         ['12'], ['95'], ['150'], ['2/5'], ['750'],
-        ['200', '400', '100'], ['600', '1800', '600'], ['45', '75', '15']
+        ['200', '400', '100'], ['600', '1800', '600'], ['45', '75', '15'],
+        ['1/4', '2/3', '0,6', '18'], ['6', '4,5', '700', '1,25'],
+        ['25', '60', '500', '75'], ['0,125', '0,75', '1,5', '1,75'],
+        ['115'], ['7'], ['6'], ['56'], ['1,75'], ['15'], ['1/4'], ['13,5'], ['300'], ['4'],
+        ['1200', '1800', '1200'], ['60', '36', '18'], ['200', '150', '500'],
+        ['200', '235', '2,35'], ['150', '50', '200'], ['180', '120', '15']
     ]);
     for (const [mode, count, maximum] of [['easy', 3, 61], ['medium', 5, 111], ['hard', 10, 212]]) {
         for (const random of [() => 0, () => .999999, Math.random]) {
@@ -68,7 +106,7 @@ test('one prepared maths lesson combines fraction calculations and length conver
             assert.equal(new Set(questions.map(question => question.id)).size, count);
             assert.equal(maximumPoints(questions), maximum);
             assert.ok(questions.some(question => /centimetr|metr|decimetr/.test(question.steps[0].prompt)));
-            assert.ok(questions.some(question => /[1-3]\/[2348]/.test(question.prompt) || question.id === 'ctyri-zlomky'));
+            assert.ok(questions.some(question => /\d\/\d|zlom|polovin|třetin|čtvrtin|osmin|pětin/.test(question.prompt)));
             const score = questions.reduce((sum, question) =>
                 sum + scoreExercise(question, question.steps.map(step => formatAnswer(step.answer))).total, 0);
             assert.equal(score, maximum);
@@ -79,6 +117,28 @@ test('one prepared maths lesson combines fraction calculations and length conver
     assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0.25').correct, true);
     const hard = maths.exercises[7];
     assert.equal(scoreExercise(hard, ['', ...hard.steps.slice(1).map(step => formatAnswer(step.answer))]).total, 20);
+});
+
+test('both prepared banks contain 30 distinct tasks with complete export and canonical full-credit answers', () => {
+    const { scoreAnswer } = require('../history.js');
+    const { scoreExercise } = require('../maths.js');
+    for (const subject of ['history', 'maths']) {
+        const lesson = JSON.parse(fs.readFileSync(capabilities(subject).examplePath, 'utf8'));
+        validateLesson(subject, lesson);
+        const tasks = lesson.questions || lesson.exercises;
+        assert.ok(tasks.length >= 30, `${subject}: whole tasks, not maths steps`);
+        assert.equal(new Set(tasks.map(task => task.prompt.trim().toLocaleLowerCase('cs'))).size, tasks.length);
+        const exported = questionBank(lesson, require(`../${subject}.js`));
+        assert.deepEqual(exported.summary, { totalQuestions: 30, byDifficulty: { easy: 6, medium: 15, hard: 9 } });
+        tasks.forEach(task => {
+            if (subject === 'history') {
+                const answers = task.type === 'text' ? task.acceptedAnswers : [task.answer];
+                answers.forEach(answer => assert.equal(scoreAnswer(task, answer, 20000).fraction, 1, task.id));
+            } else {
+                assert.ok(scoreExercise(task, task.steps.map(step => formatAnswer(step.answer))).steps.every(step => step.correct), task.id);
+            }
+        });
+    }
 });
 
 test('all default fixed-unit questions accept and display numbers without requiring unit suffixes', () => {
@@ -184,7 +244,7 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.ok(!html.includes(hostile));
     assert.match(html, /&lt;\/script&gt;/);
     assert.equal((html.match(/<script(?:\s|>)/g) || []).length, 2);
-    assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)=|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
+    assert.doesNotMatch(html, /<(?:script|img)[^>]+src=|<link[^>]+href="(?!data:)|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
     assert.match(html, /speedBonus: false/);
     assert.doesNotMatch(html, /zatím nejsou dostupné|@@(?:DATA|STYLES|APP)@@/);
     assert.match(html, /data-mode="hard"/);
@@ -193,16 +253,30 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
 });
 
+test('both subjects embed a standalone blue D and black cap on a pale favicon tile', () => {
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const html = renderLesson(subject, lesson);
+        const icon = html.match(/<link rel="icon" type="image\/svg\+xml" sizes="any" href="data:image\/svg\+xml,([^"]+)">/);
+        assert.ok(icon);
+        const svg = decodeURIComponent(icon[1]);
+        assert.match(svg, /viewBox="0 0 32 32"/);
+        for (const color of ['#1e3c72', '#000000', '#f1f5f9']) assert.ok(svg.includes(color));
+        assert.doesNotMatch(svg, /<(?:script|image|text)|href=/);
+        assert.equal((html.match(/<link /g) || []).length, 1);
+    }
+});
+
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
     const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
-    assert.match(sharedStyles, /\.original-text \{[^}]*max-width: 80ch;/);
+    assert.doesNotMatch(sharedStyles, /\.original-text \{[^}]*max-width:/);
     assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor')), false);
     assert.equal(fs.existsSync(path.join(__dirname, '..', 'maths.schema.json')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(sharedRuntime));
         assert.equal(html.match(/<style>([\s\S]*?)<\/style>/)[1], sharedStyles);
+        assert.ok(html.includes(`<body data-subject="${subject}">`));
         const adapter = fs.readFileSync(path.join(__dirname, '..', `${subject}.js`), 'utf8');
         assert.ok(html.includes(adapter));
         assert.doesNotMatch(html, /module\.exports = require|let appData =|DEFAULT_EDU_PAYLOAD/);

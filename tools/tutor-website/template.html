@@ -4,48 +4,63 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@@TITLE@@</title>
+    <link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,@@FAVICON@@">
     <style>@@STYLES@@</style>
 </head>
-<body>
-    <header>
+<body data-subject="@@SUBJECT_ID@@">
+    <header id="page-header">
         <div class="heading">
-            <div><span class="badge">@@SUBJECT@@</span><h1 id="topic"></h1></div>
-            <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
+            <div class="lesson-heading"><span class="badge">@@SUBJECT@@</span><h1 id="topic"></h1></div>
+            <button id="theme" type="button" role="switch" aria-checked="false" aria-label="Tmavý režim" title="Přepnout světlý nebo tmavý režim">
+                <svg class="theme-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                <svg class="theme-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 13A9 9 0 0 1 11 3.5 9 9 0 1 0 20.5 13Z"/></svg>
+            </button>
         </div>
         <p id="subtitle" class="motivation"></p>
-        <p id="audience" class="audience"></p>
-        <nav aria-label="Části lekce">
-            <button type="button" data-tab="original" aria-controls="original" aria-pressed="true">Původní text</button>
-            <button type="button" data-tab="learning" aria-controls="learning" aria-pressed="false">Učit se</button>
-            <button type="button" data-tab="quiz" aria-controls="quiz" aria-pressed="false">Hrát si</button>
+        <div class="tab-bar">
+        <nav role="tablist" aria-label="Části lekce">
+            <button id="tab-original" type="button" role="tab" data-tab="original" aria-controls="original" aria-selected="true" tabindex="0"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Původní text</span></button>
+            <button id="tab-learning" type="button" role="tab" data-tab="learning" aria-controls="learning" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v16m0-16C9 3 5 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 1Z"/></svg><span>Učit se</span></button>
+            <button id="tab-quiz" type="button" role="tab" data-tab="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10c3 0 5 11 3 12-1 1-4-3-4-3H8s-3 4-4 3C2 18 4 7 7 7ZM6 11h6m-3-3v6"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="14" r="1"/></svg><span>Hrát si</span></button>
         </nav>
+        <div id="learning-controls" class="learning-controls" role="group" aria-label="Nápovědy a řešení" hidden>
+            <button id="expand-learning" type="button" aria-controls="learning-content" aria-label="Rozbalit vše" title="Rozbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9V3m-4 4 4-4 4 4M12 15v6m-4-4 4 4 4-4"/></svg></button>
+            <button id="collapse-learning" type="button" aria-controls="learning-content" aria-label="Sbalit vše" title="Sbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6m-4-4 4 4 4-4M12 21v-6m-4 4 4-4 4 4"/></svg></button>
+        </div>
+        <details id="quiz-tools" hidden>
+            <summary aria-label="Nástroje kvízu" title="Nástroje kvízu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 3h3l1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-3Z"/><circle cx="11.5" cy="10.5" r="3"/></svg></summary>
+            <div id="quiz-tools-panel">
+                <button id="quiz-export" type="button" title="Celá sada otázek včetně správných odpovědí." aria-describedby="quiz-export-help">Stáhnout JSON</button>
+                <span id="quiz-export-help" class="visually-hidden">Export obsahuje celou sadu otázek včetně správných odpovědí.</span>
+                <p id="export-error" role="alert" hidden></p>
+            </div>
+        </details>
+        </div>
     </header>
     <main>
         <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
         <p id="storage-warning" role="alert" hidden></p>
-        <section id="original" aria-label="Původní text">
-            <article id="original-review" class="card" hidden>
-                <h2>Ověření a doplnění</h2><p id="review"></p><ul id="sources"></ul>
-            </article>
+        <section id="original" role="tabpanel" aria-labelledby="tab-original" tabindex="0">
             <div id="original-content"></div>
         </section>
-        <section id="learning" aria-label="Učit se" hidden>
+        <section id="learning" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden>
             <div id="learning-content"></div>
-            <aside class="card glossary-card" aria-labelledby="glossary-title"><h2 id="glossary-title">Slovníček</h2><div id="glossary"></div></aside>
         </section>
-        <section id="quiz" aria-label="Hrát si" hidden>
+        <section id="quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden>
             <article id="setup" class="card">
-                <h2>Vyber si kvíz</h2>
-                <label for="player">Tvoje jméno nebo přezdívka (alespoň 3 písmena)</label>
-                <input id="player" type="text" autocomplete="off" maxlength="60" placeholder="Tvoje přezdívka" aria-describedby="name-error">
-                <p id="name-error" role="alert"></p>
-                <p>Jméno nebo přezdívka zůstane jen ve výsledcích v tomto prohlížeči. Na server nic neposíláme.</p>
-                <p id="scoring"></p>
-                <div class="modes">
-                    <button type="button" data-mode="easy">Lehká: 3 úlohy</button>
-                    <button type="button" data-mode="medium">Střední: 5 úloh</button>
-                    <button type="button" data-mode="hard">Těžká: 10 úloh</button>
+                <h2><span class="card-icon" aria-hidden="true">🎯</span>Vyber si kvíz</h2>
+                <div class="player-row">
+                    <label for="player" title="Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků.">Přezdívka</label>
+                    <input id="player" type="text" autocomplete="off" maxlength="60" placeholder="Napiš sem" title="Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků." aria-describedby="name-help name-error">
                 </div>
+                <span id="name-help" class="visually-hidden">Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků.</span>
+                <p id="name-error" role="alert"></p>
+                <div class="modes">
+                    <button type="button" data-mode="easy"><span aria-hidden="true">🟢</span> Lehká <span class="mode-count">3 úlohy</span></button>
+                    <button type="button" data-mode="medium"><span aria-hidden="true">🟡</span> Střední <span class="mode-count">5 úloh</span></button>
+                    <button type="button" data-mode="hard"><span aria-hidden="true">🔴</span> Těžká <span class="mode-count">10 úloh</span></button>
+                </div>
+                <details id="scoring-rules"><summary>Jak se počítají body?</summary><ul id="scoring"></ul></details>
             </article>
             <article id="game" class="card" hidden>
                 <div class="quiz-status">
@@ -55,30 +70,46 @@
                 <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
                 @@TIMING@@
                 <p id="difficulty" class="difficulty"></p>
-                <h2 id="question" tabindex="-1"></h2>
+                <div class="question-heading"><span id="question-icon" class="card-icon" aria-hidden="true"></span><h2 id="question" tabindex="-1"></h2></div>
                 <p id="answer-help" hidden></p>
                 <form id="answers" novalidate></form>
                 <div id="feedback" role="status" hidden></div>
                 <button id="next" type="button" hidden>Další úloha</button>
             </article>
             <article id="results" class="card" hidden>
-                <h2 id="results-title" tabindex="-1">Výsledek kvízu</h2>
+                <div class="confetti" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <h2 id="results-title" tabindex="-1"><span class="card-icon" aria-hidden="true">🎉</span>Hotovo! Kvíz máš za sebou.</h2>
+                <p>Každý pokus ti pomáhá učit se. Podívej se, co už umíš a co si ještě procvičíš.</p>
                 <p id="grade" class="grade"></p>
-                <ol id="summary"></ol>
+                <p id="answer-duration"></p>
+                <details><summary>Prohlédnout odpovědi a vysvětlení</summary><ol id="summary"></ol></details>
                 <button id="restart" type="button">Nový kvíz</button>
             </article>
-            <article id="leaderboard" class="card">
-                <h2>Síň slávy této lekce</h2>
+            <details id="leaderboard" class="card">
+                <summary><span class="card-icon" aria-hidden="true">🏅</span>Síň slávy této lekce</summary>
                 <p>Výsledky pouze v tomto prohlížeči a této relaci. Po ukončení relace mohou zmizet.</p>
+                <p id="leaderboard-rank" hidden></p>
                 <div id="leaderboard-content" class="table-scroll"></div>
-            </article>
+            </details>
         </section>
     </main>
-    <dialog id="definition" aria-labelledby="definition-title">
+    <button id="glossary-toggle" type="button" aria-haspopup="dialog" aria-controls="glossary-drawer" aria-expanded="false" title="Otevřít slovníček" hidden><span aria-hidden="true">🔖</span><span>Slovníček</span></button>
+    <aside id="glossary-drawer" popover="manual" role="dialog" aria-modal="false" aria-labelledby="glossary-title">
+        <div class="drawer-heading">
+            <h2 id="glossary-title"><span class="card-icon" aria-hidden="true">🔖</span>Slovníček</h2>
+            <button id="glossary-close" type="button" aria-label="Zavřít slovníček" title="Zavřít slovníček">×</button>
+        </div>
+        <div id="glossary"></div>
+    </aside>
+    <div id="definition" popover="auto" role="dialog" aria-labelledby="definition-title" aria-describedby="definition-text">
         <h2 id="definition-title"></h2>
         <p id="definition-text"></p>
-        <form method="dialog"><button>Zavřít</button></form>
-    </dialog>
+        <button id="definition-close" type="button">Zavřít</button>
+    </div>
     <script id="lesson-data" type="application/json">@@DATA@@</script>
     <script>@@APP@@</script>
 </body>

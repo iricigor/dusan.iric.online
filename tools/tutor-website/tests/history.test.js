@@ -87,4 +87,10 @@ test('grades use exact thresholds and leaderboard sorting breaks ties by duratio
     }
     const records = [{ total: 30, duration: 20 }, { total: 40, duration: 99 }, { total: 30, duration: 10 }];
     assert.deepEqual(records.sort(compareResults).map(row => row.duration), [99, 10, 20]);
+    const precise = [
+        { total: 30, duration: 10, answerDurationMs: 10400 },
+        { total: 30, duration: 10, answerDurationMs: 10001 },
+        { total: 30, duration: 10 }
+    ];
+    assert.deepEqual(precise.sort(compareResults).map(row => row.answerDurationMs), [undefined, 10001, 10400]);
 });

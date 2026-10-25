@@ -18,6 +18,7 @@ function capabilities(subject) {
         generation: 'lesson-and-quiz',
         assessment: 'available',
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
+        answerDuration: 'active-answering-only-excludes-feedback-and-hidden-quiz',
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
             ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported.'] : [])

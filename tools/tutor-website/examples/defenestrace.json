@@ -6,7 +6,7 @@
   "id": "defenestrace-a-bila-hora",
   "topic": "Od defenestrace k Bílé hoře",
   "audience": "Pro desetileté děti, které se učí česky",
-  "review": "Toto je krátká ukázková lekce, ne celá kapitola. Původní text tvoří nezměněné úryvky z existující ukázky v gems. Opravujeme původ slova defenestrace: pochází z latiny, ne z němčiny. Rok 1618 je doplněn podle uvedených zdrojů. Datum bitvy na Bílé hoře 8. listopadu 1620 odpovídá uvedenému přehledu bitvy. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
+  "review": "Původní text obsahuje všech sedm dodaných oddílů beze změny slov, včetně zajímavostí a závěrečné citace. Rozšířená výuka připravuje všech 30 různých otázek: od vlády Habsburků přes povstání a Bílou horu po pobělohorské změny a třicetiletou válku. Při rozšíření jsme porovnali přehledy Matyášovy vlády, bitvy na Bílé hoře, staroměstské exekuce, Obnoveného zřízení zemského a třicetileté války. Vysvětlujeme dědičnost trůnu, náboženská omezení a následky války. Opravujeme zjednodušení, že válka neměla vítězů: mír přinesl některým státům výhody. Oprava latinského původu slova defenestrace a doplnění roku 1618 vycházejí z dříve uvedených zdrojů. Přesné počty vojáků, brněnská pověst a původ závěrečné citace nebyly nově ověřeny a nejsou předmětem kvízu. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
   "sources": [
     {
       "title": "Defenestrace — původ slova z latiny",
@@ -19,29 +19,82 @@
     {
       "title": "Bitva na Bílé hoře — datum bitvy",
       "url": "https://cs.wikipedia.org/wiki/Bitva_na_B%C3%ADl%C3%A9_ho%C5%99e"
+    },
+    {
+      "title": "Matyáš Habsburský — Rudolfův bratr a následník",
+      "url": "https://cs.wikipedia.org/wiki/Maty%C3%A1%C5%A1_Habsbursk%C3%BD"
+    },
+    {
+      "title": "Staroměstská exekuce — rok 1621 a Jan Mydlář",
+      "url": "https://cs.wikipedia.org/wiki/Starom%C4%9Bstsk%C3%A1_exekuce"
+    },
+    {
+      "title": "Obnovené zřízení zemské — dědičnost trůnu, jazyky a víra",
+      "url": "https://cs.wikipedia.org/wiki/Obnoven%C3%A9_z%C5%99%C3%ADzen%C3%AD_zemsk%C3%A9"
+    },
+    {
+      "title": "Třicetiletá válka — průběh, následky a mír roku 1648",
+      "url": "https://cs.wikipedia.org/wiki/T%C5%99icetilet%C3%A1_v%C3%A1lka"
     }
   ],
   "original": [
     {
+      "heading": "1. VLÁDA HABSBURKŮ V ČESKÝCH ZEMÍCH",
+      "icon": "🏰",
+      "text": "Po odstoupení Rudolfa II. usedl na trůn jeho bratr Matyáš. Císaře Matyáše však nejvíce zajímalo, kolik peněz vybere na daních. Sídlil ve Vídni a v Čechách (v Praze) za něho vládli jeho úředníci. Ještě za Matyášova života byl českým králem zvolen a korunován jeho bratranec Ferdinand II. Štýrský (rovněž z rodu Habsburků). Ferdinand II. prosazoval katolickou víru, což se nelíbilo české šlechtě. Nespokojenost s vládou Habsburků v českých zemích neustále vzrůstala."
+    },
+    {
       "heading": "STAVOVSKÉ POVSTÁNÍ",
-      "style": "note",
+      "icon": "⚖️",
       "text": "Pražskou defenestrací byla zahájena otevřená vzpoura proti panovníkovi a začalo stavovské povstání. Stavy požadovaly rovnoprávné postavení českých zemí v habsburské monarchii, možnost volby krále a svobodu náboženského vyznání."
     },
     {
-      "heading": "BITVA NA BÍLÉ HOŘE — úryvek",
-      "text": "České stavy si zvolily za svého krále Fridricha Falckého. K rozhodujícímu střetnutí došlo 8. listopadu 1620 na Bílé hoře."
+      "heading": "BITVA NA BÍLÉ HOŘE",
+      "text": "České stavy si zvolily za svého krále Fridricha Falckého. K rozhodujícímu střetnutí došlo 8. listopadu 1620 na Bílé hoře. Fridrich Falcký po prohrané bitvě opustil Pražský hrad a odjel mimo říši. Pro svou krátkou vládu byl označován jako „zimní král“. O dalším osudu Českého království bylo rozhodnuto a pro povstalce následovaly tvrdé tresty."
     },
     {
-      "heading": "VÍŠ, ŽE...? — úryvek",
-      "text": "- Fenster znamená německy okno. Odtud pochází výraz defenestrace – vyhození z okna."
+      "heading": "VÍŠ, ŽE...?",
+      "icon": "💡",
+      "style": "fun",
+      "text": "- Fenster znamená německy okno. Odtud pochází výraz defenestrace – vyhození z okna.\n- Bílá hora je návrší v současné části Prahy 6.\n- Při bitvě stálo na císařské straně celkem asi 22 000 pěšáků a 5 500 jezdců. Na straně stavů něco přes 20 000 vojáků.\n- Celá bitva trvala jen 2 hodiny. Nejdéle se bránil pluk Moravanů u zdi obory Hvězda.\n- Oboru se stejnojmenným letohrádkem Hvězdou můžeš navštívit i dnes."
+    },
+    {
+      "heading": "DOBA POBĚLOHORSKÁ",
+      "text": "Dne 21. června 1621 bylo 27 povstalců popraveno. Rodinám povstalců byl zabaven veškerý majetek. Němčina začala být používána jako rovnoprávný jazyk s češtinou. Císař uzákonil dědičné právo Habsburků na český trůn a jediné právoplatné náboženství – katolické. Spousta lidí prchla ze země."
+    },
+    {
+      "heading": "VÍŠ, ŽE...?",
+      "icon": "💡",
+      "style": "fun",
+      "text": "- Popravu prováděl známý kat Jan Mydlář.\n- Mezi popravenými byl i lékař Jan Jesenský (Jessenius), který v Praze provedl první veřejnou pitvu člověka.\n- Zjisti, proč se podle pověsti ze třicetileté války zvoní v Brně poledne v 11 hodin."
+    },
+    {
+      "heading": "TŘICETILETÁ VÁLKA",
+      "text": "České stavovské povstání znamenalo začátek války, která trvala 30 let. Nese proto označení třicetiletá válka. Boje se postupně rozšířily do většiny států Evropy. Válka skončila roku 1648 uzavřením míru a neměla vítězů. Habsburkové si udrželi postavení ve své říši. České země válkou značně utrpěly. Byly pleněny vojsky, která přes ně neustále přecházela. Zanikla spousta vesnic, ubylo obyvatel, upadal obchod a řemesla. Lidé přišli o veškerý majetek. Sužoval je hlad, nemoci a bída.\n\n„Člověk jde až deset mil a nepotká člověka, kus dobytka, neuvidí ani špačka. V některých místech najde starého muže, dítě nebo dvě staré ženy. Ve všech vesnicích je v domech plno mrtvol. Muži, ženy, děti i čeleď, vepři, krávy a voli leží vedle sebe. Byli zardoušeni hladem a morem. Jsou plni larv a červů. Pošírají je vlci, lišky, psi, krkavci, vrány a jiní ptáci, poněvadž nebylo nikoho, kdo by je pochoval, politoval a oplakal.“",
+      "paragraphs": [
+        {
+          "style": "plain",
+          "text": "České stavovské povstání znamenalo začátek války, která trvala 30 let. Nese proto označení třicetiletá válka. Boje se postupně rozšířily do většiny států Evropy. Válka skončila roku 1648 uzavřením míru a neměla vítězů. Habsburkové si udrželi postavení ve své říši. České země válkou značně utrpěly. Byly pleněny vojsky, která přes ně neustále přecházela. Zanikla spousta vesnic, ubylo obyvatel, upadal obchod a řemesla. Lidé přišli o veškerý majetek. Sužoval je hlad, nemoci a bída."
+        },
+        {
+          "style": "quote",
+          "text": "„Člověk jde až deset mil a nepotká člověka, kus dobytka, neuvidí ani špačka. V některých místech najde starého muže, dítě nebo dvě staré ženy. Ve všech vesnicích je v domech plno mrtvol. Muži, ženy, děti i čeleď, vepři, krávy a voli leží vedle sebe. Byli zardoušeni hladem a morem. Jsou plni larv a červů. Pošírají je vlci, lišky, psi, krkavci, vrány a jiní ptáci, poněvadž nebylo nikoho, kdo by je pochoval, politoval a oplakal.“"
+        }
+      ]
     }
   ],
   "corrections": [
     {
-      "section": 2,
+      "section": 3,
       "quote": "Odtud pochází výraz defenestrace – vyhození z okna.",
       "explanation": "Fenster opravdu znamená německy okno. Slovo defenestrace ale pochází z latiny, ne z němčiny. Latinské fenestra znamená okno.",
       "sourceUrl": "https://cs.wikipedia.org/wiki/Defenestrace"
+    },
+    {
+      "section": 6,
+      "quote": "neměla vítězů.",
+      "explanation": "Válka přinesla mnoha lidem utrpení, ale některé státy z míru získaly výhody, například Francie. Není proto přesné říkat, že neměla žádné vítěze.",
+      "sourceUrl": "https://cs.wikipedia.org/wiki/T%C5%99icetilet%C3%A1_v%C3%A1lka"
     }
   ],
   "glossary": [
@@ -52,6 +105,7 @@
     },
     {
       "term": "stavy",
+      "icon": "⚖️",
       "forms": ["stavů"],
       "definition": "Skupiny lidí s politickými právy, například šlechta a zástupci některých měst. Nešlo o všechny obyvatele země."
     },
@@ -89,11 +143,43 @@
       "term": "Fenster",
       "forms": [],
       "definition": "Německé slovo pro okno. Nezaměňuj ho s latinským slovem fenestra."
+    },
+    {
+      "term": "Habsburkové",
+      "forms": ["Habsburků", "Habsburkům"],
+      "definition": "Panovnický rod. Patřili do něj například Rudolf II., Matyáš a Ferdinand II."
+    },
+    {
+      "term": "dědičný trůn",
+      "forms": ["dědičné právo"],
+      "definition": "Vláda se předává v panovnickém rodě. Nástupce proto stavy běžně nevybírají novou volbou."
+    },
+    {
+      "term": "katolická víra",
+      "forms": ["katolickou víru", "katolictví"],
+      "definition": "Jedna z křesťanských náboženských tradic. Ferdinand II. ji prosazoval; jiné křesťanské směry měly v českých zemích později omezenou svobodu."
+    },
+    {
+      "term": "vestfálský mír",
+      "forms": ["vestfálským mírem", "vestfálského míru"],
+      "definition": "Mírové dohody z roku 1648, které ukončily třicetiletou válku."
     }
   ],
   "chunks": [
     {
+      "heading": "Panovníci před povstáním",
+      "icon": "👑",
+      "sentences": [
+        "Po Rudolfovi II. převzal český trůn jeho bratr Matyáš.",
+        "Matyáš sídlil ve Vídni a v Praze ho zastupovali úředníci.",
+        "Pozdějším českým králem se stal Ferdinand II. z rodu Habsburků.",
+        "Ferdinand prosazoval katolickou víru, a tím prohluboval spory s nekatolickými stavy."
+      ],
+      "explanation": "Rudolf a Matyáš byli bratři. Ferdinand patřil do stejného panovnického rodu. Část stavů se bála omezení své víry i svého rozhodování."
+    },
+    {
       "heading": "Proč začalo povstání?",
+      "icon": "⚖️",
       "paragraphs": [
         {"style": "tip", "text": "Zkus vlastními slovy říct, co stavy chtěly. Potom se podívej na vysvětlení."}
       ],
@@ -109,9 +195,12 @@
       "heading": "Volba krále a důležitá bitva",
       "sentences": [
         "České stavy si zvolily za krále Fridricha Falckého.",
-        "Důležitá bitva se odehrála 8. listopadu 1620 na Bílé hoře u Prahy."
+        "Důležitá bitva se odehrála 8. listopadu 1620 na Bílé hoře u Prahy.",
+        "Zvítězila císařská a ligistická vojska, ne stavovská armáda.",
+        "Fridrich po porážce opustil Prahu.",
+        "Říká se mu zimní král, protože jeho česká vláda trvala jen krátce."
       ],
-      "explanation": "Stavy si vybraly vlastního krále. Potom přišla důležitá bitva. Pamatuj si místo Bílá hora a rok 1620."
+      "explanation": "Stavy si vybraly vlastního krále, ale bitvu prohrály. Jejich král potom odešel. Přezdívka zimní král připomíná krátkou vládu, ne to, že by vládl jen v zimě."
     },
     {
       "heading": "Co znamená defenestrace?",
@@ -121,6 +210,41 @@
         "Také německé slovo Fenster znamená okno, ale výraz defenestrace nevznikl z němčiny."
       ],
       "explanation": "Různé jazyky mohou mít podobná slova. Tady je důležité rozlišit latinu a němčinu. Původní text se v původu slova mýlí."
+    },
+    {
+      "heading": "Co následovalo po porážce?",
+      "icon": "📜",
+      "sentences": [
+        "Dne 21. června 1621 bylo na Staroměstském náměstí v Praze popraveno 27 představitelů povstání.",
+        "Popravu prováděl kat Jan Mydlář.",
+        "Dalším trestem bylo zabavování majetku povstalců."
+      ],
+      "explanation": "Za porážkou přišly tvrdé tresty. Zabavení majetku znamená, že člověk přijde například o svůj dům nebo pozemky. Pamatuj si rok 1621, počet 27 a jméno Jan Mydlář."
+    },
+    {
+      "heading": "Jak se změnila vláda a víra?",
+      "icon": "🏰",
+      "sentences": [
+        "Habsburkové si upevnili moc v českých zemích.",
+        "Pozdější Obnovené zřízení zemské stanovilo dědičné právo jejich rodu na český trůn.",
+        "Dědičnost znamená předávání trůnu v panovnickém rodě místo běžné volby stavů.",
+        "Němčina byla úředně zrovnoprávněna s češtinou.",
+        "Z křesťanských vyznání bylo povolené katolictví a mnoho nekatolíků odešlo ze země."
+      ],
+      "explanation": "Nekatolíci měli omezenou náboženskou svobodu. Dědičný trůn posílil panovnický rod. Zrovnoprávnění jazyků neznamená, že čeština hned zmizela."
+    },
+    {
+      "heading": "Válka pokračovala třicet let",
+      "icon": "🕊️",
+      "sentences": [
+        "České stavovské povstání roku 1618 stálo na začátku třicetileté války.",
+        "Boje se rozšířily do dalších částí Evropy.",
+        "Válka trvala třicet let a skončila vestfálským mírem roku 1648.",
+        "Vojska ničila a vykrádala vesnice, lidé trpěli hladem a nemocemi.",
+        "Slábl obchod i řemesla.",
+        "Mír přinesl některým státům výhody, například Francii; nelze říct, že válka neměla žádné vítěze."
+      ],
+      "explanation": "Bitva na Bílé hoře nebyla koncem celé války. Ta pokračovala ještě mnoho let. Následky zasáhly i obyčejné rodiny, které samy nebojovaly."
     }
   ],
   "questions": [
@@ -143,6 +267,38 @@
       "options": ["Pravda", "Nepravda"],
       "answer": 1,
       "explanation": "Rozhodovaly stavy s politickými právy, ne všichni obyvatelé."
+    },
+    {
+      "id": "e-vitezstvi",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
+      "difficulty": "easy", "type": "trueFalse",
+      "prompt": "Stavovské vojsko v bitvě na Bílé hoře zvítězilo.",
+      "options": ["Pravda", "Nepravda"], "answer": 1,
+      "explanation": "Zvítězila císařská a ligistická vojska. Stavy bitvu prohrály."
+    },
+    {
+      "id": "e-jazyky",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
+      "difficulty": "easy", "type": "trueFalse",
+      "prompt": "Po pobělohorských změnách měla být němčina úředně rovnoprávná s češtinou.",
+      "options": ["Pravda", "Nepravda"], "answer": 0,
+      "explanation": "Obnovené zřízení zemské stanovilo úřední rovnoprávnost obou jazyků."
+    },
+    {
+      "id": "e-evropa",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
+      "difficulty": "easy", "type": "trueFalse",
+      "prompt": "Třicetiletá válka se odehrávala pouze v českých zemích.",
+      "options": ["Pravda", "Nepravda"], "answer": 1,
+      "explanation": "Boje se rozšířily také do dalších částí Evropy."
+    },
+    {
+      "id": "e-vitezove-miru",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
+      "difficulty": "easy", "type": "trueFalse",
+      "prompt": "Přestože válka přinesla utrpení, některé státy z míru získaly výhody.",
+      "options": ["Pravda", "Nepravda"], "answer": 0,
+      "explanation": "Například Francie z míru získala výhody. Proto opravujeme tvrzení, že válka neměla žádné vítěze."
     },
     {
       "id": "m-vira",
@@ -195,6 +351,86 @@
       "explanation": "Bitva se odehrála na Bílé hoře u Prahy."
     },
     {
+      "id": "m-matyas",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "2"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Který Rudolfův bratr po něm převzal český trůn?",
+      "options": ["Fridrich Falcký", "Jan Mydlář", "Matyáš", "Karel IV."], "answer": 2,
+      "explanation": "Rudolfa II. na českém trůně vystřídal jeho bratr Matyáš."
+    },
+    {
+      "id": "m-viden",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Ve kterém městě sídlil císař Matyáš?",
+      "options": ["V Brně", "Ve Vídni", "V Paříži", "V Plzni"], "answer": 1,
+      "explanation": "Matyáš sídlil ve Vídni. V Praze ho zastupovali úředníci."
+    },
+    {
+      "id": "m-rod",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "3"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Do kterého panovnického rodu patřil Ferdinand II.?",
+      "options": ["K Přemyslovcům", "K Lucemburkům", "K Jagelloncům", "K Habsburkům"], "answer": 3,
+      "explanation": "Ferdinand II. patřil k Habsburkům, stejně jako Rudolf II. a Matyáš."
+    },
+    {
+      "id": "m-rovnopravnost",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Jaké postavení českých zemí v monarchii stavy požadovaly?",
+      "options": ["Rovnoprávné postavení", "Úplné zrušení českých zemí", "Podřízení všech měst jediné vesnici", "Zákaz rozhodování o vlastní zemi"], "answer": 0,
+      "explanation": "Stavy chtěly rovnoprávné postavení českých zemí a více rozhodovat o jejich záležitostech."
+    },
+    {
+      "id": "m-zimni-kral",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "2"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Proč se Fridrichovi Falckému říká zimní král?",
+      "options": ["Narodil se na Bílé hoře", "Vládl jen během sněžení", "Jeho česká vláda trvala krátce", "Zrušil letní měsíce"], "answer": 2,
+      "explanation": "Přezdívka připomíná jeho krátkou vládu v Čechách."
+    },
+    {
+      "id": "m-odchod",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Co udělal Fridrich Falcký po porážce na Bílé hoře?",
+      "options": ["Zůstal natrvalo na českém trůně", "Opustil Prahu", "Stal se katem", "Přestěhoval bitvu do Brna"], "answer": 1,
+      "explanation": "Po porážce stavovského vojska Fridrich z Prahy odešel."
+    },
+    {
+      "id": "m-dedicnost",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "3"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Co znamená dědičné právo rodu na trůn?",
+      "options": ["Král se každý den losuje", "Království se musí rozdělit na města", "O trůnu rozhoduje počasí", "Trůn se předává v panovnickém rodě"], "answer": 3,
+      "explanation": "Dědičné právo posilovalo předávání vlády v rodu Habsburků místo běžné volby stavů."
+    },
+    {
+      "id": "m-majetek",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Co pro povstalce znamenalo zabavení majetku?",
+      "options": ["Přišli například o domy a pozemky", "Dostali všichni nový hrad", "Nemuseli už nikdy platit za jídlo", "Získali další království"], "answer": 0,
+      "explanation": "Zabavování majetku patřilo k trestům po porážce povstání."
+    },
+    {
+      "id": "m-mir",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "2"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Jakou událostí skončila třicetiletá válka?",
+      "options": ["Volbou zimního krále", "Pražskou defenestrací", "Uzavřením vestfálského míru", "Bitvou na Bílé hoře"], "answer": 2,
+      "explanation": "Bitva na Bílé hoře byla už roku 1620. Celou válku ukončil až vestfálský mír."
+    },
+    {
+      "id": "m-zivot",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
+      "difficulty": "medium", "type": "choice",
+      "prompt": "Co válka přinášela obyčejným lidem v českých zemích?",
+      "options": ["Pouze nové obchody a dostatek jídla", "Ničení vesnic, hlad a nemoci", "Konec všech daní v Evropě", "Bezpečí ve všech vesnicích"], "answer": 1,
+      "explanation": "Vojska vykrádala a ničila vesnice. Lidé trpěli hladem a nemocemi, slábl obchod i řemesla."
+    },
+    {
       "id": "h-defenestrace",
       "assessment": {
         "input": "number",
@@ -231,6 +467,59 @@
       "acceptedAnswers": ["Fenster"],
       "year": false,
       "explanation": "Německy je okno Fenster. Latinsky je to fenestra."
+    },
+    {
+      "id": "h-mydlar",
+      "assessment": {"input": "text", "exact": {"type": "array", "items": [
+        {"type": "string", "value": "Jan Mydlář", "normalization": "czech"},
+        {"type": "string", "value": "Mydlář", "normalization": "czech"}
+      ]}},
+      "difficulty": "hard", "type": "text",
+      "prompt": "Jak se jmenoval kat, který prováděl popravu roku 1621? Stačí příjmení.",
+      "acceptedAnswers": ["Jan Mydlář", "Mydlář"], "year": false,
+      "explanation": "V učivu je uveden kat Jan Mydlář. Samotné jméno Jan by nebylo jednoznačné."
+    },
+    {
+      "id": "h-monarchie",
+      "assessment": {"input": "text", "exact": {"type": "array", "items": [
+        {"type": "string", "value": "monarchie", "normalization": "czech"}
+      ]}},
+      "difficulty": "hard", "type": "text",
+      "prompt": "Jak se nazývá stát, kterému vládne panovník, například král? Napiš pojem ze slovníčku.",
+      "acceptedAnswers": ["monarchie"], "year": false,
+      "explanation": "Monarchie je stát s panovníkem. Takový pojem používáme i pro habsburskou monarchii."
+    },
+    {
+      "id": "h-poprava-rok",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1621"}},
+      "difficulty": "hard", "type": "text",
+      "prompt": "Ve kterém roce bylo popraveno 27 představitelů povstání? Napiš rok.",
+      "acceptedAnswers": ["1621"], "year": true,
+      "explanation": "Poprava se konala 21. června 1621, tedy rok po bitvě na Bílé hoře."
+    },
+    {
+      "id": "h-poprava-pocet",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "27"}},
+      "difficulty": "hard", "type": "text",
+      "prompt": "Kolik představitelů povstání bylo popraveno 21. června 1621? Napiš číslo.",
+      "acceptedAnswers": ["27"], "year": false,
+      "explanation": "Na Staroměstském náměstí bylo popraveno 27 představitelů povstání."
+    },
+    {
+      "id": "h-delka-valky",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "30"}},
+      "difficulty": "hard", "type": "text",
+      "prompt": "Kolik let trvala válka, která začala českým stavovským povstáním? Napiš počet let číslem.",
+      "acceptedAnswers": ["30"], "year": false,
+      "explanation": "Válka trvala třicet let, od roku 1618 do roku 1648."
+    },
+    {
+      "id": "h-mir-rok",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1648"}},
+      "difficulty": "hard", "type": "text",
+      "prompt": "Ve kterém roce skončila třicetiletá válka? Napiš rok.",
+      "acceptedAnswers": ["1648"], "year": true,
+      "explanation": "Třicetiletou válku ukončil vestfálský mír roku 1648."
     }
   ]
 }

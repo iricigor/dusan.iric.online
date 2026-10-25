@@ -36,6 +36,11 @@ GitHub issue, then wait for explicit confirmation to start implementation.
   ask the user to resolve the conflict before generating a page.
 - Explain why an answer works, not just whether it is correct. Teach everything
   tested, use meaningful examples, and avoid duplicate questions used as padding.
+- Author at least 30 distinct questions or whole maths exercises per lesson,
+  not 30 individual maths steps. Keep all three difficulty levels represented
+  with enough tasks for every quiz mode. Ask for more source material or agree
+  a narrower lesson if 30 useful questions cannot be supported; do not pad.
+  This authoring minimum does not change quiz lengths or legacy validation.
 - Give every page a short, encouraging Czech `subtitle`, alongside its factual
   topic title. Invite discovery and celebrate progress, not speed or perfection.
   Avoid pressure, comparisons with other children, and promises of guaranteed success.
@@ -87,11 +92,20 @@ GitHub issue, then wait for explicit confirmation to start implementation.
   They provide schema-valid JSON only, never custom HTML, JavaScript, page
   layouts, or quiz implementations. `tutor-website` turns that JSON into HTML.
 - Author both subjects with the shared version 3 schema. Use supported semantic
-  paragraph styles (`plain`, `note`, `example`, `tip`, `warning`) when helpful:
+  paragraph styles (`plain`, `note`, `example`, `tip`, `warning`, `comment`,
+  `fun`, `quote`) when helpful:
   `original[].style` decorates preserved source material without rewriting it;
-  optional `paragraphs` in maths examples/history chunks add clearly labelled
+  optional `original[].paragraphs` styles existing paragraphs only, with their
+  text joined by `\n\n` exactly matching the section's canonical `text`.
+  Keep correction quotes within one paragraph and use `quote` for quotations.
+  Optional `paragraphs` in maths examples/history chunks add clearly labelled
   teaching notes. Never put generated explanations into the original text.
   Website owns all CSS, animations, JavaScript and schema/validation logic.
+- The shared schema accepts optional plain-text emoji `icon` overrides on
+  original sections, learning/example cards, quiz questions/maths exercises
+  and glossary entries. The website supplies defaults; use a relevant icon
+  without repeating it inside the heading or changing preserved source text.
+  Do not author HTML, asset URLs or custom visual behavior.
 - `tutor-website` owns the JSON contract and validated page-generation workflow.
   Ask it for current capabilities before preparing lesson data. The executable
   schema and validator it identifies are authoritative; do not copy or invent a
@@ -105,8 +119,12 @@ GitHub issue, then wait for explicit confirmation to start implementation.
 - Preserve subject-specific scoring/timing rules. Declare spelling normalization
   and approximate numeric intervals explicitly; never infer history tolerance
   for maths. Legacy lessons retain their documented grading through compatibility
-  policies, not a second evaluator. Maths must have no timer or
-  speed bonus. History's speed bonus is always enabled: fully correct answers
+  policies, not a second evaluator. Maths must have no visible running timer,
+  countdown or speed bonus. Both subjects passively record active answering
+  duration, excluding feedback reading, hidden browser pages and other lesson
+  tabs. Show it only in results as `Doba odpovídání`; `Kdy` is the attempt
+  timestamp. Maths duration must not affect scores, grades or ranking.
+  History's speed bonus is always enabled: fully correct answers
   in less than 15 seconds earn twice their base points. History grades exclude
   speed bonus points; the bonus deadline never prevents answering or controls
   progression.
