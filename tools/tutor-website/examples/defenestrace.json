@@ -1,5 +1,8 @@
 {
-  "version": 1,
+  "version": 3,
+  "subject": "history",
+  "language": "cs-CZ",
+  "subtitle": "Objev příběh minulosti. Každá otázka tě posune dál!",
   "id": "defenestrace-a-bila-hora",
   "topic": "Od defenestrace k Bílé hoře",
   "audience": "Pro desetileté děti, které se učí česky",
@@ -21,6 +24,7 @@
   "original": [
     {
       "heading": "STAVOVSKÉ POVSTÁNÍ",
+      "style": "note",
       "text": "Pražskou defenestrací byla zahájena otevřená vzpoura proti panovníkovi a začalo stavovské povstání. Stavy požadovaly rovnoprávné postavení českých zemí v habsburské monarchii, možnost volby krále a svobodu náboženského vyznání."
     },
     {
@@ -90,6 +94,9 @@
   "chunks": [
     {
       "heading": "Proč začalo povstání?",
+      "paragraphs": [
+        {"style": "tip", "text": "Zkus vlastními slovy říct, co stavy chtěly. Potom se podívej na vysvětlení."}
+      ],
       "sentences": [
         "Pražská defenestrace roku 1618 zahájila otevřenou vzpouru proti panovníkovi.",
         "Tím začalo stavovské povstání.",
@@ -119,6 +126,7 @@
   "questions": [
     {
       "id": "e-vzpoura",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
       "difficulty": "easy",
       "type": "trueFalse",
       "prompt": "Stavovské povstání bylo vzpourou proti panovníkovi.",
@@ -128,6 +136,7 @@
     },
     {
       "id": "e-volba",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
       "difficulty": "easy",
       "type": "trueFalse",
       "prompt": "Král byl ve stavovské volbě vybírán všemi obyvateli země jako v dnešních volbách.",
@@ -137,6 +146,7 @@
     },
     {
       "id": "m-vira",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
       "difficulty": "medium",
       "type": "choice",
       "prompt": "Co stavy požadovaly v otázce víry?",
@@ -146,6 +156,7 @@
     },
     {
       "id": "m-vyznam",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}},
       "difficulty": "medium",
       "type": "choice",
       "prompt": "Co znamená slovo defenestrace?",
@@ -155,6 +166,7 @@
     },
     {
       "id": "m-kral",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "2"}},
       "difficulty": "medium",
       "type": "choice",
       "prompt": "Koho si české stavy zvolily za krále?",
@@ -164,6 +176,7 @@
     },
     {
       "id": "m-jazyk",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "3"}},
       "difficulty": "medium",
       "type": "choice",
       "prompt": "Z jakého jazyka pochází slovo defenestrace?",
@@ -173,6 +186,7 @@
     },
     {
       "id": "m-misto",
+      "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}},
       "difficulty": "medium",
       "type": "choice",
       "prompt": "Kde se odehrála důležitá bitva uvedená v lekci?",
@@ -182,6 +196,11 @@
     },
     {
       "id": "h-defenestrace",
+      "assessment": {
+        "input": "number",
+        "exact": {"type": "number", "value": "1618"},
+        "partial": {"credit": 0.5, "match": {"type": "range", "min": "1609", "max": "1627", "includeMin": true, "includeMax": true}}
+      },
       "difficulty": "hard",
       "type": "text",
       "prompt": "Ve kterém roce začalo stavovské povstání pražskou defenestrací? Napiš rok.",
@@ -191,6 +210,11 @@
     },
     {
       "id": "h-bitva",
+      "assessment": {
+        "input": "number",
+        "exact": {"type": "number", "value": "1620"},
+        "partial": {"credit": 0.5, "match": {"type": "range", "min": "1615", "max": "1625", "includeMin": true, "includeMax": true}}
+      },
       "difficulty": "hard",
       "type": "text",
       "prompt": "Ve kterém roce se odehrála bitva na Bílé hoře? Napiš rok.",
@@ -200,6 +224,7 @@
     },
     {
       "id": "h-fenster",
+      "assessment": {"input": "text", "exact": {"type": "array", "items": [{"type": "string", "value": "Fenster", "normalization": "czech"}]}},
       "difficulty": "hard",
       "type": "text",
       "prompt": "Jak se německy řekne okno? Napiš jedno slovo z lekce.",

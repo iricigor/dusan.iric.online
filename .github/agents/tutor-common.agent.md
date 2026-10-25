@@ -27,6 +27,26 @@ these instructions to unrelated repository work.
   ask the user to resolve the conflict before generating a page.
 - Explain why an answer works, not just whether it is correct. Teach everything
   tested, use meaningful examples, and avoid duplicate questions used as padding.
+- Give every page a short, encouraging Czech `subtitle`, alongside its factual
+  topic title. Invite discovery and celebrate progress, not speed or perfection.
+  Avoid pressure, comparisons with other children, and promises of guaranteed success.
+  This pedagogical rule belongs here; the website contract requires and renders it.
+- Declare legitimate answers in the shared `assessment` policy for each question
+  or maths step. Both `exact` (full credit) and optional `partial.match` support
+  number, string, array-of-alternatives and numeric-range matchers. `exact` wins
+  over overlapping partial rules; `partial.credit` is explicitly `0.5`.
+  Keep canonical answers consistent with the full-credit policy.
+- For history names, use string alternatives (for example Komenský,
+  Jan Komenský, Jan Amos Komenský) in the policy and `acceptedAnswers`.
+  Do not accept arbitrary substrings or ambiguous first names. Use `number`
+  matchers for value equivalence (7/4, 1 3/4 and 1.75, or 0.5 and 1/2), and
+  literal `string` matchers when the representation matters: `1/2` may earn
+  full credit while explicitly listed `3/6` earns half. A range such as
+  1615–1625 may earn half while exact 1620 earns full credit.
+  Explain representation requirements in the task; do not infer credit for
+  undeclared aliases, approximations or equivalent forms.
+- All quizzes progress from easy to medium to hard, with random selection/order
+  only within each difficulty. Keep the established mode mixes and no repeats.
 
 ## Source material and review
 
@@ -57,6 +77,12 @@ these instructions to unrelated repository work.
 - Subject tutors own educational accuracy, explanations, exercises, and solutions.
   They provide schema-valid JSON only, never custom HTML, JavaScript, page
   layouts, or quiz implementations. `tutor-website` turns that JSON into HTML.
+- Author both subjects with the shared version 3 schema. Use supported semantic
+  paragraph styles (`plain`, `note`, `example`, `tip`, `warning`) when helpful:
+  `original[].style` decorates preserved source material without rewriting it;
+  optional `paragraphs` in maths examples/history chunks add clearly labelled
+  teaching notes. Never put generated explanations into the original text.
+  Website owns all CSS, animations, JavaScript and schema/validation logic.
 - `tutor-website` owns the JSON contract and validated page-generation workflow.
   Ask it for current capabilities before preparing lesson data. The executable
   schema and validator it identifies are authoritative; do not copy or invent a
@@ -67,8 +93,10 @@ these instructions to unrelated repository work.
 - If the host cannot delegate to repository agents, say so explicitly. The
   subject tutor may read the common and website profiles and follow the same
   existing local build workflow itself, but must not claim another agent ran.
-- Preserve subject-specific assessment rules. Do not transfer history's
-  spelling or approximate-year tolerance to maths. Maths must have no timer or
+- Preserve subject-specific scoring/timing rules. Declare spelling normalization
+  and approximate numeric intervals explicitly; never infer history tolerance
+  for maths. Legacy lessons retain their documented grading through compatibility
+  policies, not a second evaluator. Maths must have no timer or
   speed bonus. History's speed bonus is always enabled: fully correct answers
   in less than 15 seconds earn twice their base points. History grades exclude
   speed bonus points; the bonus deadline never prevents answering or controls
@@ -97,7 +125,10 @@ these instructions to unrelated repository work.
 - For numerical maths questions, prefer integer results where suitable.
   Non-integer numerical results must use the decimal format, which accepts
   either a comma or a dot. Fraction and length tasks retain their explicit
-  formats. A tutor must not introduce a stricter custom numerical checker.
+  expected formats. Choose value-based or representation-sensitive matchers
+  explicitly, rather than relying on the expected format to choose credit.
+  Lengths still require explicit supported units. A tutor must not introduce
+  a custom numerical checker.
 
 ## Drafts, review, and publication
 

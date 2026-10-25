@@ -15,7 +15,7 @@ variantou a v rámci tohoto řešení se nemění.
 
 **Nyní je k dispozici:** dějepisný tutor pro Copilot, datový formát lekce,
 místní generátor HTML, interaktivní prostředí a krátká ukázková lekce.
-Společný webový generátor navíc podporuje samostatný matematický formát,
+Společný webový generátor používá jedno schéma verze 3 pro oba předměty a podporuje
 řešené příklady, slovníček, procvičování s nápovědami, přesnou kontrolu odpovědí,
 kvízy bez časového omezení, částečné bodování a místní výsledky.
 
@@ -156,7 +156,37 @@ lekci. Neodesílají se na server a neslouží jako trvalý záznam.
 
 Závazné pokyny pro generování a pravidla kvízu obsahuje
 [technický návod](tools/history-tutor/README.md). Datový formát popisuje
-[schéma lekce](tools/history-tutor/lesson.schema.json).
+[společné schéma lekce](tools/tutor-website/lesson.schema.json).
+
+Nové lekce obou předmětů mají společná metadata, původní text, slovníček
+a povinný krátký motivační podtitulek `subtitle`. Pravidlo povzbudivého jazyka
+patří do `tutor-common`; schéma a zobrazení vlastní `tutor-website`.
+Styly `plain`, `note`, `example`, `tip`, `warning` umožňují odlišit poznámku,
+příklad, tip nebo upozornění. V původním textu nastav `original[].style`;
+jeho znění se nemění. V matematických příkladech a dějepisných výukových
+blocích lze přidat pole `paragraphs` s položkami `{ "style", "text" }`.
+HTML ani vlastní CSS do obsahu nepatří.
+
+Barevnější světlý/tmavý vzhled a krátké animace otázek, zpětné vazby,
+výsledků a odkrývání nápověd jsou společné. Nastavení omezeného pohybu je vypne.
+Každý kvíz postupuje od lehkých otázek přes střední po těžké; náhodný výběr
+a pořadí zůstává uvnitř obtížnosti. V dějepisu uveď všechny plně správné varianty
+jména v `acceptedAnswers` i ve společném pravidle `assessment.exact`, například
+Komenský i Jan Komenský.
+
+Každá otázka nebo matematický krok ve v3 má `assessment`: vstup `input`,
+pravidlo `exact` pro plné body a volitelné `partial: { "match", "credit": 0.5 }`
+pro polovinu bodů. Obě kategorie podporují typy `number` (přesná hodnota),
+`string` (konkrétní zápis), `array` (seznam uznávaných alternativ) a `range`
+(číselný interval s výslovně určenými hranicemi). Číselné hodnoty jsou kvůli
+přesnosti uložené jako omezené řetězce, ne desetinná čísla JSON.
+Plně správná shoda má vždy přednost, body obou kategorií se nesčítají.
+Při přesné odpovědi 1620 a částečném intervalu 1615–1625 získá 1620 plné body,
+1618 polovinu. U krácení může zápis `1/2` získat plné body a `3/6` polovinu,
+přestože jde o stejnou hodnotu. Jiné zápisy se neuznávají automaticky:
+rozhoduje výslovné pravidlo a zadání to musí dítěti vysvětlit.
+Číselný matcher naopak může uznávat všechny přesně rovnocenné zápisy.
+Vyhodnocení i kontrola pravidel jsou společné v `tutor-website\assessment.js`.
 
 ## Místní kontrola a zveřejnění
 
@@ -183,9 +213,14 @@ Sloučení změn webu do `main` je zveřejní na ostrém webu.
 
 ## Matematický tutor a webový formát
 
-Interní `tutor-website` vlastní schéma a kontrolu matematických dat v
-`tools\tutor-website`. Sdílí s dějepisem sestavení samostatného HTML, bezpečné
-vložení dat a styly; nevyžaduje historický původní text, zdroje ani letopočty.
+Interní `tutor-website` vlastní společné schéma, kontrolu dat i všechny
+implementace CSS a JavaScriptu v `tools\tutor-website`. Matematická větev
+schématu nevyžaduje historické zdroje ani letopočty. Dějepis a matematika
+mají oddělené jen učivo a adaptéry pro odlišné hodnocení: historické opravy,
+varianty jmen a toleranci letopočtů oproti přesným výpočtům, jednotkám
+a bodům za jednotlivé kroky. Důvody rozdělení podrobně popisuje technický návod.
+Starší dějepisný JSON v1 a matematický v2 nadále fungují; staré příkazy jsou
+jen kompatibilní vstupy do společné implementace. Zveřejněné HTML se samo nemění.
 Podrobný kontrakt a příkazy obsahuje
 [technický návod generátoru](tools/tutor-website/README.md).
 
@@ -210,11 +245,17 @@ Schéma vyžaduje lehké skupiny čtyř výpočtů, střední slovní úlohy
 a těžké úlohy se třemi kroky. Zachovává zásobu pro režimy 1/1/1, 1/2/2 a 2/5/3.
 Odpovědi jsou typovaná celá čísla, zlomky, desetinná čísla nebo délky s jednotkou.
 Kontrakt popisuje přesné porovnávání, rovnocenné zlomky, desetinnou čárku/tečku
-a převody jednotek. Každý krok se kontroluje přesně, bez tolerance dějepisných
+a převody jednotek. Číselné formáty uznávají přesně rovnocenné zápisy:
+7/4, 1 3/4 i 1,75; nebo 0.5 i 1/2, pokud to pravidlo `number` povoluje.
+Pravidlo `string` rozlišuje konkrétní zápisy a může jinému zápisu přidělit jen
+částečné body. Záporné smíšené číslo -1 3/4 znamená -7/4.
+Zaokrouhlené přiblížení nezíská body bez výslovného částečného pravidla.
+Každý krok se kontroluje přesně, bez automatické tolerance dějepisných
 odpovědí. Chybějící nebo neplatná jednotka má výslovné vysvětlení.
 Pravidla bodů jsou 10 bodů rozdělených mezi čtyři lehké výpočty a 1 bod
-za všechny správně, 20 bodů za střední úlohu a 30 bodů rozdělených do tří těžkých
-kroků. Známky zahrnují dosažitelné bonusy do jmenovatele: maxima jsou 61, 111
+za všechny zcela správně, 20 bodů za střední úlohu a 30 bodů rozdělených do tří těžkých
+kroků. Částečně správný krok získá polovinu svých bodů, nikoli bonus za vše správně.
+Lehký krok tak může získat 1,25 bodu. Známky zahrnují dosažitelné bonusy do jmenovatele: maxima jsou 61, 111
 a 212 bodů. Hranice známek jsou 80/60/40/20 %. Úlohy se v jednom kvízu neopakují.
 Po odeslání nelze odpovědi změnit; dítě si přečte správné odpovědi a postup
 a samo zvolí pokračování. Přehled výsledků je místní, zvlášť pro každou lekci;
@@ -226,7 +267,7 @@ pomocníkovi. Podporována nejsou jen dvě ukázková témata, ale všechny úlo
 vyjádřitelné podporovanými číselnými formáty. Výchozí JSON obsahuje v jedné lekci
 výpočty se zlomky i převody délky mezi mm, cm, dm, m a km. Slovní úlohy oba
 okruhy také propojují. Desetinnou čárku lze nahradit tečkou; rovnocenné zlomky
-a správně převedené délky se uznávají.
+a správně převedené délky se uznávají podle deklarovaného pravidla.
 Technická testovací data nejsou schválenou výukovou lekcí. I nadále používej
 tutory pouze na vyžádání, zachovej místní kontrolu, výslovné schválení zveřejnění
 a neměň složku `gems`.

@@ -29,7 +29,15 @@ This is an opt-in subject agent, not the default agent for repository work.
    correction separately with a uniquely matching quotation, a child-friendly
    explanation, and its consulted reference. Do not silently rewrite the source.
 5. Author the teaching material and question bank using the existing history
-   rules. Every answer must be taught. Save valid lesson JSON in the caller's
+   rules and shared version 3 schema, including an encouraging Czech `subtitle`.
+   Every question needs an `assessment`: explicit full-credit `exact` and,
+   when appropriate, `partial: { match, credit: 0.5 }`. List legitimate short/full
+   name variants in string-array matchers and `acceptedAnswers`; never match
+   arbitrary substrings. Declare year intervals and their inclusive/exclusive
+   endpoints explicitly; exact matches win over partial intervals.
+   Choice policies match the selected zero-based option index as a number.
+   Questions progress easy to hard in every quiz mode.
+   Every answer must be taught. Save valid lesson JSON in the caller's
    session artifacts, not in the repository. Provide JSON only; the website
    agent owns the shared HTML shell and quiz lifecycle, including the
    Původní text, Učit se and Hrát si tabs and required name/nickname gate.
@@ -44,5 +52,5 @@ History's speed bonus is always enabled, never a lesson setting: fully correct
 answers in less than 15 seconds earn twice their base points. Late, incorrect,
 and partially correct answers get no bonus. Grades use base points only.
 Do not change the quiz runtime, schema, published example, or speed-bonus
-behavior while creating a lesson. Website refactoring is tracked in #30.
+behavior while creating a lesson.
 Only publish an explicitly approved lesson through the documented workflow.

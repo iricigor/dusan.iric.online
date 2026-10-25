@@ -1,21 +1,10 @@
 'use strict';
 
-const MODES = { easy: [1, 1, 1], medium: [1, 2, 2], hard: [2, 5, 3] };
-const POINTS = { easy: 10, medium: 20, hard: 30 };
+const { MODES, POINTS, shuffle, grade } = typeof module !== 'undefined' && module.exports
+    ? require('./runtime.js') : tutorQuiz;
 
-function normalizeAnswer(value) {
-    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .toLocaleLowerCase('cs').replace(/y/g, 'i').trim().replace(/\s+/g, ' ');
-}
-
-function shuffle(items, random = Math.random) {
-    const result = [...items];
-    for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-    return result;
-}
+const { evaluate, normalizeAnswer, legacyHistoryPolicy } = typeof module !== 'undefined' && module.exports
+    ? require('./assessment.js') : tutorAssessment;
 
 function selectQuestions(questions, mode, random = Math.random) {
     if (!Object.hasOwn(MODES, mode)) throw new Error(`Unknown quiz mode: ${mode}`);
@@ -28,34 +17,21 @@ function selectQuestions(questions, mode, random = Math.random) {
             const years = pool.filter(q => q.year);
             if (!years.length) throw new Error('Hard mode needs a year question');
             const year = shuffle(years, random)[0];
-            selected.push(year, ...shuffle(pool.filter(q => q.id !== year.id), random).slice(0, count - 1));
+            const hard = [year, ...shuffle(pool.filter(q => q.id !== year.id), random).slice(0, count - 1)];
+            selected.push(...shuffle(hard, random));
         } else {
             selected.push(...shuffle(pool, random).slice(0, count));
         }
     });
-    return shuffle(selected, random);
+    return selected;
 }
 
 function scoreAnswer(question, answer, elapsedMs) {
-    let fraction = 0;
-    if (question.type !== 'text') {
-        fraction = answer === question.answer ? 1 : 0;
-    } else if (question.year) {
-        if (/^[0-9]{1,4}$/.test(answer.trim())) {
-            const difference = Math.abs(Number(answer.trim()) - Number(question.acceptedAnswers[0]));
-            fraction = difference === 0 ? 1 : difference < 10 ? 0.5 : 0;
-        }
-    } else {
-        fraction = question.acceptedAnswers.some(expected => normalizeAnswer(expected) === normalizeAnswer(answer)) ? 1 : 0;
-    }
+    const result = evaluate(question.assessment || legacyHistoryPolicy(question), typeof answer === 'number' ? String(answer) : answer);
+    const { fraction } = result;
     const base = POINTS[question.difficulty] * fraction;
     const bonus = fraction === 1 && elapsedMs >= 0 && elapsedMs < 15000 ? base : 0;
-    return { fraction, base, bonus, total: base + bonus };
-}
-
-function grade(base, maximum) {
-    const percentage = base / maximum;
-    return percentage >= .8 ? 1 : percentage >= .6 ? 2 : percentage >= .4 ? 3 : percentage >= .2 ? 4 : 5;
+    return { fraction, base, bonus, total: base + bonus, assessment: result };
 }
 
 function compareResults(a, b) {
@@ -74,12 +50,12 @@ const historySubject = {
     compareResults,
     validRecord: row => Object.hasOwn(MODES, row.mode) && Number.isFinite(row.total) && row.total >= 0 &&
         Number.isFinite(row.duration) && row.duration >= 0 && Number.isInteger(row.grade) && row.grade >= 1 && row.grade <= 5,
-    renderLearning({ $, node, paragraph, disclose }, lesson) {
+    renderLearning({ $, node, paragraph, paragraphs, disclose }, lesson) {
         const chunks = node('div');
         chunks.id = 'chunks';
         lesson.chunks.forEach(chunk => {
             const article = node('article', undefined, 'card');
-            article.append(node('h2', chunk.heading), paragraph(chunk.sentences.join(' ')),
+            article.append(node('h2', chunk.heading), paragraph(chunk.sentences.join(' ')), ...paragraphs(chunk.paragraphs),
                 disclose('Nápověda: jednodušeji', node('p', chunk.explanation)));
             chunks.append(article);
         });
@@ -89,8 +65,8 @@ const historySubject = {
         const correct = question.type === 'text' ? question.acceptedAnswers[0] : question.options[question.answer];
         const display = question.type === 'text' ? values[0] : question.options[values[0]];
         const label = score.fraction === 1 ? 'Správně!' : score.fraction > 0 ? 'Blízko! Máš polovinu bodů.' : 'Tentokrát ne. Zkus to příště!';
-        container.append(node('p', `${label} Tvoje odpověď: ${display}. Správná odpověď: ${correct}. ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`,
-            score.fraction > 0 ? 'correct success' : 'incorrect failure'));
+        container.append(node('p', `${score.assessment.valid ? label : score.assessment.message} Tvoje odpověď: ${display}. Správná odpověď: ${correct}. ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`,
+            score.fraction > 0 ? 'correct' : 'incorrect'));
     },
     result(answers, questions) {
         const base = answers.reduce((sum, answer) => sum + answer.score.base, 0);

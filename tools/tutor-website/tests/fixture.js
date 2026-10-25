@@ -1,19 +1,30 @@
 'use strict';
 
+function valueAssessment(answer) {
+    return {
+        input: answer.format === 'length' ? 'length' : 'number',
+        ...(answer.format === 'length' ? { unit: answer.unit } : {}),
+        exact: { type: 'number', value: answer.format === 'fraction' ? `${answer.numerator}/${answer.denominator}` : answer.value }
+    };
+}
+
 // Structural test data, not a prepared teaching default.
 function mathsLesson() {
     const answer = value => ({ format: 'integer', value: String(value) });
     const step = value => ({
         prompt: `${value} + 1 = ?`, hint: 'Přidej jednu jednotku.',
+        assessment: { input: 'number', exact: { type: 'number', value: String(value + 1) } },
         answer: answer(value + 1), solution: `K číslu ${value} přičti jednu. Výsledek je ${value + 1}.`
     });
     return {
-        version: 2, subject: 'maths', language: 'cs-CZ', id: 'technicka-kontrola',
+        version: 3, subject: 'maths', language: 'cs-CZ', id: 'technicka-kontrola',
+        subtitle: 'Každý příklad je nový krok. Zkus to!',
         topic: 'Technická kontrola počítání', audience: 'Jednoduché počítání pro děti.',
-        original: [{ heading: 'Zadání', text: 'Procvičování jednoduchého počítání.' }],
+        original: [{ heading: 'Zadání', text: 'Procvičování jednoduchého počítání.', style: 'note' }],
         glossary: [{ term: 'jednotka', definition: 'Jedna část celku.', forms: ['jednotku'] }],
         examples: ['simple', 'complex', 'everyday', 'challenge'].map((kind, index) => ({
             kind, heading: ['Jednoduchý příklad', 'Složitější příklad', 'Příklad ze života', 'Výzva'][index],
+            paragraphs: [{ style: ['note', 'example', 'tip', 'warning'][index], text: 'Počítej krok za krokem.' }],
             prompt: `Máš ${index + 1} jablek a dostaneš další jedno. Kolik jablek máš?`,
             hint: 'Přidej jednu jednotku.',
             steps: [{ calculation: `${index + 1} + 1 = ${index + 2}`, explanation: 'Přičtením jedné dostaneš následující číslo.' }],
@@ -36,7 +47,7 @@ function mathsAssessmentLesson() {
         exercise.steps = [
             { prompt: '2 + 1 = ?', hint: 'Přidej jednu.', answer: { format: 'integer', value: '3' },
                 solution: 'Ke dvěma přičti jednu: 2 + 1 = 3.' },
-            { prompt: 'Jaký zlomek je jedna ze dvou stejných částí?', hint: 'Jde o polovinu.',
+            { prompt: 'Napiš zkrácený zlomek 1/2. Za 3/6 získáš polovinu bodů.', hint: 'Jde o polovinu.',
                 answer: { format: 'fraction', numerator: '1', denominator: '2' },
                 solution: 'Jedna část ze dvou stejných částí je 1/2.' },
             { prompt: '1 + 0,5 = ?', hint: 'Přidej polovinu.', answer: { format: 'decimal', value: '1.5' },
@@ -45,8 +56,15 @@ function mathsAssessmentLesson() {
                 answer: { format: 'length', value: '1.5', unit: 'm' },
                 solution: '150 : 100 = 1,5. Délka je 1,5 m.' }
         ];
+        exercise.steps.forEach(step => {
+            step.assessment = valueAssessment(step.answer);
+        });
+        exercise.steps[1].assessment = {
+            input: 'number', exact: { type: 'string', value: '1/2' },
+            partial: { match: { type: 'string', value: '3/6' }, credit: .5 }
+        };
     });
     return lesson;
 }
 
-module.exports = { mathsLesson, mathsAssessmentLesson };
+module.exports = { mathsLesson, mathsAssessmentLesson, valueAssessment };

@@ -1,5 +1,24 @@
 'use strict';
 
+const tutorQuiz = {
+    MODES: { easy: [1, 1, 1], medium: [1, 2, 2], hard: [2, 5, 3] },
+    POINTS: { easy: 10, medium: 20, hard: 30 },
+    shuffle(items, random = Math.random) {
+        const result = [...items];
+        for (let index = result.length - 1; index > 0; index--) {
+            const other = Math.floor(random() * (index + 1));
+            [result[index], result[other]] = [result[other], result[index]];
+        }
+        return result;
+    },
+    grade(total, maximum) {
+        return total >= maximum * 80 / 100 ? 1 : total >= maximum * 60 / 100 ? 2 :
+            total >= maximum * 40 / 100 ? 3 : total >= maximum * 20 / 100 ? 4 : 5;
+    }
+};
+
+if (typeof module !== 'undefined') module.exports = tutorQuiz;
+
 function initializeTutor(lesson, subject) {
     const $ = id => document.getElementById(id);
     const node = (tag, text, className) => {
@@ -40,8 +59,19 @@ function initializeTutor(lesson, subject) {
         element.append(document.createTextNode(text.slice(offset)));
         return element;
     };
-    const context = { $, node, button, disclose, paragraph };
+    const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor' };
+    const styleParagraph = (element, style = 'plain') => {
+        if (style !== 'plain') {
+            element.className = `${element.className || ''} callout callout-${style}`.trim();
+            const label = node('strong', `${styles[style]}: `, 'callout-label');
+            element.prepend(label);
+        }
+        return element;
+    };
+    const paragraphs = blocks => (blocks || []).map(block => styleParagraph(paragraph(block.text), block.style));
+    const context = { $, node, button, disclose, paragraph, paragraphs };
     $('topic').textContent = lesson.topic;
+    $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
     $('audience').textContent = lesson.audience;
     if (lesson.review !== undefined) {
         $('original-review').hidden = false;
@@ -72,6 +102,7 @@ function initializeTutor(lesson, subject) {
             offset = start + correction.quote.length;
         }
         text.append(document.createTextNode(section.text.slice(offset)));
+        styleParagraph(article, section.style);
         article.append(text);
         $('original-content').append(article);
     });
@@ -200,6 +231,9 @@ function initializeTutor(lesson, subject) {
         $('answers').querySelectorAll('input, button').forEach(control => { control.disabled = true; });
         $('feedback').replaceChildren();
         subject.feedback(context, $('feedback'), answer, quiz.index + 1);
+        const full = answer.score.total === subject.maximum([question]) ||
+            answer.score.fraction === 1;
+        $('feedback').className = full ? 'success' : answer.score.total > 0 ? 'encouragement' : 'try-again';
         $('feedback').hidden = false;
         $('next').textContent = quiz.index === quiz.questions.length - 1 ? 'Zobrazit výsledek' : 'Další úloha';
         $('next').hidden = false;
@@ -212,7 +246,9 @@ function initializeTutor(lesson, subject) {
         $('progress').textContent = `Úloha ${quiz.index + 1} / ${quiz.questions.length} · nejvýše ${subject.maximum([question])} b`;
         $('quiz-progress').max = quiz.questions.length;
         $('quiz-progress').value = quiz.answers.length;
-        $('question').textContent = question.prompt;
+        $('question').replaceChildren(node('span', question.prompt, 'question-enter'));
+        $('difficulty').textContent = { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' }[question.difficulty];
+        $('difficulty').dataset.level = question.difficulty;
         $('answers').replaceChildren();
         $('feedback').hidden = true;
         $('next').hidden = true;

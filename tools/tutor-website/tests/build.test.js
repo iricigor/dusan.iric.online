@@ -8,7 +8,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { capabilities, renderLesson, build } = require('../build.js');
 const { validateLesson } = require('../validate.js');
-const { mathsLesson } = require('./fixture.js');
+const { mathsLesson, valueAssessment } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
 const { renderLesson: renderHistory } = require('../../history-tutor/build.js');
 const { formatAnswer } = require('../maths.js');
@@ -21,7 +21,7 @@ test('discovery identifies real contracts and available untimed maths assessment
             assert.ok(fs.existsSync(result[key]), result[key]);
         }
         assert.equal(result.timing, subject === 'maths' ? 'none' : 'mandatory-speed-bonus-before-15000ms');
-        assert.equal(result.version, subject === 'maths' ? 2 : 1);
+        assert.equal(result.version, 3);
         assert.deepEqual(result.tabs, ['original', 'learning', 'quiz']);
         assert.equal(result.playerNameRequired, true);
     }
@@ -76,7 +76,7 @@ test('one prepared maths lesson combines fraction calculations and length conver
             assert.equal(score, maximum);
         }
     }
-    assert.equal(checkAnswer(maths.exercises[0].steps[2].answer, '3/6').correct, true);
+    assert.equal(scoreExercise(maths.exercises[0], ['6', '15', '3/6', '0.25']).steps[2].fraction, .5);
     assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0,25').correct, true);
     assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0.25').correct, true);
     assert.equal(checkAnswer(maths.exercises[1].steps[0].answer, '0.003 km').correct, true);
@@ -94,6 +94,7 @@ test('maths accepts all agreed typed answers without evaluating or converting th
     ]) {
         const lesson = mathsLesson();
         lesson.exercises[0].steps[0].answer = answer;
+        lesson.exercises[0].steps[0].assessment = valueAssessment(answer);
         assert.equal(validateLesson('maths', lesson), lesson);
     }
 });
@@ -180,7 +181,7 @@ test('both subjects embed the same shell and quiz controller, with no practice t
         assert.ok(html.includes(adapter));
         assert.doesNotMatch(html, /module\.exports = require|let appData =|DEFAULT_EDU_PAYLOAD/);
         assert.equal((html.match(/function initializeTutor\(/g) || []).length, 1);
-        assert.deepEqual([...html.matchAll(/data-tab="([^"]+)"/g)].map(match => match[1]), ['original', 'learning', 'quiz']);
+        assert.deepEqual([...html.matchAll(/<button[^>]+data-tab="([^"]+)"/g)].map(match => match[1]), ['original', 'learning', 'quiz']);
         assert.match(html, /id="player"/);
         assert.match(html, /id="name-error" role="alert"/);
         assert.match(html, /id="score" role="status" aria-atomic="true"/);

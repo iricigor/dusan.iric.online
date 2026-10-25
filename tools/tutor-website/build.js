@@ -4,14 +4,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { renderPage } = require('./page.js');
 const { validateLesson } = require('./validate.js');
-const { renderLesson: renderHistory } = require('../history-tutor/build.js');
 
 function capabilities(subject) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     return {
-        subject, version: subject === 'history' ? 1 : 2, language: 'cs-CZ', standalone: true,
+        subject, version: 3, language: 'cs-CZ', standalone: true,
         tabs: ['original', 'learning', 'quiz'], playerNameRequired: true,
-        schemaPath: subject === 'history' ? path.resolve(__dirname, '..', 'history-tutor', 'lesson.schema.json') : path.join(__dirname, 'maths.schema.json'),
+        schemaPath: path.join(__dirname, 'lesson.schema.json'),
         validatorPath: path.join(__dirname, 'validate.js'),
         builderPath: __filename,
         contractPath: path.join(__dirname, 'README.md'),
@@ -28,8 +27,7 @@ function capabilities(subject) {
 
 function renderLesson(subject, lesson) {
     validateLesson(subject, lesson);
-    if (subject === 'history') return renderHistory(lesson);
-    return renderPage(lesson, 'maths');
+    return renderPage(lesson, subject);
 }
 
 function within(file, directory) {

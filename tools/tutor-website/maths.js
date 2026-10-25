@@ -1,77 +1,24 @@
 'use strict';
 
-const MODES = { easy: [1, 1, 1], medium: [1, 2, 2], hard: [2, 5, 3] };
-const POINTS = { easy: 10, medium: 20, hard: 30 };
-const UNITS = { mm: 1n, cm: 10n, dm: 100n, m: 1000n, km: 1000000n };
-const WHOLE = '-?(?:0|[1-9][0-9]{0,11})';
-const DECIMAL = `${WHOLE}(?:[.,][0-9]{1,12})?`;
+const { MODES, POINTS, shuffle, grade } = typeof module !== 'undefined' && module.exports
+    ? require('./runtime.js') : tutorQuiz;
+const { evaluate, legacyMathsPolicy } = typeof module !== 'undefined' && module.exports
+    ? require('./assessment.js') : tutorAssessment;
 
-function rational(text) {
-    const [whole, part = ''] = text.replace(',', '.').split('.');
-    return { numerator: BigInt(whole + part), denominator: 10n ** BigInt(part.length) };
-}
-
-function checkAnswer(expected, raw) {
-    const text = raw.trim();
-    const invalid = message => ({ correct: false, valid: false, message });
-    if (!text) return invalid('Odpověď chybí.');
-    if (text.length > 80) return invalid('Odpověď je příliš dlouhá.');
-    let actual;
-    let target;
-    switch (expected.format) {
-        case 'integer':
-            if (!new RegExp(`^${WHOLE}$`).test(text)) return invalid('Napiš celé číslo bez jednotky, například -12.');
-            actual = rational(text);
-            target = rational(expected.value);
-            break;
-        case 'fraction': {
-            const match = text.match(new RegExp(`^(${WHOLE})\\s*/\\s*(${WHOLE})$`));
-            if (!match) return invalid('Napiš zlomek, například 1/2. Jmenovatel nesmí být nula.');
-            actual = { numerator: BigInt(match[1]), denominator: BigInt(match[2]) };
-            if (actual.denominator === 0n) return invalid('Jmenovatel nesmí být nula.');
-            target = { numerator: BigInt(expected.numerator), denominator: BigInt(expected.denominator) };
-            break;
-        }
-        case 'decimal':
-            if (!new RegExp(`^${DECIMAL}$`).test(text)) return invalid('Napiš číslo s jednou desetinnou čárkou nebo tečkou, bez jednotky.');
-            actual = rational(text);
-            target = rational(expected.value);
-            break;
-        case 'length': {
-            if (new RegExp(`^${DECIMAL}$`).test(text)) return invalid('Doplň jednotku délky: mm, cm, dm, m nebo km.');
-            const match = text.match(new RegExp(`^(${DECIMAL})\\s*(mm|cm|dm|m|km)$`));
-            if (!match || match[1].startsWith('-')) return invalid('Napiš nezápornou délku s jednotkou mm, cm, dm, m nebo km, například 1,5 m.');
-            actual = rational(match[1]);
-            actual.numerator *= UNITS[match[2]];
-            target = rational(expected.value);
-            target.numerator *= UNITS[expected.unit];
-            break;
-        }
-        default:
-            throw new Error(`Unsupported maths answer format: ${expected.format}`);
-    }
-    const correct = actual.numerator * target.denominator === target.numerator * actual.denominator;
-    return { correct, valid: true, message: correct ? 'Správně.' : 'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.' };
+function checkAnswer(expected, raw, assessment) {
+    return evaluate(assessment || legacyMathsPolicy(expected), raw);
 }
 
 function selectExercises(exercises, mode, random = Math.random) {
     if (!Object.hasOwn(MODES, mode)) throw new Error(`Unknown maths quiz mode: ${mode}`);
     if (new Set(exercises.map(exercise => exercise.id)).size !== exercises.length) throw new Error('Duplicate maths task ids');
-    const shuffle = items => {
-        const result = [...items];
-        for (let index = result.length - 1; index > 0; index--) {
-            const other = Math.floor(random() * (index + 1));
-            [result[index], result[other]] = [result[other], result[index]];
-        }
-        return result;
-    };
     const selected = [];
     ['easy', 'medium', 'hard'].forEach((level, index) => {
         const pool = exercises.filter(exercise => exercise.difficulty === level);
         if (pool.length < MODES[mode][index]) throw new Error(`Not enough ${level} maths tasks`);
-        selected.push(...shuffle(pool).slice(0, MODES[mode][index]));
+        selected.push(...shuffle(pool, random).slice(0, MODES[mode][index]));
     });
-    return shuffle(selected);
+    return selected;
 }
 
 function maximumPoints(exercises) {
@@ -79,22 +26,17 @@ function maximumPoints(exercises) {
 }
 
 function scoreExercise(exercise, answers) {
-    const steps = exercise.steps.map((step, index) => checkAnswer(step.answer, answers[index] || ''));
-    const base = steps.filter(step => step.correct).length * POINTS[exercise.difficulty] / steps.length;
+    const steps = exercise.steps.map((step, index) => checkAnswer(step.answer, answers[index] || '', step.assessment));
+    const base = steps.reduce((sum, step) => sum + step.fraction, 0) * POINTS[exercise.difficulty] / steps.length;
     const accuracy = exercise.difficulty === 'easy' && steps.every(step => step.correct) ? 1 : 0;
     return { steps, base, accuracy, total: base + accuracy };
-}
-
-function grade(total, maximum) {
-    return total >= maximum * 80 / 100 ? 1 : total >= maximum * 60 / 100 ? 2 :
-        total >= maximum * 40 / 100 ? 3 : total >= maximum * 20 / 100 ? 4 : 5;
 }
 
 function validRecords(records) {
     return Array.isArray(records) && records.every(row => row && Object.hasOwn(MODES, row.mode) &&
         row.maximum === MODES[row.mode].reduce((sum, count, index) => sum + count * [11, 20, 30][index], 0) &&
         Number.isFinite(row.total) && row.total >= 0 && row.total <= row.maximum &&
-        Number.isInteger(row.total * 2) && row.grade === grade(row.total, row.maximum));
+        Number.isInteger(row.total * 4) && row.grade === grade(row.total, row.maximum));
 }
 
 function formatAnswer(answer) {
@@ -106,8 +48,8 @@ function formatAnswer(answer) {
 const mathsSubject = {
     storagePrefix: 'maths-tutor:v2',
     speedBonus: false,
-    rules: 'Lehká skupina: 4 × 2,5 bodu + 1 bod za vše správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů. Každý krok má vlastní body. Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Počítají se i body za všechny správné lehké výpočty. Nemusíš spěchat.',
-    answerHelp: 'Celé číslo piš bez jednotky. Zlomek piš jako 1/2. Desetinné číslo může mít čárku nebo tečku. Délka musí mít jednotku mm, cm, dm, m nebo km (například 1,5 m). Prázdná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.',
+    rules: 'Lehká skupina: 4 × 2,5 bodu + 1 bod za vše zcela správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů. Každý krok má vlastní body. Pokud úloha uznává částečnou odpověď, získáš polovinu bodů za krok. Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Počítají se i body za všechny správné lehké výpočty. Nemusíš spěchat.',
+    answerHelp: 'Řiď se zadáním. Stejnou hodnotu lze zapsat různě: 7/4 = 1 3/4 = 1,75 a 0.5 = 1/2. Pokud úloha žádá určitý zápis, jiný zápis může získat jen část bodů nebo žádné. Délka musí mít jednotku mm, cm, dm, m nebo km (například 1,5 m). Prázdná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.',
     select: (lesson, mode) => selectExercises(lesson.exercises, mode),
     maximum: maximumPoints,
     score: scoreExercise,
@@ -118,14 +60,14 @@ const mathsSubject = {
     })),
     compareResults: (a, b) => b.total - a.total,
     validRecord: row => validRecords([row]),
-    renderLearning({ $, node, paragraph, disclose }, lesson) {
+    renderLearning({ $, node, paragraph, paragraphs, disclose }, lesson) {
         const examples = node('div');
         examples.id = 'examples';
         lesson.examples.forEach((example, index) => {
             const article = node('article', undefined, 'card');
             const hint = disclose('Nápověda', paragraph(example.hint));
             hint.open = index === 0;
-            article.append(node('h2', example.heading), paragraph(example.prompt), hint);
+            article.append(node('h2', example.heading), paragraph(example.prompt), ...paragraphs(example.paragraphs), hint);
             const steps = node('ol');
             example.steps.forEach((step, stepIndex) => {
                 const item = node('li');
@@ -165,8 +107,8 @@ const mathsSubject = {
             const label = exercise.difficulty === 'easy' ? `${number}${'abcd'[index]}` : `${number}.${index + 1}`;
             const result = score.steps[index];
             container.append(node('h3', `${label}: ${step.prompt}`),
-                node('p', `${result.message} Tvoje odpověď: ${values[index] || '(bez odpovědi)'}`, result.correct ? 'correct' : 'incorrect'),
-                node('p', `Body za výpočet: ${points(result.correct ? POINTS[exercise.difficulty] / exercise.steps.length : 0)}.`),
+                node('p', `${result.message} Tvoje odpověď: ${values[index] || '(bez odpovědi)'}`, result.fraction > 0 ? 'correct' : 'incorrect'),
+                node('p', `Body za výpočet: ${points(result.fraction * POINTS[exercise.difficulty] / exercise.steps.length)}.`),
                 node('p', `Správná odpověď: ${formatAnswer(step.answer)}. ${step.solution}`));
         });
         container.append(node('p', exercise.explanation),

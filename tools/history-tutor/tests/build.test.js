@@ -24,7 +24,13 @@ test('published example preserves the reviewed lesson data and Czech references'
     const published = path.join(__dirname, '..', '..', '..', 'site', 'history', 'defenestrace.html');
     const publishedHtml = fs.readFileSync(published, 'utf8');
     const payload = publishedHtml.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
-    assert.deepEqual(JSON.parse(payload), lesson);
+    const publishedLesson = JSON.parse(payload);
+    assert.equal(validateLesson(publishedLesson), publishedLesson);
+    const { version, subject, language, subtitle, ...content } = lesson;
+    content.original = content.original.map(({ style, ...section }) => section);
+    content.chunks = content.chunks.map(({ paragraphs, ...chunk }) => chunk);
+    content.questions = content.questions.map(({ assessment, ...question }) => question);
+    assert.deepEqual(publishedLesson, { version: 1, ...content });
     assert.match(renderLesson(lesson), /function initializeTutor\(/);
 });
 

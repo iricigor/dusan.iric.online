@@ -33,7 +33,7 @@ When asked for a maths lesson:
 3. Clarify the topic, prerequisites and supplied material as needed. Inspect
    images and confirm transcriptions. Review all calculations independently;
    explain corrections and uncertainty in the user's language. Include
-   `original` sections in the version 2 maths JSON. For a topic-only request,
+   `original` sections and a motivational `subtitle` in the shared version 3 JSON. For a topic-only request,
    the original text is just the short Czech translation of that topic.
 4. Teach a simple worked example, a more complex example, a familiar everyday
    word problem and a final challenge with its solution, in that order.
@@ -52,12 +52,21 @@ When asked for a maths lesson:
    steps connect and provide a worked solution for each. Each step is checked
    against its own expected answer, not against an earlier incorrect entry.
 6. Use typed integer, fraction, decimal or length answers only, following the
-   documented notation and exact comparison rules. Equivalent fractions and
-   exact length conversions are accepted; decimals accept comma or point.
+   documented notation and exact comparison rules. Each step needs an explicit
+   `assessment` policy with `input`, `exact` and optional
+   `partial: { match, credit: 0.5 }`. Both categories support number, string,
+   array and numeric-range matchers; full credit takes precedence.
+   Number matchers accept exactly equivalent values (7/4 = 1 3/4 = 1.75;
+   0.5 = 1/2). Use literal string matchers for representation-sensitive tasks:
+   for simplification, `1/2` can earn full credit and declared `3/6` half.
+   Explain that requirement in the prompt. Do not automatically accept every
+   equivalent form. Decimal comma or point works with value matchers.
+   Length policies require `input: "length"` and the expected unit; numeric
+   matchers/ranges use that unit after exact conversion of learner input.
    Prefer integer results when appropriate; use the decimal format for
    non-integer numerical answers, never integer-only input for a decimal result.
    Required units must be explicit. Do not use spelling normalization,
-   approximate-year credit, floating-point tolerance or executable expressions.
+   implicit approximate-year credit, floating-point tolerance or executable expressions.
    Symbolic algebra evaluation, interactive geometry and other answer formats
    are unsupported: disclose this and adapt the exercise only with agreement.
 7. Send the lesson to `tutor-website` with absolute input/output/artifact paths
@@ -70,8 +79,10 @@ When asked for a maths lesson:
    explicit approval; do not modify `site` or `gems` during draft creation.
 
 Quiz modes sample without duplicates: easy 1/1/1, medium 1/2/2, hard 2/5/3.
-Easy calculations earn 2.5 points each plus 1 for all four correct; medium earns
-20 points; hard earns 10 per correct step. Maxima are 61, 111 and 212, including
+Every mode progresses easy → medium → hard, randomizing only within a level.
+Easy calculations earn 2.5 points each plus 1 for all four fully correct; medium earns
+20 points; hard earns 10 per correct step. A declared partial match earns half
+of its step's points; it never earns the all-correct bonus. Maxima are 61, 111 and 212, including
 accuracy bonuses. Czech grades use 80/60/40/20% thresholds against those maxima.
 Feedback shows correct answers and worked solutions; the child chooses when
 to continue. Results stay per-lesson in browser session storage, with visible

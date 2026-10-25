@@ -21,6 +21,7 @@ class Element {
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
     append(...children) { this.children.push(...children); }
+    prepend(...children) { this.children.unshift(...children); }
     replaceChildren(...children) { this.text = ''; this.children = children; }
     setAttribute() {}
     removeAttribute() {}
@@ -72,7 +73,8 @@ function page() {
         crypto: { randomUUID: () => `run-${++serial}` },
         URL, console
     };
-    vm.runInNewContext(fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
+    vm.runInNewContext(fs.readFileSync(path.join(shared, 'assessment.js'), 'utf8') + '\n' +
+        fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
         fs.readFileSync(path.join(shared, 'history.js'), 'utf8'), context);
     return {
         get: id => context.document.getElementById(id),
