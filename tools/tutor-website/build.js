@@ -29,7 +29,7 @@ function capabilities(subject) {
 function renderLesson(subject, lesson) {
     validateLesson(subject, lesson);
     if (subject === 'history') return renderHistory(lesson);
-    return renderPage(lesson, path.join(__dirname, 'maths.js'), 'maths');
+    return renderPage(lesson, 'maths');
 }
 
 function within(file, directory) {

@@ -19,8 +19,13 @@ For `subject: history`, the existing version 1 contract is defined by
 Read both and `tools\history-tutor\examples\defenestrace.json` before advising on
 or building a lesson. The legacy builder is `tools\history-tutor\build.js`.
 Both subjects use `tools\tutor-website\template.html` and
-`tools\tutor-website\runtime.js`; history assessment lives in
-`tools\history-tutor\app.js` and shared styles in `tools\history-tutor\styles.css`.
+`tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
+History and maths content/assessment adapters live alongside them in
+`history.js` and `maths.js`; `tools\history-tutor\app.js` is only a legacy
+CommonJS re-export. Keep common presentation and lifecycle changes in the
+shared assets, not in per-subject copies. The independent Gems workflow is
+not an asset dependency; its selectively adapted design is documented in the
+shared generator README.
 
 For `subject: maths`, read `tools\tutor-website\maths.schema.json`,
 `tools\tutor-website\validate.js` and `tools\tutor-website\README.md`.

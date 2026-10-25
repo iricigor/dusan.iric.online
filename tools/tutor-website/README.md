@@ -84,11 +84,37 @@ schema-valid JSON only. They do not write HTML, fork quiz code, choose a
 different navigation structure or implement their own answer parser.
 The website agent validates that JSON and builds standalone HTML.
 
-`template.html` is the single shell and `runtime.js` implements navigation,
+All browser assets are owned by `tools\tutor-website`: `template.html` is the
+single shell, `styles.css` is the single stylesheet, and `runtime.js` implements navigation,
 glossary, themes, name validation, answer submission/locking, explicit next-step
-progression, results and session-storage warnings for both subjects.
-History's `app.js` and `maths.js` are adapters for content, answer formats,
+progression, running score/progress, results and session-storage warnings for both subjects.
+`history.js` and `maths.js` are adapters for content, answer formats,
 sampling and assessment rules, not independent quiz applications.
+`page.js` embeds the common assets and only the selected subject adapter.
+`tools\history-tutor\app.js` remains a thin CommonJS compatibility export;
+it is not a second browser runtime. History's schema, validator, legacy builder
+and technical fixture remain in their existing locations.
+
+### Selective Gems integration
+
+The independent `gems\dusan-edu-webpage` workflow is not a runtime dependency.
+Its `SKILL.md` assembles JavaScript from the line-based `app.js.json`; its
+readable `app.js` currently matches that representation. The packaging script
+enforces parity and excludes `app.js` from the ZIP. Neither representation,
+the package archive nor existing published lessons is changed by this integration.
+
+| Gems detail | Shared generator decision |
+|---|---|
+| Wide desktop shell and learning/glossary columns | Adapted to a 1600px maximum shell and 2:1 learning grid, stacked at 1024px and below; original text keeps an 80-character reading width |
+| Subject/audience badges and prominent active tabs | Adapted with existing accessible theme colors, text labels, pressed states and explicit panel associations |
+| Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
+| Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
+| “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |
+| Glossary modal, themes and success/failure animations | Existing native dialog, system-theme support and reduced-motion-aware feedback retained instead of copying duplicate implementations |
+| Gems quiz engine, schema, DOM and HTML-string rendering | Not imported; existing contracts, safe text nodes, sampling and assessment adapters remain authoritative |
+| Placeholder-name rejection and automatic feedback progression | Not imported; valid names/nicknames are not rejected for matching an example, and the learner explicitly continues after feedback |
+
+There is no schema or storage migration in this presentation change.
 
 Every page has exactly **Původní text → Učit se → Hrát si**. Original material
 is displayed separately from generated explanations. A topic-only request

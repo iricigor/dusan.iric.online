@@ -118,13 +118,24 @@ test('maths standalone output is inert, Czech and contains real assessment witho
 
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
+    const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+    assert.match(sharedStyles, /\.original-text \{[^}]*max-width: 80ch;/);
+    const legacyHistory = require('../../history-tutor/app.js');
+    assert.equal(legacyHistory, require('../history.js'));
+    assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor', 'styles.css')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(sharedRuntime));
+        assert.equal(html.match(/<style>([\s\S]*?)<\/style>/)[1], sharedStyles);
+        const adapter = fs.readFileSync(path.join(__dirname, '..', `${subject}.js`), 'utf8');
+        assert.ok(html.includes(adapter));
+        assert.doesNotMatch(html, /module\.exports = require|let appData =|DEFAULT_EDU_PAYLOAD/);
         assert.equal((html.match(/function initializeTutor\(/g) || []).length, 1);
         assert.deepEqual([...html.matchAll(/data-tab="([^"]+)"/g)].map(match => match[1]), ['original', 'learning', 'quiz']);
         assert.match(html, /id="player"/);
         assert.match(html, /id="name-error" role="alert"/);
+        assert.match(html, /id="score" role="status" aria-atomic="true"/);
+        assert.match(html, /id="quiz-progress" aria-labelledby="progress"/);
         assert.doesNotMatch(html, /data-tab="practice"/);
     }
 });

@@ -3,7 +3,9 @@
 An opt-in tool inside a mixed-purpose repository. Nothing here changes Copilot's
 repository-wide behavior. `gems` is an independent, unchanged Gemini workflow;
 these files are not synchronized with it. This directory owns the unchanged
-history content contract and assessment rules; shared generation and the maths contract
+history content contract and legacy entry points. Browser assets, including
+the history assessment adapter, share ownership under `tools\tutor-website`;
+`app.js` here only re-exports that adapter's CommonJS API. Shared generation and the maths contract
 are documented in `tools\tutor-website\README.md`.
 
 Requires Node.js 22 or newer. No package installation, Python, AI API key, web

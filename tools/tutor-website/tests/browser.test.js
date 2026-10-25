@@ -113,7 +113,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
         assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
-        for (const width of [320, 1280]) {
+        for (const width of [320, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
                 await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
@@ -140,8 +140,33 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${subject}-${tab}-${width}-${theme}.png`), Buffer.from(screenshot.data, 'base64'));
                     }
                 }
+                assert.deepEqual(await evaluate(`(() => {
+                    document.querySelector('[data-tab="learning"]').click();
+                    const content = document.getElementById('learning-content').getBoundingClientRect();
+                    const glossary = document.querySelector('.glossary-card').getBoundingClientRect();
+                    return {
+                        sideBySide: glossary.left >= content.right,
+                        stacked: glossary.top >= content.bottom,
+                        labelled: [...document.querySelectorAll('[data-tab]')].every(tab =>
+                            tab.getAttribute('aria-controls') === tab.dataset.tab)
+                    };
+                })()`), {
+                    sideBySide: width > 1024, stacked: width <= 1024,
+                    labelled: true
+                }, `${subject}/${width}/${theme} shared layout`);
             }
         }
+        await client.send('Emulation.setEmulatedMedia', {
+            features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
+        });
+        assert.equal(await evaluate(`(() => {
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('failure');
+            const animation = getComputedStyle(feedback).animationName;
+            feedback.classList.remove('failure');
+            return animation;
+        })()`), 'none', `${subject}: reduced motion`);
+        await client.send('Emulation.setEmulatedMedia', { features: [] });
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
             document.querySelector('#glossary button').click();
@@ -210,6 +235,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 $('player').value = 'Kontrola';
                 document.querySelector('[data-mode="${mode}"]').click();
                 if ($('name-error').textContent || $('player').hasAttribute('aria-invalid')) throw new Error('Valid name rejected');
+                if ($('score').textContent !== 'Skóre: 0 b') throw new Error('Score did not reset');
+                if ($('quiz-progress').max !== ${count} || $('quiz-progress').value !== 0) throw new Error('Invalid initial progress');
                 let total = 0;
                 let maximum = 0;
                 const seen = [];
@@ -245,6 +272,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         ${invalid} && exercise.difficulty === 'easy' ? 0 : { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
                     total += earned;
                     $('answers').requestSubmit();
+                    if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b') throw new Error('Wrong running score');
+                    if ($('quiz-progress').value !== index + 1) throw new Error('Wrong submitted progress');
                     if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
                     if (!inputs.every(input => input.disabled)) throw new Error('Answer fields remain editable');
                     if (!$('feedback').textContent.includes('Body: ' + String(earned).replace('.', ','))) {
@@ -262,6 +291,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     const feedback = $('feedback').textContent;
                     $('answers').dispatchEvent(new Event('submit', { cancelable: true }));
                     if ($('feedback').textContent !== feedback) throw new Error('Duplicate submission changed feedback');
+                    if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b' ||
+                        $('quiz-progress').value !== index + 1) throw new Error('Duplicate submission changed status');
                     if (document.documentElement.scrollWidth > innerWidth) throw new Error('Feedback overflows');
                     $('next').click();
                 }
@@ -312,12 +343,18 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     $('player').value = 'Kontrola';
                     document.querySelector('[data-mode="${mode}"]').click();
                     const bonus = $('bonus').textContent;
+                    if ($('score').textContent !== 'Skóre: 0 b' || $('quiz-progress').value !== 0 ||
+                        $('quiz-progress').max !== ${count}) throw new Error('Invalid initial quiz status');
+                    let total = 0;
                     for (let index = 0; index < ${count}; index++) {
                         const question = lesson.questions.find(q => q.prompt === $('question').textContent);
                         if (question.type === 'text') {
                             $('answer-input').value = question.acceptedAnswers[0];
                             $('answers').requestSubmit();
                         } else $('answers').querySelectorAll('button')[question.answer].click();
+                        total += { easy: 10, medium: 20, hard: 30 }[question.difficulty] * 2;
+                        if ($('score').textContent !== 'Skóre: ' + total + ' b' ||
+                            $('quiz-progress').value !== index + 1) throw new Error('Wrong history quiz status');
                         if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
                         const feedback = $('feedback').textContent;
                         $('answers').dispatchEvent(new Event('submit', { cancelable: true }));

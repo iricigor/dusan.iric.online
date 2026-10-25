@@ -195,6 +195,8 @@ function initializeTutor(lesson, subject) {
         const elapsed = subject.speedBonus ? performance.now() - quiz.questionStarted : 0;
         const answer = { question, values, score: subject.score(question, values, elapsed) };
         quiz.answers.push(answer);
+        $('score').textContent = `Skóre: ${points(quiz.answers.reduce((sum, item) => sum + item.score.total, 0))} b`;
+        $('quiz-progress').value = quiz.answers.length;
         $('answers').querySelectorAll('input, button').forEach(control => { control.disabled = true; });
         $('feedback').replaceChildren();
         subject.feedback(context, $('feedback'), answer, quiz.index + 1);
@@ -208,6 +210,8 @@ function initializeTutor(lesson, subject) {
         quiz.locked = false;
         const question = quiz.questions[quiz.index];
         $('progress').textContent = `Úloha ${quiz.index + 1} / ${quiz.questions.length} · nejvýše ${subject.maximum([question])} b`;
+        $('quiz-progress').max = quiz.questions.length;
+        $('quiz-progress').value = quiz.answers.length;
         $('question').textContent = question.prompt;
         $('answers').replaceChildren();
         $('feedback').hidden = true;
@@ -270,6 +274,7 @@ function initializeTutor(lesson, subject) {
         $('results').hidden = true;
         $('leaderboard').hidden = true;
         $('game').hidden = false;
+        $('score').textContent = 'Skóre: 0 b';
         showQuestion();
     }));
     $('next').addEventListener('click', () => {
