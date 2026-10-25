@@ -65,16 +65,21 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .original-text { white-space: pre-wrap; max-width: 80ch; }
 .original-text:has(> :nth-child(2)) { white-space: normal; }
 .original-text > * { white-space: pre-wrap; }
-#learning { display: grid; grid-template-columns: minmax(0, 1fr) minmax(10rem, 13rem); grid-template-areas: "content glossary"; gap: 1rem; align-items: start; }
-.learning-main { grid-area: content; min-width: 0; }
-.glossary-card { grid-area: glossary; min-width: 0; margin: 0; padding: .5rem .75rem; border-left-width: 1px; }
-.glossary-card > summary { font-weight: bold; }
+.learning-main { min-width: 0; }
+#glossary-toggle { position: fixed; z-index: 3; right: 0; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: center; gap: .4rem; min-width: 44px; padding: .6rem .4rem; border-radius: .75rem 0 0 .75rem; color: var(--primary); box-shadow: var(--shadow); }
+#glossary-toggle > span:last-child { writing-mode: vertical-rl; font-size: .9rem; }
+#glossary-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(22rem, calc(100vw - 1rem)); max-width: none; height: 100dvh; max-height: none; padding: 1rem; border: 0; border-left: 1px solid var(--border); background: var(--card); color: var(--text); box-shadow: -8px 0 24px #0003; opacity: 0; transform: translateX(100%); transition: transform .2s ease, opacity .2s ease, display .2s allow-discrete, overlay .2s allow-discrete; }
+#glossary-drawer:popover-open { display: flex; flex-direction: column; opacity: 1; transform: translateX(0); }
+@starting-style { #glossary-drawer:popover-open { opacity: 0; transform: translateX(100%); } }
+.drawer-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.drawer-heading h2 { margin: 0; color: var(--primary); }
+#glossary-close { flex-shrink: 0; font-size: 1.4rem; line-height: 1; }
 .learning-controls { display: flex; justify-content: flex-end; gap: .25rem; margin-bottom: .5rem; }
 .learning-controls button { font-size: .85rem; padding: .25rem .5rem; border-color: transparent; background: transparent; color: var(--muted); }
 .learning-controls button:disabled { opacity: .5; }
 .term, .correction { display: inline; min-height: 0; padding: .1em 0; border: 0; border-radius: .2rem; font: inherit; color: var(--primary); text-decoration: underline dotted; text-underline-offset: .2em; }
 .correction { color: var(--bad); white-space: pre-wrap; text-align: left; }
-#glossary { display: flex; flex-direction: column; gap: .25rem; padding-top: .5rem; }
+#glossary { display: flex; flex-direction: column; gap: .25rem; padding-top: 1rem; overflow-y: auto; min-height: 0; }
 #glossary button { text-align: left; background: transparent; border-color: transparent; padding: .35rem .5rem; overflow-wrap: anywhere; font-size: .95rem; }
 details { border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: .5rem; padding: .5rem 1rem; margin-top: 1rem; }
 details[open] { background: var(--bg); }
@@ -151,10 +156,6 @@ a { color: var(--primary); }
 .question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), main > section:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
 .question-enter { display: block; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
-@media (max-width: 760px) {
-    #learning { grid-template-columns: minmax(0, 1fr); grid-template-areas: "glossary" "content"; }
-    #glossary { flex-direction: row; flex-wrap: wrap; }
-}
 @media (max-width: 550px) {
     body { font-size: 1rem; }
     header { padding: .5rem 1rem 0; }

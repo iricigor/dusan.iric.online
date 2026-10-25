@@ -270,10 +270,15 @@ migration. Original section text is unchanged. Emoji are decorative and hidden
 from assistive technology; meaningful headings and difficulty labels remain text.
 Icons use safe text nodes, never HTML, CSS, classes or asset URLs.
 
-The learning view has inline clickable glossary terms and a narrow collapsible
-right-side term list, initially open on desktop. At 760px and below, the same list
-moves above the lesson and starts collapsed. Changing between these layouts
-resets that default; learners can otherwise open/close it independently.
+The learning view keeps its full reading width. A compact right-edge
+`🔖 Slovníček` tab opens an initially closed slide-out drawer over the lesson
+on desktop and mobile, without reserving a column or shifting the text.
+The drawer is a nonmodal native manual popover with dialog semantics: opening
+focuses its close button; closing or Escape restores the bookmark trigger.
+Outside clicks, moving keyboard focus back to the lesson and changing views
+also dismiss it, so the nonmodal overlay never obscures the newly focused content. With a definition
+open, Escape closes the definition first, then the drawer on a second press.
+The drawer scrolls independently, fits the viewport and respects reduced motion.
 Only term buttons are shown, not a wall of definitions. Definitions open
 beside the trigger in a viewport-constrained native popover, usable by mouse,
 touch and keyboard. Escape, outside click, the close button or changing views
@@ -320,7 +325,7 @@ the package archive nor existing published lessons is changed by this integratio
 
 | Gems detail | Shared generator decision |
 |---|---|
-| Wide desktop shell and learning/glossary columns | A 1120px maximum shared shell, a narrow collapsible right glossary and mobile glossary above the lesson; original text keeps an 80-character reading width |
+| Wide desktop shell and learning/glossary columns | A 1120px maximum shared shell and a bookmark-triggered overlay glossary drawer, with no reserved column; original text keeps an 80-character reading width |
 | Subject/audience badges and prominent active tabs | Subject badge retained, audience badge omitted; attached icon-and-label tabs use selected states, keyboard navigation and labelled panels |
 | Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |

@@ -116,10 +116,38 @@ function initializeTutor(lesson, subject) {
             closeDefinition(restoreFocus);
         }
     });
+    const closeGlossary = (restoreFocus = true) => {
+        closeDefinition();
+        $('glossary-drawer').hidePopover();
+        $('glossary-toggle').setAttribute('aria-expanded', 'false');
+        if (restoreFocus && !$('glossary-toggle').hidden) $('glossary-toggle').focus({ preventScroll: true });
+    };
+    $('glossary-toggle').addEventListener('click', () => {
+        if ($('glossary-drawer').matches(':popover-open')) {
+            closeGlossary();
+            return;
+        }
+        closeDefinition();
+        $('glossary-drawer').showPopover();
+        $('glossary-toggle').setAttribute('aria-expanded', 'true');
+        $('glossary-close').focus({ preventScroll: true });
+    });
+    $('glossary-close').addEventListener('click', () => closeGlossary());
+    const dismissGlossaryOutside = event => {
+        if ($('glossary-drawer').matches(':popover-open') &&
+            !$('glossary-drawer').contains(event.target) &&
+            !$('definition').contains(event.target) &&
+            !$('glossary-toggle').contains(event.target)) closeGlossary(false);
+    };
+    document.addEventListener('pointerdown', dismissGlossaryOutside);
+    document.addEventListener('focusin', dismissGlossaryOutside);
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && $('definition').matches(':popover-open')) {
             event.preventDefault();
             closeDefinition(true);
+        } else if (event.key === 'Escape' && $('glossary-drawer').matches(':popover-open')) {
+            event.preventDefault();
+            closeGlossary();
         }
     });
     window.addEventListener('resize', positionDefinition);
@@ -207,16 +235,6 @@ function initializeTutor(lesson, subject) {
     $('collapse-learning').addEventListener('click', () => setLearningOpen(false));
     $('learning-content').addEventListener('toggle', syncLearningControls, true);
     syncLearningControls();
-    const compactLearning = matchMedia('(max-width: 760px)');
-    const syncGlossaryLayout = () => {
-        const collapsingTrigger = compactLearning.matches && definitionTrigger &&
-            $('glossary-panel').contains(definitionTrigger);
-        closeDefinition(!collapsingTrigger);
-        $('glossary-panel').open = !compactLearning.matches;
-        if (collapsingTrigger) $('glossary-title').focus({ preventScroll: true });
-    };
-    compactLearning.addEventListener('change', syncGlossaryLayout);
-    syncGlossaryLayout();
     lesson.glossary.forEach(entry => {
         const trigger = definitionButton(entry.term, entry.term, entry.definition, undefined, entry.icon);
         trigger.prepend(iconNode(entry.icon || '📖'));
@@ -224,7 +242,8 @@ function initializeTutor(lesson, subject) {
     });
     const tabs = [...document.querySelectorAll('[data-tab]')];
     const activateTab = tab => {
-        closeDefinition();
+        closeGlossary(false);
+        $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
         pauseAnswerClock();
         tabs.forEach(other => {
             const active = other === tab;

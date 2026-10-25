@@ -76,9 +76,11 @@ Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
 Use the shared Fluent-inspired attached icon-and-label tabs and soft cards, default decorative
 emoji with optional schema `icon` overrides and anchored glossary popovers.
-Keep a narrow collapsible glossary term list on the right, initially open on
-desktop; on mobile it sits above the lesson and starts collapsed. Definitions
-open on click instead of filling the sidebar. In Učit se, small Rozbalit vše /
+Use a compact right-edge 🔖 Slovníček trigger in Učit se. Its initially closed,
+nonmodal slide-out drawer overlays the lesson on all screen sizes without a
+reserved column or text reflow. Support close/Escape/outside-click dismissal,
+focus restoration and reduced motion. Definitions open on click instead of
+filling the drawer. In Učit se, small Rozbalit vše /
 Sbalit vše controls affect only learning disclosures. Hints use a compact,
 right-aligned Nápověda 💡 summary and reveal text below without a bordered bar.
 Support comment/fun/quote alongside existing paragraph styles. Original styled

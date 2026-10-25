@@ -194,8 +194,12 @@ HTML ani vlastní CSS do obsahu nepatří.
 
 Volitelné `icon` doplní krátké emoji k původnímu oddílu, výukovému bloku,
 řešenému příkladu, otázce, cvičení nebo pojmu ve slovníčku. Bez něj generátor
-použije výchozí ikonu. Slovníček je v úzkém rozbalovacím sloupci vpravo;
-na mobilu je nad učivem a zpočátku sbalený. Definice se otevírají u kliknutého
+použije výchozí ikonu. Pravý okraj části Učit se má záložku 🔖 Slovníček:
+otevře vysouvací panel přes učivo, aniž by posouval text nebo zabíral stálý
+sloupec. Panel je zpočátku zavřený na počítači i mobilu. Zavřeš ho tlačítkem,
+klávesou Escape nebo kliknutím mimo něj; po zavření tlačítkem či klávesou
+se vrátí zaměření na záložku. Otevřenou definici zavře první Escape,
+samotný slovníček až další. Definice se otevírají u kliknutého
 pojmu nebo podtrženého slova v učivu. Ovládání Rozbalit vše / Sbalit vše v části
 Učit se mění pouze nápovědy a řešení, nikoli slovníček ani kvíz.
 Drobný ovladač Nápověda 💡 je vpravo a po kliknutí ukáže vysvětlení pod sebou.

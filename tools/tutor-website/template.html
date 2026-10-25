@@ -33,10 +33,6 @@
             <div id="original-content"></div>
         </section>
         <section id="learning" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden>
-            <details id="glossary-panel" class="glossary-card" open>
-                <summary id="glossary-title"><span class="card-icon" aria-hidden="true">📖</span>Slovníček</summary>
-                <div id="glossary"></div>
-            </details>
             <div class="learning-main">
                 <div class="learning-controls" role="group" aria-label="Nápovědy a řešení">
                     <button id="expand-learning" type="button" aria-controls="learning-content">Rozbalit vše</button>
@@ -96,6 +92,14 @@
             </details>
         </section>
     </main>
+    <button id="glossary-toggle" type="button" aria-haspopup="dialog" aria-controls="glossary-drawer" aria-expanded="false" title="Otevřít slovníček" hidden><span aria-hidden="true">🔖</span><span>Slovníček</span></button>
+    <aside id="glossary-drawer" popover="manual" role="dialog" aria-modal="false" aria-labelledby="glossary-title">
+        <div class="drawer-heading">
+            <h2 id="glossary-title"><span class="card-icon" aria-hidden="true">🔖</span>Slovníček</h2>
+            <button id="glossary-close" type="button" aria-label="Zavřít slovníček" title="Zavřít slovníček">×</button>
+        </div>
+        <div id="glossary"></div>
+    </aside>
     <div id="definition" popover="auto" role="dialog" aria-labelledby="definition-title" aria-describedby="definition-text">
         <h2 id="definition-title"></h2>
         <p id="definition-text"></p>

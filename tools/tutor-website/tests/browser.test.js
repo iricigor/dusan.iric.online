@@ -144,8 +144,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(await evaluate(`(() => {
             const details = [...document.querySelectorAll('#learning-content details')];
             window.initialLearningOpen = details.map(item => item.open);
-            const glossary = document.getElementById('glossary-panel');
-            const glossaryOpen = glossary.open;
+            const glossary = document.getElementById('glossary-drawer');
+            const glossaryOpen = glossary.matches(':popover-open');
             const rules = document.getElementById('scoring-rules');
             const leaderboard = document.getElementById('leaderboard');
             rules.open = leaderboard.open = true;
@@ -157,7 +157,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             const collapsed = details.every(item => !item.open) &&
                 document.getElementById('collapse-learning').disabled &&
                 !document.getElementById('expand-learning').disabled;
-            const isolated = glossary.open === glossaryOpen && rules.open && leaderboard.open;
+            const isolated = glossary.matches(':popover-open') === glossaryOpen && rules.open && leaderboard.open;
             rules.open = leaderboard.open = false;
             return expanded && collapsed && isolated;
         })()`), true, `${subject}: expand/collapse all affects only learning disclosures`);
@@ -232,6 +232,35 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                                 getComputedStyle(hint).borderTopWidth === '0px' &&
                                 !hint.open && b.height >= 44;
                         })()`), true, `${subject}/${width}/${theme}: small right-aligned hint without a box`);
+                        assert.equal(await evaluate(`(() => {
+                            const toggle = document.getElementById('glossary-toggle');
+                            const drawer = document.getElementById('glossary-drawer');
+                            const before = document.getElementById('learning-content').getBoundingClientRect();
+                            const initiallyClosed = !drawer.matches(':popover-open') &&
+                                toggle.getAttribute('aria-expanded') === 'false' && !toggle.hidden;
+                            toggle.click();
+                            document.getAnimations().forEach(animation => animation.finish());
+                            const after = document.getElementById('learning-content').getBoundingClientRect();
+                            const bounds = drawer.getBoundingClientRect();
+                            return initiallyClosed && drawer.matches(':popover-open') &&
+                                toggle.getAttribute('aria-expanded') === 'true' &&
+                                toggle.textContent.includes('🔖') &&
+                                drawer.getAttribute('role') === 'dialog' &&
+                                drawer.getAttribute('aria-modal') === 'false' &&
+                                document.activeElement === document.getElementById('glossary-close') &&
+                                Math.abs(before.width - after.width) <= 1 && before.left === after.left &&
+                                bounds.left >= 0 && bounds.right <= innerWidth &&
+                                Math.abs(bounds.right - document.documentElement.clientWidth) <= 1 &&
+                                bounds.top === 0 && bounds.bottom <= innerHeight &&
+                                document.documentElement.scrollWidth <= innerWidth;
+                        })()`), true, `${subject}/${width}/${theme}: bookmark drawer overlays without reflow`);
+                        await capture(`${subject}-drawer-${width}-${theme}`);
+                        assert.equal(await evaluate(`(() => {
+                            document.getElementById('glossary-close').click();
+                            return !document.getElementById('glossary-drawer').matches(':popover-open') &&
+                                document.getElementById('glossary-toggle').getAttribute('aria-expanded') === 'false' &&
+                                document.activeElement === document.getElementById('glossary-toggle');
+                        })()`), true, `${subject}: drawer close restores trigger focus`);
                     }
                     if (tab === 'quiz') {
                         assert.equal(await evaluate(`(() => {
@@ -288,16 +317,15 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 assert.deepEqual(await evaluate(`(() => {
                     document.querySelector('[data-tab="learning"]').click();
                     const content = document.getElementById('learning-content').getBoundingClientRect();
-                    const glossary = document.querySelector('.glossary-card').getBoundingClientRect();
+                    const panel = document.getElementById('learning').getBoundingClientRect();
                     return {
-                        sideBySide: glossary.left >= content.right,
-                        above: glossary.bottom <= content.top,
-                        open: document.getElementById('glossary-panel').open,
+                        fullWidth: Math.abs(content.width - panel.width) <= 1,
+                        closed: !document.getElementById('glossary-drawer').matches(':popover-open'),
                         labelled: [...document.querySelectorAll('[data-tab]')].every(tab =>
                             tab.getAttribute('aria-controls') === tab.dataset.tab)
                     };
                 })()`), {
-                    sideBySide: width > 760, above: width <= 760, open: width > 760,
+                    fullWidth: true, closed: true,
                     labelled: true
                 }, `${subject}/${width}/${theme} shared layout`);
             }
@@ -310,30 +338,51 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             feedback.classList.add('failure');
             const animation = getComputedStyle(feedback).animationName;
             const transition = getComputedStyle(document.getElementById('theme')).transitionDuration;
+            const drawerTransition = getComputedStyle(document.getElementById('glossary-drawer')).transitionDuration;
             feedback.classList.remove('failure');
-            return { animation, transition };
-        })()`), { animation: 'none', transition: '0s' }, `${subject}: reduced motion`);
+            return { animation, transition, drawerTransition };
+        })()`), { animation: 'none', transition: '0s', drawerTransition: '0s' }, `${subject}: reduced motion`);
+        const bookmark = await evaluate(`(() => {
+            const bounds = document.getElementById('glossary-toggle').getBoundingClientRect();
+            return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2, top: bounds.top };
+        })()`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: bookmark.x, y: bookmark.y });
+        assert.equal(await evaluate('document.getElementById("glossary-toggle").getBoundingClientRect().top'),
+            bookmark.top, `${subject}: reduced-motion hover does not move the bookmark`);
         await client.send('Emulation.setEmulatedMedia', { features: [] });
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
-            const glossary = document.getElementById('glossary-panel');
-            glossary.querySelector('summary').click();
-            const collapsed = !glossary.open;
-            glossary.querySelector('summary').click();
+            const glossary = document.getElementById('glossary-drawer');
+            document.getElementById('glossary-toggle').click();
             document.querySelector('#glossary button').click();
             const open = document.getElementById('definition').matches(':popover-open');
             document.getElementById('definition-close').click();
-            return collapsed && glossary.open && open && !!document.getElementById('definition-text').textContent;
+            return glossary.matches(':popover-open') && open && !!document.getElementById('definition-text').textContent;
         })()`), true);
         assert.equal(await evaluate('document.activeElement === document.querySelector("#glossary button")'), true);
+        await evaluate(`document.querySelector('#glossary button').click()`);
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+        assert.equal(await evaluate(`!document.getElementById('definition').matches(':popover-open') &&
+            document.getElementById('glossary-drawer').matches(':popover-open') &&
+            document.activeElement === document.querySelector('#glossary button')`), true, `${subject}: first Escape closes definition, not drawer`);
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+        assert.equal(await evaluate(`!document.getElementById('glossary-drawer').matches(':popover-open') &&
+            document.activeElement === document.getElementById('glossary-toggle')`), true, `${subject}: second Escape closes drawer and restores focus`);
+        await evaluate(`document.getElementById('glossary-toggle').click()`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: 2, y: 895, button: 'left', clickCount: 1 });
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: 2, y: 895, button: 'left', clickCount: 1 });
+        assert.equal(await evaluate(`!document.getElementById('glossary-drawer').matches(':popover-open')`), true, `${subject}: drawer dismisses on outside click`);
+        assert.equal(await evaluate(`(() => {
+            document.getElementById('glossary-toggle').click();
+            document.getElementById('expand-learning').focus();
+            return !document.getElementById('glossary-drawer').matches(':popover-open') &&
+                document.activeElement === document.getElementById('expand-learning');
+        })()`), true, `${subject}: leaving nonmodal drawer preserves unobscured keyboard focus`);
         await evaluate(`document.getElementById('expand-learning').click()`);
         for (const width of [320, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
-            for (let attempt = 0; attempt < 50; attempt++) {
-                if (await evaluate(`document.getElementById('glossary-panel').open === ${width > 760}`)) break;
-                await delay(20);
-            }
-            assert.equal(await evaluate(`document.getElementById('glossary-panel').open`), width > 760);
             assert.equal(await evaluate(`(async () => {
                 const trigger = document.querySelector('#learning-content .term');
                 trigger.scrollIntoView({ block: 'center' });
@@ -364,9 +413,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             item.open = window.initialLearningOpen[index];
         })`);
         assert.equal(await evaluate(`(() => {
+            document.getElementById('glossary-toggle').click();
             document.querySelector('#glossary button').click();
             document.querySelector('[data-tab="quiz"]').click();
             return !document.getElementById('definition').matches(':popover-open') &&
+                !document.getElementById('glossary-drawer').matches(':popover-open') &&
+                document.getElementById('glossary-toggle').hidden &&
                 !document.getElementById('scoring-rules').open && !document.getElementById('leaderboard').open &&
                 [...document.querySelectorAll('[data-mode]')].every(mode => !/bod/.test(mode.textContent)) &&
                 [...document.querySelectorAll('#original-content h2, #learning-content article h2')]
