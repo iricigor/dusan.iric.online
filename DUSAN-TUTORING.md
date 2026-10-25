@@ -225,6 +225,10 @@ Odznak předmětu a název lekce jsou na jednom řádku se zachováním svých s
 dlouhý název se může zalomit ve svém sloupci. Motivační věta má barvu předmětu.
 Záložky s ikonami a českými popisky navazují na obsahový
 panel a podporují ovládání šipkami; obtížnosti mají výraznější barevnou výplň.
+Přepnutí záložek zjemňuje krátké prolnutí s drobným svislým posunem.
+Prohlížeče bez View Transitions animují jen příchod nového obsahu.
+Omezený pohyb animace vypne. Vyhrazené místo pro svislý posuvník brání
+poskakování do stran mezi krátkým a dlouhým obsahem; stránka se posouvá přirozeně.
 Světlý a tmavý režim přepíná přepínač se sluncem a měsícem. Věk se v záhlaví
 nezobrazuje. Krátký popisek přezdívky a vstup jsou na jednom řádku; požadavky
 na délku jsou v tooltipu a přístupném popisu. Podrobná pravidla bodování jsou

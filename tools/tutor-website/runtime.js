@@ -259,20 +259,50 @@ function initializeTutor(lesson, subject) {
         $('glossary').append(trigger);
     });
     const tabs = [...document.querySelectorAll('[data-tab]')];
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let requestedTab = tabs[0];
+    let tabTransition;
+    let tabEntrance;
+    reducedMotion.addEventListener('change', event => {
+        if (event.matches) {
+            tabTransition?.skipTransition();
+            tabEntrance?.cancel();
+        }
+    });
     const activateTab = tab => {
-        closeGlossary(false);
-        $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
-        $('learning-controls').hidden = tab.dataset.tab !== 'learning';
-        $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
-        if ($('quiz-tools').hidden) $('quiz-tools').open = false;
-        pauseAnswerClock();
-        tabs.forEach(other => {
-            const active = other === tab;
-            other.setAttribute('aria-selected', String(active));
-            other.tabIndex = active ? 0 : -1;
-            $(other.dataset.tab).hidden = !active;
-        });
-        resumeAnswerClock();
+        if (tab === requestedTab) return;
+        requestedTab = tab;
+        tabTransition?.skipTransition();
+        tabEntrance?.cancel();
+        const update = () => {
+            if (tab !== requestedTab) return;
+            closeGlossary(false);
+            $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
+            $('learning-controls').hidden = tab.dataset.tab !== 'learning';
+            $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
+            if ($('quiz-tools').hidden) $('quiz-tools').open = false;
+            pauseAnswerClock();
+            tabs.forEach(other => {
+                const active = other === tab;
+                other.setAttribute('aria-selected', String(active));
+                other.tabIndex = active ? 0 : -1;
+                $(other.dataset.tab).hidden = !active;
+            });
+            resumeAnswerClock();
+        };
+        if (typeof document.startViewTransition === 'function' && !reducedMotion.matches) {
+            tabTransition = document.startViewTransition(update);
+            tabTransition.ready.catch(error => {
+                if (error.name !== 'AbortError') console.error('Animaci přepnutí záložky se nepodařilo spustit.', error);
+            });
+        } else {
+            update();
+            const panel = $(tab.dataset.tab);
+            if (!reducedMotion.matches && typeof panel.animate === 'function') {
+                tabEntrance = panel.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+                    { duration: 300, easing: 'ease-out' });
+            }
+        }
     };
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => activateTab(tab));

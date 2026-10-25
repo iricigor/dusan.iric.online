@@ -35,6 +35,8 @@ body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-pa
 body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
 body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }
 * { box-sizing: border-box; }
+html { scrollbar-gutter: stable; view-transition-name: none; }
+@supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
 body { margin: 0; background: var(--bg); color: var(--text); font: 1.1rem/1.7 system-ui, sans-serif; }
 header { position: sticky; top: 0; z-index: 2; background: var(--card); padding: 1rem max(1rem, calc((100% - 1120px) / 2 + 1rem)) 0; }
 .heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
@@ -67,7 +69,7 @@ nav button[aria-selected="true"] { position: relative; background: var(--card); 
 #theme[aria-checked="false"] .theme-sun, #theme[aria-checked="true"] .theme-moon { color: var(--primary); }
 button:disabled { cursor: default; }
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
-main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; padding: 1rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--card); }
+main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; padding: 1rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--card); view-transition-name: lesson-panel; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; overflow-wrap: anywhere; box-shadow: var(--shadow); }
 .card > h2:first-child { margin-top: 0; color: var(--primary); }
 .card-icon { display: inline-block; flex-shrink: 0; margin-right: .55em; font-size: 1.15em; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
@@ -189,9 +191,15 @@ a { color: var(--primary); }
 @keyframes pop { 50% { transform: scale(1.015); } }
 @keyframes shake { 25%, 75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
 @keyframes reveal { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tab-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tab-leave { to { opacity: 0; transform: translateY(-4px); } }
+::view-transition { pointer-events: none; }
+::view-transition-group(lesson-panel) { animation-duration: .3s; animation-timing-function: ease-out; }
+::view-transition-old(lesson-panel) { animation: tab-leave .18s ease-out both; }
+::view-transition-new(lesson-panel) { animation: tab-enter .3s ease-out both; }
 .success { animation: pop .3s ease; }
 .failure { animation: shake .3s ease; }
-.question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), main > section:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
+.question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
 .question-enter { display: block; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
 @media (pointer: coarse) { #learning-content summary { min-height: 44px; } }

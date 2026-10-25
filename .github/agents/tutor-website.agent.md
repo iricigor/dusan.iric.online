@@ -81,6 +81,11 @@ Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
 Use the shared Fluent-inspired attached icon-and-label tabs and soft cards, default decorative
 emoji with optional schema `icon` overrides and anchored glossary popovers.
+Tab changes use a brief outgoing/incoming fade with a subtle vertical slide,
+progressively enhanced with native View Transitions and an entrance-only fallback.
+Honor reduced motion, keep rapid selections responsive and preserve quiz/disclosure
+state. Reserve the root scrollbar gutter so short/long tabs do not shift sideways;
+use natural document scrolling, not fixed-height or nested scrolling tab panels.
 Use a compact 🔖 Slovníček trigger aligned with the right edge of the Učit se
 content panel when space allows, clamped to the viewport on mobile so it does
 not cover the reading text. Its initially closed,

@@ -54,7 +54,7 @@ async function connect(url, events) {
 
 test('real offline pages share navigation, named quizzes, persistence and storage failures across subjects', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
-    timeout: 90000
+    timeout: 180000
 }, async t => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tutor-browser-'));
     const profile = path.join(directory, 'profile');
@@ -96,6 +96,23 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     });
     await client.send('Runtime.enable');
     await client.send('Page.enable');
+    await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
+        const startTransition = document.startViewTransition?.bind(document);
+        window.tabTransitions = [];
+        if (startTransition) document.startViewTransition = update => {
+            const transition = startTransition(update);
+            window.tabTransitions.push(transition);
+            return transition;
+        };
+        window.waitForTutorTab = async () => {
+            const transition = window.tabTransitions.at(-1);
+            if (transition) await transition.finished;
+        };
+        window.switchTutorTab = async name => {
+            document.querySelector('[data-tab="' + name + '"]').click();
+            await window.waitForTutorTab();
+        };
+    ` });
     await client.send('Network.enable');
     await client.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
     const downloads = path.join(directory, 'downloads');
@@ -130,6 +147,37 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             await delay(50);
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
+        assert.equal(await evaluate(`(async () => {
+            if (typeof document.startViewTransition !== 'function') return false;
+            document.querySelector('[data-tab="learning"]').click();
+            const transition = window.tabTransitions.at(-1);
+            await transition.ready;
+            const animations = document.getAnimations();
+            const fadeIn = animations.find(animation => animation.animationName === 'tab-enter');
+            const fadeOut = animations.find(animation => animation.animationName === 'tab-leave');
+            const animated = fadeIn?.effect.getTiming().duration === 300 &&
+                fadeOut?.effect.getTiming().duration === 180;
+            await transition.finished;
+            ['quiz', 'original', 'learning', 'original'].forEach(name =>
+                document.querySelector('[data-tab="' + name + '"]').click());
+            await window.waitForTutorTab();
+            return animated && !document.getElementById('original').hidden &&
+                document.getElementById('learning').hidden && document.getElementById('quiz').hidden &&
+                document.querySelector('[aria-selected="true"]').dataset.tab === 'original' &&
+                document.querySelectorAll('[role="tab"][tabindex="0"]').length === 1;
+        })()`), true, `${subject}: native outgoing/incoming transitions and latest rapid selection wins`);
+        assert.equal(await evaluate(`(async () => {
+            const start = document.startViewTransition;
+            document.startViewTransition = undefined;
+            await window.switchTutorTab('quiz');
+            const animations = document.getElementById('quiz').getAnimations();
+            const fade = animations.find(animation => animation.effect.getKeyframes()[0].opacity === '0');
+            const animated = fade?.effect.getTiming().duration === 300;
+            await Promise.all(animations.map(animation => animation.finished));
+            document.startViewTransition = start;
+            await window.switchTutorTab('original');
+            return animated;
+        })()`), true, `${subject}: graceful entrance animation without View Transition API`);
         assert.equal(await evaluate('document.getElementById("subtitle").textContent'), lesson.subtitle);
         assert.equal(await evaluate('document.querySelector("#original-content .card-icon").textContent'), lesson.original[0].icon || '📄');
         assert.equal(await evaluate('document.querySelector("#glossary .card-icon").textContent'), lesson.glossary[0].icon || '📖');
@@ -142,8 +190,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             return style === 'plain' ? !article.classList.contains('callout') :
                 article.classList.contains('callout-' + style);
         })()`), true);
-        assert.equal(await evaluate(`(() => {
-            document.querySelector('[data-tab="learning"]').click();
+        assert.equal(await evaluate(`(async () => {
+            await window.switchTutorTab('learning');
             return document.querySelectorAll('#learning-content .callout-label').length;
         })()`), subject === 'maths' ? lesson.examples.reduce((sum, example) => sum + (example.paragraphs?.length || 0), 0)
             : lesson.chunks.reduce((sum, chunk) => sum + (chunk.paragraphs?.length || 0), 0));
@@ -217,12 +265,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.equal(await evaluate(`document.querySelectorAll('#original-content .callout-fun').length`), 2);
             assert.equal(await evaluate(`document.querySelector('#original-content blockquote.callout-quote').textContent`),
                 lesson.original.at(-1).paragraphs.at(-1).text);
-            await evaluate(`document.querySelector('[data-tab="original"]').click();
-                document.querySelector('#original-content blockquote').scrollIntoView({ block: 'center' })`);
+            await evaluate(`(async () => { await window.switchTutorTab('original');
+                document.querySelector('#original-content blockquote').scrollIntoView({ block: 'center' }); })()`);
             await capture('history-original-quotation');
             await evaluate(`document.querySelector('#original-content .callout-fun').scrollIntoView({ block: 'center' })`);
             await capture('history-original-fun');
-            await evaluate(`document.querySelector('[data-tab="learning"]').click()`);
+            await evaluate(`window.switchTutorTab('learning')`);
         }
         for (const width of [320, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -246,11 +294,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         expected === ${theme === 'light'};
                 })()`), true, `${subject}: binary sun/moon state`);
                 await evaluate('document.getElementById("theme").click(); delete document.documentElement.dataset.theme');
+                const tabLayouts = [];
                 for (const tab of ['original', 'learning', 'quiz']) {
-                    assert.equal(await evaluate(`(() => {
+                    assert.equal(await evaluate(`(async () => {
                         const tab = document.querySelector('[data-tab="${tab}"]');
                         tab.focus();
-                        tab.click();
+                        await window.switchTutorTab('${tab}');
                         window.scrollTo(0, 0);
                         return !document.getElementById('${tab}').hidden && tab.getAttribute('aria-selected') === 'true' &&
                             tab.getAttribute('role') === 'tab' && tab.tabIndex === 0 &&
@@ -259,6 +308,15 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             document.getElementById('${tab}').getAttribute('aria-labelledby') === tab.id
                             && document.documentElement.scrollWidth <= innerWidth;
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
+                    tabLayouts.push(await evaluate(`(() => {
+                        const main = document.querySelector('main').getBoundingClientRect();
+                        const header = document.querySelector('.heading').getBoundingClientRect();
+                        return {
+                            horizontal: [main.left, main.width, header.left, header.width],
+                            scrolling: document.documentElement.scrollHeight > document.documentElement.clientHeight,
+                            gutter: getComputedStyle(document.documentElement).scrollbarGutter
+                        };
+                    })()`));
                     assert.equal(await evaluate(`document.getElementById('learning-controls').hidden`), tab !== 'learning');
                     assert.equal(await evaluate(`document.getElementById('quiz-tools').hidden`), tab !== 'quiz');
                     assert.equal(await evaluate(`(() => {
@@ -460,17 +518,27 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         await evaluate('window.scrollTo(0, 0)');
                     }
                 }
+                tabLayouts.forEach(layout => {
+                    assert.equal(layout.gutter, 'stable');
+                    assert.deepEqual(layout.horizontal, tabLayouts[0].horizontal,
+                        `${subject}/${width}/${theme}: no sideways shift between short and long tabs`);
+                });
+                if (width === 1600) {
+                    assert.equal(tabLayouts.some(layout => layout.scrolling), true, 'includes a tall scrolling tab');
+                    assert.equal(tabLayouts.some(layout => !layout.scrolling), true, 'includes a short non-scrolling tab');
+                }
                 await evaluate(`document.querySelector('[data-tab="original"]').focus()`);
                 for (const [key, tab] of [['ArrowLeft', 'quiz'], ['Home', 'original'], ['End', 'quiz'], ['ArrowRight', 'original'], ['ArrowRight', 'learning']]) {
                     await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key, code: key });
                     await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key, code: key });
+                    await evaluate('window.waitForTutorTab()');
                     assert.equal(await evaluate(`document.activeElement.dataset.tab === '${tab}' &&
                         document.activeElement.getAttribute('aria-selected') === 'true' &&
                         !document.getElementById('${tab}').hidden &&
                         document.querySelectorAll('[role="tab"][tabindex="0"]').length === 1`), true, `${subject}: tab keyboard ${key}`);
                 }
-                assert.deepEqual(await evaluate(`(() => {
-                    document.querySelector('[data-tab="learning"]').click();
+                assert.deepEqual(await evaluate(`(async () => {
+                    await window.switchTutorTab('learning');
                     const content = document.getElementById('learning-content').getBoundingClientRect();
                     const panel = document.getElementById('learning').getBoundingClientRect();
                     return {
@@ -488,6 +556,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         await client.send('Emulation.setEmulatedMedia', {
             features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
         });
+        assert.equal(await evaluate(`(async () => {
+            const count = window.tabTransitions.length;
+            await window.switchTutorTab('quiz');
+            const noAnimation = document.getElementById('quiz').getAnimations().length === 0;
+            await window.switchTutorTab('learning');
+            return noAnimation && window.tabTransitions.length === count &&
+                !document.getElementById('learning').hidden;
+        })()`), true, `${subject}: reduced motion switches immediately without native or fallback animations`);
         assert.deepEqual(await evaluate(`(() => {
             const feedback = document.getElementById('feedback');
             feedback.classList.add('failure');
@@ -505,8 +581,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(await evaluate('document.getElementById("glossary-toggle").getBoundingClientRect().top'),
             bookmark.top, `${subject}: reduced-motion hover does not move the bookmark`);
         await client.send('Emulation.setEmulatedMedia', { features: [] });
-        assert.equal(await evaluate(`(() => {
-            document.querySelector('[data-tab="learning"]').click();
+        assert.equal(await evaluate(`(async () => {
+            await window.switchTutorTab('learning');
             const glossary = document.getElementById('glossary-drawer');
             document.getElementById('glossary-toggle').click();
             document.querySelector('#glossary button').click();
@@ -572,10 +648,10 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 if ((item.getAttribute('aria-expanded') === 'true') !== window.initialHintOpen[index]) item.click();
             });
         })()`);
-        assert.equal(await evaluate(`(() => {
+        assert.equal(await evaluate(`(async () => {
             document.getElementById('glossary-toggle').click();
             document.querySelector('#glossary button').click();
-            document.querySelector('[data-tab="quiz"]').click();
+            await window.switchTutorTab('quiz');
             return !document.getElementById('definition').matches(':popover-open') &&
                 !document.getElementById('glossary-drawer').matches(':popover-open') &&
                 document.getElementById('glossary-toggle').hidden &&
@@ -681,11 +757,11 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.ok(black.left < blue.left && black.bottom >= blue.top,
                 `${subject}/${size}: cap hangs over D's left edge: ${JSON.stringify({ blue, black })}`);
         }
-        assert.deepEqual(await evaluate(`(() => {
+        assert.deepEqual(await evaluate(`(async () => {
             const $ = id => document.getElementById(id);
-            document.querySelector('[data-tab="original"]').click();
+            await window.switchTutorTab('original');
             const original = [...document.querySelectorAll('#original-content .original-text')].map(item => item.textContent);
-            document.querySelector('[data-tab="quiz"]').click();
+            await window.switchTutorTab('quiz');
             const invalid = ['easy', 'medium', 'hard'].flatMap(mode =>
                 ['', '12', 'Ab', 'A'.repeat(61)].map(name => {
                     $('player').value = name;
@@ -700,8 +776,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             invalid: Array(12).fill(true), tabs: ['original', 'learning', 'quiz']
         });
         if (subject === 'maths') {
-            assert.deepEqual(await evaluate(`(() => {
-                document.querySelector('[data-tab="learning"]').click();
+            assert.deepEqual(await evaluate(`(async () => {
+                await window.switchTutorTab('learning');
                 const details = document.querySelector('#exercises details');
                 details.querySelector('summary').click();
                 return {
@@ -737,12 +813,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             })()`), true);
             // Review actual submitted pages at phone width, not only their setup screens.
             await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
-            const playMaths = (mode, count, partial = false, invalid = false, policyPartial = false) => evaluate(`(() => {
+            const playMaths = (mode, count, partial = false, invalid = false, policyPartial = false) => evaluate(`(async () => {
                 const $ = id => document.getElementById(id);
                 const lesson = JSON.parse($('lesson-data').textContent);
                 window.answerClock = 0;
                 Object.defineProperty(performance, 'now', { configurable: true, value: () => window.answerClock });
-                document.querySelector('[data-tab="quiz"]').click();
+                await window.switchTutorTab('quiz');
                 $('player').value = 'Kontrola';
                 const random = Math.random;
                 if (${policyPartial}) Math.random = () => .999999;
@@ -888,12 +964,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.equal(await evaluate('window.timerStarts'), 0);
         } else {
             for (const [mode, count, maximum] of [['easy', 3, 60], ['medium', 5, 110], ['hard', 10, 210]]) {
-                const result = await evaluate(`(() => {
+                const result = await evaluate(`(async () => {
                     const $ = id => document.getElementById(id);
                     const lesson = JSON.parse($('lesson-data').textContent);
                     window.answerClock = 0;
                     Object.defineProperty(performance, 'now', { configurable: true, value: () => window.answerClock });
-                    document.querySelector('[data-tab="quiz"]').click();
+                    await window.switchTutorTab('quiz');
                     $('player').value = 'Kontrola';
                     const random = Math.random;
                     if (${JSON.stringify(mode)} === 'hard') Math.random = () => .999999;
@@ -976,10 +1052,10 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(await evaluate('document.getElementById("leaderboard-content").textContent'), 'Zatím žádné výsledky.');
         assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('${storageKey}')).length`), savedCount);
         fs.writeFileSync(file, renderLesson(subject, lesson));
-        const finishEasy = `(() => {
+        const finishEasy = `(async () => {
             const $ = id => document.getElementById(id);
             const lesson = JSON.parse($('lesson-data').textContent);
-            document.querySelector('[data-tab="quiz"]').click();
+            await window.switchTutorTab('quiz');
             $('player').value = 'Žofka';
             document.querySelector('[data-mode="easy"]').click();
             if ($('name-error').textContent) throw new Error('Unicode nickname rejected');

@@ -246,7 +246,15 @@ Shared Fluent-inspired attached icon-and-label tabs, soft elevated cards and
 theme-aware accents establish hierarchy without a UI library. The active tab
 joins the content panel; all three tabs share a 12rem desktop width and shrink
 equally on smaller screens. Tab/tabpanel semantics, a single tab stop and
-Left/Right/Home/End navigation support keyboard users. The binary sun/moon
+Left/Right/Home/End navigation support keyboard users.
+Tab switches crossfade the outgoing/incoming main panel with a subtle vertical
+slide over 300ms using native View Transitions where available. Other browsers
+receive an entrance-only fade/slide without delaying activation. Rapid selections
+replace pending transitions rather than queueing outdated tabs. Reduced motion
+disables both paths. A stable root scrollbar gutter (always-reserved scrollbar
+fallback on older browsers) prevents sideways jumps between short and long tabs;
+the document scrolls naturally without fixed-height or nested scrolling panels.
+The binary sun/moon
 switch exposes its current dark-mode state and follows system-theme changes
 until explicitly toggled. Audience remains authoring metadata, not a visible
 age badge. Mode pills use stronger theme-aware colored fills and show
