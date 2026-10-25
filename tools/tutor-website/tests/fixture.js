@@ -8,8 +8,9 @@ function mathsLesson() {
         answer: answer(value + 1), solution: `K číslu ${value} přičti jednu. Výsledek je ${value + 1}.`
     });
     return {
-        version: 1, subject: 'maths', language: 'cs-CZ', id: 'technicka-kontrola',
+        version: 2, subject: 'maths', language: 'cs-CZ', id: 'technicka-kontrola',
         topic: 'Technická kontrola počítání', audience: 'Jednoduché počítání pro děti.',
+        original: [{ heading: 'Zadání', text: 'Procvičování jednoduchého počítání.' }],
         glossary: [{ term: 'jednotka', definition: 'Jedna část celku.', forms: ['jednotku'] }],
         examples: ['simple', 'complex', 'everyday', 'challenge'].map((kind, index) => ({
             kind, heading: ['Jednoduchý příklad', 'Složitější příklad', 'Příklad ze života', 'Výzva'][index],

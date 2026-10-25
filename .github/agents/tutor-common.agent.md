@@ -44,6 +44,8 @@ these instructions to unrelated repository work.
 ## Responsibility and handoff
 
 - Subject tutors own educational accuracy, explanations, exercises, and solutions.
+  They provide schema-valid JSON only, never custom HTML, JavaScript, page
+  layouts, or quiz implementations. `tutor-website` turns that JSON into HTML.
 - `tutor-website` owns the JSON contract and validated page-generation workflow.
   Ask it for current capabilities before preparing lesson data. The executable
   schema and validator it identifies are authoritative; do not copy or invent a
@@ -65,6 +67,26 @@ these instructions to unrelated repository work.
   the full attainable maximum including accuracy points. Feedback must explain
   each step and wait for the child's explicit continuation. Missing/invalid
   units and storage failures must be visible, never silently accepted.
+
+## Shared page and quiz functionality
+
+- Every subject uses the same three tabs, in this order:
+  Původní text, Učit se, Hrát si. The generator owns the shared page shell
+  and quiz lifecycle; subject adapters supply content and assessment rules only.
+- Always include original material in the schema's `original` sections. For a
+  topic-only request, use its short Czech wording as the original text; do not
+  invent a long source passage. Keep generated explanations in Učit se.
+- Maths learning and practice belong together in Učit se. Start with a fully
+  worked example, gradually reveal less guidance, then offer independent
+  exercises from easy to hard. Hints and complete solutions remain available.
+- Every quiz requires a name or nickname with at least three letters before
+  starting. Use the same validation, explicit continuation, feedback, results,
+  theme, glossary, and storage-warning functionality for every subject.
+  Names are entered locally, not embedded in lesson JSON or sent to a server.
+- For numerical maths questions, prefer integer results where suitable.
+  Non-integer numerical results must use the decimal format, which accepts
+  either a comma or a dot. Fraction and length tasks retain their explicit
+  formats. A tutor must not introduce a stricter custom numerical checker.
 
 ## Drafts, review, and publication
 

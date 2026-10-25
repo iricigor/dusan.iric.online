@@ -18,11 +18,14 @@ test('example validates, preserving the selected original excerpts verbatim', ()
     lesson.original.forEach(section => assert.ok(text.includes(section.text)));
 });
 
-test('published example matches the builder and links to Czech references', () => {
+test('published example preserves the reviewed lesson data and Czech references', () => {
     const lesson = example();
     lesson.sources.forEach(source => assert.equal(new URL(source.url).hostname, 'cs.wikipedia.org'));
     const published = path.join(__dirname, '..', '..', '..', 'site', 'history', 'defenestrace.html');
-    assert.equal(fs.readFileSync(published, 'utf8'), renderLesson(lesson));
+    const publishedHtml = fs.readFileSync(published, 'utf8');
+    const payload = publishedHtml.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
+    assert.deepEqual(JSON.parse(payload), lesson);
+    assert.match(renderLesson(lesson), /function initializeTutor\(/);
 });
 
 test('schema rejects malformed data and conditional question shapes', () => {

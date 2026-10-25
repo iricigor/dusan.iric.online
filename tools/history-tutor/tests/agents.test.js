@@ -65,8 +65,25 @@ test('agent file references resolve and website ownership points to the existing
             assert.ok(fs.existsSync(target), `${name}: missing ${reference}`);
         }
     });
+
     const { body } = profiles.find(profile => profile.name === 'tutor-website');
     for (const filename of ['lesson.schema.json', 'validate.js', 'build.js']) {
         assert.ok(body.includes(`\`tools\\history-tutor\\${filename}\``));
     }
+});
+
+test('agents require JSON-only authorship and the common page and name-required quiz flow', () => {
+    const common = profiles.find(profile => profile.name === 'tutor-common').body;
+    for (const text of ['JSON only', 'Původní text, Učit se, Hrát si', 'name or nickname', 'comma or a dot']) {
+        assert.ok(common.includes(text), `Missing shared rule: ${text}`);
+    }
+    for (const name of ['tutor-history', 'tutor-maths', 'tutor-website']) {
+        const body = profiles.find(profile => profile.name === name).body;
+        assert.ok(body.includes('JSON only'), `${name}: JSON-only responsibility`);
+        assert.ok(body.includes('Původní text'), `${name}: original tab`);
+        assert.ok(body.includes('name/nickname'), `${name}: common name requirement`);
+    }
+    const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
+    assert.ok(maths.includes('version 2'));
+    assert.ok(maths.includes('separate practice tab'));
 });

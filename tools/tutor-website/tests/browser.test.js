@@ -49,7 +49,7 @@ async function connect(url, events) {
     };
 }
 
-test('real offline pages support layouts, themes, reveals, both quizzes and maths storage failures', {
+test('real offline pages share navigation, named quizzes, persistence and storage failures across subjects', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 90000
 }, async t => {
@@ -100,7 +100,10 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
         assert.equal(response.exceptionDetails, undefined, JSON.stringify(response.exceptionDetails));
         return response.result.value;
     };
-    for (const [subject, lesson] of [['maths', mathsAssessmentLesson()], ['history', history]]) {
+    for (const [subject, lesson] of [
+        ['maths', { ...mathsAssessmentLesson(), id: 'shared-lesson-id' }],
+        ['history', { ...history, id: 'shared-lesson-id' }]
+    ]) {
         const file = path.join(directory, `${subject}.html`);
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
@@ -109,6 +112,7 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
             await delay(50);
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
+        assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
         for (const width of [320, 1280]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
@@ -123,7 +127,7 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
                     return document.documentElement.dataset.theme;
                 })()`), theme === 'light' ? 'dark' : 'light');
                 await evaluate('delete document.documentElement.dataset.theme');
-                for (const tab of subject === 'maths' ? ['learning', 'practice', 'quiz'] : ['original', 'learning', 'quiz']) {
+                for (const tab of ['original', 'learning', 'quiz']) {
                     assert.equal(await evaluate(`(() => {
                         const tab = document.querySelector('[data-tab="${tab}"]');
                         tab.click();
@@ -145,9 +149,27 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
             document.getElementById('definition').close();
             return open && !!document.getElementById('definition-text').textContent;
         })()`), true);
+        assert.deepEqual(await evaluate(`(() => {
+            const $ = id => document.getElementById(id);
+            document.querySelector('[data-tab="original"]').click();
+            const original = [...document.querySelectorAll('#original-content .original-text')].map(item => item.textContent);
+            document.querySelector('[data-tab="quiz"]').click();
+            const invalid = ['easy', 'medium', 'hard'].flatMap(mode =>
+                ['', '12', 'Ab', 'A'.repeat(61)].map(name => {
+                    $('player').value = name;
+                    document.querySelector('[data-mode="' + mode + '"]').click();
+                    return !$('setup').hidden && $('game').hidden && !!$('name-error').textContent &&
+                        $('player').getAttribute('aria-invalid') === 'true';
+                }));
+            $('player').value = 'Kontrola';
+            return { original, invalid, tabs: [...document.querySelectorAll('[data-tab]')].map(tab => tab.dataset.tab) };
+        })()`), {
+            original: lesson.original.map(section => section.text),
+            invalid: Array(12).fill(true), tabs: ['original', 'learning', 'quiz']
+        });
         if (subject === 'maths') {
             assert.deepEqual(await evaluate(`(() => {
-                document.querySelector('[data-tab="practice"]').click();
+                document.querySelector('[data-tab="learning"]').click();
                 const details = document.querySelector('#exercises details');
                 details.querySelector('summary').click();
                 return {
@@ -158,8 +180,24 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
                     timing: document.querySelectorAll('#bonus, #timer, #countdown').length
                 };
             })()`), { examples: 4, exercises: 10, opened: true, modes: 3, timing: 0 });
+            assert.deepEqual(await evaluate(`(() => {
+                const examples = [...document.querySelectorAll('#examples > article')];
+                const openDetails = examples.map(example => example.querySelectorAll('details[open]').length);
+                const exercises = [...document.querySelectorAll('#exercises > article')];
+                window.timerStarts = 0;
+                const originalInterval = window.setInterval;
+                window.setInterval = (...args) => { window.timerStarts++; return originalInterval(...args); };
+                return {
+                    openDetails,
+                    firstBeforePractice: !!(document.getElementById('examples').compareDocumentPosition(document.getElementById('exercises')) & Node.DOCUMENT_POSITION_FOLLOWING),
+                    levels: exercises.map(exercise => exercise.querySelector('h2').textContent.replace(/^\\d+\\. /, ''))
+                };
+            })()`), {
+                openDetails: [3, 1, 0, 0], firstBeforePractice: true,
+                levels: ['Lehká skupina', 'Lehká skupina', ...Array(5).fill('Slovní úloha'), ...Array(3).fill('Úloha ve třech krocích')]
+            });
             assert.equal(await evaluate(`(() => {
-                const details = document.querySelector('#examples details');
+                const details = document.querySelector('#examples > article:nth-child(3) details');
                 details.querySelector('summary').click();
                 return details.open;
             })()`), true);
@@ -169,7 +207,9 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
                 const $ = id => document.getElementById(id);
                 const lesson = JSON.parse($('lesson-data').textContent);
                 document.querySelector('[data-tab="quiz"]').click();
+                $('player').value = 'Kontrola';
                 document.querySelector('[data-mode="${mode}"]').click();
+                if ($('name-error').textContent || $('player').hasAttribute('aria-invalid')) throw new Error('Valid name rejected');
                 let total = 0;
                 let maximum = 0;
                 const seen = [];
@@ -194,7 +234,7 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
                         const equivalent = {
                             integer: answer.value,
                             fraction: answer.format === 'fraction' ? (-Number(answer.numerator) * 3) + '/' + (-Number(answer.denominator) * 3) : '',
-                            decimal: answer.value?.replace('.', ','),
+                            decimal: ${JSON.stringify(mode)} === 'medium' ? answer.value : answer.value?.replace('.', ','),
                             length: '0.0015 km'
                         }[answer.format];
                         inputs[stepIndex].value = ${partial} && stepIndex === 0 ? '' :
@@ -225,11 +265,14 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
                     if (document.documentElement.scrollWidth > innerWidth) throw new Error('Feedback overflows');
                     $('next').click();
                 }
-                const saved = JSON.parse(sessionStorage.getItem('maths-tutor:v1:' + lesson.id)).at(-1);
-                const records = $('session-results').children.length;
+                const record = JSON.parse(sessionStorage.getItem('maths-tutor:v2:' + lesson.id)).at(-1);
+                if (record.name !== 'Kontrola' || !record.id || !record.time || 'duration' in record) throw new Error('Invalid named untimed result');
+                if (!$('leaderboard-content').textContent.includes(record.name)) throw new Error('Missing player result');
+                const saved = { mode: record.mode, total: record.total, maximum: record.maximum, grade: record.grade };
+                const records = $('leaderboard-content').querySelectorAll('tbody tr').length;
                 $('next').click();
                 $('answers').dispatchEvent(new Event('submit', { cancelable: true }));
-                if ($('session-results').children.length !== records) throw new Error('Duplicate finish');
+                if ($('leaderboard-content').querySelectorAll('tbody tr').length !== records) throw new Error('Duplicate finish');
                 const result = {
                     mix, saved, total, maximum, summary: $('summary').children.length, grade: $('grade').textContent,
                     visible: !$('results').hidden, fits: document.documentElement.scrollWidth <= innerWidth
@@ -259,62 +302,7 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
             assert.match(partial.grade, /27,5\/61.*Známka: 3/);
             const invalid = await playMaths('easy', 3, false, true);
             assert.deepEqual(invalid.saved, { mode: 'easy', total: 50, maximum: 61, grade: 1 });
-            await client.send('Page.navigate', { url: pathToFileURL(file).href + '?reload' });
-            for (let attempt = 0; attempt < 100; attempt++) {
-                if (await evaluate('location.search === "?reload" && document.getElementById("session-results")?.children.length === 5')) break;
-                await delay(50);
-            }
-            assert.equal(await evaluate('document.getElementById("session-results").children.length'), 5);
-            // Reuse the same file so isolation depends on lesson id, not file-origin behavior.
-            const otherLesson = { ...lesson, id: 'other-lesson', topic: 'Jiná technická kontrola' };
-            fs.writeFileSync(file, renderLesson('maths', otherLesson));
-            await client.send('Page.navigate', { url: pathToFileURL(file).href + '?other-lesson' });
-            for (let attempt = 0; attempt < 100; attempt++) {
-                if (await evaluate(`document.getElementById('topic')?.textContent === '${otherLesson.topic}'`)) break;
-                await delay(50);
-            }
-            assert.equal(await evaluate('document.getElementById("session-results").textContent'), 'Zatím žádné výsledky.');
-            assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('maths-tutor:v1:${lesson.id}')).length`), 5);
-            fs.writeFileSync(file, renderLesson('maths', lesson));
-            for (const [scenario, source, message] of [
-                ['read-denied', `Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } });`, 'nelze načíst'],
-                ['corrupt', `sessionStorage.setItem('maths-tutor:v1:${lesson.id}', '{"broken":true}');`, 'nelze načíst'],
-                ['write-denied', `sessionStorage.removeItem('maths-tutor:v1:${lesson.id}'); window.originalSetItem = Storage.prototype.setItem; Storage.prototype.setItem = function() { throw new DOMException('Full', 'QuotaExceededError'); };`, 'nepodařilo uložit']
-            ]) {
-                const injection = await client.send('Page.addScriptToEvaluateOnNewDocument', { source });
-                await client.send('Page.navigate', { url: pathToFileURL(file).href + '?' + scenario });
-                for (let attempt = 0; attempt < 100; attempt++) {
-                    if (await evaluate(`location.search === '?${scenario}' && !!document.getElementById('topic')?.textContent`)) break;
-                    await delay(50);
-                }
-                await evaluate(`(() => {
-                    document.querySelector('[data-tab="quiz"]').click();
-                    document.querySelector('[data-mode="easy"]').click();
-                    for (let index = 0; index < 3; index++) {
-                        document.getElementById('answers').requestSubmit();
-                        document.getElementById('next').click();
-                    }
-                })()`);
-                assert.equal(await evaluate(`!document.getElementById('storage-warning').hidden &&
-                    document.getElementById('storage-warning').textContent.includes('${message}')`), true, scenario);
-                assert.equal(await evaluate('document.getElementById("session-results").children.length'), 1);
-                assert.equal(await evaluate('document.getElementById("results").hidden'), false);
-                if (scenario === 'corrupt') assert.equal(await evaluate(`sessionStorage.getItem('maths-tutor:v1:${lesson.id}')`), '{"broken":true}');
-                if (scenario === 'write-denied') {
-                    await evaluate(`(() => {
-                        Storage.prototype.setItem = window.originalSetItem;
-                        document.getElementById('restart').click();
-                        document.querySelector('[data-mode="easy"]').click();
-                        for (let index = 0; index < 3; index++) {
-                            document.getElementById('answers').requestSubmit();
-                            document.getElementById('next').click();
-                        }
-                    })()`);
-                    assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true);
-                    assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('maths-tutor:v1:${lesson.id}')).length`), 2);
-                }
-                await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injection.identifier });
-            }
+            assert.equal(await evaluate('window.timerStarts'), 0);
         } else {
             for (const [mode, count, maximum] of [['easy', 3, 60], ['medium', 5, 110], ['hard', 10, 210]]) {
                 const result = await evaluate(`(() => {
@@ -352,6 +340,71 @@ test('real offline pages support layouts, themes, reveals, both quizzes and math
                 assert.equal(result.saved, maximum * 2);
                 assert.match(result.grade, new RegExp(`základ ${maximum}/${maximum}, bonus ${maximum}.*Známka: 1`));
             }
+        }
+        const storageKey = `${subject}-tutor:v${subject === 'maths' ? 2 : 1}:${lesson.id}`;
+        const savedCount = subject === 'maths' ? 5 : 3;
+        await client.send('Page.navigate', { url: pathToFileURL(file).href + '?reload' });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`location.search === "?reload" && document.querySelectorAll("#leaderboard-content tbody tr").length === ${savedCount}`)) break;
+            await delay(50);
+        }
+        assert.equal(await evaluate('document.querySelectorAll("#leaderboard-content tbody tr").length'), savedCount);
+        // Reuse the file so isolation depends on lesson id, not its URL.
+        const otherLesson = { ...lesson, id: 'other-lesson', topic: 'Jiná technická kontrola' };
+        fs.writeFileSync(file, renderLesson(subject, otherLesson));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href + '?other-lesson' });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`document.getElementById('topic')?.textContent === '${otherLesson.topic}'`)) break;
+            await delay(50);
+        }
+        assert.equal(await evaluate('document.getElementById("leaderboard-content").textContent'), 'Zatím žádné výsledky.');
+        assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('${storageKey}')).length`), savedCount);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        const finishEasy = `(() => {
+            const $ = id => document.getElementById(id);
+            const lesson = JSON.parse($('lesson-data').textContent);
+            document.querySelector('[data-tab="quiz"]').click();
+            $('player').value = 'Žofka';
+            document.querySelector('[data-mode="easy"]').click();
+            if ($('name-error').textContent) throw new Error('Unicode nickname rejected');
+            for (let index = 0; index < 3; index++) {
+                if (${JSON.stringify(subject)} === 'history') {
+                    const question = lesson.questions.find(item => item.prompt === $('question').textContent);
+                    if (question.type === 'text') {
+                        $('answer-input').value = question.acceptedAnswers[0];
+                        $('answers').requestSubmit();
+                    } else $('answers').querySelectorAll('button')[question.answer].click();
+                } else $('answers').requestSubmit();
+                $('next').click();
+            }
+        })()`;
+        for (const [scenario, source, message] of [
+            ['read-denied', `Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } });`, 'nelze načíst'],
+            ['corrupt', `sessionStorage.setItem('${storageKey}', '{"broken":true}');`, 'nelze načíst'],
+            ['write-denied', `sessionStorage.removeItem('${storageKey}'); window.originalSetItem = Storage.prototype.setItem; Storage.prototype.setItem = function() { throw new DOMException('Full', 'QuotaExceededError'); };`, 'nepodařilo uložit']
+        ]) {
+            const injection = await client.send('Page.addScriptToEvaluateOnNewDocument', { source });
+            await client.send('Page.navigate', { url: pathToFileURL(file).href + '?' + scenario });
+            for (let attempt = 0; attempt < 100; attempt++) {
+                if (await evaluate(`location.search === '?${scenario}' && !!document.getElementById('topic')?.textContent`)) break;
+                await delay(50);
+            }
+            await evaluate(finishEasy);
+            assert.equal(await evaluate(`!document.getElementById('storage-warning').hidden &&
+                document.getElementById('storage-warning').textContent.includes('${message}')`), true, `${subject}/${scenario}`);
+            assert.equal(await evaluate('document.querySelectorAll("#leaderboard-content tbody tr").length'), 1);
+            assert.equal(await evaluate('document.getElementById("results").hidden'), false);
+            if (scenario === 'corrupt') assert.equal(await evaluate(`sessionStorage.getItem('${storageKey}')`), '{"broken":true}');
+            if (scenario === 'write-denied') {
+                await evaluate(`Storage.prototype.setItem = window.originalSetItem; document.getElementById('restart').click();`);
+                await evaluate(finishEasy);
+                assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true);
+                assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('${storageKey}')).length`), 2);
+            }
+            await evaluate(`document.getElementById('restart').click(); document.getElementById('player').value = '';
+                document.querySelector('[data-mode="easy"]').click();`);
+            assert.equal(await evaluate('!document.getElementById("setup").hidden && !!document.getElementById("name-error").textContent'), true);
+            await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injection.identifier });
         }
     }
     assert.deepEqual(exceptions, []);

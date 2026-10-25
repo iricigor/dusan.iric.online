@@ -17,7 +17,8 @@ node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test
 ```
 
 `capabilities` returns absolute schema, validator, documentation and builder
-paths, version, timing policy, generation/assessment status and limitations.
+paths, version, timing policy, generation/assessment status, shared tabs,
+the name requirement and limitations.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
 Maths has no starter lesson yet (`examplePath: null`, #32); the structural test
 fixture is not teaching material. The authoritative contracts are:
@@ -25,9 +26,9 @@ fixture is not teaching material. The authoritative contracts are:
 | Subject | Contract | Output now |
 |---|---|---|
 | History | `tools\history-tutor\lesson.schema.json`, version 1 unchanged | Original text, learning, complete existing quiz and session results |
-| Maths | `tools\tutor-website\maths.schema.json`, version 1 | Worked examples, glossary, practice, exact checking, untimed quizzes, partial scoring and session results |
+| Maths | `tools\tutor-website\maths.schema.json`, version 2 | Original material, progressive worked examples/practice, glossary, exact checking, untimed quizzes, partial scoring and named session results |
 
-Maths assessment implements the existing v1 contract; no author-supplied scoring
+Maths assessment retains the established scoring rules; no author-supplied scoring
 configuration is needed. Symbolic algebra and interactive geometry remain
 unsupported. #32 adds reviewed starter lessons.
 
@@ -63,18 +64,46 @@ for a routine lesson request.
 
 ## History compatibility
 
-Existing history JSON, direct `tools\history-tutor\build.js` command, exported
-build/render functions and published example remain compatible. The common
-serializer/asset assembler and CSS are shared; history's runtime and template
-remain unchanged. The guarded internal builder produces the identical HTML.
+Existing history JSON, direct `tools\history-tutor\build.js` command and exported
+build/render functions remain compatible. Both build paths produce the same
+new shared page. Previously published HTML remains unchanged until separately
+approved publication; the published example's embedded lesson data still
+matches the reviewed history JSON.
 The legacy direct builder retains its documented approved-publication behavior;
 the new internal handoff never writes to the repository.
 
 History still uses its original question mix/checking and base-point grades.
 Only fully correct answers strictly before **15000 ms** earn its mandatory speed
-bonus. No maths runtime includes a timer, countdown, speed indicator or bonus.
+bonus. Maths never starts the shared controller's timer and has no countdown, duration
+display, speed indicator or bonus.
 
-## Maths v1 content contract
+## Shared page and quiz ownership
+
+Subject tutors request the website agent's capabilities/schema and return
+schema-valid JSON only. They do not write HTML, fork quiz code, choose a
+different navigation structure or implement their own answer parser.
+The website agent validates that JSON and builds standalone HTML.
+
+`template.html` is the single shell and `runtime.js` implements navigation,
+glossary, themes, name validation, answer submission/locking, explicit next-step
+progression, results and session-storage warnings for both subjects.
+History's `app.js` and `maths.js` are adapters for content, answer formats,
+sampling and assessment rules, not independent quiz applications.
+
+Every page has exactly **Původní text → Učit se → Hrát si**. Original material
+is displayed separately from generated explanations. A topic-only request
+needs only its short Czech wording in the original tab, not an invented passage.
+Both quizzes require a name or nickname containing at least three Unicode
+letters, at most 60 characters. It is entered in the browser, never embedded
+in lesson JSON, and shown in the session-local results table.
+
+Maths examples and exercises share Učit se. The simple example initially shows
+its hint, every step and answer. The complex example initially shows only its
+first worked step; the everyday example and challenge leave help collapsed.
+Independent practice follows, ordered easy, medium, hard, with help collapsed.
+All hints, steps and solutions remain available on demand.
+
+## Maths v2 content contract
 
 All strings are **plain text**, not HTML, Markdown, executable expressions or
 templates. JSON is safely embedded and rendered through text nodes. Write all
@@ -84,11 +113,14 @@ The subject tutor must check the actual language, age-appropriate teaching,
 mathematical accuracy and that **every tested concept is taught**. The validator
 cannot prove those educational properties.
 
-Top-level keys are exactly `version: 1`, `subject: "maths"`, `language: "cs-CZ"`,
-`id` (stable lowercase kebab-case), `topic`, `audience`, `glossary`, `examples`,
-and `exercises`. Unknown keys, including history original/source/year fields or
-timing settings, are rejected. There are no required history sources or original
-text. Glossary entries use `{ "term", "definition", "forms": [] }`, just like
+Top-level keys are exactly `version: 2`, `subject: "maths"`, `language: "cs-CZ"`,
+`id` (stable lowercase kebab-case), `topic`, `audience`, `original`, `glossary`,
+`examples`, and `exercises`. `original` is a nonempty array of plain-text
+`{ "heading", "text" }` sections. Unknown keys, including history source/year fields or
+timing settings, are rejected. History sources and history-specific review
+metadata are not part of this contract. Version 1 maths JSON must be explicitly updated to version 2
+with the actual original material; the builder never invents missing source text.
+Glossary entries use `{ "term", "definition", "forms": [] }`, just like
 history; ambiguous forms and duplicate terms are rejected.
 
 `examples` contains exactly four objects in this order:
@@ -140,6 +172,10 @@ fractional digits. Stored values use a decimal point, no leading plus, exponent,
 thousands separator or redundant leading zeros. Denominators are positive and
 nonzero; length values are nonnegative. Units are exactly `mm`, `cm`, `dm`, `m`,
 `km`. Irrelevant answer keys are rejected. The display uses Czech decimal commas.
+Prefer integer numerical results when suitable. For a non-integer numerical
+answer, use `decimal` so the child can type a comma or a dot; never require
+one particular decimal separator. Explicit fraction and length tasks retain
+their respective formats.
 
 The runtime compares exact rational values using bounded BigInt arithmetic, not
 floating-point epsilon, spelling normalization, approximate-year credit, or
@@ -173,16 +209,20 @@ whole-task explanation and points. Nothing advances until the child chooses
 the next task. Results repeat all feedback and show a Czech grade. Grades use
 the exact score, not the rounded display percentage.
 
-Results store only mode, score, attainable maximum and grade, without names or
-timing, under `maths-tutor:v1:<lesson-id>` in `sessionStorage`. They remain
-per-lesson and session-local, never transmitted. Read errors or corrupt records
+Maths results store run id, entered name/nickname, mode, score, attainable
+maximum, grade and local time of day under `maths-tutor:v2:<lesson-id>` in
+`sessionStorage`. No elapsed duration is recorded for maths. Old anonymous
+v1 results remain untouched under their old key and are not migrated to a
+fabricated player name. Results remain per-subject, per-lesson and session-local,
+never transmitted. Read errors or corrupt records
 show a Czech warning and leave the original storage untouched; new runs remain
 in memory. Write failures warn that new results will not survive reload.
 A later successful save includes all in-memory results and clears that warning.
 
 ## Local review and publication
 
-Open the returned file locally. Check navigation, glossary, step/hint reveals,
+Open the returned file locally. Check the three shared tabs, name validation,
+original text, glossary, progressively reduced step/hint reveals,
 all content, narrow layout, light/dark themes and offline operation. For both
 subjects, play all quiz modes through feedback/results and storage warnings.
 The browser test uses installed Edge/Chrome (or `TUTOR_BROWSER_PATH`) and Node's

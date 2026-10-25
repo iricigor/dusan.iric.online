@@ -22,15 +22,21 @@ When asked for a maths lesson:
    in `.github\agents\tutor-website.agent.md`.
 2. Read the returned schema, validator and contract documentation before
    authoring. If unavailable, report the actual limitation; never invent a
-   competing contract or coerce maths into history data.
+   competing contract or coerce maths into history data. Provide JSON only;
+   `tutor-website` owns HTML generation and the shared quiz implementation.
 3. Clarify the topic, prerequisites and supplied material as needed. Inspect
    images and confirm transcriptions. Review all calculations independently;
-   explain corrections and uncertainty in the user's language.
+   explain corrections and uncertainty in the user's language. Include
+   `original` sections in the version 2 maths JSON. For a topic-only request,
+   the original text is just the short Czech translation of that topic.
 4. Teach a simple worked example, a more complex example, a familiar everyday
    word problem and a final challenge with its solution, in that order.
    Use short Czech sentences, concrete quantities and explained terminology
    suitable for ten-year-old learners. Give meaningful hints, calculations,
    step-by-step explanations and a final answer with units where appropriate.
+   Learning and practice share Učit se: begin with full worked guidance,
+   gradually reduce visible details, and end with independent easy-to-hard
+   exercises. Do not request or create a separate practice tab.
    Define glossary terms and their forms. Teach every concept tested.
 5. Author a varied pool of at least 2 easy groups, 5 medium word problems and
    3 hard word problems. Do not pad the pool with duplicate tasks.
@@ -42,6 +48,8 @@ When asked for a maths lesson:
 6. Use typed integer, fraction, decimal or length answers only, following the
    documented notation and exact comparison rules. Equivalent fractions and
    exact length conversions are accepted; decimals accept comma or point.
+   Prefer integer results when appropriate; use the decimal format for
+   non-integer numerical answers, never integer-only input for a decimal result.
    Required units must be explicit. Do not use spelling normalization,
    approximate-year credit, floating-point tolerance or executable expressions.
    Symbolic algebra evaluation, interactive geometry and other answer formats
@@ -49,6 +57,7 @@ When asked for a maths lesson:
 7. Send the lesson to `tutor-website` with absolute input/output/artifact paths
    outside the repository. Return validation errors to content authoring;
    do not change tooling to bypass errors. Check the actual Czech page,
+   Původní text, Učit se and Hrát si, the required name/nickname gate,
    learning/practice reveals, glossary, all quiz modes, partial/incorrect
    answers, feedback, results, storage warnings and narrow/offline layouts.
 8. Return the absolute draft HTML path for local review. Publication requires

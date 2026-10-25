@@ -21,6 +21,9 @@ test('discovery identifies real contracts and available untimed maths assessment
             assert.ok(fs.existsSync(result[key]), result[key]);
         }
         assert.equal(result.timing, subject === 'maths' ? 'none' : 'mandatory-speed-bonus-before-15000ms');
+        assert.equal(result.version, subject === 'maths' ? 2 : 1);
+        assert.deepEqual(result.tabs, ['original', 'learning', 'quiz']);
+        assert.equal(result.playerNameRequired, true);
     }
     assert.equal(capabilities('maths').assessment, 'available');
     assert.equal(capabilities('maths').generation, 'lesson-and-quiz');
@@ -53,11 +56,14 @@ test('maths displays exact expected values with Czech decimal commas and explici
 
 test('maths rejects invalid structures with actionable locations before rendering', () => {
     const mutations = [
-        lesson => { lesson.version = 2; },
+        lesson => { lesson.version = 1; },
         lesson => { lesson.subject = 'history'; },
         lesson => { lesson.language = 'en'; },
         lesson => { lesson.topic = ' '; },
         lesson => { lesson.original = []; },
+        lesson => { delete lesson.original; },
+        lesson => { lesson.original[0].text = ''; },
+        lesson => { lesson.original[0].unexpected = true; },
         lesson => { lesson.timer = true; },
         lesson => { lesson.examples.reverse(); },
         lesson => { lesson.examples[0].hint = ''; },
@@ -101,12 +107,26 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.ok(!html.includes(hostile));
     assert.match(html, /&lt;\/script&gt;/);
     assert.equal((html.match(/<script(?:\s|>)/g) || []).length, 2);
-    assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)=|\b(?:fetch|XMLHttpRequest|eval|setInterval|setTimeout|performance\.now|Date\.now)\s*\(|countdown|15000|id="bonus"/);
+    assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)=|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
+    assert.match(html, /speedBonus: false/);
     assert.doesNotMatch(html, /zatím nejsou dostupné|@@(?:DATA|STYLES|APP)@@/);
     assert.match(html, /data-mode="hard"/);
     assert.match(html, /id="results"/);
     assert.match(html, /sessionStorage/);
     assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
+});
+
+test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
+    const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const html = renderLesson(subject, lesson);
+        assert.ok(html.includes(sharedRuntime));
+        assert.equal((html.match(/function initializeTutor\(/g) || []).length, 1);
+        assert.deepEqual([...html.matchAll(/data-tab="([^"]+)"/g)].map(match => match[1]), ['original', 'learning', 'quiz']);
+        assert.match(html, /id="player"/);
+        assert.match(html, /id="name-error" role="alert"/);
+        assert.doesNotMatch(html, /data-tab="practice"/);
+    }
 });
 
 test('guarded handoff validates paths, approval, subjects and data before writing', t => {

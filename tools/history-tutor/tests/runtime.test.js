@@ -36,7 +36,9 @@ class Element {
 }
 
 function page() {
-    const template = fs.readFileSync(path.join(__dirname, '..', 'template.html'), 'utf8');
+    const shared = path.join(__dirname, '..', '..', 'tutor-website');
+    const template = fs.readFileSync(path.join(shared, 'template.html'), 'utf8')
+        .replace('@@TIMING@@', '<p id="bonus" role="status"></p>');
     assert.doesNotMatch(template, /type="checkbox"|id="speed"/);
     const elements = new Map([...template.matchAll(/\bid="([^"]+)"/g)].map(([, id]) => [id, new Element()]));
     elements.get('lesson-data').textContent = JSON.stringify(lesson);
@@ -70,7 +72,8 @@ function page() {
         crypto: { randomUUID: () => `run-${++serial}` },
         URL, console
     };
-    vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), context);
+    vm.runInNewContext(fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
+        fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), context);
     return {
         get: id => context.document.getElementById(id),
         start: mode => modes.find(control => control.dataset.mode === mode).dispatch('click'),
