@@ -20,8 +20,8 @@ node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test
 paths, version, timing policy, generation/assessment status, shared tabs,
 the name requirement and limitations.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
-Maths has no starter lesson yet (`examplePath: null`, #32); the structural test
-fixture is not teaching material. The authoritative contracts are:
+`examplePath` identifies prepared, reusable default lesson JSON for both subjects.
+The structural test fixture is not teaching material. The authoritative contracts are:
 
 | Subject | Contract | Output now |
 |---|---|---|
@@ -30,7 +30,41 @@ fixture is not teaching material. The authoritative contracts are:
 
 Maths assessment retains the established scoring rules; no author-supplied scoring
 configuration is needed. Symbolic algebra and interactive geometry remain
-unsupported. #32 adds reviewed starter lessons.
+unsupported.
+
+### Prepared defaults
+
+When a subject tutor receives no topic/source material, or the user explicitly
+asks for a default/example, it reuses `capabilities.examplePath`:
+
+| Subject | Prepared source | Topic |
+|---|---|---|
+| History | `tools\history-tutor\examples\defenestrace.json` | Od defenestrace k Bílé hoře |
+| Maths | `tools\tutor-website\examples\zlomky-a-prevody-delky.json` | Zlomky a převody jednotek délky |
+
+These sources are prepared once, not synthesized on each default request.
+History reuses the existing reviewed example. The maths default combines both
+requested topics in **one** lesson: fraction calculations (including a fraction
+of a whole) and length conversions across mm/cm/dm/m/km. It has four worked
+examples and 2 easy/5 medium/3 hard tasks, using integer, fraction, decimal and
+length answers. Several word problems combine the two topics. Comma and dot
+are accepted for decimals; equivalent fractions and length units are accepted.
+Both topics stay together in this single default.
+
+The tutor reads and copies the source JSON unchanged to a **new** file in its
+session artifact directory, then uses the normal validated build handoff below.
+Do not hand the repository source directly to `build`, overwrite it, regenerate
+it, substitute test fixtures, or demand new material just to run a default.
+Missing or incompatible prepared data is an explicit error, not a request to
+silently author another default. Identify the chosen topic to the user.
+Explicit custom topics/material still use normal authoring unless the user
+explicitly chooses the default instead. Recorded history review is not a claim
+of newly performed source verification.
+
+Only reusable JSON is versioned here. Generated default HTML remains a local
+draft; this does not publish or approve a lesson or change existing site pages.
+
+### Build handoff
 
 The calling agent sends this JSON object (use actual absolute session paths):
 

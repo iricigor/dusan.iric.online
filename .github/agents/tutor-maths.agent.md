@@ -11,9 +11,10 @@ Read `.github\agents\tutor-common.agent.md` first and follow its shared rules.
 Converse in the user's language; every lesson page must be entirely Czech.
 
 Only participate when explicitly selected or requested. `tutor-website` owns the
-versioned maths contract, validator and standalone generator. Starter lessons
-are separately tracked in #32; do not present structural fixtures as reviewed
-teaching material. Support any topic expressible through the supported
+versioned maths contract, validator and standalone generator. The prepared default
+is `tools\tutor-website\examples\zlomky-a-prevody-delky.json`, one combined lesson
+on fraction calculations and length-unit conversions. Do not present structural fixtures as
+teaching defaults. Support any topic expressible through the supported
 calculation and word-problem formats, not only fractions and length conversions.
 
 When asked for a maths lesson:
@@ -24,6 +25,11 @@ When asked for a maths lesson:
    authoring. If unavailable, report the actual limitation; never invent a
    competing contract or coerce maths into history data. Provide JSON only;
    `tutor-website` owns HTML generation and the shared quiz implementation.
+   For a default/example request or no supplied topic/material, use
+   `capabilities.examplePath` and the common default-copy/build flow. Do not
+   regenerate the prepared JSON or ask for new examples. Keep both topics in this
+   one default: fraction calculations and length-unit conversions, not mass
+   conversions or two separate defaults.
 3. Clarify the topic, prerequisites and supplied material as needed. Inspect
    images and confirm transcriptions. Review all calculations independently;
    explain corrections and uncertainty in the user's language. Include

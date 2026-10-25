@@ -26,6 +26,11 @@ Use this prompt in a repository session:
 
 An attached image must actually be inspected. Ask about unreadable text rather
 than guessing. Transcribe it for confirmation before generating a lesson.
+For a default/example request, or no supplied topic/material, reuse the prepared
+`examples\defenestrace.json` identified by `capabilities.examplePath`. Copy it
+unchanged into session artifacts and use the same build/review flow; do not
+author a new default or ask for extra source material. An explicit custom topic
+or source still takes precedence unless the default is explicitly requested.
 
 ## Repository agents
 

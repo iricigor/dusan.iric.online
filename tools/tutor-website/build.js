@@ -15,13 +15,14 @@ function capabilities(subject) {
         validatorPath: path.join(__dirname, 'validate.js'),
         builderPath: __filename,
         contractPath: path.join(__dirname, 'README.md'),
-        examplePath: subject === 'history' ? path.resolve(__dirname, '..', 'history-tutor', 'examples', 'defenestrace.json') : null,
+        examplePath: subject === 'history' ? path.resolve(__dirname, '..', 'history-tutor', 'examples', 'defenestrace.json') :
+            path.join(__dirname, 'examples', 'zlomky-a-prevody-delky.json'),
         generation: 'lesson-and-quiz',
         assessment: 'available',
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
-            ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported; starter lessons belong to #32.'] : [])
+            ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported.'] : [])
         ]
     };
 }

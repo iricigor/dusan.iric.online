@@ -1,6 +1,6 @@
 'use strict';
 
-// Structural test data, not a starter teaching lesson (#32).
+// Structural test data, not a prepared teaching default.
 function mathsLesson() {
     const answer = value => ({ format: 'integer', value: String(value) });
     const step = value => ({

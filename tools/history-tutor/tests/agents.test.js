@@ -87,3 +87,18 @@ test('agents require JSON-only authorship and the common page and name-required 
     assert.ok(maths.includes('version 2'));
     assert.ok(maths.includes('separate practice tab'));
 });
+
+test('both tutors reuse discoverable prepared JSON for default or empty requests', () => {
+    const common = profiles.find(profile => profile.name === 'tutor-common').body;
+    for (const text of ['supplies no topic or source', 'capabilities.examplePath', 'copy it unchanged', 'Explicit topics/material take']) {
+        assert.ok(common.includes(text), `Missing default rule: ${text}`);
+    }
+    for (const name of ['tutor-history', 'tutor-maths']) {
+        const body = profiles.find(profile => profile.name === name).body;
+        assert.ok(body.includes('default/example request or no supplied topic/material'), name);
+        assert.ok(body.includes('capabilities.examplePath'), name);
+    }
+    const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
+    assert.ok(maths.includes('one combined lesson'));
+    assert.ok(maths.includes('fraction calculations and length-unit conversions'));
+});

@@ -11,6 +11,7 @@ const { setTimeout: delay } = require('node:timers/promises');
 const { renderLesson } = require('../build.js');
 const { mathsAssessmentLesson } = require('./fixture.js');
 const history = require('../../history-tutor/examples/defenestrace.json');
+const defaultMaths = require('../examples/zlomky-a-prevody-delky.json');
 
 const browserPath = process.env.TUTOR_BROWSER_PATH || [
     path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
@@ -102,9 +103,10 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     };
     for (const [subject, lesson] of [
         ['maths', { ...mathsAssessmentLesson(), id: 'shared-lesson-id' }],
-        ['history', { ...history, id: 'shared-lesson-id' }]
+        ['history', { ...history, id: 'shared-lesson-id' }],
+        ['maths', defaultMaths]
     ]) {
-        const file = path.join(directory, `${subject}.html`);
+        const file = path.join(directory, `${subject}-${lesson.id}.html`);
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
         for (let attempt = 0; attempt < 100; attempt++) {
@@ -218,7 +220,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     levels: exercises.map(exercise => exercise.querySelector('h2').textContent.replace(/^\\d+\\. /, ''))
                 };
             })()`), {
-                openDetails: [3, 1, 0, 0], firstBeforePractice: true,
+                openDetails: [lesson.examples[0].steps.length + 2, 1, 0, 0], firstBeforePractice: true,
                 levels: ['Lehká skupina', 'Lehká skupina', ...Array(5).fill('Slovní úloha'), ...Array(3).fill('Úloha ve třech krocích')]
             });
             assert.equal(await evaluate(`(() => {
@@ -262,7 +264,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             integer: answer.value,
                             fraction: answer.format === 'fraction' ? (-Number(answer.numerator) * 3) + '/' + (-Number(answer.denominator) * 3) : '',
                             decimal: ${JSON.stringify(mode)} === 'medium' ? answer.value : answer.value?.replace('.', ','),
-                            length: '0.0015 km'
+                            length: Number(answer.value) * { mm: 1, cm: 10, dm: 100, m: 1000, km: 1000000 }[answer.unit] + ' mm'
                         }[answer.format];
                         inputs[stepIndex].value = ${partial} && stepIndex === 0 ? '' :
                             ${invalid} && exercise.difficulty === 'easy' ?
@@ -285,7 +287,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     });
                     if (${partial} && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Missing blank feedback');
                     if (${invalid} && exercise.difficulty === 'easy' &&
-                        !['celé číslo', 'Jmenovatel', 'desetinnou čárkou', 'jednotkou'].every(text => $('feedback').textContent.includes(text))) {
+                        !exercise.steps.every(step => $('feedback').textContent.includes({
+                            integer: 'celé číslo', fraction: 'Jmenovatel', decimal: 'desetinnou čárkou', length: 'jednotkou'
+                        }[step.answer.format]))) {
                         throw new Error('Malformed answers did not receive explicit feedback');
                     }
                     const feedback = $('feedback').textContent;

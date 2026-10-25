@@ -20,7 +20,7 @@ Společný webový generátor navíc podporuje samostatný matematický formát,
 kvízy bez časového omezení, částečné bodování a místní výsledky.
 
 **Mimo současný rozsah:** symbolická algebra a interaktivní geometrie.
-Ukázkové matematické lekce patří do #32. Podpora Gemini je
+Připravená matematická ukázka spojuje zlomky a převody jednotek délky. Podpora Gemini je
 odložena; tento postup nyní podporuje pouze Copilot.
 
 ## Agenti v tomto repozitáři
@@ -69,6 +69,20 @@ Pracovní návrhy patří do složky artefaktů dané relace Copilotu, mimo repo
 V Gitu uchovávej opakovaně použitelné nástroje a příklady, ne průběžné návrhy.
 
 ## Vyzkoušení dějepisné ukázky
+
+Oba předmětoví tutoři mají připravený JSON z předchozí práce. Pokud nezadáš téma
+ani podklady nebo výslovně požádáš o výchozí ukázku, použijí jej beze změny:
+
+| Tutor | Výchozí lekce | Zdroj JSON |
+|-------|---------------|------------|
+| `tutor-history` | Od defenestrace k Bílé hoře | `tools\history-tutor\examples\defenestrace.json` |
+| `tutor-maths` | Zlomky a převody jednotek délky | `tools\tutor-website\examples\zlomky-a-prevody-delky.json` |
+
+Stačí zadat například „Použij tutor-history a výchozí lekci“ nebo
+„Použij tutor-maths a výchozí lekci“. Tutor zkopíruje připravený JSON do artefaktů
+své relace a přes společný generátor sestaví místní HTML. Nevymýšlí novou ukázku
+a nevyžaduje další podklady. Vlastní zadané téma nebo materiál má přednost,
+pokud výslovně nezvolíš výchozí lekci. Ukázka není automaticky zveřejněna.
 
 Pokud ještě není k dispozici, nainstaluj Node.js 22 nebo novější. Nejsou potřeba
 balíčky npm, Python, klíče k AI službám ani místní webový server.
@@ -209,7 +223,10 @@ při selhání úložiště stránka zobrazí varování.
 Vyžádej si `tutor-maths` a zadej téma nebo přilož podklady. Tutor vysvětlí
 opravy, připraví českou lekci podle stejného formátu a předá ji webovému
 pomocníkovi. Podporována nejsou jen dvě ukázková témata, ale všechny úlohy
-vyjádřitelné podporovanými číselnými formáty. #32 dodá výukové ukázky.
+vyjádřitelné podporovanými číselnými formáty. Výchozí JSON obsahuje v jedné lekci
+výpočty se zlomky i převody délky mezi mm, cm, dm, m a km. Slovní úlohy oba
+okruhy také propojují. Desetinnou čárku lze nahradit tečkou; rovnocenné zlomky
+a správně převedené délky se uznávají.
 Technická testovací data nejsou schválenou výukovou lekcí. I nadále používej
 tutory pouze na vyžádání, zachovej místní kontrolu, výslovné schválení zveřejnění
 a neměň složku `gems`.

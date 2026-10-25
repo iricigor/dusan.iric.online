@@ -33,8 +33,11 @@ The maths version 2 contract requires `original` sections. The generator
 supports progressively scaffolded learning/practice, exact typed answer
 evaluation, untimed quizzes, partial scoring, grades and named per-lesson
 browser-session results.
+The prepared maths default is
+`tools\tutor-website\examples\zlomky-a-prevody-delky.json`, combining fraction
+calculations and length-unit conversions in one lesson.
 Symbolic algebra evaluation and interactive geometry are unsupported.
-Starter teaching lessons are separate (#32). Disclose these limitations.
+Disclose these limitations.
 Never coerce maths into the history schema or invent another contract.
 Any other unsupported subject or operation must receive an explicit explanation.
 
@@ -69,8 +72,10 @@ the authoritative contract, validator, example, and builder when supported,
 and any limitations. Do not create files. Run
 `node tools\tutor-website\build.js capabilities <subject>` and return its actual
 generation/assessment status, schema version, shared tabs and name requirement.
-Maths has no starter example yet; do not present
-the structural test fixture as an educational lesson.
+`examplePath` identifies the prepared default JSON for each subject. Subject
+tutors copy it unchanged to their session artifacts when no topic/material is
+supplied or a default/example is requested. Do not substitute a structural test
+fixture or generate a new lesson when a prepared default was requested.
 
 For `build`:
 
