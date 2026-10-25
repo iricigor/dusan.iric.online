@@ -22,8 +22,9 @@ styles, and runtime live alongside it.
 
 For `subject: maths`, read `tools\tutor-website\maths.schema.json`,
 `tools\tutor-website\validate.js` and `tools\tutor-website\README.md`.
-The generator supports worked learning and practice pages with hints/solutions,
-not maths answer evaluation, scoring, results or a playable quiz (#31).
+The generator supports worked learning/practice, exact typed answer evaluation,
+untimed quizzes, partial scoring, grades and per-lesson browser-session results.
+Symbolic algebra evaluation and interactive geometry are unsupported.
 Starter teaching lessons are separate (#32). Disclose these limitations.
 Never coerce maths into the history schema or invent another contract.
 Any other unsupported subject or operation must receive an explicit explanation.
@@ -76,9 +77,8 @@ For `build`:
    Return command failures and diagnostics explicitly. Do not report success
    when building or required checks failed.
 4. Return the actual absolute input/output paths, commands and their results,
-   and any limitations. Do not equate a generated maths practice page with
-   implemented assessment. The subject tutor must still inspect the local page,
-   exercise the tabs, glossary and reveals (and history quiz), and request the
+   and any limitations. The subject tutor must still inspect the local page,
+   exercise the tabs, glossary, reveals and all subject quiz modes, and request the
    user's approval. Maths has no timing UI or speed bonus; history keeps its
    mandatory strict-before-15000ms bonus and existing scoring.
 

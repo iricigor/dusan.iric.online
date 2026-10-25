@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Czech maths lesson v1 (assessment supplied by issue 31)",
+  "title": "Czech maths lesson and untimed quiz v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "subject", "language", "id", "topic", "audience", "glossary", "examples", "exercises"],

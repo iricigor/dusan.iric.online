@@ -9,7 +9,7 @@ const { pathToFileURL } = require('node:url');
 const { spawn } = require('node:child_process');
 const { setTimeout: delay } = require('node:timers/promises');
 const { renderLesson } = require('../build.js');
-const { mathsLesson } = require('./fixture.js');
+const { mathsAssessmentLesson } = require('./fixture.js');
 const history = require('../../history-tutor/examples/defenestrace.json');
 
 const browserPath = process.env.TUTOR_BROWSER_PATH || [
@@ -49,7 +49,7 @@ async function connect(url, events) {
     };
 }
 
-test('real offline pages support narrow layouts, themes, glossary, reveals and history quiz', {
+test('real offline pages support layouts, themes, reveals, both quizzes and maths storage failures', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 90000
 }, async t => {
@@ -100,7 +100,7 @@ test('real offline pages support narrow layouts, themes, glossary, reveals and h
         assert.equal(response.exceptionDetails, undefined, JSON.stringify(response.exceptionDetails));
         return response.result.value;
     };
-    for (const [subject, lesson] of [['maths', mathsLesson()], ['history', history]]) {
+    for (const [subject, lesson] of [['maths', mathsAssessmentLesson()], ['history', history]]) {
         const file = path.join(directory, `${subject}.html`);
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
@@ -123,7 +123,7 @@ test('real offline pages support narrow layouts, themes, glossary, reveals and h
                     return document.documentElement.dataset.theme;
                 })()`), theme === 'light' ? 'dark' : 'light');
                 await evaluate('delete document.documentElement.dataset.theme');
-                for (const tab of subject === 'maths' ? ['learning', 'practice'] : ['original', 'learning', 'quiz']) {
+                for (const tab of subject === 'maths' ? ['learning', 'practice', 'quiz'] : ['original', 'learning', 'quiz']) {
                     assert.equal(await evaluate(`(() => {
                         const tab = document.querySelector('[data-tab="${tab}"]');
                         tab.click();
@@ -154,15 +154,167 @@ test('real offline pages support narrow layouts, themes, glossary, reveals and h
                     examples: document.querySelectorAll('#examples > article').length,
                     exercises: document.querySelectorAll('#exercises > article').length,
                     opened: details.open,
-                    unavailable: document.getElementById('assessment-notice').textContent.includes('zatím nejsou dostupné'),
-                    controls: document.querySelectorAll('input, [data-mode], #bonus, #results').length
+                    modes: document.querySelectorAll('[data-mode]').length,
+                    timing: document.querySelectorAll('#bonus, #timer, #countdown').length
                 };
-            })()`), { examples: 4, exercises: 10, opened: true, unavailable: true, controls: 0 });
+            })()`), { examples: 4, exercises: 10, opened: true, modes: 3, timing: 0 });
             assert.equal(await evaluate(`(() => {
                 const details = document.querySelector('#examples details');
                 details.querySelector('summary').click();
                 return details.open;
             })()`), true);
+            // Review actual submitted pages at phone width, not only their setup screens.
+            await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
+            const playMaths = (mode, count, partial = false, invalid = false) => evaluate(`(() => {
+                const $ = id => document.getElementById(id);
+                const lesson = JSON.parse($('lesson-data').textContent);
+                document.querySelector('[data-tab="quiz"]').click();
+                document.querySelector('[data-mode="${mode}"]').click();
+                let total = 0;
+                let maximum = 0;
+                const seen = [];
+                const mix = { easy: 0, medium: 0, hard: 0 };
+                for (let index = 0; index < ${count}; index++) {
+                    const exercise = lesson.exercises.find(task => task.prompt === $('question').textContent);
+                    if (!exercise || seen.includes(exercise.id)) throw new Error('Unknown or duplicate task');
+                    seen.push(exercise.id);
+                    mix[exercise.difficulty]++;
+                    maximum += { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
+                    const prompt = $('question').textContent;
+                    $('next').click();
+                    if ($('question').textContent !== prompt) throw new Error('Advanced before submitting');
+                    const inputs = [...$('answers').querySelectorAll('input')];
+                    if (inputs.length !== exercise.steps.length) throw new Error('Wrong answer-field count');
+                    if (exercise.difficulty === 'easy' && ![...$('answers').querySelectorAll('label')]
+                        .every((label, step) => label.textContent.startsWith(String(index + 1) + 'abcd'[step] + ':'))) {
+                        throw new Error('Missing easy subitem labels');
+                    }
+                    exercise.steps.forEach((step, stepIndex) => {
+                        const answer = step.answer;
+                        const equivalent = {
+                            integer: answer.value,
+                            fraction: answer.format === 'fraction' ? (-Number(answer.numerator) * 3) + '/' + (-Number(answer.denominator) * 3) : '',
+                            decimal: answer.value?.replace('.', ','),
+                            length: '0.0015 km'
+                        }[answer.format];
+                        inputs[stepIndex].value = ${partial} && stepIndex === 0 ? '' :
+                            ${invalid} && exercise.difficulty === 'easy' ?
+                                { integer: '3.0', fraction: '1/0', decimal: '1,2.3', length: '1.5 kg' }[answer.format] : equivalent;
+                    });
+                    const earned = ${partial} ? { easy: 7.5, medium: 0, hard: 20 }[exercise.difficulty] :
+                        ${invalid} && exercise.difficulty === 'easy' ? 0 : { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
+                    total += earned;
+                    $('answers').requestSubmit();
+                    if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
+                    if (!inputs.every(input => input.disabled)) throw new Error('Answer fields remain editable');
+                    if (!$('feedback').textContent.includes('Body: ' + String(earned).replace('.', ','))) {
+                        throw new Error('Wrong feedback points');
+                    }
+                    exercise.steps.forEach(step => {
+                        if (!$('feedback').textContent.includes(formatAnswer(step.answer)) ||
+                            !$('feedback').textContent.includes(step.solution)) throw new Error('Missing worked answer');
+                    });
+                    if (${partial} && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Missing blank feedback');
+                    if (${invalid} && exercise.difficulty === 'easy' &&
+                        !['celé číslo', 'Jmenovatel', 'desetinnou čárkou', 'jednotkou'].every(text => $('feedback').textContent.includes(text))) {
+                        throw new Error('Malformed answers did not receive explicit feedback');
+                    }
+                    const feedback = $('feedback').textContent;
+                    $('answers').dispatchEvent(new Event('submit', { cancelable: true }));
+                    if ($('feedback').textContent !== feedback) throw new Error('Duplicate submission changed feedback');
+                    if (document.documentElement.scrollWidth > innerWidth) throw new Error('Feedback overflows');
+                    $('next').click();
+                }
+                const saved = JSON.parse(sessionStorage.getItem('maths-tutor:v1:' + lesson.id)).at(-1);
+                const records = $('session-results').children.length;
+                $('next').click();
+                $('answers').dispatchEvent(new Event('submit', { cancelable: true }));
+                if ($('session-results').children.length !== records) throw new Error('Duplicate finish');
+                const result = {
+                    mix, saved, total, maximum, summary: $('summary').children.length, grade: $('grade').textContent,
+                    visible: !$('results').hidden, fits: document.documentElement.scrollWidth <= innerWidth
+                };
+                $('restart').click();
+                if ($('setup').hidden || !$('results').hidden) throw new Error('Restart failed');
+                return result;
+            })()`);
+            for (const [mode, count, mix, maximum] of [
+                ['easy', 3, { easy: 1, medium: 1, hard: 1 }, 61],
+                ['medium', 5, { easy: 1, medium: 2, hard: 2 }, 111],
+                ['hard', 10, { easy: 2, medium: 5, hard: 3 }, 212]
+            ]) {
+                await client.send('Emulation.setEmulatedMedia', {
+                    features: [{ name: 'prefers-color-scheme', value: mode === 'medium' ? 'light' : 'dark' }]
+                });
+                const result = await playMaths(mode, count);
+                assert.deepEqual(result.mix, mix);
+                assert.deepEqual(result.saved, { mode, total: maximum, maximum, grade: 1 });
+                assert.equal(result.summary, count);
+                assert.equal(result.visible, true);
+                assert.equal(result.fits, true);
+                assert.match(result.grade, new RegExp(`${maximum}/${maximum}.*Známka: 1`));
+            }
+            const partial = await playMaths('easy', 3, true);
+            assert.deepEqual(partial.saved, { mode: 'easy', total: 27.5, maximum: 61, grade: 3 });
+            assert.match(partial.grade, /27,5\/61.*Známka: 3/);
+            const invalid = await playMaths('easy', 3, false, true);
+            assert.deepEqual(invalid.saved, { mode: 'easy', total: 50, maximum: 61, grade: 1 });
+            await client.send('Page.navigate', { url: pathToFileURL(file).href + '?reload' });
+            for (let attempt = 0; attempt < 100; attempt++) {
+                if (await evaluate('location.search === "?reload" && document.getElementById("session-results")?.children.length === 5')) break;
+                await delay(50);
+            }
+            assert.equal(await evaluate('document.getElementById("session-results").children.length'), 5);
+            // Reuse the same file so isolation depends on lesson id, not file-origin behavior.
+            const otherLesson = { ...lesson, id: 'other-lesson', topic: 'Jiná technická kontrola' };
+            fs.writeFileSync(file, renderLesson('maths', otherLesson));
+            await client.send('Page.navigate', { url: pathToFileURL(file).href + '?other-lesson' });
+            for (let attempt = 0; attempt < 100; attempt++) {
+                if (await evaluate(`document.getElementById('topic')?.textContent === '${otherLesson.topic}'`)) break;
+                await delay(50);
+            }
+            assert.equal(await evaluate('document.getElementById("session-results").textContent'), 'Zatím žádné výsledky.');
+            assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('maths-tutor:v1:${lesson.id}')).length`), 5);
+            fs.writeFileSync(file, renderLesson('maths', lesson));
+            for (const [scenario, source, message] of [
+                ['read-denied', `Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } });`, 'nelze načíst'],
+                ['corrupt', `sessionStorage.setItem('maths-tutor:v1:${lesson.id}', '{"broken":true}');`, 'nelze načíst'],
+                ['write-denied', `sessionStorage.removeItem('maths-tutor:v1:${lesson.id}'); window.originalSetItem = Storage.prototype.setItem; Storage.prototype.setItem = function() { throw new DOMException('Full', 'QuotaExceededError'); };`, 'nepodařilo uložit']
+            ]) {
+                const injection = await client.send('Page.addScriptToEvaluateOnNewDocument', { source });
+                await client.send('Page.navigate', { url: pathToFileURL(file).href + '?' + scenario });
+                for (let attempt = 0; attempt < 100; attempt++) {
+                    if (await evaluate(`location.search === '?${scenario}' && !!document.getElementById('topic')?.textContent`)) break;
+                    await delay(50);
+                }
+                await evaluate(`(() => {
+                    document.querySelector('[data-tab="quiz"]').click();
+                    document.querySelector('[data-mode="easy"]').click();
+                    for (let index = 0; index < 3; index++) {
+                        document.getElementById('answers').requestSubmit();
+                        document.getElementById('next').click();
+                    }
+                })()`);
+                assert.equal(await evaluate(`!document.getElementById('storage-warning').hidden &&
+                    document.getElementById('storage-warning').textContent.includes('${message}')`), true, scenario);
+                assert.equal(await evaluate('document.getElementById("session-results").children.length'), 1);
+                assert.equal(await evaluate('document.getElementById("results").hidden'), false);
+                if (scenario === 'corrupt') assert.equal(await evaluate(`sessionStorage.getItem('maths-tutor:v1:${lesson.id}')`), '{"broken":true}');
+                if (scenario === 'write-denied') {
+                    await evaluate(`(() => {
+                        Storage.prototype.setItem = window.originalSetItem;
+                        document.getElementById('restart').click();
+                        document.querySelector('[data-mode="easy"]').click();
+                        for (let index = 0; index < 3; index++) {
+                            document.getElementById('answers').requestSubmit();
+                            document.getElementById('next').click();
+                        }
+                    })()`);
+                    assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true);
+                    assert.equal(await evaluate(`JSON.parse(sessionStorage.getItem('maths-tutor:v1:${lesson.id}')).length`), 2);
+                }
+                await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injection.identifier });
+            }
         } else {
             for (const [mode, count, maximum] of [['easy', 3, 60], ['medium', 5, 110], ['hard', 10, 210]]) {
                 const result = await evaluate(`(() => {

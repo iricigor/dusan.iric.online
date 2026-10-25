@@ -16,6 +16,7 @@
         <nav aria-label="Části lekce">
             <button type="button" data-tab="learning" aria-pressed="true">Učit se</button>
             <button type="button" data-tab="practice" aria-pressed="false">Procvičovat</button>
+            <button type="button" data-tab="quiz" aria-pressed="false">Hrát si</button>
         </nav>
     </header>
     <main>
@@ -27,10 +28,42 @@
         <section id="practice" aria-label="Procvičovat" hidden>
             <article class="card">
                 <h2>Procvičování s řešením</h2>
-                <p id="assessment-notice" role="status">Tato verze nabízí zadání, nápovědy a řešení. Zadávání a kontrola odpovědí, bodování a herní kvíz zatím nejsou dostupné. Výsledky se neukládají.</p>
                 <p>Nejprve si příklad zkus na papíře. Pak si můžeš otevřít nápovědu a porovnat svůj postup s řešením.</p>
             </article>
             <div id="exercises"></div>
+        </section>
+        <section id="quiz" aria-label="Hrát si" hidden>
+            <article id="setup" class="card">
+                <h2>Vyber si kvíz</h2>
+                <p>Každý výpočet má vlastní body. Za všechny čtyři správné lehké výpočty získáš navíc 1 bod.</p>
+                <p>Lehká skupina: 4 × 2,5 bodu + 1 bod za vše správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů.</p>
+                <p>Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Počítají se i body za všechny správné lehké výpočty.</p>
+                <div class="modes">
+                    <button type="button" data-mode="easy">Lehká: 3 úlohy</button>
+                    <button type="button" data-mode="medium">Střední: 5 úloh</button>
+                    <button type="button" data-mode="hard">Těžká: 10 úloh</button>
+                </div>
+            </article>
+            <article id="game" class="card" hidden>
+                <p id="progress"></p>
+                <h2 id="question" tabindex="-1"></h2>
+                <p id="answer-help">Celé číslo piš bez jednotky. Zlomek piš jako 1/2. Desetinné číslo může mít čárku nebo tečku. Délka musí mít jednotku mm, cm, dm, m nebo km (například 1,5 m). Prázdná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.</p>
+                <form id="answers" novalidate></form>
+                <div id="feedback" role="status" hidden></div>
+                <button id="next" type="button" hidden>Další úloha</button>
+            </article>
+            <article id="results" class="card" hidden>
+                <h2 id="results-title" tabindex="-1">Výsledek kvízu</h2>
+                <p id="grade" class="grade"></p>
+                <ol id="summary"></ol>
+                <button id="restart" type="button">Nový kvíz</button>
+            </article>
+            <article class="card">
+                <h2>Výsledky této lekce v této relaci</h2>
+                <p>Bez jména, pouze v tomto prohlížeči. Na server nic neposíláme. Po ukončení relace mohou výsledky zmizet.</p>
+                <p id="storage-warning" role="alert" hidden></p>
+                <ul id="session-results"></ul>
+            </article>
         </section>
     </main>
     <dialog id="definition" aria-labelledby="definition-title">

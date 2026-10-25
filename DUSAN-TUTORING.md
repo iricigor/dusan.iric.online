@@ -16,11 +16,10 @@ variantou a v rámci tohoto řešení se nemění.
 **Nyní je k dispozici:** dějepisný tutor pro Copilot, datový formát lekce,
 místní generátor HTML, interaktivní prostředí a krátká ukázková lekce.
 Společný webový generátor navíc podporuje samostatný matematický formát,
-řešené příklady, slovníček a procvičování s nápovědami a odkrýváním řešení.
+řešené příklady, slovníček, procvičování s nápovědami, přesnou kontrolu odpovědí,
+kvízy bez časového omezení, částečné bodování a místní výsledky.
 
-**Plánováno, zatím neimplementováno:** matematický předmětový tutor, automatická
-kontrola odpovědí, bodování, herní kvíz a ukládání matematických výsledků (#31).
-Matematická stránka toto omezení výslovně uvádí; není hotovým herním kvízem.
+**Mimo současný rozsah:** symbolická algebra a interaktivní geometrie.
 Ukázkové matematické lekce patří do #32. Podpora Gemini je
 odložena; tento postup nyní podporuje pouze Copilot.
 
@@ -32,7 +31,7 @@ repozitář:
 | Agent | Úloha |
 |-------|-------|
 | `tutor-history` | Dějepisný tutor, kterého uživatel výslovně zvolí |
-| `tutor-maths` | Přípravný předmětový agent; webový formát už existuje, tutor a hodnocení čekají na #31 |
+| `tutor-maths` | Matematický tutor s řešenými příklady, přesnou kontrolou a kvízy bez časového omezení |
 | `tutor-common` | Interní společné pokyny: cílová skupina, jazyk, podklady a schvalování |
 | `tutor-website` | Interní pomocník pro datový formát, kontrolu JSON a sestavení HTML |
 
@@ -168,7 +167,7 @@ i index, použij adresu náhledu nasazení a připoj cestu k lekci; automatický
 komentář s přímým odkazem vzniká pouze při změně jediného souboru webu.
 Sloučení změn webu do `main` je zveřejní na ostrém webu.
 
-## Matematický webový formát a navazující práce
+## Matematický tutor a webový formát
 
 Interní `tutor-website` vlastní schéma a kontrolu matematických dat v
 `tools\tutor-website`. Sdílí s dějepisem sestavení samostatného HTML, bezpečné
@@ -190,20 +189,27 @@ předmětový tutor a uživatel.
 Matematická výuka má čtyři části: jednoduchý řešený příklad, složitější příklad,
 slovní úlohu z běžného života a závěrečnou výzvu s řešením. Stránka nabízí
 samostatné odkrývání nápověd, kroků a výsledků, klikací slovníček a světlý/tmavý
-režim. Procvičování nyní funguje na papíře s porovnáním řešení, ne automatickým
-hodnocením. Nemá časovač, odpočet, ukazatel rychlosti ani rychlostní bonus.
+režim. Vedle procvičování na papíře nabízí záložku „Hrát si“ s kontrolou
+odpovědí a zpětnou vazbou. Nemá časovač, odpočet, ukazatel rychlosti ani rychlostní bonus.
 
-Schéma připravuje pro #31 lehké skupiny čtyř výpočtů, střední slovní úlohy
+Schéma vyžaduje lehké skupiny čtyř výpočtů, střední slovní úlohy
 a těžké úlohy se třemi kroky. Zachovává zásobu pro režimy 1/1/1, 1/2/2 a 2/5/3.
 Odpovědi jsou typovaná celá čísla, zlomky, desetinná čísla nebo délky s jednotkou.
 Kontrakt popisuje přesné porovnávání, rovnocenné zlomky, desetinnou čárku/tečku
-a převody jednotek; současný generátor tyto odpovědi zobrazuje, nevyhodnocuje je.
-Pravidla bodů pro #31 jsou 10 bodů rozdělených mezi čtyři lehké výpočty a 1 bod
+a převody jednotek. Každý krok se kontroluje přesně, bez tolerance dějepisných
+odpovědí. Chybějící nebo neplatná jednotka má výslovné vysvětlení.
+Pravidla bodů jsou 10 bodů rozdělených mezi čtyři lehké výpočty a 1 bod
 za všechny správně, 20 bodů za střední úlohu a 30 bodů rozdělených do tří těžkých
-kroků. Známky musí zahrnovat dosažitelné bonusy do jmenovatele.
+kroků. Známky zahrnují dosažitelné bonusy do jmenovatele: maxima jsou 61, 111
+a 212 bodů. Hranice známek jsou 80/60/40/20 %. Úlohy se v jednom kvízu neopakují.
+Po odeslání nelze odpovědi změnit; dítě si přečte správné odpovědi a postup
+a samo zvolí pokračování. Přehled výsledků je místní, zvlášť pro každou lekci;
+při selhání úložiště stránka zobrazí varování.
 
-#31 dokončí matematického tutora, výběr úloh, zadávání a kontrolu odpovědí,
-zpětnou vazbu, bodování a místní výsledky. #32 dodá výukové ukázky.
+Vyžádej si `tutor-maths` a zadej téma nebo přilož podklady. Tutor vysvětlí
+opravy, připraví českou lekci podle stejného formátu a předá ji webovému
+pomocníkovi. Podporována nejsou jen dvě ukázková témata, ale všechny úlohy
+vyjádřitelné podporovanými číselnými formáty. #32 dodá výukové ukázky.
 Technická testovací data nejsou schválenou výukovou lekcí. I nadále používej
 tutory pouze na vyžádání, zachovej místní kontrolu, výslovné schválení zveřejnění
 a neměň složku `gems`.
