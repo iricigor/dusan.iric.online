@@ -71,6 +71,14 @@ function initialize(lesson) {
         if (className) result.className = className;
         return result;
     };
+    const safeUrl = raw => {
+        try {
+            const parsed = new URL(String(raw), document.baseURI);
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : 'about:blank';
+        } catch (_) {
+            return 'about:blank';
+        }
+    };
     const button = (text, action, className) => {
         const result = node('button', text, className);
         result.type = 'button';
@@ -125,7 +133,7 @@ function initialize(lesson) {
     lesson.sources.forEach(source => {
         const item = node('li');
         const link = node('a', source.title);
-        link.href = source.url;
+        link.href = safeUrl(source.url);
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         item.append(link);
