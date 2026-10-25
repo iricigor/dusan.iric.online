@@ -13,7 +13,7 @@ const history = require('../../history-tutor/examples/defenestrace.json');
 const { renderLesson: renderHistory } = require('../../history-tutor/build.js');
 const { formatAnswer } = require('../maths.js');
 
-test('discovery identifies real contracts and discloses maths assessment boundary', () => {
+test('discovery identifies real contracts and available untimed maths assessment', () => {
     for (const subject of ['history', 'maths']) {
         const result = capabilities(subject);
         for (const key of ['schemaPath', 'validatorPath', 'builderPath', 'contractPath']) {
@@ -22,7 +22,8 @@ test('discovery identifies real contracts and discloses maths assessment boundar
         }
         assert.equal(result.timing, subject === 'maths' ? 'none' : 'mandatory-speed-bonus-before-15000ms');
     }
-    assert.equal(capabilities('maths').assessment, 'not-implemented-issue-31');
+    assert.equal(capabilities('maths').assessment, 'available');
+    assert.equal(capabilities('maths').generation, 'lesson-and-quiz');
     assert.equal(capabilities('maths').examplePath, null);
     assert.throws(() => capabilities('science'), /Unsupported subject/);
     assert.equal(renderLesson('history', history), renderHistory(history));
@@ -90,7 +91,7 @@ test('maths rejects invalid structures with actionable locations before renderin
     assert.throws(() => validateLesson('maths', null), /\$: expected object/);
 });
 
-test('maths standalone output is inert, Czech and contains no history timing or fake assessment', () => {
+test('maths standalone output is inert, Czech and contains real assessment without history timing', () => {
     const lesson = mathsLesson();
     const hostile = '</script><script>alert(1)</script><img src=x onerror=alert(1)>';
     lesson.topic += hostile;
@@ -100,9 +101,11 @@ test('maths standalone output is inert, Czech and contains no history timing or 
     assert.ok(!html.includes(hostile));
     assert.match(html, /&lt;\/script&gt;/);
     assert.equal((html.match(/<script(?:\s|>)/g) || []).length, 2);
-    assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)=|\b(?:fetch|XMLHttpRequest|eval|setInterval|setTimeout|performance\.now)\s*\(|sessionStorage|countdown|15000|id="bonus"/);
-    assert.doesNotMatch(html, /type="submit"|data-mode|id="results"|@@(?:DATA|STYLES|APP)@@/);
-    assert.match(html, /bodování a herní kvíz zatím nejsou dostupné/);
+    assert.doesNotMatch(html, /<(?:script|link|img)[^>]+(?:src|href)=|\b(?:fetch|XMLHttpRequest|eval|setInterval|setTimeout|performance\.now|Date\.now)\s*\(|countdown|15000|id="bonus"/);
+    assert.doesNotMatch(html, /zatím nejsou dostupné|@@(?:DATA|STYLES|APP)@@/);
+    assert.match(html, /data-mode="hard"/);
+    assert.match(html, /id="results"/);
+    assert.match(html, /sessionStorage/);
     assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
 });
 
@@ -115,7 +118,7 @@ test('guarded handoff validates paths, approval, subjects and data before writin
     fs.writeFileSync(inputPath, JSON.stringify(mathsLesson()));
     const result = build(request);
     assert.equal(result.outputPath, outputPath);
-    assert.equal(result.assessment, 'not-implemented-issue-31');
+    assert.equal(result.assessment, 'available');
     assert.throws(() => build(request), /EEXIST/);
     assert.equal(build({ ...request, overwriteApproved: true }).outputPath, outputPath);
     for (const patch of [
@@ -132,7 +135,7 @@ test('guarded handoff validates paths, approval, subjects and data before writin
     fs.writeFileSync(handoffPath, JSON.stringify({ ...request, outputPath: path.join(directory, 'cli.html') }));
     const success = spawnSync(process.execPath, [path.join(__dirname, '..', 'build.js'), 'build', handoffPath], { encoding: 'utf8' });
     assert.equal(success.status, 0, success.stderr);
-    assert.equal(JSON.parse(success.stdout).assessment, 'not-implemented-issue-31');
+    assert.equal(JSON.parse(success.stdout).assessment, 'available');
     assert.ok(fs.existsSync(JSON.parse(success.stdout).outputPath));
     fs.writeFileSync(inputPath, '{}');
     const invalidOutput = path.join(directory, 'invalid.html');

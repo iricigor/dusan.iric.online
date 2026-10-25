@@ -27,4 +27,25 @@ function mathsLesson() {
     };
 }
 
-module.exports = { mathsLesson };
+// Mixed-format interaction fixture only; not reviewed teaching content.
+function mathsAssessmentLesson() {
+    const lesson = mathsLesson();
+    lesson.exercises.filter(exercise => exercise.difficulty === 'easy').forEach(exercise => {
+        exercise.explanation = 'Každou odpověď ověř samostatně podle jejího řešení.';
+        exercise.steps = [
+            { prompt: '2 + 1 = ?', hint: 'Přidej jednu.', answer: { format: 'integer', value: '3' },
+                solution: 'Ke dvěma přičti jednu: 2 + 1 = 3.' },
+            { prompt: 'Jaký zlomek je jedna ze dvou stejných částí?', hint: 'Jde o polovinu.',
+                answer: { format: 'fraction', numerator: '1', denominator: '2' },
+                solution: 'Jedna část ze dvou stejných částí je 1/2.' },
+            { prompt: '1 + 0,5 = ?', hint: 'Přidej polovinu.', answer: { format: 'decimal', value: '1.5' },
+                solution: 'Jedna a polovina je 1,5.' },
+            { prompt: 'Převeď 150 cm na metry.', hint: 'Sto centimetrů je jeden metr.',
+                answer: { format: 'length', value: '1.5', unit: 'm' },
+                solution: '150 : 100 = 1,5. Délka je 1,5 m.' }
+        ];
+    });
+    return lesson;
+}
+
+module.exports = { mathsLesson, mathsAssessmentLesson };

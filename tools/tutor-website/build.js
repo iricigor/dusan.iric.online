@@ -15,12 +15,12 @@ function capabilities(subject) {
         builderPath: __filename,
         contractPath: path.join(__dirname, 'README.md'),
         examplePath: subject === 'history' ? path.resolve(__dirname, '..', 'history-tutor', 'examples', 'defenestrace.json') : null,
-        generation: subject === 'history' ? 'lesson-and-quiz' : 'learning-and-practice',
-        assessment: subject === 'history' ? 'available' : 'not-implemented-issue-31',
+        generation: 'lesson-and-quiz',
+        assessment: 'available',
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
-            ...(subject === 'maths' ? ['Maths tutoring, answer evaluation, scoring and playable quiz belong to issue #31; starter lessons to #32.'] : [])
+            ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported; starter lessons belong to #32.'] : [])
         ]
     };
 }

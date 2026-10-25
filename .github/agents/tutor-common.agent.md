@@ -60,6 +60,11 @@ these instructions to unrelated repository work.
   in less than 15 seconds earn twice their base points. History grades exclude
   speed bonus points; the bonus deadline never prevents answering or controls
   progression.
+- Maths uses exact typed answers and independent per-step credit. Easy groups
+  earn up to 11 points including accuracy, medium 20, hard 30. Maths grades use
+  the full attainable maximum including accuracy points. Feedback must explain
+  each step and wait for the child's explicit continuation. Missing/invalid
+  units and storage failures must be visible, never silently accepted.
 
 ## Drafts, review, and publication
 

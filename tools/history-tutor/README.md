@@ -31,10 +31,10 @@ than guessing. Transcribe it for confirmation before generating a lesson.
 - `tutor-common` holds shared audience, language, safety, and approval rules.
   Subject and website agents explicitly read its profile before working.
 - `tutor-website` is an internal collaborator owning the JSON contract and
-  validated build workflow for history and maths learning/practice pages.
-- `tutor-maths` remains a preparatory subject entry point (#31). Maths has a
-  separate website contract/renderer, but no answer evaluation, scoring or
-  playable quiz yet. Report that boundary rather than use the history schema.
+  validated build workflow for history and maths lessons and quizzes.
+- `tutor-maths` is the opt-in maths tutor. Its separate website contract/runtime
+  supports exact typed answers, untimed quizzes, partial scoring and local
+  results. Never use history's schema or tolerance rules for maths.
 
 Profiles live in `.github\agents`. Subject profiles use
 `disable-model-invocation: true` to prevent automatic selection.
