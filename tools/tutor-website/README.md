@@ -499,7 +499,9 @@ PR comment on every run/attempt, with both download links and the validation-run
 link; it never updates an earlier comment. Failed validation posts a failure
 notice instead of broken download links. Reporting requires PR comment
 permissions, which GitHub withholds from fork pull-request tokens by default.
-Downloads require GitHub sign-in and are retained for 14 days. This is deterministic
+Downloads require GitHub sign-in and are retained for up to 14 days. Reruns or
+artifact deletion can invalidate earlier links; use the newest comment.
+This is deterministic
 generation from the prepared datasets, not an AI authoring session. It never
 commits generated files or publishes them to `site`.
 

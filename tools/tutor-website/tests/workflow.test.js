@@ -57,7 +57,8 @@ test('every successful run or attempt creates a new PR comment with both downloa
         assert.ok(body.includes(`[Download maths.html (ZIP)](${environment.MATHS_URL})`));
         assert.ok(body.includes(`/actions/runs/123/attempts/${attempt}`));
         assert.ok(body.includes(`run 7, attempt ${attempt}`));
-        assert.match(body, /expire after 14 days/);
+        assert.match(body, /retention is up to 14 days/);
+        assert.match(body, /use the newest comment/);
         assert.doesNotMatch(body, /unavailable/);
     }
 });

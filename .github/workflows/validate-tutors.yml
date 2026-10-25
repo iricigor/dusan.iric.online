@@ -85,7 +85,7 @@ jobs:
           if [[ "$VALIDATION_RESULT" == "success" && -n "$HISTORY_URL" && -n "$MATHS_URL" ]]; then
             body+="[Download history.html (ZIP)](${HISTORY_URL})"$'\n\n'
             body+="[Download maths.html (ZIP)](${MATHS_URL})"$'\n\n'
-            body+="Each archive contains one standalone HTML page generated from its default dataset. Sign in to GitHub to download; links expire after 14 days. Nothing is published to the site."
+            body+="Each archive contains one standalone HTML page generated from its default dataset. Sign in to GitHub to download; retention is up to 14 days. Reruns or artifact deletion can invalidate earlier links - use the newest comment. Nothing is published to the site."
           else
             body+="Validation or example generation did not complete successfully (${VALIDATION_RESULT}); a complete pair of downloads is unavailable."
           fi
