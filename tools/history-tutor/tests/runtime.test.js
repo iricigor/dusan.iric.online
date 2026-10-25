@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const lesson = require('../examples/defenestrace.json');
+const lesson = require('../../tutor-website/examples/defenestrace.json');
 
 // Minimal DOM and clock for exercising the real runtime without dependencies.
 class Element {
@@ -73,7 +73,7 @@ function page() {
         URL, console
     };
     vm.runInNewContext(fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
-        fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), context);
+        fs.readFileSync(path.join(shared, 'history.js'), 'utf8'), context);
     return {
         get: id => context.document.getElementById(id),
         start: mode => modes.find(control => control.dataset.mode === mode).dispatch('click'),
@@ -90,7 +90,10 @@ test('every mode and restarted run enables the bonus, waits for progression and 
     const runtime = page();
     for (const [mode, count, maximum] of [['easy', 3, 60], ['medium', 5, 110], ['hard', 10, 210]]) {
         runtime.start(mode);
+        assert.equal(runtime.get('score').textContent, 'Skóre: 0 b');
+        assert.equal(runtime.get('quiz-progress').max, count);
         for (let index = 0; index < count; index++) {
+            assert.equal(runtime.get('quiz-progress').value, index);
             assert.equal(runtime.get('bonus').textContent, '2\u00d7 bonus: 15 s');
             assert.equal(runtime.intervals.size, 1);
             const question = lesson.questions.find(q => q.prompt === runtime.get('question').textContent);
@@ -102,6 +105,7 @@ test('every mode and restarted run enables the bonus, waits for progression and 
                 runtime.get('answers').children[question.answer].dispatch('click');
             }
             assert.match(runtime.get('feedback').textContent, /bonus \+/);
+            assert.equal(runtime.get('quiz-progress').value, index + 1);
             assert.equal(runtime.intervals.size, 0);
             const progress = runtime.get('progress').textContent;
             runtime.advance(20000);
@@ -114,6 +118,7 @@ test('every mode and restarted run enables the bonus, waits for progression and 
         assert.equal(record.mode, mode);
         assert.equal(record.total, 2 * maximum);
         assert.equal(record.grade, 1);
+        assert.equal(runtime.get('score').textContent, `Skóre: ${record.total} b`);
         assert.ok(runtime.get('leaderboard-content').textContent.includes(`${2 * maximum} b`));
         runtime.get('restart').dispatch('click');
         assert.equal(runtime.get('setup').hidden, false);
@@ -146,6 +151,7 @@ test('deadline leaves answers available and speed changes totals, not grades or 
         const bonus = elapsed < 15000 ? 120 : 0;
         assert.ok(runtime.get('grade').textContent.includes(`Body: ${135 + bonus} (z\u00e1klad 135/210, bonus ${bonus}). Zn\u00e1mka: 2`));
         assert.equal(runtime.records()[0].total, 135 + bonus);
+        assert.equal(runtime.get('score').textContent, `Skóre: ${135 + bonus} b`);
         assert.equal(runtime.records()[0].grade, 2);
         assert.ok(runtime.get('leaderboard-content').textContent.includes(`${135 + bonus} b`));
         assert.equal(runtime.intervals.size, 0);

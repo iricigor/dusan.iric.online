@@ -43,6 +43,17 @@ these instructions to unrelated repository work.
 
 ## Responsibility and handoff
 
+- When the user requests a default/example lesson or supplies no topic or source
+  material, reuse the prepared JSON at the subject's `capabilities.examplePath`.
+  Do not ask for material just to run a default, regenerate its content, or use
+  structural test fixtures as teaching material. Explicit topics/material take
+  precedence unless the user explicitly requests the default instead.
+- Read the prepared JSON, copy it unchanged into the caller's session artifact
+  directory, validate it against the current contract, and use the normal website
+  build handoff. Report missing/incompatible default data rather than silently
+  inventing a replacement. Identify the default topic in the response.
+  Reusing source JSON does not approve publishing generated HTML.
+
 - Subject tutors own educational accuracy, explanations, exercises, and solutions.
   They provide schema-valid JSON only, never custom HTML, JavaScript, page
   layouts, or quiz implementations. `tutor-website` turns that JSON into HTML.

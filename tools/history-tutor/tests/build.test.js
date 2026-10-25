@@ -8,7 +8,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { build, renderLesson } = require('../build.js');
 const { validateLesson } = require('../validate.js');
-const examplePath = path.join(__dirname, '..', 'examples', 'defenestrace.json');
+const examplePath = path.join(__dirname, '..', '..', 'tutor-website', 'examples', 'defenestrace.json');
 const example = () => JSON.parse(fs.readFileSync(examplePath, 'utf8'));
 
 test('example validates, preserving the selected original excerpts verbatim', () => {

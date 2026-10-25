@@ -15,13 +15,13 @@ function capabilities(subject) {
         validatorPath: path.join(__dirname, 'validate.js'),
         builderPath: __filename,
         contractPath: path.join(__dirname, 'README.md'),
-        examplePath: subject === 'history' ? path.resolve(__dirname, '..', 'history-tutor', 'examples', 'defenestrace.json') : null,
+        examplePath: path.join(__dirname, 'examples', subject === 'history' ? 'defenestrace.json' : 'zlomky-a-prevody-delky.json'),
         generation: 'lesson-and-quiz',
         assessment: 'available',
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
-            ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported; starter lessons belong to #32.'] : [])
+            ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported.'] : [])
         ]
     };
 }
@@ -29,7 +29,7 @@ function capabilities(subject) {
 function renderLesson(subject, lesson) {
     validateLesson(subject, lesson);
     if (subject === 'history') return renderHistory(lesson);
-    return renderPage(lesson, path.join(__dirname, 'maths.js'), 'maths');
+    return renderPage(lesson, 'maths');
 }
 
 function within(file, directory) {

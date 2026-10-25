@@ -9,14 +9,14 @@ const { spawnSync } = require('node:child_process');
 const { capabilities, renderLesson, build } = require('../build.js');
 const { validateLesson } = require('../validate.js');
 const { mathsLesson } = require('./fixture.js');
-const history = require('../../history-tutor/examples/defenestrace.json');
+const history = require('../examples/defenestrace.json');
 const { renderLesson: renderHistory } = require('../../history-tutor/build.js');
 const { formatAnswer } = require('../maths.js');
 
 test('discovery identifies real contracts and available untimed maths assessment', () => {
     for (const subject of ['history', 'maths']) {
         const result = capabilities(subject);
-        for (const key of ['schemaPath', 'validatorPath', 'builderPath', 'contractPath']) {
+        for (const key of ['schemaPath', 'validatorPath', 'builderPath', 'contractPath', 'examplePath']) {
             assert.ok(path.isAbsolute(result[key]));
             assert.ok(fs.existsSync(result[key]), result[key]);
         }
@@ -27,11 +27,62 @@ test('discovery identifies real contracts and available untimed maths assessment
     }
     assert.equal(capabilities('maths').assessment, 'available');
     assert.equal(capabilities('maths').generation, 'lesson-and-quiz');
-    assert.equal(capabilities('maths').examplePath, null);
     assert.throws(() => capabilities('science'), /Unsupported subject/);
     assert.equal(renderLesson('history', history), renderHistory(history));
     assert.throws(() => renderLesson('history', mathsLesson()), /Invalid lesson/);
     assert.throws(() => renderLesson('maths', history), /Invalid maths lesson/);
+});
+
+test('prepared defaults copy unchanged into guarded builds instead of using structural fixtures', t => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tutor-defaults-'));
+    t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    for (const subject of ['history', 'maths']) {
+        const { examplePath, version } = capabilities(subject);
+        assert.equal(path.dirname(examplePath), path.join(__dirname, '..', 'examples'));
+        const source = fs.readFileSync(examplePath, 'utf8');
+        const lesson = JSON.parse(source);
+        assert.equal(lesson.version, version);
+        assert.equal(validateLesson(subject, lesson), lesson);
+        const inputPath = path.join(directory, `${subject}.json`);
+        const outputPath = path.join(directory, `${subject}.html`);
+        fs.copyFileSync(examplePath, inputPath, fs.constants.COPYFILE_EXCL);
+        assert.equal(build({ operation: 'build', subject, artifactDirectory: directory, inputPath, outputPath }).outputPath, outputPath);
+        const html = fs.readFileSync(outputPath, 'utf8');
+        assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
+        assert.equal(fs.readFileSync(examplePath, 'utf8'), source);
+    }
+});
+
+test('one prepared maths lesson combines fraction calculations and length conversions in every quiz mode', () => {
+    const { selectExercises, scoreExercise, maximumPoints, checkAnswer } = require('../maths.js');
+    const maths = require('../examples/zlomky-a-prevody-delky.json');
+    assert.equal(maths.id, 'zlomky-a-prevody-delky');
+    assert.equal(maths.topic, 'Zlomky a převody jednotek délky');
+    assert.deepEqual(maths.exercises.map(exercise => exercise.steps.map(step => formatAnswer(step.answer))), [
+        ['6', '15', '1/2', '0,25'], ['300 cm', '5 cm', '2000 m', '15 dm'],
+        ['12'], ['95 cm'], ['150 cm'], ['2/5'], ['750 m'],
+        ['200 cm', '400 cm', '100 cm'], ['600 m', '1800 m', '600 m'], ['45 cm', '75 cm', '15 cm']
+    ]);
+    for (const [mode, count, maximum] of [['easy', 3, 61], ['medium', 5, 111], ['hard', 10, 212]]) {
+        for (const random of [() => 0, () => .999999, Math.random]) {
+            const questions = selectExercises(maths.exercises, mode, random);
+            assert.equal(questions.length, count);
+            assert.equal(new Set(questions.map(question => question.id)).size, count);
+            assert.equal(maximumPoints(questions), maximum);
+            assert.ok(questions.some(question => question.steps.some(step => step.answer.format === 'length')));
+            assert.ok(questions.some(question => /[1-3]\/[2348]/.test(question.prompt) || question.id === 'ctyri-zlomky'));
+            const score = questions.reduce((sum, question) =>
+                sum + scoreExercise(question, question.steps.map(step => formatAnswer(step.answer))).total, 0);
+            assert.equal(score, maximum);
+        }
+    }
+    assert.equal(checkAnswer(maths.exercises[0].steps[2].answer, '3/6').correct, true);
+    assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0,25').correct, true);
+    assert.equal(checkAnswer(maths.exercises[0].steps[3].answer, '0.25').correct, true);
+    assert.equal(checkAnswer(maths.exercises[1].steps[0].answer, '0.003 km').correct, true);
+    assert.equal(checkAnswer(maths.exercises[1].steps[0].answer, '300').valid, false);
+    const hard = maths.exercises[7];
+    assert.equal(scoreExercise(hard, ['', ...hard.steps.slice(1).map(step => formatAnswer(step.answer))]).total, 20);
 });
 
 test('maths accepts all agreed typed answers without evaluating or converting them', () => {
@@ -118,13 +169,22 @@ test('maths standalone output is inert, Czech and contains real assessment witho
 
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
+    const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+    assert.match(sharedStyles, /\.original-text \{[^}]*max-width: 80ch;/);
+    assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor', 'styles.css')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(sharedRuntime));
+        assert.equal(html.match(/<style>([\s\S]*?)<\/style>/)[1], sharedStyles);
+        const adapter = fs.readFileSync(path.join(__dirname, '..', `${subject}.js`), 'utf8');
+        assert.ok(html.includes(adapter));
+        assert.doesNotMatch(html, /module\.exports = require|let appData =|DEFAULT_EDU_PAYLOAD/);
         assert.equal((html.match(/function initializeTutor\(/g) || []).length, 1);
         assert.deepEqual([...html.matchAll(/data-tab="([^"]+)"/g)].map(match => match[1]), ['original', 'learning', 'quiz']);
         assert.match(html, /id="player"/);
         assert.match(html, /id="name-error" role="alert"/);
+        assert.match(html, /id="score" role="status" aria-atomic="true"/);
+        assert.match(html, /id="quiz-progress" aria-labelledby="progress"/);
         assert.doesNotMatch(html, /data-tab="practice"/);
     }
 });

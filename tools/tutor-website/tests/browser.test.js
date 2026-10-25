@@ -10,7 +10,8 @@ const { spawn } = require('node:child_process');
 const { setTimeout: delay } = require('node:timers/promises');
 const { renderLesson } = require('../build.js');
 const { mathsAssessmentLesson } = require('./fixture.js');
-const history = require('../../history-tutor/examples/defenestrace.json');
+const history = require('../examples/defenestrace.json');
+const defaultMaths = require('../examples/zlomky-a-prevody-delky.json');
 
 const browserPath = process.env.TUTOR_BROWSER_PATH || [
     path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
@@ -102,9 +103,10 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     };
     for (const [subject, lesson] of [
         ['maths', { ...mathsAssessmentLesson(), id: 'shared-lesson-id' }],
-        ['history', { ...history, id: 'shared-lesson-id' }]
+        ['history', { ...history, id: 'shared-lesson-id' }],
+        ['maths', defaultMaths]
     ]) {
-        const file = path.join(directory, `${subject}.html`);
+        const file = path.join(directory, `${subject}-${lesson.id}.html`);
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
         for (let attempt = 0; attempt < 100; attempt++) {
@@ -113,7 +115,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
         assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
-        for (const width of [320, 1280]) {
+        for (const width of [320, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
                 await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
@@ -140,8 +142,33 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${subject}-${tab}-${width}-${theme}.png`), Buffer.from(screenshot.data, 'base64'));
                     }
                 }
+                assert.deepEqual(await evaluate(`(() => {
+                    document.querySelector('[data-tab="learning"]').click();
+                    const content = document.getElementById('learning-content').getBoundingClientRect();
+                    const glossary = document.querySelector('.glossary-card').getBoundingClientRect();
+                    return {
+                        sideBySide: glossary.left >= content.right,
+                        stacked: glossary.top >= content.bottom,
+                        labelled: [...document.querySelectorAll('[data-tab]')].every(tab =>
+                            tab.getAttribute('aria-controls') === tab.dataset.tab)
+                    };
+                })()`), {
+                    sideBySide: width > 1024, stacked: width <= 1024,
+                    labelled: true
+                }, `${subject}/${width}/${theme} shared layout`);
             }
         }
+        await client.send('Emulation.setEmulatedMedia', {
+            features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
+        });
+        assert.equal(await evaluate(`(() => {
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('failure');
+            const animation = getComputedStyle(feedback).animationName;
+            feedback.classList.remove('failure');
+            return animation;
+        })()`), 'none', `${subject}: reduced motion`);
+        await client.send('Emulation.setEmulatedMedia', { features: [] });
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
             document.querySelector('#glossary button').click();
@@ -193,7 +220,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     levels: exercises.map(exercise => exercise.querySelector('h2').textContent.replace(/^\\d+\\. /, ''))
                 };
             })()`), {
-                openDetails: [3, 1, 0, 0], firstBeforePractice: true,
+                openDetails: [lesson.examples[0].steps.length + 2, 1, 0, 0], firstBeforePractice: true,
                 levels: ['Lehká skupina', 'Lehká skupina', ...Array(5).fill('Slovní úloha'), ...Array(3).fill('Úloha ve třech krocích')]
             });
             assert.equal(await evaluate(`(() => {
@@ -210,6 +237,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 $('player').value = 'Kontrola';
                 document.querySelector('[data-mode="${mode}"]').click();
                 if ($('name-error').textContent || $('player').hasAttribute('aria-invalid')) throw new Error('Valid name rejected');
+                if ($('score').textContent !== 'Skóre: 0 b') throw new Error('Score did not reset');
+                if ($('quiz-progress').max !== ${count} || $('quiz-progress').value !== 0) throw new Error('Invalid initial progress');
                 let total = 0;
                 let maximum = 0;
                 const seen = [];
@@ -235,7 +264,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             integer: answer.value,
                             fraction: answer.format === 'fraction' ? (-Number(answer.numerator) * 3) + '/' + (-Number(answer.denominator) * 3) : '',
                             decimal: ${JSON.stringify(mode)} === 'medium' ? answer.value : answer.value?.replace('.', ','),
-                            length: '0.0015 km'
+                            length: Number(answer.value) * { mm: 1, cm: 10, dm: 100, m: 1000, km: 1000000 }[answer.unit] + ' mm'
                         }[answer.format];
                         inputs[stepIndex].value = ${partial} && stepIndex === 0 ? '' :
                             ${invalid} && exercise.difficulty === 'easy' ?
@@ -245,6 +274,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         ${invalid} && exercise.difficulty === 'easy' ? 0 : { easy: 11, medium: 20, hard: 30 }[exercise.difficulty];
                     total += earned;
                     $('answers').requestSubmit();
+                    if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b') throw new Error('Wrong running score');
+                    if ($('quiz-progress').value !== index + 1) throw new Error('Wrong submitted progress');
                     if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
                     if (!inputs.every(input => input.disabled)) throw new Error('Answer fields remain editable');
                     if (!$('feedback').textContent.includes('Body: ' + String(earned).replace('.', ','))) {
@@ -256,12 +287,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     });
                     if (${partial} && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Missing blank feedback');
                     if (${invalid} && exercise.difficulty === 'easy' &&
-                        !['celé číslo', 'Jmenovatel', 'desetinnou čárkou', 'jednotkou'].every(text => $('feedback').textContent.includes(text))) {
+                        !exercise.steps.every(step => $('feedback').textContent.includes({
+                            integer: 'celé číslo', fraction: 'Jmenovatel', decimal: 'desetinnou čárkou', length: 'jednotkou'
+                        }[step.answer.format]))) {
                         throw new Error('Malformed answers did not receive explicit feedback');
                     }
                     const feedback = $('feedback').textContent;
                     $('answers').dispatchEvent(new Event('submit', { cancelable: true }));
                     if ($('feedback').textContent !== feedback) throw new Error('Duplicate submission changed feedback');
+                    if ($('score').textContent !== 'Skóre: ' + String(total).replace('.', ',') + ' b' ||
+                        $('quiz-progress').value !== index + 1) throw new Error('Duplicate submission changed status');
                     if (document.documentElement.scrollWidth > innerWidth) throw new Error('Feedback overflows');
                     $('next').click();
                 }
@@ -312,12 +347,18 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     $('player').value = 'Kontrola';
                     document.querySelector('[data-mode="${mode}"]').click();
                     const bonus = $('bonus').textContent;
+                    if ($('score').textContent !== 'Skóre: 0 b' || $('quiz-progress').value !== 0 ||
+                        $('quiz-progress').max !== ${count}) throw new Error('Invalid initial quiz status');
+                    let total = 0;
                     for (let index = 0; index < ${count}; index++) {
                         const question = lesson.questions.find(q => q.prompt === $('question').textContent);
                         if (question.type === 'text') {
                             $('answer-input').value = question.acceptedAnswers[0];
                             $('answers').requestSubmit();
                         } else $('answers').querySelectorAll('button')[question.answer].click();
+                        total += { easy: 10, medium: 20, hard: 30 }[question.difficulty] * 2;
+                        if ($('score').textContent !== 'Skóre: ' + total + ' b' ||
+                            $('quiz-progress').value !== index + 1) throw new Error('Wrong history quiz status');
                         if ($('feedback').hidden || $('next').hidden) throw new Error('Missing feedback');
                         const feedback = $('feedback').textContent;
                         $('answers').dispatchEvent(new Event('submit', { cancelable: true }));

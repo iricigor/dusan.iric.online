@@ -7,7 +7,7 @@ const { renderPage } = require('../tutor-website/page.js');
 
 function renderLesson(lesson) {
     validateLesson(lesson);
-    return renderPage(lesson, path.join(__dirname, 'app.js'), 'history');
+    return renderPage(lesson, 'history');
 }
 
 function build(input, output, force = false) {

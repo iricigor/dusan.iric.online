@@ -16,11 +16,16 @@ Do not invoke subject agents or recursively delegate generation to yourself.
 
 For `subject: history`, the existing version 1 contract is defined by
 `tools\history-tutor\lesson.schema.json` and `tools\history-tutor\validate.js`.
-Read both and `tools\history-tutor\examples\defenestrace.json` before advising on
+Read both and `tools\tutor-website\examples\defenestrace.json` before advising on
 or building a lesson. The legacy builder is `tools\history-tutor\build.js`.
 Both subjects use `tools\tutor-website\template.html` and
-`tools\tutor-website\runtime.js`; history assessment lives in
-`tools\history-tutor\app.js` and shared styles in `tools\history-tutor\styles.css`.
+`tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
+History and maths content/assessment adapters live alongside them in
+`history.js` and `maths.js`. Both prepared lesson sources live in
+`tools\tutor-website\examples`. Keep common presentation and lifecycle changes in the
+shared assets, not in per-subject copies. The independent Gems workflow is
+not an asset dependency; its selectively adapted design is documented in the
+shared generator README.
 
 For `subject: maths`, read `tools\tutor-website\maths.schema.json`,
 `tools\tutor-website\validate.js` and `tools\tutor-website\README.md`.
@@ -28,8 +33,11 @@ The maths version 2 contract requires `original` sections. The generator
 supports progressively scaffolded learning/practice, exact typed answer
 evaluation, untimed quizzes, partial scoring, grades and named per-lesson
 browser-session results.
+The prepared maths default is
+`tools\tutor-website\examples\zlomky-a-prevody-delky.json`, combining fraction
+calculations and length-unit conversions in one lesson.
 Symbolic algebra evaluation and interactive geometry are unsupported.
-Starter teaching lessons are separate (#32). Disclose these limitations.
+Disclose these limitations.
 Never coerce maths into the history schema or invent another contract.
 Any other unsupported subject or operation must receive an explicit explanation.
 
@@ -64,8 +72,10 @@ the authoritative contract, validator, example, and builder when supported,
 and any limitations. Do not create files. Run
 `node tools\tutor-website\build.js capabilities <subject>` and return its actual
 generation/assessment status, schema version, shared tabs and name requirement.
-Maths has no starter example yet; do not present
-the structural test fixture as an educational lesson.
+`examplePath` identifies the prepared default JSON for each subject. Subject
+tutors copy it unchanged to their session artifacts when no topic/material is
+supplied or a default/example is requested. Do not substitute a structural test
+fixture or generate a new lesson when a prepared default was requested.
 
 For `build`:
 

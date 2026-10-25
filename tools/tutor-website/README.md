@@ -20,8 +20,8 @@ node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test
 paths, version, timing policy, generation/assessment status, shared tabs,
 the name requirement and limitations.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
-Maths has no starter lesson yet (`examplePath: null`, #32); the structural test
-fixture is not teaching material. The authoritative contracts are:
+`examplePath` identifies prepared, reusable default lesson JSON for both subjects.
+The structural test fixture is not teaching material. The authoritative contracts are:
 
 | Subject | Contract | Output now |
 |---|---|---|
@@ -30,7 +30,41 @@ fixture is not teaching material. The authoritative contracts are:
 
 Maths assessment retains the established scoring rules; no author-supplied scoring
 configuration is needed. Symbolic algebra and interactive geometry remain
-unsupported. #32 adds reviewed starter lessons.
+unsupported.
+
+### Prepared defaults
+
+When a subject tutor receives no topic/source material, or the user explicitly
+asks for a default/example, it reuses `capabilities.examplePath`:
+
+| Subject | Prepared source | Topic |
+|---|---|---|
+| History | `tools\tutor-website\examples\defenestrace.json` | Od defenestrace k Bílé hoře |
+| Maths | `tools\tutor-website\examples\zlomky-a-prevody-delky.json` | Zlomky a převody jednotek délky |
+
+These sources are prepared once, not synthesized on each default request.
+History reuses the existing reviewed example. The maths default combines both
+requested topics in **one** lesson: fraction calculations (including a fraction
+of a whole) and length conversions across mm/cm/dm/m/km. It has four worked
+examples and 2 easy/5 medium/3 hard tasks, using integer, fraction, decimal and
+length answers. Several word problems combine the two topics. Comma and dot
+are accepted for decimals; equivalent fractions and length units are accepted.
+Both topics stay together in this single default.
+
+The tutor reads and copies the source JSON unchanged to a **new** file in its
+session artifact directory, then uses the normal validated build handoff below.
+Do not hand the repository source directly to `build`, overwrite it, regenerate
+it, substitute test fixtures, or demand new material just to run a default.
+Missing or incompatible prepared data is an explicit error, not a request to
+silently author another default. Identify the chosen topic to the user.
+Explicit custom topics/material still use normal authoring unless the user
+explicitly chooses the default instead. Recorded history review is not a claim
+of newly performed source verification.
+
+Only reusable JSON is versioned here. Generated default HTML remains a local
+draft; this does not publish or approve a lesson or change existing site pages.
+
+### Build handoff
 
 The calling agent sends this JSON object (use actual absolute session paths):
 
@@ -84,11 +118,38 @@ schema-valid JSON only. They do not write HTML, fork quiz code, choose a
 different navigation structure or implement their own answer parser.
 The website agent validates that JSON and builds standalone HTML.
 
-`template.html` is the single shell and `runtime.js` implements navigation,
+All browser assets are owned by `tools\tutor-website`: `template.html` is the
+single shell, `styles.css` is the single stylesheet, and `runtime.js` implements navigation,
 glossary, themes, name validation, answer submission/locking, explicit next-step
-progression, results and session-storage warnings for both subjects.
-History's `app.js` and `maths.js` are adapters for content, answer formats,
+progression, running score/progress, results and session-storage warnings for both subjects.
+`history.js` and `maths.js` are adapters for content, answer formats,
 sampling and assessment rules, not independent quiz applications.
+`page.js` embeds the common assets and only the selected subject adapter.
+Both prepared lesson sources live in `examples`, and the shared agent-profile
+suite lives in `tests\agents.test.js`. Import history assessment helpers directly
+from `history.js`; the old history `app.js` re-export has been removed.
+History's schema, validator and legacy builder remain in their existing locations.
+
+### Selective Gems integration
+
+The independent `gems\dusan-edu-webpage` workflow is not a runtime dependency.
+Its `SKILL.md` assembles JavaScript from the line-based `app.js.json`; its
+readable `app.js` currently matches that representation. The packaging script
+enforces parity and excludes `app.js` from the ZIP. Neither representation,
+the package archive nor existing published lessons is changed by this integration.
+
+| Gems detail | Shared generator decision |
+|---|---|
+| Wide desktop shell and learning/glossary columns | Adapted to a 1600px maximum shell and 2:1 learning grid, stacked at 1024px and below; original text keeps an 80-character reading width |
+| Subject/audience badges and prominent active tabs | Adapted with existing accessible theme colors, text labels, pressed states and explicit panel associations |
+| Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
+| Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
+| “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |
+| Glossary modal, themes and success/failure animations | Existing native dialog, system-theme support and reduced-motion-aware feedback retained instead of copying duplicate implementations |
+| Gems quiz engine, schema, DOM and HTML-string rendering | Not imported; existing contracts, safe text nodes, sampling and assessment adapters remain authoritative |
+| Placeholder-name rejection and automatic feedback progression | Not imported; valid names/nicknames are not rejected for matching an example, and the learner explicitly continues after feedback |
+
+There is no schema or storage migration in this presentation change.
 
 Every page has exactly **Původní text → Učit se → Hrát si**. Original material
 is displayed separately from generated explanations. A topic-only request

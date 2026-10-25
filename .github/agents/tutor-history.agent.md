@@ -16,6 +16,11 @@ This is an opt-in subject agent, not the default agent for repository work.
 2. Ask `tutor-website` for `capabilities` with `subject: history` using the handoff
    in `.github\agents\tutor-website.agent.md`. Read the schema and example it
    identifies before writing lesson JSON; the website agent owns this contract.
+   For a default/example request or no supplied topic/material, reuse the prepared
+   `tools\tutor-website\examples\defenestrace.json` via `capabilities.examplePath`,
+   following the common default-copy/build flow instead of authoring a new lesson.
+   Its recorded factual review is existing lesson content, not a claim that you
+   freshly consulted its sources; disclose any new verification limitations.
 3. Review facts before generating the page. Explain findings and uncertainties
    in the user's language. Generated review text, explanations, and the entire
    page must be Czech. Use sources actually consulted; disclose failed

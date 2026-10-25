@@ -2,8 +2,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const lesson = require('../examples/defenestrace.json');
-const { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults } = require('../app.js');
+const lesson = require('../../tutor-website/examples/defenestrace.json');
+const { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults } = require('../../tutor-website/history.js');
 
 test('all modes have exact counts, unique questions and hard always includes a year', () => {
     const pool = [

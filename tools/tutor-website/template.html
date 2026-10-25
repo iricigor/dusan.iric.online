@@ -12,11 +12,11 @@
             <div><span class="badge">@@SUBJECT@@</span><h1 id="topic"></h1></div>
             <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
         </div>
-        <p id="audience"></p>
+        <p id="audience" class="audience"></p>
         <nav aria-label="Části lekce">
-            <button type="button" data-tab="original" aria-pressed="true">Původní text</button>
-            <button type="button" data-tab="learning" aria-pressed="false">Učit se</button>
-            <button type="button" data-tab="quiz" aria-pressed="false">Hrát si</button>
+            <button type="button" data-tab="original" aria-controls="original" aria-pressed="true">Původní text</button>
+            <button type="button" data-tab="learning" aria-controls="learning" aria-pressed="false">Učit se</button>
+            <button type="button" data-tab="quiz" aria-controls="quiz" aria-pressed="false">Hrát si</button>
         </nav>
     </header>
     <main>
@@ -30,7 +30,7 @@
         </section>
         <section id="learning" aria-label="Učit se" hidden>
             <div id="learning-content"></div>
-            <article class="card"><h2>Slovníček</h2><div id="glossary"></div></article>
+            <aside class="card glossary-card" aria-labelledby="glossary-title"><h2 id="glossary-title">Slovníček</h2><div id="glossary"></div></aside>
         </section>
         <section id="quiz" aria-label="Hrát si" hidden>
             <article id="setup" class="card">
@@ -47,7 +47,11 @@
                 </div>
             </article>
             <article id="game" class="card" hidden>
-                <p id="progress"></p>
+                <div class="quiz-status">
+                    <p id="progress"></p>
+                    <p id="score" role="status" aria-atomic="true"></p>
+                </div>
+                <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
                 @@TIMING@@
                 <h2 id="question" tabindex="-1"></h2>
                 <p id="answer-help" hidden></p>
@@ -62,8 +66,8 @@
                 <button id="restart" type="button">Nový kvíz</button>
             </article>
             <article id="leaderboard" class="card">
-                <h2>Výsledky této lekce v této relaci</h2>
-                <p>Pouze v tomto prohlížeči. Po ukončení relace mohou výsledky zmizet.</p>
+                <h2>Síň slávy této lekce</h2>
+                <p>Výsledky pouze v tomto prohlížeči a této relaci. Po ukončení relace mohou zmizet.</p>
                 <div id="leaderboard-content" class="table-scroll"></div>
             </article>
         </section>
