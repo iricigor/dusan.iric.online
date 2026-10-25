@@ -1,0 +1,54 @@
+name: Validate tutors
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/agents/tutor-*.agent.md"
+      - ".github/workflows/validate-tutors.yml"
+      - "tools/history-tutor/**"
+      - "tools/tutor-website/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate tutor definitions, contracts and offline pages
+        env:
+          TUTOR_BROWSER_PATH: /usr/bin/google-chrome
+        run: |
+          test -x "$TUTOR_BROWSER_PATH"
+          node --test tools/history-tutor/tests/*.test.js tools/tutor-website/tests/*.test.js
+      - name: Generate both prepared default pages
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { capabilities, build } = require('./tools/tutor-website/build.js');
+          const artifactDirectory = path.join(process.env.RUNNER_TEMP, 'tutor-default-pages');
+          fs.mkdirSync(artifactDirectory);
+          for (const subject of ['history', 'maths']) {
+            const inputPath = path.join(artifactDirectory, `${subject}.json`);
+            const outputPath = path.join(artifactDirectory, `${subject}.html`);
+            fs.copyFileSync(capabilities(subject).examplePath, inputPath, fs.constants.COPYFILE_EXCL);
+            const result = build({ operation: 'build', subject, artifactDirectory, inputPath, outputPath });
+            console.log(JSON.stringify(result));
+          }
+          NODE
+      - name: Upload history and maths default pages
+        uses: actions/upload-artifact@v4
+        with:
+          name: tutor-default-pages
+          path: ${{ runner.temp }}/tutor-default-pages/*.html
+          if-no-files-found: error
+          retention-days: 14

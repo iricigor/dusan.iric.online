@@ -451,6 +451,22 @@ show a Czech warning and leave the original storage untouched; new runs remain
 in memory. Write failures warn that new results will not survive reload.
 A later successful save includes all in-memory results and clears that warning.
 
+## Pull request validation
+
+The **Validate tutors** workflow runs on pull requests changing tutor profiles,
+the history compatibility tools, the shared website tools (including prepared
+datasets), or the workflow itself. It can also be started manually.
+It checks the tutor definitions and runs the Node test suite, including real
+offline Chrome coverage on the hosted runner.
+
+After validation, it discovers both current defaults through `capabilities`,
+copies their JSON into the runner's temporary directory, and uses the guarded
+shared builder to generate `history.html` and `maths.html`. Download the
+**tutor-default-pages** artifact from the workflow run and open either standalone
+file locally. The two HTML files are retained for 14 days. This is deterministic
+generation from the prepared datasets, not an AI authoring session. It never
+commits generated files or publishes them to `site`.
+
 ## Local review and publication
 
 Open the returned file locally. Check the three shared tabs, name validation,
