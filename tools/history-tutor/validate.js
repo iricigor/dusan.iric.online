@@ -110,4 +110,4 @@ function validateLesson(lesson) {
     return lesson;
 }
 
-module.exports = { validateLesson };
+module.exports = { validateLesson, schemaErrors };

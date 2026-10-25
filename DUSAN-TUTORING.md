@@ -8,14 +8,20 @@ HTML. Lze jej otevřít místně, používat bez internetu a případně zveřej
 na stávajícím webu.
 
 Tento repozitář neslouží jen doučování. Postup pro Copilot se používá pouze
-na výslovné vyžádání a jeho nástroje jsou ve složce `tools\history-tutor`.
+na výslovné vyžádání a jeho nástroje jsou ve složkách `tools\history-tutor`
+a `tools\tutor-website`.
 Nemění obecné chování agenta v repozitáři. Složka `gems` zůstává samostatnou
 variantou a v rámci tohoto řešení se nemění.
 
 **Nyní je k dispozici:** dějepisný tutor pro Copilot, datový formát lekce,
 místní generátor HTML, interaktivní prostředí a krátká ukázková lekce.
+Společný webový generátor navíc podporuje samostatný matematický formát,
+řešené příklady, slovníček a procvičování s nápovědami a odkrýváním řešení.
 
-**Plánováno, zatím neimplementováno:** doučování matematiky. Podpora Gemini je
+**Plánováno, zatím neimplementováno:** matematický předmětový tutor, automatická
+kontrola odpovědí, bodování, herní kvíz a ukládání matematických výsledků (#31).
+Matematická stránka toto omezení výslovně uvádí; není hotovým herním kvízem.
+Ukázkové matematické lekce patří do #32. Podpora Gemini je
 odložena; tento postup nyní podporuje pouze Copilot.
 
 ## Agenti v tomto repozitáři
@@ -26,7 +32,7 @@ repozitář:
 | Agent | Úloha |
 |-------|-------|
 | `tutor-history` | Dějepisný tutor, kterého uživatel výslovně zvolí |
-| `tutor-maths` | Přípravný agent; generování matematických lekcí zatím není dostupné |
+| `tutor-maths` | Přípravný předmětový agent; webový formát už existuje, tutor a hodnocení čekají na #31 |
 | `tutor-common` | Interní společné pokyny: cílová skupina, jazyk, podklady a schvalování |
 | `tutor-website` | Interní pomocník pro datový formát, kontrolu JSON a sestavení HTML |
 
@@ -88,6 +94,7 @@ Testy nástrojů spustíš takto:
 
 ```powershell
 node --test tools\history-tutor\tests\*.test.js
+node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test.js
 ```
 
 ## Vytvoření nové dějepisné lekce s Copilotem
@@ -161,52 +168,42 @@ i index, použij adresu náhledu nasazení a připoj cestu k lekci; automatický
 komentář s přímým odkazem vzniká pouze při změně jediného souboru webu.
 Sloučení změn webu do `main` je zveřejní na ostrém webu.
 
-## Plán rozšíření o matematiku
+## Matematický webový formát a navazující práce
 
-### Dohodnutý směr
+Interní `tutor-website` vlastní schéma a kontrolu matematických dat v
+`tools\tutor-website`. Sdílí s dějepisem sestavení samostatného HTML, bezpečné
+vložení dat a styly; nevyžaduje historický původní text, zdroje ani letopočty.
+Podrobný kontrakt a příkazy obsahuje
+[technický návod generátoru](tools/tutor-website/README.md).
 
-Nejprve dokončit a vyzkoušet dějepis. Matematika je pozdější rozšíření,
-nikoli součást současné implementace. I nadále ji používat pouze na vyžádání,
-držet ji odděleně od ostatních účelů repozitáře a neměnit složku `gems`.
+```powershell
+node tools\tutor-website\build.js capabilities maths
+node tools\tutor-website\build.js build "C:\session-artifacts\handoff.json"
+```
 
-Před programováním matematiky domluvit rozsah a založit úkoly v GitHub Issues.
-Pořadí zůstává: **návrh a diskuse, úkoly, implementace**.
-Navazující úkoly již existují: společné webové prostředí #30, matematický tutor
-#31 a ukázkové lekce s dokumentací #32. Profil `tutor-maths` sám o sobě
-neznamená, že generátor matematických lekcí už funguje.
+Předání určuje předmět a absolutní cesty k artefaktům relace. Generátor kontroluje
+vstupní data, skutečné umístění cest včetně odkazů a ochranu před přepsáním.
+Nevytváří návrhy v repozitáři a nezveřejňuje je. Úspěšné sestavení není ověřením
+správnosti učiva ani schválením stránky. Český jazyk a správnost musí zkontrolovat
+předmětový tutor a uživatel.
 
-### Navrhovaný způsob výuky
+Matematická výuka má čtyři části: jednoduchý řešený příklad, složitější příklad,
+slovní úlohu z běžného života a závěrečnou výzvu s řešením. Stránka nabízí
+samostatné odkrývání nápověd, kroků a výsledků, klikací slovníček a světlý/tmavý
+režim. Procvičování nyní funguje na papíře s porovnáním řešení, ne automatickým
+hodnocením. Nemá časovač, odpočet, ukazatel rychlosti ani rychlostní bonus.
 
-- Používat řešené příklady s postupným odkrýváním kroků a vysvětlením,
-  proč daný krok funguje, ne jen zobrazit konečný výsledek.
-- Jednoduše vysvětlovat české matematické pojmy.
-- Nabídnout vedené procvičování: vlastní pokus, nápověda, další pokus
-  a teprve potom celé řešení.
-- Odpovědi vyhodnocovat matematicky. Rovnocenné zlomky, desetinný zápis
-  a jednotky potřebují výslovná pravidla; dějepisnou toleranci pravopisu
-  a přibližných letopočtů nelze přenést na matematiku.
-- Nevytvářet tlak na rychlost. Porozumění má být důležitější než rychlá odpověď.
+Schéma připravuje pro #31 lehké skupiny čtyř výpočtů, střední slovní úlohy
+a těžké úlohy se třemi kroky. Zachovává zásobu pro režimy 1/1/1, 1/2/2 a 2/5/3.
+Odpovědi jsou typovaná celá čísla, zlomky, desetinná čísla nebo délky s jednotkou.
+Kontrakt popisuje přesné porovnávání, rovnocenné zlomky, desetinnou čárku/tečku
+a převody jednotek; současný generátor tyto odpovědi zobrazuje, nevyhodnocuje je.
+Pravidla bodů pro #31 jsou 10 bodů rozdělených mezi čtyři lehké výpočty a 1 bod
+za všechny správně, 20 bodů za střední úlohu a 30 bodů rozdělených do tří těžkých
+kroků. Známky musí zahrnovat dosažitelné bonusy do jmenovatele.
 
-Jde o návrhy, ne o hotové funkce ani konečné zadání.
-
-### Co je ještě potřeba rozhodnout
-
-| Oblast | Otázky před implementací |
-|--------|--------------------------|
-| Vstupní podklady | Stránka učebnice či pracovní list, zadané téma, nebo obojí? |
-| První témata | Který ročník a které učivo má první verze pokrývat? |
-| Odpovědi | Jen celá čísla, nebo také zlomky, desetinná čísla, výrazy a jednotky? |
-| Nápovědy | Jak mají nápovědy, opakované pokusy a odkrytí řešení ovlivnit postup a body? |
-| Obrázky | Potřebujeme hned číselné osy, geometrické útvary či jiné interaktivní pomůcky? |
-| Společné prostředí | Které části dějepisné stránky lze znovu využít, aniž by matematika musela napodobovat práci s textem a letopočty? |
-
-### Předpokládaný postup
-
-Po dohodě připravit matematické pokyny pro tutora a datový formát lekce.
-Sdílet zobrazovací a sestavovací kód jen tam, kde se skutečně hodí,
-a zachovat fungování dějepisu. Doplnit jednoznačné vyhodnocování odpovědí
-pro vybrané učivo a před zveřejněním místně vyzkoušet první matematickou lekci.
-
-O samostatné složce pro matematiku nebo menším společném prostředí pro více
-předmětů rozhodnout podle konkrétního prvního zadání. Dějepisný nástroj
-nezobecňovat předem jen kvůli možnému budoucímu rozšíření.
+#31 dokončí matematického tutora, výběr úloh, zadávání a kontrolu odpovědí,
+zpětnou vazbu, bodování a místní výsledky. #32 dodá výukové ukázky.
+Technická testovací data nejsou schválenou výukovou lekcí. I nadále používej
+tutory pouze na vyžádání, zachovej místní kontrolu, výslovné schválení zveřejnění
+a neměň složku `gems`.

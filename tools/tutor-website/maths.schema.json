@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Czech maths lesson v1 (assessment supplied by issue 31)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "subject", "language", "id", "topic", "audience", "glossary", "examples", "exercises"],
+  "properties": {
+    "version": { "const": 1 },
+    "subject": { "const": "maths" },
+    "language": { "const": "cs-CZ" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "topic": { "type": "string", "minLength": 1 },
+    "audience": { "type": "string", "minLength": 1 },
+    "glossary": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["term", "definition", "forms"],
+        "properties": {
+          "term": { "type": "string", "minLength": 1 },
+          "definition": { "type": "string", "minLength": 1 },
+          "forms": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "examples": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["kind", "heading", "prompt", "hint", "steps", "answer"],
+        "properties": {
+          "kind": { "enum": ["simple", "complex", "everyday", "challenge"] },
+          "heading": { "type": "string", "minLength": 1 },
+          "prompt": { "type": "string", "minLength": 1 },
+          "hint": { "type": "string", "minLength": 1 },
+          "answer": { "type": "string", "minLength": 1 },
+          "steps": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["calculation", "explanation"],
+              "properties": {
+                "calculation": { "type": "string", "minLength": 1 },
+                "explanation": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "exercises": {
+      "type": "array", "minItems": 10, "maxItems": 100,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "difficulty", "prompt", "steps", "explanation"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "difficulty": { "enum": ["easy", "medium", "hard"] },
+          "prompt": { "type": "string", "minLength": 1 },
+          "explanation": { "type": "string", "minLength": 1 },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["prompt", "hint", "answer", "solution"],
+              "properties": {
+                "prompt": { "type": "string", "minLength": 1 },
+                "hint": { "type": "string", "minLength": 1 },
+                "solution": { "type": "string", "minLength": 1 },
+                "answer": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["format"],
+                  "properties": {
+                    "format": { "enum": ["integer", "fraction", "decimal", "length"] },
+                    "value": { "type": "string", "pattern": "^-?(?:0|[1-9][0-9]{0,11})(?:\\.[0-9]{1,12})?$" },
+                    "numerator": { "type": "string", "pattern": "^-?(?:0|[1-9][0-9]{0,11})$" },
+                    "denominator": { "type": "string", "pattern": "^[1-9][0-9]{0,11}$" },
+                    "unit": { "enum": ["mm", "cm", "dm", "m", "km"] }
+                  },
+                  "allOf": [
+                    {
+                      "if": { "properties": { "format": { "const": "fraction" } } },
+                      "then": {
+                        "required": ["numerator", "denominator"],
+                        "not": { "anyOf": [{ "required": ["value"] }, { "required": ["unit"] }] }
+                      }
+                    },
+                    {
+                      "if": { "properties": { "format": { "enum": ["integer", "decimal", "length"] } } },
+                      "then": {
+                        "required": ["value"],
+                        "not": { "anyOf": [{ "required": ["numerator"] }, { "required": ["denominator"] }] }
+                      }
+                    },
+                    {
+                      "if": { "properties": { "format": { "const": "integer" } } },
+                      "then": { "properties": { "value": { "pattern": "^-?(?:0|[1-9][0-9]{0,11})$" } } }
+                    },
+                    {
+                      "if": { "properties": { "format": { "const": "length" } } },
+                      "then": { "required": ["unit"], "properties": { "value": { "pattern": "^(?:0|[1-9][0-9]{0,11})(?:\\.[0-9]{1,12})?$" } } }
+                    },
+                    {
+                      "if": { "properties": { "format": { "enum": ["integer", "decimal"] } } },
+                      "then": { "not": { "required": ["unit"] } }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "allOf": [
+          { "if": { "properties": { "difficulty": { "const": "easy" } } }, "then": { "properties": { "steps": { "minItems": 4, "maxItems": 4 } } } },
+          { "if": { "properties": { "difficulty": { "const": "medium" } } }, "then": { "properties": { "steps": { "minItems": 1, "maxItems": 1 } } } },
+          { "if": { "properties": { "difficulty": { "const": "hard" } } }, "then": { "properties": { "steps": { "minItems": 3, "maxItems": 3 } } } }
+        ]
+      }
+    }
+  }
+}
