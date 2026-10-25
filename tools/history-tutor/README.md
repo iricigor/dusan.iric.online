@@ -3,7 +3,7 @@
 An opt-in tool inside a mixed-purpose repository. Nothing here changes Copilot's
 repository-wide behavior. `gems` is an independent, unchanged Gemini workflow;
 these files are not synchronized with it. This directory owns the unchanged
-history contract/runtime; shared generation and the separate maths contract
+history content contract and assessment rules; shared generation and the maths contract
 are documented in `tools\tutor-website\README.md`.
 
 Requires Node.js 22 or newer. No package installation, Python, AI API key, web
@@ -32,9 +32,14 @@ than guessing. Transcribe it for confirmation before generating a lesson.
   Subject and website agents explicitly read its profile before working.
 - `tutor-website` is an internal collaborator owning the JSON contract and
   validated build workflow for history and maths lessons and quizzes.
-- `tutor-maths` is the opt-in maths tutor. Its separate website contract/runtime
+- `tutor-maths` is the opt-in maths tutor. Its website contract/assessment adapter
   supports exact typed answers, untimed quizzes, partial scoring and local
   results. Never use history's schema or tolerance rules for maths.
+
+Subject tutors supply schema-valid JSON only. The website agent owns HTML
+generation using the common shell and quiz lifecycle. Both subjects always
+use Původní text, Učit se and Hrát si, and require a name/nickname before
+starting. Maths learning and progressively less-guided practice share Učit se.
 
 Profiles live in `.github\agents`. Subject profiles use
 `disable-model-invocation: true` to prevent automatic selection.

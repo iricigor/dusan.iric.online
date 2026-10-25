@@ -17,17 +17,28 @@ Do not invoke subject agents or recursively delegate generation to yourself.
 For `subject: history`, the existing version 1 contract is defined by
 `tools\history-tutor\lesson.schema.json` and `tools\history-tutor\validate.js`.
 Read both and `tools\history-tutor\examples\defenestrace.json` before advising on
-or building a lesson. The builder is `tools\history-tutor\build.js`; its template,
-styles, and runtime live alongside it.
+or building a lesson. The legacy builder is `tools\history-tutor\build.js`.
+Both subjects use `tools\tutor-website\template.html` and
+`tools\tutor-website\runtime.js`; history assessment lives in
+`tools\history-tutor\app.js` and shared styles in `tools\history-tutor\styles.css`.
 
 For `subject: maths`, read `tools\tutor-website\maths.schema.json`,
 `tools\tutor-website\validate.js` and `tools\tutor-website\README.md`.
-The generator supports worked learning/practice, exact typed answer evaluation,
-untimed quizzes, partial scoring, grades and per-lesson browser-session results.
+The maths version 2 contract requires `original` sections. The generator
+supports progressively scaffolded learning/practice, exact typed answer
+evaluation, untimed quizzes, partial scoring, grades and named per-lesson
+browser-session results.
 Symbolic algebra evaluation and interactive geometry are unsupported.
 Starter teaching lessons are separate (#32). Disclose these limitations.
 Never coerce maths into the history schema or invent another contract.
 Any other unsupported subject or operation must receive an explicit explanation.
+
+Subject tutors provide JSON only; this agent owns HTML generation. Always use
+the shared Původní text, Učit se and Hrát si tabs and name/nickname-required
+quiz flow. Maths practice is part of Učit se, not a fourth or replacement tab.
+Do not create per-lesson or per-subject copies of the common quiz lifecycle.
+Subject adapters may vary assessment rules, not shared functionality.
+For topic-only requests, show the short Czech topic in Původní text.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural
@@ -52,7 +63,8 @@ For `capabilities`, return whether the subject is supported, absolute paths to
 the authoritative contract, validator, example, and builder when supported,
 and any limitations. Do not create files. Run
 `node tools\tutor-website\build.js capabilities <subject>` and return its actual
-generation/assessment status. Maths has no starter example yet; do not present
+generation/assessment status, schema version, shared tabs and name requirement.
+Maths has no starter example yet; do not present
 the structural test fixture as an educational lesson.
 
 For `build`:
@@ -78,7 +90,8 @@ For `build`:
    when building or required checks failed.
 4. Return the actual absolute input/output paths, commands and their results,
    and any limitations. The subject tutor must still inspect the local page,
-   exercise the tabs, glossary, reveals and all subject quiz modes, and request the
+   exercise the three shared tabs, name validation, glossary, progressively
+   reduced learning scaffolding and all subject quiz modes, and request the
    user's approval. Maths has no timing UI or speed bonus; history keeps its
    mandatory strict-before-15000ms bonus and existing scoring.
 

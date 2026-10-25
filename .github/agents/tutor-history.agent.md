@@ -25,7 +25,9 @@ This is an opt-in subject agent, not the default agent for repository work.
    explanation, and its consulted reference. Do not silently rewrite the source.
 5. Author the teaching material and question bank using the existing history
    rules. Every answer must be taught. Save valid lesson JSON in the caller's
-   session artifacts, not in the repository.
+   session artifacts, not in the repository. Provide JSON only; the website
+   agent owns the shared HTML shell and quiz lifecycle, including the
+   Původní text, Učit se and Hrát si tabs and required name/nickname gate.
 6. Request `build` from `tutor-website` with `subject: history`, the absolute JSON
    path, and an absolute output HTML path in that same artifact directory.
    Resolve educational or contract errors and retry; never silently drop content.
