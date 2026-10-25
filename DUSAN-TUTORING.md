@@ -18,9 +18,41 @@ místní generátor HTML, interaktivní prostředí a krátká ukázková lekce.
 **Plánováno, zatím neimplementováno:** doučování matematiky. Podpora Gemini je
 odložena; tento postup nyní podporuje pouze Copilot.
 
+## Agenti v tomto repozitáři
+
+Profily jsou ve složce `.github\agents` a mají krátká jména platná pro tento
+repozitář:
+
+| Agent | Úloha |
+|-------|-------|
+| `tutor-history` | Dějepisný tutor, kterého uživatel výslovně zvolí |
+| `tutor-maths` | Přípravný agent; generování matematických lekcí zatím není dostupné |
+| `tutor-common` | Interní společné pokyny: cílová skupina, jazyk, podklady a schvalování |
+| `tutor-website` | Interní pomocník pro datový formát, kontrolu JSON a sestavení HTML |
+
+Konverzace, dotazy a vysvětlení se řídí jazykem uživatele. Veškerý obsah
+vygenerované stránky musí být výhradně česky. Pokud původní podklady nejsou
+české, tutor nejprve vyjasní, jak získat český podklad, aniž by potichu přepsal
+text, který má zachovat beze změn.
+
+Předmětový tutor nejprve přečte `tutor-common` a požádá `tutor-website`
+o podporovaný formát. Potom připraví obsah a předá mu absolutní cestu k JSON,
+výstupnímu HTML a složce artefaktů své relace. Webový pomocník vrátí výsledek
+kontroly a sestavení; za učivo, místní vyzkoušení a žádost o schválení odpovídá
+předmětový tutor.
+
+`tutor-common` a `tutor-website` mají `user-invocable: false`; na podporovaných
+hostitelích se nenabízejí k přímému výběru a mohou je volat ostatní agenti.
+Předmětoví tutoři mají `disable-model-invocation: true`, takže se nevybírají
+automaticky. Jde o řízení výběru agentů, ne bezpečnostní hranici. Podpora
+závisí na hostiteli a jeho verzi; po přidání profilů může být nutné obnovit
+relaci. Pokud volání interních agentů není dostupné, Copilot to musí přiznat
+a může se řídit stejnými profily a spustit stávající generátor přímo.
+Podrobné předání popisuje `.github\agents\tutor-website.agent.md`.
+
 ## Jak vzniká lekce
 
-1. Předej Copilotu podklady a výslovně ho požádej, aby použil dějepisného tutora.
+1. Předej Copilotu podklady a výslovně ho požádej, aby použil `tutor-history`.
 2. Copilot ověří historická fakta, vysvětlí opravy a nejistoty a připraví obsah
    lekce ve formátu JSON.
 3. Místní generátor zkontroluje JSON a spojí jej se šablonou, styly a skriptem.
@@ -62,7 +94,9 @@ node --test tools\history-tutor\tests\*.test.js
 
 Otevři relaci Copilotu v tomto repozitáři a použij například toto zadání:
 
-> Přečti tools\history-tutor\README.md a řiď se částí „Tutor instructions“.
+> Použij tutor-history. Přečti .github\agents\tutor-history.agent.md,
+> společné pokyny tutor-common a část „Tutor instructions“
+> v tools\history-tutor\README.md.
 > Z následujících podkladů vytvoř dějepisnou lekci v češtině pro desetileté dítě,
 > pro které čeština není mateřským jazykem.
 >
@@ -92,7 +126,9 @@ Výsledná stránka má tři části:
 | Hrát si | Kvíz se 3, 5 nebo 10 otázkami, přehled odpovědí, body a českou školní známku |
 
 Stránka podporuje světlý i tmavý režim. Rychlostní bonus je volitelný a ve výchozím
-stavu vypnutý. Výsledky se ukládají do úložiště relace prohlížeče, zvlášť pro každou
+stavu vypnutý; jde o současné chování, jeho trvalé zapnutí řeší samostatný úkol
+#29. Přidání profilů agentů tuto změnu neprovádí.
+Výsledky se ukládají do úložiště relace prohlížeče, zvlášť pro každou
 lekci. Neodesílají se na server a neslouží jako trvalý záznam.
 
 Závazné pokyny pro generování a pravidla kvízu obsahuje
@@ -132,6 +168,9 @@ držet ji odděleně od ostatních účelů repozitáře a neměnit složku `gem
 
 Před programováním matematiky domluvit rozsah a založit úkoly v GitHub Issues.
 Pořadí zůstává: **návrh a diskuse, úkoly, implementace**.
+Navazující úkoly již existují: společné webové prostředí #30, matematický tutor
+#31 a ukázkové lekce s dokumentací #32. Profil `tutor-maths` sám o sobě
+neznamená, že generátor matematických lekcí už funguje.
 
 ### Navrhovaný způsob výuky
 
