@@ -10,7 +10,6 @@ const { capabilities, renderLesson, build } = require('../build.js');
 const { validateLesson } = require('../validate.js');
 const { mathsLesson, valueAssessment } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
-const { renderLesson: renderHistory } = require('../../history-tutor/build.js');
 const { formatAnswer } = require('../maths.js');
 
 test('discovery identifies real contracts and available untimed maths assessment', () => {
@@ -28,7 +27,6 @@ test('discovery identifies real contracts and available untimed maths assessment
     assert.equal(capabilities('maths').assessment, 'available');
     assert.equal(capabilities('maths').generation, 'lesson-and-quiz');
     assert.throws(() => capabilities('science'), /Unsupported subject/);
-    assert.equal(renderLesson('history', history), renderHistory(history));
     assert.throws(() => renderLesson('history', mathsLesson()), /Invalid lesson/);
     assert.throws(() => renderLesson('maths', history), /Invalid maths lesson/);
 });
@@ -172,7 +170,8 @@ test('both subjects embed the same shell and quiz controller, with no practice t
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
     const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
     assert.match(sharedStyles, /\.original-text \{[^}]*max-width: 80ch;/);
-    assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor', 'styles.css')), false);
+    assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor')), false);
+    assert.equal(fs.existsSync(path.join(__dirname, '..', 'maths.schema.json')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(sharedRuntime));
@@ -231,7 +230,7 @@ test('guarded handoff validates paths, approval, subjects and data before writin
     assert.match(cli.stderr, /Tutor website failed: Invalid maths lesson/);
     fs.writeFileSync(inputPath, JSON.stringify(history));
     assert.equal(build({ ...request, subject: 'history', overwriteApproved: true }).assessment, 'available');
-    assert.equal(fs.readFileSync(outputPath, 'utf8'), renderHistory(history));
+    assert.equal(fs.readFileSync(outputPath, 'utf8'), renderLesson('history', history));
 });
 
 test('handoff resolves directory junctions before checking containment', t => {

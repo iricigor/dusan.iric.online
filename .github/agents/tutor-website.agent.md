@@ -18,10 +18,8 @@ Both subjects use the shared version 3 contract in
 `tools\tutor-website\lesson.schema.json`, `tools\tutor-website\validate.js`
 and `tools\tutor-website\README.md`. Read these and the subject's prepared
 example before advising or building. The shared builder is
-`tools\tutor-website\build.js`. The old
-`tools\history-tutor\lesson.schema.json`, `tools\history-tutor\validate.js`
-and `tools\history-tutor\build.js` are compatibility entry points only.
-Their implementations and all executable schemas live under tutor-website.
+`tools\tutor-website\build.js`. Both subjects use this single builder and schema;
+there are no subject-specific CLI or schema aliases.
 Both subjects use `tools\tutor-website\assessment.js`, `tools\tutor-website\template.html` and
 `tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
 History and maths content/assessment adapters live alongside them in
@@ -120,7 +118,7 @@ For `build`:
    overwrites. Set `overwriteApproved: true` only with the user's permission
    for that exact existing output. Never bypass validation or repair educational
    content without returning the problem to its subject tutor.
-3. Run `node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test.js`.
+3. Run `node --test tools\tutor-website\tests\*.test.js`.
    Return command failures and diagnostics explicitly. Do not report success
    when building or required checks failed.
 4. Return the actual absolute input/output paths, commands and their results,

@@ -10,8 +10,6 @@ function schemaErrors(value, rule, location = '$', root = rule) {
             const target = rule.$ref.slice(2).split('/').reduce((current, key) => current?.[key], root);
             if (!target) throw new Error(`Unknown schema reference: ${rule.$ref}`);
             errors.push(...check(value, target));
-        } else if (['./lesson.schema.json', '../tutor-website/lesson.schema.json'].includes(rule.$ref)) {
-            errors.push(...schemaErrors(value, require('./lesson.schema.json'), location));
         } else {
             throw new Error(`Unsupported schema reference: ${rule.$ref}`);
         }

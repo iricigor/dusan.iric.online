@@ -2,8 +2,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const lesson = require('../../tutor-website/examples/defenestrace.json');
-const { normalizeAnswer, shuffle, selectQuestions, scoreAnswer: assessAnswer, grade, compareResults } = require('../../tutor-website/history.js');
+const lesson = require('../examples/defenestrace.json');
+const { normalizeAnswer, shuffle, selectQuestions, scoreAnswer: assessAnswer, grade, compareResults } = require('../history.js');
 const scoreAnswer = (...args) => {
     const { assessment, ...score } = assessAnswer(...args);
     return score;

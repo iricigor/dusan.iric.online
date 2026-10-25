@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const lesson = require('../../tutor-website/examples/defenestrace.json');
+const lesson = require('../examples/defenestrace.json');
 
 // Minimal DOM and clock for exercising the real runtime without dependencies.
 class Element {
@@ -37,7 +37,7 @@ class Element {
 }
 
 function page() {
-    const shared = path.join(__dirname, '..', '..', 'tutor-website');
+    const shared = path.join(__dirname, '..');
     const template = fs.readFileSync(path.join(shared, 'template.html'), 'utf8')
         .replace('@@TIMING@@', '<p id="bonus" role="status"></p>');
     assert.doesNotMatch(template, /type="checkbox"|id="speed"/);

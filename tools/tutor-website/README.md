@@ -13,7 +13,7 @@ From the repository root in PowerShell:
 node tools\tutor-website\build.js capabilities history
 node tools\tutor-website\build.js capabilities maths
 node tools\tutor-website\build.js build "C:\session-artifacts\handoff.json"
-node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test.js
+node --test tools\tutor-website\tests\*.test.js
 ```
 
 `capabilities` returns absolute schema, validator, documentation and builder
@@ -32,8 +32,9 @@ preserve their different teaching and assessment needs.
 | Maths | Shared v3, maths section | Original material, progressive worked examples/practice, exact checking, untimed quizzes, partial scoring and named session results |
 
 Legacy history v1 and maths v2 JSON remain accepted without rewriting source
-material. The old schema paths are reference-only compatibility wrappers,
-not independent contracts. New content and prepared defaults use v3 with
+material. Compatibility is limited to lesson data and grading, not old tool
+paths or APIs: use the shared builder and schema for both subjects.
+New content and prepared defaults use v3 with
 `subject`, `language: "cs-CZ"` and a nonblank motivational `subtitle`.
 The schema can enforce presence, not whether wording is genuinely encouraging;
 that review belongs to `tutor-common` and the subject tutor.
@@ -108,22 +109,50 @@ or language approval. Return stderr/exit failures to the caller; do not silently
 repair educational content, report a failed build as success, or change schemas
 for a routine lesson request.
 
-## History compatibility
+## History authoring and quiz rules
 
-Existing history JSON, direct `tools\history-tutor\build.js` command and exported
-build/render functions remain compatible. Both build paths produce the same
-new shared page. Previously published HTML remains unchanged until separately
+History tutoring is opt-in through `.github\agents\tutor-history.agent.md`,
+which loads `tutor-common`. Subject tutors author JSON, never HTML. Inspect
+attached images and confirm their transcription; ask about unreadable text.
+Consult historical references before reviewing custom material, preserve the
+source verbatim, and teach corrected facts. Review text, correction explanations,
+source titles and linked references must be Czech. Disclose uncertain facts or
+failed verification; ask before substituting foreign-language references.
+Mark corrections with an exact, uniquely occurring quote, its zero-based original
+section, explanation and listed source URL. Describe sourced additions in
+`review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
+Prefer 50-100 questions for substantial material; request more material if it
+cannot support the minimum pool of 2 easy, 5 medium and 3 hard questions.
+
+| Quiz mode | Easy: true/false | Medium: four options | Hard: short answer |
+|---|---|---|---|
+| Easy, 3 questions | 1 | 1 | 1 |
+| Medium, 5 questions | 1 | 2 | 2 |
+| Hard, 10 questions | 2 | 5 | 3 |
+
+Sampling is without replacement within each difficulty. Every hard-mode run
+includes a year question. Questions earn 10/20/30 base points by difficulty,
+regardless of quiz mode. V3 questions declare full/partial answer matchers as
+documented below, including all full-credit name variants in `acceptedAnswers`.
+Only fully correct answers strictly before **15000 ms** earn the mandatory
+double-points speed bonus. Late answers remain available; incorrect and partial
+answers never earn a bonus. Grades use base points only, with 80/60/40/20 percent
+boundaries. The leaderboard sorts total points first, then shorter duration.
+Maths never starts the shared controller's timer and has no countdown, duration
+display, speed indicator or bonus.
+
+### Existing lesson data
+
+Existing history v1 and maths v2 JSON still use the shared builder and validator.
+Previously published HTML remains unchanged until separately
 approved publication; the published example retains its reviewed v1 data.
 The reusable default adds v3 metadata and styled teaching notes without
 rewriting the reviewed source excerpts. Its year ranges are now declared
 explicitly; the 1620 question uses inclusive 1615–1625 for partial credit.
-The legacy direct builder retains its documented approved-publication behavior;
-the new internal handoff never writes to the repository.
-
-History still uses its original question mix/checking and base-point grades.
-Only fully correct answers strictly before **15000 ms** earn its mandatory speed
-bonus. Maths never starts the shared controller's timer and has no countdown, duration
-display, speed indicator or bonus.
+Published HTML is self-contained and does not depend on the generator. The
+removed history CLI/validation wrappers and subject schema aliases are not
+needed to display it. The sole build handoff never writes into the repository;
+copy an approved artifact to `site` only through the publication workflow.
 
 ## Shared page and quiz ownership
 
@@ -140,10 +169,10 @@ progression, running score/progress, results and session-storage warnings for bo
 sampling and assessment rules, not independent quiz applications.
 `page.js` embeds the common assets and only the selected subject adapter.
 Both prepared lesson sources live in `examples`, and the shared agent-profile
-suite lives in `tests\agents.test.js`. Import history assessment helpers directly
-from `history.js`; the old history `app.js` re-export has been removed.
-The legacy history schema/build/validate paths are thin compatibility wrappers;
-all executable schema, validation and build logic lives here.
+suite lives in `tests\agents.test.js`. History generation, scoring and runtime
+tests also live here, alongside the maths and shared tests. Import history
+assessment helpers directly from `history.js`. There is no separate
+history-tutor tool directory, legacy CLI implementation, or subject schema alias.
 
 ### What stays separate, and why
 
@@ -155,7 +184,7 @@ all executable schema, validation and build logic lives here.
 | `history.js` | Separate content/scoring adapter in this directory | Factual chunks, mandatory speed bonus, base-only grades and duration tie-breaking are history rules; declared aliases and year ranges use the shared evaluator |
 | `maths.js` | Separate content/scoring adapter in this directory | Worked steps, independent per-step points, accuracy points and no timing are maths rules; parsing and declared representation/value policies use the shared evaluator |
 | Subject agent profiles and prepared JSON | Separate educational content | Historical source verification and mathematical solution authoring need different expertise and lesson data |
-| Legacy history commands/schema references | Thin wrappers only | Existing callers still work without retaining a second implementation |
+| Legacy lesson data/grading | Supported in the shared schema and evaluator | Existing saved JSON can be rebuilt without preserving obsolete commands or schema paths |
 | Published HTML and `gems` | Unchanged, independent snapshots/workflow | Tooling changes do not approve publication or changes to Gemini |
 
 Adapters have no separate stylesheets, page templates, name gates, storage
@@ -454,16 +483,23 @@ A later successful save includes all in-memory results and clears that warning.
 ## Pull request validation
 
 The **Validate tutors** workflow runs on pull requests changing tutor profiles,
-the history compatibility tools, the shared website tools (including prepared
-datasets), or the workflow itself. It can also be started manually.
+the shared website tools (including prepared datasets), or the workflow itself.
+It can also be started manually.
 It checks the tutor definitions and runs the Node test suite, including real
 offline Chrome coverage on the hosted runner.
+The comment-script regression tests also use Bash (Git Bash on Windows).
 
 After validation, it discovers both current defaults through `capabilities`,
 copies their JSON into the runner's temporary directory, and uses the guarded
 shared builder to generate `history.html` and `maths.html`. Download the
-**tutor-default-pages** artifact from the workflow run and open either standalone
-file locally. The two HTML files are retained for 14 days. This is deterministic
+separate **history-example** and **maths-example** artifacts from the workflow
+run (their names end with the run-attempt number). Each ZIP contains one
+standalone HTML file. A separate, checkout-free reporting job posts a **new**
+PR comment on every run/attempt, with both download links and the validation-run
+link; it never updates an earlier comment. Failed validation posts a failure
+notice instead of broken download links. Reporting requires PR comment
+permissions, which GitHub withholds from fork pull-request tokens by default.
+Downloads require GitHub sign-in and are retained for 14 days. This is deterministic
 generation from the prepared datasets, not an AI authoring session. It never
 commits generated files or publishes them to `site`.
 

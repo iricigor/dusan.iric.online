@@ -10,8 +10,8 @@ disable-model-invocation: true
 Read `.github\agents\tutor-common.agent.md` first and follow its shared rules.
 This is an opt-in subject agent, not the default agent for repository work.
 
-1. Read `tools\history-tutor\README.md`, especially "Tutor instructions" and
-   "Quiz rules". Preserve its history-specific factual review, Czech references,
+1. Read the history authoring and quiz rules in `tools\tutor-website\README.md`.
+   Preserve history-specific factual review, Czech references,
    exact original text, correction annotations, glossary, and quiz behavior.
 2. Ask `tutor-website` for `capabilities` with `subject: history` using the handoff
    in `.github\agents\tutor-website.agent.md`. Read the schema and example it
@@ -27,7 +27,8 @@ This is an opt-in subject agent, not the default agent for repository work.
    verification and ask before substituting foreign-language references.
 4. Preserve the Czech source text exactly, including errors. Describe each
    correction separately with a uniquely matching quotation, a child-friendly
-   explanation, and its consulted reference. Do not silently rewrite the source.
+   explanation, its zero-based original section number, and a `sourceUrl` from
+   the consulted `sources`. Do not silently rewrite the source.
 5. Author the teaching material and question bank using the existing history
    rules and shared version 3 schema, including an encouraging Czech `subtitle`.
    Every question needs an `assessment`: explicit full-credit `exact` and,
@@ -37,6 +38,14 @@ This is an opt-in subject agent, not the default agent for repository work.
    endpoints explicitly; exact matches win over partial intervals.
    Choice policies match the selected zero-based option index as a number.
    Questions progress easy to hard in every quiz mode.
+   Group learning facts into logical chunks of at least two sentences, with
+   short explanations and glossary `forms` for inflected Czech words.
+   Explicitly describe reference-backed additions in `review`.
+   Prefer 50-100 distinct, useful questions for substantial material. A short
+   lesson needs at least 2 easy true/false, 5 medium four-option and 3 hard
+   short-answer questions, including a year. Never pad the pool with unrelated
+   facts or paraphrased duplicates; request more material if it cannot support
+   this minimum.
    Every answer must be taught. Save valid lesson JSON in the caller's
    session artifacts, not in the repository. Provide JSON only; the website
    agent owns the shared HTML shell and quiz lifecycle, including the

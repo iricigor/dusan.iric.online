@@ -35,21 +35,19 @@ test('legacy history v1 and maths v2 use the same validator without inventing or
     legacyMaths.version = 2;
     delete legacyMaths.subtitle;
     legacyMaths.exercises.forEach(exercise => exercise.steps.forEach(step => { delete step.assessment; }));
-    for (const [subject, lesson, wrapper] of [
-        ['history', legacyHistory, require('../../history-tutor/lesson.schema.json')],
-        ['maths', legacyMaths, require('../maths.schema.json')]
-    ]) {
+    for (const [subject, lesson] of [['history', legacyHistory], ['maths', legacyMaths]]) {
         const before = JSON.stringify(lesson);
         assert.equal(validateLesson(subject, lesson), lesson);
-        assert.deepEqual(schemaErrors(lesson, wrapper), []);
+        assert.deepEqual(schemaErrors(lesson, schema), []);
         assert.match(renderLesson(subject, lesson), /Každým krokem objevíš/);
         assert.equal(JSON.stringify(lesson), before);
         const withoutOriginal = { ...lesson };
         delete withoutOriginal.original;
         assert.throws(() => validateLesson(subject, withoutOriginal), /missing original/);
     }
-    assert.notDeepEqual(schemaErrors(legacyMaths, require('../../history-tutor/lesson.schema.json')), []);
-    assert.notDeepEqual(schemaErrors(legacyHistory, require('../maths.schema.json')), []);
+    assert.throws(() => validateLesson('history', legacyMaths), /expected history/);
+    assert.throws(() => validateLesson('maths', legacyHistory), /expected maths/);
+    assert.throws(() => schemaErrors({}, { $ref: './lesson.schema.json' }), /Unsupported schema reference/);
 });
 
 test('semantic paragraphs are shared, plain-text only and reject arbitrary styling fields', () => {

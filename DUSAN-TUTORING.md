@@ -90,12 +90,28 @@ balíčky npm, Python, klíče k AI službám ani místní webový server.
 Otevři PowerShell v kořenové složce repozitáře:
 
 ```powershell
-node tools\history-tutor\build.js tools\tutor-website\examples\defenestrace.json "C:\Temp\history-preview\defenestrace.html"
-Start-Process "C:\Temp\history-preview\defenestrace.html"
+$artifacts = Join-Path ([System.IO.Path]::GetTempPath()) ("history-preview-" + [guid]::NewGuid())
+New-Item -ItemType Directory -Path $artifacts | Out-Null
+$capabilities = node tools\tutor-website\build.js capabilities history | ConvertFrom-Json
+$inputPath = Join-Path $artifacts "history.json"
+$outputPath = Join-Path $artifacts "history.html"
+Copy-Item -LiteralPath $capabilities.examplePath -Destination $inputPath
+$handoff = @{
+    operation = "build"
+    subject = "history"
+    artifactDirectory = $artifacts
+    inputPath = $inputPath
+    outputPath = $outputPath
+}
+$handoffPath = Join-Path $artifacts "handoff.json"
+[System.IO.File]::WriteAllText($handoffPath, ($handoff | ConvertTo-Json))
+node tools\tutor-website\build.js build $handoffPath
+Start-Process $outputPath
 ```
 
-Generátor vytvoří výstupní složku. Existující soubor nepřepíše; přepínač `--force`
-přidej pouze tehdy, když chceš dřívější náhled záměrně nahradit.
+Oba předměty používají tentýž generátor a schéma. Náhledy musí být mimo repozitář.
+Existující HTML se nepřepisuje; `overwriteApproved: true` v předávacím objektu
+povol pouze po výslovném schválení náhrady daného souboru.
 
 Ukázka **Od defenestrace k Bílé hoře** používá vybrané nezměněné úryvky
 ze stávající dějepisné ukázky. Předvádí také opravu věcné chyby: slovo
@@ -106,8 +122,7 @@ Schválená ukázka pro web je v souboru `site\history\defenestrace.html`.
 Testy nástrojů spustíš takto:
 
 ```powershell
-node --test tools\history-tutor\tests\*.test.js
-node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test.js
+node --test tools\tutor-website\tests\*.test.js
 ```
 
 ## Vytvoření nové dějepisné lekce s Copilotem
@@ -115,8 +130,8 @@ node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test
 Otevři relaci Copilotu v tomto repozitáři a použij například toto zadání:
 
 > Použij tutor-history. Přečti .github\agents\tutor-history.agent.md,
-> společné pokyny tutor-common a část „Tutor instructions“
-> v tools\history-tutor\README.md.
+> společné pokyny tutor-common a pravidla dějepisu
+> v tools\tutor-website\README.md.
 > Z následujících podkladů vytvoř dějepisnou lekci v češtině pro desetileté dítě,
 > pro které čeština není mateřským jazykem.
 >
@@ -155,7 +170,7 @@ Výsledky se ukládají do úložiště relace prohlížeče, zvlášť pro kaž
 lekci. Neodesílají se na server a neslouží jako trvalý záznam.
 
 Závazné pokyny pro generování a pravidla kvízu obsahuje
-[technický návod](tools/history-tutor/README.md). Datový formát popisuje
+[technický návod](tools/tutor-website/README.md#history-authoring-and-quiz-rules). Datový formát popisuje
 [společné schéma lekce](tools/tutor-website/lesson.schema.json).
 
 Nové lekce obou předmětů mají společná metadata, původní text, slovníček

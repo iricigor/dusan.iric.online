@@ -7,7 +7,6 @@ on:
     paths:
       - ".github/agents/tutor-*.agent.md"
       - ".github/workflows/validate-tutors.yml"
-      - "tools/history-tutor/**"
       - "tools/tutor-website/**"
   workflow_dispatch:
 
@@ -18,6 +17,9 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      history-url: ${{ steps.history.outputs.artifact-url }}
+      maths-url: ${{ steps.maths.outputs.artifact-url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +30,7 @@ jobs:
           TUTOR_BROWSER_PATH: /usr/bin/google-chrome
         run: |
           test -x "$TUTOR_BROWSER_PATH"
-          node --test tools/history-tutor/tests/*.test.js tools/tutor-website/tests/*.test.js
+          node --test tools/tutor-website/tests/*.test.js
       - name: Generate both prepared default pages
         run: |
           node <<'NODE'
@@ -45,10 +47,47 @@ jobs:
             console.log(JSON.stringify(result));
           }
           NODE
-      - name: Upload history and maths default pages
+      - name: Upload history default page
+        id: history
         uses: actions/upload-artifact@v4
         with:
-          name: tutor-default-pages
-          path: ${{ runner.temp }}/tutor-default-pages/*.html
+          name: history-example-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tutor-default-pages/history.html
           if-no-files-found: error
           retention-days: 14
+      - name: Upload maths default page
+        id: maths
+        uses: actions/upload-artifact@v4
+        with:
+          name: maths-example-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tutor-default-pages/maths.html
+          if-no-files-found: error
+          retention-days: 14
+
+  comment:
+    needs: validate
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post a new example-download comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+          HISTORY_URL: ${{ needs.validate.outputs.history-url }}
+          MATHS_URL: ${{ needs.validate.outputs.maths-url }}
+        run: |
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
+          body="### Tutor examples - run ${GITHUB_RUN_NUMBER}, attempt ${GITHUB_RUN_ATTEMPT}"$'\n\n'
+          if [[ "$VALIDATION_RESULT" == "success" && -n "$HISTORY_URL" && -n "$MATHS_URL" ]]; then
+            body+="[Download history.html (ZIP)](${HISTORY_URL})"$'\n\n'
+            body+="[Download maths.html (ZIP)](${MATHS_URL})"$'\n\n'
+            body+="Each archive contains one standalone HTML page generated from its default dataset. Sign in to GitHub to download; links expire after 14 days. Nothing is published to the site."
+          else
+            body+="Validation or example generation did not complete successfully (${VALIDATION_RESULT}); a complete pair of downloads is unavailable."
+          fi
+          body+=$'\n\n'"[View this validation run](${run_url})"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$body"
