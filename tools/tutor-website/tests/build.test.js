@@ -11,6 +11,37 @@ const { validateLesson } = require('../validate.js');
 const { mathsLesson, valueAssessment } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
 const { formatAnswer } = require('../maths.js');
+const { questionBank } = require('../runtime.js');
+
+test('question bank export counts complete tasks and includes canonical answers without learner data', () => {
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const before = JSON.stringify(lesson);
+        const adapter = require(`../${subject}.js`);
+        const result = questionBank(lesson, adapter);
+        const tasks = lesson.questions || lesson.exercises;
+        assert.deepEqual(Object.keys(result), ['subject', 'lessonId', 'topic', 'summary', 'questions']);
+        assert.equal(result.subject, subject);
+        assert.equal(result.lessonId, lesson.id);
+        assert.equal(result.summary.totalQuestions, tasks.length);
+        assert.deepEqual(result.summary.byDifficulty, { easy: 2, medium: 5, hard: 3 });
+        assert.deepEqual(result.questions.map(question => question.id), tasks.map(question => question.id));
+        result.questions.forEach((question, index) => {
+            if (subject === 'history') {
+                assert.deepEqual(question.correctAnswers, tasks[index].type === 'text'
+                    ? tasks[index].acceptedAnswers : [tasks[index].options[tasks[index].answer]]);
+            } else {
+                assert.deepEqual(question.steps.map(step => step.correctAnswer), tasks[index].steps.map(step => formatAnswer(step.answer)));
+                assert.deepEqual(question.steps.map(step => step.answer), tasks[index].steps.map(step => step.answer));
+            }
+            assert.deepEqual(question.assessment, tasks[index].assessment);
+        });
+        assert.equal(JSON.stringify(lesson), before);
+        assert.deepEqual(JSON.parse(JSON.stringify(result)), result);
+    }
+    const legacy = { ...history, version: 1 };
+    delete legacy.subject;
+    assert.equal(questionBank(legacy, require('../history.js')).subject, 'history');
+});
 
 test('discovery identifies real contracts and available untimed maths assessment', () => {
     for (const subject of ['history', 'maths']) {
@@ -217,6 +248,7 @@ test('both subjects embed the same shell and quiz controller, with no practice t
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(sharedRuntime));
         assert.equal(html.match(/<style>([\s\S]*?)<\/style>/)[1], sharedStyles);
+        assert.ok(html.includes(`<body data-subject="${subject}">`));
         const adapter = fs.readFileSync(path.join(__dirname, '..', `${subject}.js`), 'utf8');
         assert.ok(html.includes(adapter));
         assert.doesNotMatch(html, /module\.exports = require|let appData =|DEFAULT_EDU_PAYLOAD/);

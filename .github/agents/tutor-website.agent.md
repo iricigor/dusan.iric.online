@@ -70,7 +70,11 @@ for canonical answers. Never replace representation-sensitive string policies
 with unconditional numeric equivalence. V1/v2 inputs use compatibility policies
 that preserve historical spelling/year tolerance and maths notation restrictions.
 They share grade thresholds and easy-to-hard quiz progression, randomizing
-only within each difficulty. Do not add subject-specific CSS or quiz engines.
+only within each difficulty. Keep subject themes in the shared stylesheet using
+trusted subject selectors: sepia/amber paper grain for history, blue/teal graph
+paper for maths. Restrict pale textures to original/learning text, preserve
+semantic callouts and neutral quiz/results backgrounds, and support dark mode.
+Do not add separate subject stylesheets, assets or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
 Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
@@ -80,9 +84,13 @@ Use a compact right-edge 🔖 Slovníček trigger in Učit se. Its initially clo
 nonmodal slide-out drawer overlays the lesson on all screen sizes without a
 reserved column or text reflow. Support close/Escape/outside-click dismissal,
 focus restoration and reduced motion. Definitions open on click instead of
-filling the drawer. In Učit se, small Rozbalit vše /
-Sbalit vše controls affect only learning disclosures. Hints use a compact,
-right-aligned Nápověda 💡 summary and reveal text below without a bordered bar.
+filling the drawer. In Učit se, two icon-only Rozbalit vše / Sbalit vše controls
+at the right of the tab bar affect only learning disclosures. Keep them outside
+tablist semantics, with Czech tooltips, accessible labels and 44px targets.
+Hints use a compact Nápověda 💡 button floated inside the top-right of the
+prompt paragraph, with text wrapping around it and explanation below.
+Keep expanded state accessible. Native numbered step/result/solution reveals
+are compact and borderless, retaining initial maths scaffolding and touch access.
 Support comment/fun/quote alongside existing paragraph styles. Original styled
 paragraphs must reconstruct the canonical source text exactly; never insert
 labels or explanations into that text. Quiz mode pills show only
@@ -97,6 +105,10 @@ row; input requirements belong in the tooltip/accessibility description and
 visible validation errors, not a long label or redundant setup privacy paragraph.
 The embedded favicon uses a pale tile, a dominant blue D and a smaller black cap
 tilted over the letter's upper-left edge.
+The visible quiz-setup cog toggles tools for a local UTF-8 JSON export of the
+complete question bank, with total/easy/medium/hard counts and correct answers
+(including every maths step). Never include learner/attempt data or make network
+requests for export; make failures visible and retain the shared quiz lifecycle.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural

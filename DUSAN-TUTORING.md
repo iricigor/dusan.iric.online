@@ -200,9 +200,16 @@ sloupec. Panel je zpočátku zavřený na počítači i mobilu. Zavřeš ho tla�
 klávesou Escape nebo kliknutím mimo něj; po zavření tlačítkem či klávesou
 se vrátí zaměření na záložku. Otevřenou definici zavře první Escape,
 samotný slovníček až další. Definice se otevírají u kliknutého
-pojmu nebo podtrženého slova v učivu. Ovládání Rozbalit vše / Sbalit vše v části
-Učit se mění pouze nápovědy a řešení, nikoli slovníček ani kvíz.
-Drobný ovladač Nápověda 💡 je vpravo a po kliknutí ukáže vysvětlení pod sebou.
+pojmu nebo podtrženého slova v učivu. Dvě malé ikony Rozbalit vše / Sbalit vše
+jsou vpravo u záložek pouze v části Učit se a mění jen nápovědy a řešení,
+nikoli slovníček ani kvíz. Mají české tooltipy a přístupné popisky.
+Drobný ovladač Nápověda 💡 je uvnitř pravého horního rohu odstavce,
+text ho obtéká a vysvětlení se otevře pod celým odstavcem.
+Kroky a výsledky mají kompaktní číslované odkrývání bez rámečků.
+Dějepis používá sépiové akcenty a velmi jemný papírový podklad,
+matematika modrozelené akcenty a jemnou geometrickou mřížku.
+Textury jsou jen pod původním textem a učivem, ne pod kvízem ani výsledky;
+významové styly poznámek zůstávají odlišené. Vše má i tlumenou tmavou variantu.
 Záložky s ikonami a českými popisky navazují na obsahový
 panel a podporují ovládání šipkami; obtížnosti mají výraznější barevnou výplň.
 Světlý a tmavý režim přepíná přepínač se sluncem a měsícem. Věk se v záhlaví
@@ -213,6 +220,12 @@ jen tenký ubývající proužek, nikoli odpočet. Dokončení každého kvízu 
 krátké CSS konfety; pořadí pokusu zůstává uvnitř rozbalovacích výsledků.
 Nové stránky mají vloženou světlou ikonu s velkým modrým D a menší černou absolventskou čepicí.
 Stávající zveřejněné stránky se tímto nemění.
+
+Viditelné ozubené kolečko vpravo nahoře v nastavení kvízu rozbalí nástroje.
+Stáhnout JSON uloží celou sadu otázek se správnými odpověďmi, celkovým počtem
+a počty podle obtížnosti easy/medium/hard. Matematické cvičení se počítá jako
+jedna otázka a export obsahuje odpovědi všech jeho kroků. Export funguje místně
+bez sítě, neobsahuje přezdívku ani výsledky žáka a nespustí kvíz.
 
 Barevnější světlý/tmavý vzhled a krátké animace otázek, zpětné vazby,
 výsledků a odkrývání nápověd jsou společné. Nastavení omezeného pohybu je vypne.

@@ -38,9 +38,15 @@ function compareResults(a, b) {
     return b.total - a.total || (a.answerDurationMs ?? a.duration * 1000) - (b.answerDurationMs ?? b.duration * 1000);
 }
 
+function exportQuestion(question) {
+    return { ...question, correctAnswers: question.type === 'text'
+        ? [...question.acceptedAnswers] : [question.options[question.answer]] };
+}
+
 const historySubject = {
     storagePrefix: 'history-tutor:v1',
     speedBonus: true,
+    exportQuestion,
     rules: [
         'Lehká otázka: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
         'Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Tenký proužek ukazuje, dokud je bonus dostupný. Potom můžeš dál odpovídat za základní body. Nemusíš spěchat.',
@@ -55,13 +61,13 @@ const historySubject = {
     compareResults,
     validRecord: row => Object.hasOwn(MODES, row.mode) && Number.isFinite(row.total) && row.total >= 0 &&
         Number.isFinite(row.duration) && row.duration >= 0 && Number.isInteger(row.grade) && row.grade >= 1 && row.grade <= 5,
-    renderLearning({ $, node, paragraph, paragraphs, hint, heading }, lesson) {
+    renderLearning({ $, node, paragraphs, hint, heading }, lesson) {
         const chunks = node('div');
         chunks.id = 'chunks';
         lesson.chunks.forEach(chunk => {
             const article = node('article', undefined, 'card');
-            article.append(heading(chunk.heading, chunk.icon, '🏰'), paragraph(chunk.sentences.join(' ')), ...paragraphs(chunk.paragraphs),
-                hint(paragraph(chunk.explanation)));
+            article.append(heading(chunk.heading, chunk.icon, '🏰'),
+                hint(chunk.sentences.join(' '), chunk.explanation), ...paragraphs(chunk.paragraphs));
             chunks.append(article);
         });
         $('learning-content').append(chunks);
@@ -84,7 +90,7 @@ const historySubject = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults };
+    module.exports = { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults, exportQuestion };
 }
 if (typeof document !== 'undefined') {
     initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), historySubject);

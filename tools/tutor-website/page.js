@@ -12,6 +12,7 @@ function renderPage(lesson, subject) {
         TITLE: escapeHtml(lesson.topic),
         FAVICON: encodeURIComponent(fs.readFileSync(path.join(__dirname, 'favicon.svg'), 'utf8')).replace(/'/g, '%27'),
         SUBJECT: subject === 'history' ? 'Dějepis' : 'Matematika',
+        SUBJECT_ID: subject,
         TIMING: subject === 'history' ? '<div id="bonus" aria-hidden="true"><div id="bonus-bar"></div></div>' : '',
         STYLES: fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8'),
         DATA: JSON.stringify(lesson).replace(/[<>&\u2028\u2029]/g,
@@ -21,7 +22,7 @@ function renderPage(lesson, subject) {
             fs.readFileSync(path.join(__dirname, `${subject}.js`), 'utf8')
     };
     return fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8')
-        .replace(/@@(TITLE|FAVICON|SUBJECT|TIMING|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
+        .replace(/@@(TITLE|FAVICON|SUBJECT|SUBJECT_ID|TIMING|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
 }
 
 module.exports = { renderPage };

@@ -19,6 +19,18 @@ const tutorQuiz = {
         if (milliseconds < 1000) return 'méně než 1 s';
         const seconds = Math.round(milliseconds / 1000);
         return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
+    },
+    questionBank(lesson, subject) {
+        const questions = (lesson.questions || lesson.exercises).map(subject.exportQuestion);
+        return {
+            subject: lesson.subject || 'history', lessonId: lesson.id, topic: lesson.topic,
+            summary: {
+                totalQuestions: questions.length,
+                byDifficulty: Object.fromEntries(['easy', 'medium', 'hard'].map(level =>
+                    [level, questions.filter(question => question.difficulty === level).length]))
+            },
+            questions
+        };
     }
 };
 
@@ -48,11 +60,29 @@ function initializeTutor(lesson, subject) {
         element.setAttribute('aria-hidden', 'true');
         return element;
     };
-    const hint = (...content) => {
-        const details = disclose('Nápověda ', ...content);
-        details.className = 'hint';
-        details.firstElementChild.append(iconNode('💡'));
-        return details;
+    const hints = [];
+    const hint = (text, explanation, open = false, tag = 'p') => {
+        const block = node('div', undefined, 'hint');
+        const prompt = paragraph(text, tag);
+        prompt.className = 'hint-prompt';
+        const content = paragraph(explanation);
+        content.className = 'hint-content';
+        content.id = `hint-content-${hints.length + 1}`;
+        const setOpen = expanded => {
+            content.hidden = !expanded;
+            trigger.setAttribute('aria-expanded', String(expanded));
+        };
+        const trigger = button('Nápověda ', () => {
+            setOpen(content.hidden);
+            syncLearningControls();
+        }, 'hint-toggle');
+        trigger.append(iconNode('💡'));
+        trigger.setAttribute('aria-controls', content.id);
+        setOpen(open);
+        prompt.prepend(trigger);
+        block.append(prompt, content);
+        hints.push({ content, setOpen });
+        return block;
     };
     const heading = (text, icon, fallback) => {
         const element = node('h2');
@@ -224,11 +254,12 @@ function initializeTutor(lesson, subject) {
     subject.renderLearning(context, lesson);
     const learningDetails = [...$('learning-content').querySelectorAll('details')];
     const syncLearningControls = () => {
-        $('expand-learning').disabled = learningDetails.every(details => details.open);
-        $('collapse-learning').disabled = learningDetails.every(details => !details.open);
+        $('expand-learning').disabled = learningDetails.every(details => details.open) && hints.every(hint => !hint.content.hidden);
+        $('collapse-learning').disabled = learningDetails.every(details => !details.open) && hints.every(hint => hint.content.hidden);
     };
     const setLearningOpen = open => {
         learningDetails.forEach(details => { details.open = open; });
+        hints.forEach(hint => hint.setOpen(open));
         syncLearningControls();
     };
     $('expand-learning').addEventListener('click', () => setLearningOpen(true));
@@ -244,6 +275,7 @@ function initializeTutor(lesson, subject) {
     const activateTab = tab => {
         closeGlossary(false);
         $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
+        $('learning-controls').hidden = tab.dataset.tab !== 'learning';
         pauseAnswerClock();
         tabs.forEach(other => {
             const active = other === tab;
@@ -282,6 +314,27 @@ function initializeTutor(lesson, subject) {
     subject.rules.forEach(rule => $('scoring').append(node('li', rule)));
     $('answer-help').textContent = subject.answerHelp || '';
     $('answer-help').hidden = !subject.answerHelp;
+    $('quiz-export').addEventListener('click', () => {
+        $('export-error').hidden = true;
+        let url;
+        let link;
+        try {
+            const json = JSON.stringify(tutorQuiz.questionBank(lesson, subject), null, 2) + '\n';
+            url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
+            link = node('a');
+            link.href = url;
+            link.download = `${lesson.id}-otazky.json`;
+            document.body.append(link);
+            link.click();
+        } catch (error) {
+            console.error('Tutor: cannot export question bank.', error);
+            $('export-error').textContent = 'JSON se nepodařilo stáhnout. Zkus to znovu.';
+            $('export-error').hidden = false;
+        } finally {
+            if (link) link.remove();
+            if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+    });
     const storageKey = `${subject.storagePrefix}:${lesson.id}`;
     let records = [];
     let storageReadable = true;

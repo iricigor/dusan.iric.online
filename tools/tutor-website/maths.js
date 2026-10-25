@@ -45,9 +45,14 @@ function formatAnswer(answer) {
     return answer.format === 'length' ? `${value} ${answer.unit}` : value;
 }
 
+function exportQuestion(exercise) {
+    return { ...exercise, steps: exercise.steps.map(step => ({ ...step, correctAnswer: formatAnswer(step.answer) })) };
+}
+
 const mathsSubject = {
     storagePrefix: 'maths-tutor:v2',
     speedBonus: false,
+    exportQuestion,
     rules: [
         'Lehká skupina: 4 × 2,5 bodu + 1 bod za vše zcela správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů.',
         'Každý krok má vlastní body. Pokud úloha uznává částečnou odpověď, získáš polovinu bodů za krok.',
@@ -70,9 +75,8 @@ const mathsSubject = {
         examples.id = 'examples';
         lesson.examples.forEach((example, index) => {
             const article = node('article', undefined, 'card');
-            const exampleHint = hint(paragraph(example.hint));
-            exampleHint.open = index === 0;
-            article.append(heading(example.heading, example.icon, '📐'), paragraph(example.prompt), ...paragraphs(example.paragraphs), exampleHint);
+            article.append(heading(example.heading, example.icon, '📐'),
+                hint(example.prompt, example.hint, index === 0), ...paragraphs(example.paragraphs));
             const steps = node('ol');
             example.steps.forEach((step, stepIndex) => {
                 const item = node('li');
@@ -98,7 +102,7 @@ const mathsSubject = {
             article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'), paragraph(exercise.prompt));
             exercise.steps.forEach((step, stepIndex) => {
                 const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
-                article.append(node('h3', `${label}: ${step.prompt}`), hint(paragraph(step.hint)),
+                article.append(hint(`${label}: ${step.prompt}`, step.hint, false, 'h3'),
                     disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`), paragraph(step.solution)));
             });
             article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation)));
@@ -131,5 +135,5 @@ const mathsSubject = {
 
 if (typeof document !== 'undefined') initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), mathsSubject);
 if (typeof module !== 'undefined') module.exports = {
-    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords
+    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords, exportQuestion
 };

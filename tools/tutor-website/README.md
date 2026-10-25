@@ -250,11 +250,34 @@ The short `Přezdívka` label and input share a row, including on mobile.
 The three-letter/60-character requirements appear in a native tooltip and an
 accessible field description; validation errors stay visible. The redundant
 privacy paragraph is omitted from setup; session-local storage remains unchanged.
-In Učit se, compact `Rozbalit vše` / `Sbalit vše` controls affect only learning
+In Učit se, two icon-only `Rozbalit vše` / `Sbalit vše` controls sit at the right
+of the tab bar, outside tablist semantics, with Czech tooltips, accessible labels
+and 44px targets. They affect only learning
 hints, steps, answers and explanations, never the glossary or quiz disclosures.
 Individual disclosures remain independently operable. Hints share a small
-right-aligned `Nápověda 💡` native summary instead of a full-width bordered bar;
-the explanation opens below it. Other kinds of reveal retain descriptive labels.
+`Nápověda 💡` button floated inside the top-right of its prompt paragraph,
+with text wrapping around it. The button exposes its expanded state and controls
+an explanation below the entire paragraph. Native step/result/solution reveals
+retain descriptive labels in compact, borderless numbered lists; touch targets
+remain 44px on coarse pointers. Initial maths scaffolding is unchanged.
+
+Trusted subject selectors in the one shared stylesheet provide sepia/amber
+history accents and blue/teal maths accents. Very pale CSS-only paper grain or
+graph-paper backgrounds decorate original/learning text blocks, with restrained
+dark variants. Semantic callouts retain their own styling. Quiz/results
+backgrounds remain neutral; no lesson-supplied CSS or external assets are used.
+
+A small visible cog at the top-right of quiz setup toggles native quiz tools.
+`Stáhnout JSON` downloads the complete question bank locally as UTF-8 JSON,
+including correct answers, without starting a quiz or reading learner records.
+The export has `subject`, `lessonId`, `topic`, `summary` and `questions`.
+`summary.totalQuestions` counts history questions or whole maths exercises;
+`summary.byDifficulty` contains `easy`, `medium` and `hard` counts.
+History entries preserve question data and add a `correctAnswers` array;
+maths exercises preserve typed step answers/assessment and add a formatted
+`correctAnswer` to each step. No attempt, nickname or student answers are exported.
+The disclosure can be collapsed with its cog; failures produce a visible alert.
+
 Brief animations cover new questions/answer controls,
 feedback, results, tabs, glossary popovers and opened learning hints. They never
 auto-advance, change timing/scoring or obscure answers. Reduced-motion preference
@@ -327,7 +350,7 @@ the package archive nor existing published lessons is changed by this integratio
 |---|---|
 | Wide desktop shell and learning/glossary columns | A 1120px maximum shared shell and a bookmark-triggered overlay glossary drawer, with no reserved column; original text fills its card's inner width |
 | Subject/audience badges and prominent active tabs | Subject badge retained, audience badge omitted; attached icon-and-label tabs use selected states, keyboard navigation and labelled panels |
-| Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
+| Difficulty cards, visible hints and grade banner | Adapted in the common CSS; inline hint buttons expose expanded state and control explanations, with existing maths scaffolding unchanged |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
 | “Síň slávy” results | Label adopted, retaining named, per-subject/per-lesson session-local records and visible storage failures |
 | Glossary modal, themes and success/failure animations | Shared anchored native popovers, system-theme support and reduced-motion-aware feedback instead of duplicate implementations |
