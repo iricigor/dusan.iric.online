@@ -62,7 +62,7 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .callout-comment { --callout: var(--muted); }
 .callout-fun { --callout: var(--violet); }
 .callout-quote { --callout: var(--teal); font-style: italic; margin-inline: 0; }
-.original-text { white-space: pre-wrap; max-width: 80ch; }
+.original-text { white-space: pre-wrap; }
 .original-text:has(> :nth-child(2)) { white-space: normal; }
 .original-text > * { white-space: pre-wrap; }
 .learning-main { min-width: 0; }

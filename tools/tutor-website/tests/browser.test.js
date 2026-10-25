@@ -223,6 +223,13 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             document.getElementById('${tab}').getAttribute('aria-labelledby') === tab.id
                             && document.documentElement.scrollWidth <= innerWidth;
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
+                    if (tab === 'original') {
+                        assert.equal(await evaluate(`[...document.querySelectorAll('#original-content article')].every(article => {
+                            const style = getComputedStyle(article);
+                            const available = article.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+                            return Math.abs(article.querySelector('.original-text').getBoundingClientRect().width - available) <= 1;
+                        })`), true, `${subject}/${width}/${theme}: original text fills each card's inner width`);
+                    }
                     if (tab === 'learning') {
                         assert.equal(await evaluate(`(() => {
                             const hint = document.querySelector('#learning-content .hint');

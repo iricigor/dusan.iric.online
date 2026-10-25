@@ -210,7 +210,7 @@ test('both subjects embed a standalone blue D and black cap on a pale favicon ti
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
     const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
-    assert.match(sharedStyles, /\.original-text \{[^}]*max-width: 80ch;/);
+    assert.doesNotMatch(sharedStyles, /\.original-text \{[^}]*max-width:/);
     assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor')), false);
     assert.equal(fs.existsSync(path.join(__dirname, '..', 'maths.schema.json')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
