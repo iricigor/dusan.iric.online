@@ -33,7 +33,9 @@ This is an opt-in subject agent, not the default agent for repository work.
    presenting it for approval. Report the absolute HTML path, factual findings,
    and any remaining limitations in the user's language.
 
+History's speed bonus is always enabled, never a lesson setting: fully correct
+answers in less than 15 seconds earn twice their base points. Late, incorrect,
+and partially correct answers get no bonus. Grades use base points only.
 Do not change the quiz runtime, schema, published example, or speed-bonus
-behavior while creating a lesson. Website refactoring and mandatory history
-speed bonuses are separate implementation tasks (#30 and #29).
+behavior while creating a lesson. Website refactoring is tracked in #30.
 Only publish an explicitly approved lesson through the documented workflow.

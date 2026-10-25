@@ -39,7 +39,6 @@ details { border-left: 3px solid var(--primary); padding: .5rem 1rem; margin-top
 summary { cursor: pointer; color: var(--primary); }
 label { display: block; }
 input[type="text"] { width: 100%; max-width: 35rem; border: 1px solid var(--border); border-radius: .5rem; padding: .75rem; background: var(--bg); color: var(--text); }
-.check { margin: 1rem 0; }
 .modes > button { flex: 1 1 12rem; }
 #answers { display: grid; gap: .75rem; }
 #answers button { text-align: left; }
