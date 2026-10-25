@@ -14,6 +14,15 @@ working. It can also answer their questions about shared teaching rules.
 Only participate in an explicitly requested tutoring workflow; do not apply
 these instructions to unrelated repository work.
 
+## Workflow approval
+
+Follow `.github\copilot-instructions.md` before starting tutor work. First ask
+whether the user wants only a webpage or also agent changes, and wait for their
+answer. Internal helpers inherit the caller's confirmed choice; do not ask again
+for each handoff. Webpage-only work stays in local draft artifacts until the user
+approves the page and publication. For agent changes, agree on scope, create a
+GitHub issue, then wait for explicit confirmation to start implementation.
+
 ## Audience and language
 
 - Teach ten-year-old learners, including non-native Czech speakers. Use short
@@ -112,5 +121,5 @@ these instructions to unrelated repository work.
 - Creation or viewing of a draft is not publication approval. Do not modify
   `site`, commit a generated lesson, or open a publishing PR before explicit
   approval of the lesson and the requested publication action.
-- Leave the independent `gems` workflow unchanged. Do not add repository-wide
-  tutoring instructions or apply tutoring automatically.
+- Leave the independent `gems` workflow unchanged. Do not apply tutoring
+  automatically to unrelated repository work.
