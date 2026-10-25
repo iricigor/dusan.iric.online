@@ -1,0 +1,211 @@
+{
+  "version": 1,
+  "id": "defenestrace-a-bila-hora",
+  "topic": "Od defenestrace k Bílé hoře",
+  "audience": "Pro desetileté děti, které se učí česky",
+  "review": "Toto je krátká ukázková lekce, ne celá kapitola. Původní text tvoří nezměněné úryvky z existující ukázky v gems. Opravujeme původ slova defenestrace: pochází z latiny, ne z němčiny. Rok 1618 je doplněn podle uvedených zdrojů. Datum bitvy na Bílé hoře 8. listopadu 1620 odpovídá uvedenému přehledu bitvy. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
+  "sources": [
+    {
+      "title": "Defenestrace — původ slova z latiny",
+      "url": "https://cs.wikipedia.org/wiki/Defenestrace"
+    },
+    {
+      "title": "Pražská defenestrace (1618) — začátek povstání",
+      "url": "https://cs.wikipedia.org/wiki/Pra%C5%BEsk%C3%A1_defenestrace_(1618)"
+    },
+    {
+      "title": "Bitva na Bílé hoře — datum bitvy",
+      "url": "https://cs.wikipedia.org/wiki/Bitva_na_B%C3%ADl%C3%A9_ho%C5%99e"
+    }
+  ],
+  "original": [
+    {
+      "heading": "STAVOVSKÉ POVSTÁNÍ",
+      "text": "Pražskou defenestrací byla zahájena otevřená vzpoura proti panovníkovi a začalo stavovské povstání. Stavy požadovaly rovnoprávné postavení českých zemí v habsburské monarchii, možnost volby krále a svobodu náboženského vyznání."
+    },
+    {
+      "heading": "BITVA NA BÍLÉ HOŘE — úryvek",
+      "text": "České stavy si zvolily za svého krále Fridricha Falckého. K rozhodujícímu střetnutí došlo 8. listopadu 1620 na Bílé hoře."
+    },
+    {
+      "heading": "VÍŠ, ŽE...? — úryvek",
+      "text": "- Fenster znamená německy okno. Odtud pochází výraz defenestrace – vyhození z okna."
+    }
+  ],
+  "corrections": [
+    {
+      "section": 2,
+      "quote": "Odtud pochází výraz defenestrace – vyhození z okna.",
+      "explanation": "Fenster opravdu znamená německy okno. Slovo defenestrace ale pochází z latiny, ne z němčiny. Latinské fenestra znamená okno.",
+      "sourceUrl": "https://cs.wikipedia.org/wiki/Defenestrace"
+    }
+  ],
+  "glossary": [
+    {
+      "term": "defenestrace",
+      "forms": ["defenestrací"],
+      "definition": "Vyhození člověka nebo věci z okna. Slovo pochází z latiny. Pražská událost roku 1618 pomohla odstartovat povstání."
+    },
+    {
+      "term": "stavy",
+      "forms": ["stavů"],
+      "definition": "Skupiny lidí s politickými právy, například šlechta a zástupci některých měst. Nešlo o všechny obyvatele země."
+    },
+    {
+      "term": "monarchie",
+      "forms": ["monarchii"],
+      "definition": "Stát, kterému vládne panovník, například král nebo císař."
+    },
+    {
+      "term": "náboženská svoboda",
+      "forms": ["náboženskou svobodu"],
+      "definition": "Možnost vyznávat svou víru. Spory o toto právo byly jednou z příčin povstání."
+    },
+    {
+      "term": "Fridrich Falcký",
+      "forms": ["Fridricha Falckého"],
+      "definition": "Panovník, kterého si české stavy zvolily za krále."
+    },
+    {
+      "term": "Bílá hora",
+      "forms": ["Bílé hoře"],
+      "definition": "Místo u Prahy, kde se 8. listopadu 1620 odehrála důležitá bitva."
+    },
+    {
+      "term": "1618",
+      "forms": [],
+      "definition": "Rok pražské defenestrace, kterou začalo stavovské povstání."
+    },
+    {
+      "term": "1620",
+      "forms": [],
+      "definition": "Rok bitvy na Bílé hoře."
+    },
+    {
+      "term": "Fenster",
+      "forms": [],
+      "definition": "Německé slovo pro okno. Nezaměňuj ho s latinským slovem fenestra."
+    }
+  ],
+  "chunks": [
+    {
+      "heading": "Proč začalo povstání?",
+      "sentences": [
+        "Pražská defenestrace roku 1618 zahájila otevřenou vzpouru proti panovníkovi.",
+        "Tím začalo stavovské povstání.",
+        "České stavy chtěly rovnoprávné postavení českých zemí v habsburské monarchii.",
+        "Chtěly také možnost volit krále a náboženskou svobodu."
+      ],
+      "explanation": "Některé skupiny obyvatel se postavily proti vládci. Chtěly více rozhodovat o své zemi a mít svobodu ve víře. Nešlo o volby pro všechny lidi jako dnes."
+    },
+    {
+      "heading": "Volba krále a důležitá bitva",
+      "sentences": [
+        "České stavy si zvolily za krále Fridricha Falckého.",
+        "Důležitá bitva se odehrála 8. listopadu 1620 na Bílé hoře u Prahy."
+      ],
+      "explanation": "Stavy si vybraly vlastního krále. Potom přišla důležitá bitva. Pamatuj si místo Bílá hora a rok 1620."
+    },
+    {
+      "heading": "Co znamená defenestrace?",
+      "sentences": [
+        "Defenestrace znamená vyhození z okna.",
+        "Slovo pochází z latiny: fenestra znamená okno.",
+        "Také německé slovo Fenster znamená okno, ale výraz defenestrace nevznikl z němčiny."
+      ],
+      "explanation": "Různé jazyky mohou mít podobná slova. Tady je důležité rozlišit latinu a němčinu. Původní text se v původu slova mýlí."
+    }
+  ],
+  "questions": [
+    {
+      "id": "e-vzpoura",
+      "difficulty": "easy",
+      "type": "trueFalse",
+      "prompt": "Stavovské povstání bylo vzpourou proti panovníkovi.",
+      "options": ["Pravda", "Nepravda"],
+      "answer": 0,
+      "explanation": "Stavy se otevřeně postavily proti panovníkovi."
+    },
+    {
+      "id": "e-volba",
+      "difficulty": "easy",
+      "type": "trueFalse",
+      "prompt": "Král byl ve stavovské volbě vybírán všemi obyvateli země jako v dnešních volbách.",
+      "options": ["Pravda", "Nepravda"],
+      "answer": 1,
+      "explanation": "Rozhodovaly stavy s politickými právy, ne všichni obyvatelé."
+    },
+    {
+      "id": "m-vira",
+      "difficulty": "medium",
+      "type": "choice",
+      "prompt": "Co stavy požadovaly v otázce víry?",
+      "options": ["Náboženskou svobodu", "Zákaz všech náboženství", "Povinnou změnu jazyka", "Zrušení všech měst"],
+      "answer": 0,
+      "explanation": "Jedním z požadavků byla svoboda náboženského vyznání."
+    },
+    {
+      "id": "m-vyznam",
+      "difficulty": "medium",
+      "type": "choice",
+      "prompt": "Co znamená slovo defenestrace?",
+      "options": ["Volba krále", "Vyhození z okna", "Uzavření míru", "Placení daní"],
+      "answer": 1,
+      "explanation": "Defenestrace označuje vyhození člověka nebo věci z okna."
+    },
+    {
+      "id": "m-kral",
+      "difficulty": "medium",
+      "type": "choice",
+      "prompt": "Koho si české stavy zvolily za krále?",
+      "options": ["Karla IV.", "Rudolfa II.", "Fridricha Falckého", "Jana Husa"],
+      "answer": 2,
+      "explanation": "V původním textu i ve vysvětlení najdeš Fridricha Falckého."
+    },
+    {
+      "id": "m-jazyk",
+      "difficulty": "medium",
+      "type": "choice",
+      "prompt": "Z jakého jazyka pochází slovo defenestrace?",
+      "options": ["Z češtiny", "Z němčiny", "Z francouzštiny", "Z latiny"],
+      "answer": 3,
+      "explanation": "Původ je latinský. Německé Fenster je jen podobné slovo pro okno."
+    },
+    {
+      "id": "m-misto",
+      "difficulty": "medium",
+      "type": "choice",
+      "prompt": "Kde se odehrála důležitá bitva uvedená v lekci?",
+      "options": ["Na Bílé hoře u Prahy", "U moře", "V Brně", "V Paříži"],
+      "answer": 0,
+      "explanation": "Bitva se odehrála na Bílé hoře u Prahy."
+    },
+    {
+      "id": "h-defenestrace",
+      "difficulty": "hard",
+      "type": "text",
+      "prompt": "Ve kterém roce začalo stavovské povstání pražskou defenestrací? Napiš rok.",
+      "acceptedAnswers": ["1618"],
+      "year": true,
+      "explanation": "Tato pražská defenestrace se odehrála roku 1618."
+    },
+    {
+      "id": "h-bitva",
+      "difficulty": "hard",
+      "type": "text",
+      "prompt": "Ve kterém roce se odehrála bitva na Bílé hoře? Napiš rok.",
+      "acceptedAnswers": ["1620"],
+      "year": true,
+      "explanation": "Bitva se odehrála 8. listopadu 1620."
+    },
+    {
+      "id": "h-fenster",
+      "difficulty": "hard",
+      "type": "text",
+      "prompt": "Jak se německy řekne okno? Napiš jedno slovo z lekce.",
+      "acceptedAnswers": ["Fenster"],
+      "year": false,
+      "explanation": "Německy je okno Fenster. Latinsky je to fenestra."
+    }
+  ]
+}

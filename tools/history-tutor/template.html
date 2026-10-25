@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@@TITLE@@</title>
+    <style>@@STYLES@@</style>
+</head>
+<body>
+    <header>
+        <div class="heading">
+            <div><span class="badge">Dějepis</span><h1 id="topic"></h1></div>
+            <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
+        </div>
+        <p id="audience"></p>
+        <nav aria-label="Části lekce">
+            <button type="button" data-tab="original" aria-pressed="true">Původní text</button>
+            <button type="button" data-tab="learning" aria-pressed="false">Učit se</button>
+            <button type="button" data-tab="quiz" aria-pressed="false">Hrát si</button>
+        </nav>
+    </header>
+    <main>
+        <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
+        <p id="storage-warning" role="status" hidden></p>
+        <section id="original" aria-label="Původní text">
+            <article class="card"><h2>Ověření a doplnění</h2><p id="review"></p><ul id="sources"></ul></article>
+            <div id="original-content"></div>
+        </section>
+        <section id="learning" aria-label="Učit se" hidden>
+            <div id="chunks"></div>
+            <article class="card"><h2>Slovníček</h2><div id="glossary"></div></article>
+        </section>
+        <section id="quiz" aria-label="Hrát si" hidden>
+            <div id="setup" class="card">
+                <h2>Kvízová výzva</h2>
+                <label for="player">Tvoje jméno (alespoň 3 písmena)</label>
+                <input id="player" type="text" autocomplete="given-name" maxlength="60" placeholder="Tvoje jméno" aria-describedby="name-error">
+                <p id="name-error" role="alert"></p>
+                <label class="check"><input id="speed" type="checkbox"> Chci rychlostní bonus (2× body do 15 sekund)</label>
+                <p>Otázky: lehká 10 b, střední 20 b, těžká 30 b. Známka nezávisí na rychlosti.</p>
+                <div class="modes">
+                    <button type="button" data-mode="easy">Lehká: 3 otázky (1 + 1 + 1)</button>
+                    <button type="button" data-mode="medium">Střední: 5 otázek (1 + 2 + 2)</button>
+                    <button type="button" data-mode="hard">Těžká: 10 otázek (2 + 5 + 3)</button>
+                </div>
+            </div>
+            <article id="game" class="card" hidden>
+                <p id="progress"></p>
+                <p id="bonus" role="status"></p>
+                <h2 id="question" tabindex="-1"></h2>
+                <form id="answers"></form>
+                <div id="feedback" role="status" hidden></div>
+                <button id="next" type="button" hidden>Další otázka</button>
+            </article>
+            <article id="results" class="card" hidden>
+                <h2 tabindex="-1" id="results-title">Jak se ti dařilo?</h2>
+                <ol id="summary"></ol>
+                <p id="grade" class="grade"></p>
+                <button id="restart" type="button">Zkusit znovu</button>
+            </article>
+            <article id="leaderboard" class="card">
+                <h2>Síň slávy</h2>
+                <div id="leaderboard-content" class="table-scroll"></div>
+            </article>
+        </section>
+    </main>
+    <dialog id="definition" aria-labelledby="definition-title">
+        <h2 id="definition-title"></h2>
+        <p id="definition-text"></p>
+        <form method="dialog"><button>Zavřít</button></form>
+    </dialog>
+    <script id="lesson-data" type="application/json">@@DATA@@</script>
+    <script>@@APP@@</script>
+</body>
+</html>
