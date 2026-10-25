@@ -4,24 +4,67 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - ".github/agents/tutor-*.agent.md"
-      - ".github/workflows/validate-tutors.yml"
-      - "tools/tutor-website/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - closed
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  changes:
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      changed: ${{ steps.paths.outputs.changed }}
+    steps:
+      - name: Check all changed paths in the pull request
+        id: paths
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          changed=false
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            changed=true
+          else
+            files="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" --jq '.[] | .filename, (.previous_filename // empty)')"
+            while IFS= read -r file; do
+              case "$file" in
+                tools/tutor-website/*|.github/agents/tutor-*.agent.md|.github/workflows/validate-tutors.yml)
+                  changed=true
+                  break
+                  ;;
+              esac
+            done <<< "$files"
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
   validate:
+    needs: changes
+    if: needs.changes.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       history-url: ${{ steps.history.outputs.artifact-url }}
       maths-url: ${{ steps.maths.outputs.artifact-url }}
+      history-id: ${{ steps.history.outputs.artifact-id }}
+      maths-id: ${{ steps.maths.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.merge_commit_sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -64,9 +107,47 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  comment:
+  release:
     needs: validate
-    if: always() && github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download the validated example pages
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.validate.outputs.history-id }},${{ needs.validate.outputs.maths-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/tutor-release-pages
+      - name: Create or update this merged PR's tutor release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          tag="tutor-pr-${PR_NUMBER}"
+          existing_target="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --jq ".[] | select(.tag_name == \"${tag}\") | .target_commitish")"
+          if [[ -n "$existing_target" ]]; then
+            if [[ "$existing_target" != "$MERGE_SHA" ]]; then
+              echo "Release ${tag} already targets a different commit; refusing to replace its assets." >&2
+              exit 1
+            fi
+            gh release upload --repo "$GITHUB_REPOSITORY" --clobber -- "$tag" \
+              "$RUNNER_TEMP/tutor-release-pages/history.html" \
+              "$RUNNER_TEMP/tutor-release-pages/maths.html"
+          else
+            notes="Default history and maths pages generated from merged PR #${PR_NUMBER} (${MERGE_SHA}). Download the two standalone HTML assets below."
+            gh release create --repo "$GITHUB_REPOSITORY" --target "$MERGE_SHA" \
+              --title "Tutor examples - PR #${PR_NUMBER}" --notes "$notes" --latest=false -- "$tag" \
+              "$RUNNER_TEMP/tutor-release-pages/history.html" \
+              "$RUNNER_TEMP/tutor-release-pages/maths.html"
+          fi
+
+  comment:
+    needs: [changes, validate]
+    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
