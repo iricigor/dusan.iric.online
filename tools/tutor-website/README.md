@@ -264,8 +264,8 @@ touch and keyboard. Escape, outside click, the close button or changing views
 dismiss it; explicit close/Escape returns focus to the trigger.
 The runtime requires a modern browser with the native Popover API.
 
-`favicon.svg` contains a pale rounded tile, a small black graduation cap and
-a larger blue vector D as its dominant element. `page.js` embeds it as a data URL in every
+`favicon.svg` contains a pale rounded tile and a dominant blue vector D, with
+a smaller black cap tilted over its upper-left edge. `page.js` embeds it as a data URL in every
 new standalone page: no font, network request or external asset is required.
 Existing published HTML and the independent Gems workflow remain unchanged.
 

@@ -300,11 +300,11 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 [...document.querySelectorAll('#original-content h2, #learning-content article h2')]
                     .every(title => title.querySelector('.card-icon[aria-hidden="true"]'));
         })()`), true, `${subject}: quiet setup and decorative card icons`);
-        assert.equal(await evaluate(`(async () => {
+        const faviconMetrics = await evaluate(`(async () => {
             const image = new Image();
             image.src = document.querySelector('link[rel="icon"]').href;
             await image.decode();
-            return [16, 32].every(size => {
+            return [16, 32].map(size => {
                 const canvas = document.createElement('canvas');
                 canvas.width = canvas.height = size;
                 const context = canvas.getContext('2d');
@@ -316,13 +316,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     if (pixels[i] > 220 && pixels[i + 1] > 220 && pixels[i + 2] > 220) pale++;
                     const point = { x: (i / 4) % size, y: Math.floor(i / 4 / size) };
                     if (pixels[i + 2] > pixels[i] + 40 && pixels[i + 3] > 200) blue.push(point);
-                    if (pixels[i] < 40 && pixels[i + 1] < 40 && pixels[i + 2] < 40 && pixels[i + 3] > 200) black.push(point);
+                    const channels = [pixels[i], pixels[i + 1], pixels[i + 2]];
+                    if (Math.max(...channels) < 200 && Math.max(...channels) - Math.min(...channels) < 12 && pixels[i + 3] > 200) black.push(point);
                 }
-                const extent = (points, axis) => Math.max(...points.map(p => p[axis])) - Math.min(...points.map(p => p[axis])) + 1;
-                return pale > size * size / 3 && blue.length > size && black.length > size / 4 &&
-                    extent(blue, 'x') > extent(black, 'x') && extent(blue, 'y') > extent(black, 'y');
+                const bounds = points => ({
+                    left: Math.min(...points.map(p => p.x)), right: Math.max(...points.map(p => p.x)),
+                    top: Math.min(...points.map(p => p.y)), bottom: Math.max(...points.map(p => p.y))
+                });
+                return { size, pale, blueCount: blue.length, blackCount: black.length, blue: bounds(blue), black: bounds(black) };
             });
-        })()`), true, `${subject}: offline favicon renders at 16 and 32 pixels`);
+        })()`);
         if (process.env.TUTOR_SCREENSHOT_DIRECTORY) {
             const preview = await evaluate(`(async () => {
                 const image = new Image();
@@ -341,6 +344,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 return preview.toDataURL('image/png').split(',')[1];
             })()`);
             fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, 'favicon-16-32-enlarged.png'), Buffer.from(preview, 'base64'));
+        }
+        for (const { size, pale, blueCount, blackCount, blue, black } of faviconMetrics) {
+            assert.ok(pale > size * size / 3 && blueCount > size && blackCount > size / 4,
+                `${subject}/${size}: visible pale tile, blue D and black cap`);
+            assert.ok(blue.right - blue.left > black.right - black.left && blue.bottom - blue.top > black.bottom - black.top,
+                `${subject}/${size}: D larger than cap: ${JSON.stringify({ blue, black })}`);
+            assert.ok(black.left < blue.left && black.bottom >= blue.top,
+                `${subject}/${size}: cap hangs over D's left edge: ${JSON.stringify({ blue, black })}`);
         }
         assert.deepEqual(await evaluate(`(() => {
             const $ = id => document.getElementById(id);

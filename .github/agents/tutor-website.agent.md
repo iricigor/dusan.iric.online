@@ -86,7 +86,8 @@ Keep the sun/moon control a binary accessible theme switch. Audience is lesson
 metadata, not a visible age badge. The compact nickname label/input share one
 row; input requirements belong in the tooltip/accessibility description and
 visible validation errors, not a long label or redundant setup privacy paragraph.
-The embedded favicon uses a pale tile, a dominant blue D and a smaller black cap.
+The embedded favicon uses a pale tile, a dominant blue D and a smaller black cap
+tilted over the letter's upper-left edge.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural
