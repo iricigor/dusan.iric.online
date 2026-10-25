@@ -113,11 +113,13 @@ Oba předměty používají tentýž generátor a schéma. Náhledy musí být m
 Existující HTML se nepřepisuje; `overwriteApproved: true` v předávacím objektu
 povol pouze po výslovném schválení náhrady daného souboru.
 
-Ukázka **Od defenestrace k Bílé hoře** používá vybrané nezměněné úryvky
-ze stávající dějepisné ukázky. Předvádí také opravu věcné chyby: slovo
+Ukázka **Od defenestrace k Bílé hoře** obsahuje všech sedm dodaných oddílů
+původního textu beze změny slov, včetně zajímavostí a závěrečné citace.
+Předvádí také opravu věcné chyby: slovo
 *defenestrace* pochází z latiny, nikoli z němčiny. Obsahuje deset otázek
-pro vyzkoušení všech tří obtížností; nejde o celou učebnicovou kapitolu.
-Schválená ukázka pro web je v souboru `site\history\defenestrace.html`.
+pro vyzkoušení všech tří obtížností; výklad a kvíz zatím procvičují jen vybranou
+část kapitoly. Další tvrzení rozšířeného podkladu nebyla nově ověřena.
+Starší schválená ukázka v souboru `site\history\defenestrace.html` zůstává beze změn.
 
 Testy nástrojů spustíš takto:
 
@@ -180,16 +182,24 @@ Závazné pokyny pro generování a pravidla kvízu obsahuje
 Nové lekce obou předmětů mají společná metadata, původní text, slovníček
 a povinný krátký motivační podtitulek `subtitle`. Pravidlo povzbudivého jazyka
 patří do `tutor-common`; schéma a zobrazení vlastní `tutor-website`.
-Styly `plain`, `note`, `example`, `tip`, `warning` umožňují odlišit poznámku,
-příklad, tip nebo upozornění. V původním textu nastav `original[].style`;
-jeho znění se nemění. V matematických příkladech a dějepisných výukových
+Styly `plain`, `note`, `example`, `tip`, `warning`, `comment`, `fun`, `quote`
+odliší běžný text, poznámku, příklad, tip, upozornění, komentář, zajímavost a citaci.
+V původním textu nastav `original[].style`; jeho znění se nemění.
+Pro jednotlivé původní odstavce lze použít `original[].paragraphs`: jejich text
+spojený dvěma konci řádku musí přesně odpovídat `original[].text`.
+Citace se zobrazí jako samostatný citovaný blok bez přidaných slov.
+V matematických příkladech a dějepisných výukových
 blocích lze přidat pole `paragraphs` s položkami `{ "style", "text" }`.
 HTML ani vlastní CSS do obsahu nepatří.
 
 Volitelné `icon` doplní krátké emoji k původnímu oddílu, výukovému bloku,
 řešenému příkladu, otázce, cvičení nebo pojmu ve slovníčku. Bez něj generátor
-použije výchozí ikonu. Slovníček je rozbalovací; definice se otevírají u
-kliknutého slova. Záložky s ikonami a českými popisky navazují na obsahový
+použije výchozí ikonu. Slovníček je v úzkém rozbalovacím sloupci vpravo;
+na mobilu je nad učivem a zpočátku sbalený. Definice se otevírají u kliknutého
+pojmu nebo podtrženého slova v učivu. Ovládání Rozbalit vše / Sbalit vše v části
+Učit se mění pouze nápovědy a řešení, nikoli slovníček ani kvíz.
+Drobný ovladač Nápověda 💡 je vpravo a po kliknutí ukáže vysvětlení pod sebou.
+Záložky s ikonami a českými popisky navazují na obsahový
 panel a podporují ovládání šipkami; obtížnosti mají výraznější barevnou výplň.
 Světlý a tmavý režim přepíná přepínač se sluncem a měsícem. Věk se v záhlaví
 nezobrazuje. Krátký popisek přezdívky a vstup jsou na jednom řádku; požadavky

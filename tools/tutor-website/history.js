@@ -55,13 +55,13 @@ const historySubject = {
     compareResults,
     validRecord: row => Object.hasOwn(MODES, row.mode) && Number.isFinite(row.total) && row.total >= 0 &&
         Number.isFinite(row.duration) && row.duration >= 0 && Number.isInteger(row.grade) && row.grade >= 1 && row.grade <= 5,
-    renderLearning({ $, node, paragraph, paragraphs, disclose, heading }, lesson) {
+    renderLearning({ $, node, paragraph, paragraphs, hint, heading }, lesson) {
         const chunks = node('div');
         chunks.id = 'chunks';
         lesson.chunks.forEach(chunk => {
             const article = node('article', undefined, 'card');
             article.append(heading(chunk.heading, chunk.icon, '🏰'), paragraph(chunk.sentences.join(' ')), ...paragraphs(chunk.paragraphs),
-                disclose('Nápověda: jednodušeji', node('p', chunk.explanation)));
+                hint(paragraph(chunk.explanation)));
             chunks.append(article);
         });
         $('learning-content').append(chunks);

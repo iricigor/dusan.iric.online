@@ -152,8 +152,10 @@ running duration display, speed indicator or bonus.
 Existing history v1 and maths v2 JSON still use the shared builder and validator.
 Previously published HTML remains unchanged until separately
 approved publication; the published example retains its reviewed v1 data.
-The reusable default adds v3 metadata and styled teaching notes without
-rewriting the reviewed source excerpts. Its year ranges are now declared
+The reusable default adds v3 metadata and styled teaching notes, and now includes
+all seven supplied original sections verbatim, including fun facts and the closing
+quotation. Teaching and assessment still cover the selected uprising/White Mountain
+material, not the entire expanded chapter. Its year ranges are now declared
 explicitly; the 1620 question uses inclusive 1615–1625 for partial credit.
 Published HTML is self-contained and does not depend on the generator. The
 removed history CLI/validation wrappers and subject schema aliases are not
@@ -221,12 +223,18 @@ and history learning chunks may add an optional `paragraphs` array:
 }
 ```
 
-Allowed styles are `plain`, `note`, `example`, `tip`, `warning`. Labels are Czech
+Allowed styles are `plain`, `note`, `example`, `tip`, `warning`, `comment`, `fun`
+(fun fact) and `quote` (quotation). Labels are Czech
 text, not color alone; source labels sit outside the preserved source paragraph.
 All values remain inert plain text with glossary support in teaching notes.
 No author-supplied HTML, CSS, class names or scripts are accepted.
-Source sections can be split at existing paragraph boundaries without changing
-their wording; never place generated notes inside preserved source text.
+Original sections may also supply `paragraphs` to style existing paragraphs
+individually, for example a final `quote`. Their `text` values joined with exactly
+`\n\n` must equal the section's canonical `text`; the validator rejects changes,
+omissions or inserted explanations. Correction quotes must fit within one styled
+paragraph. Quotations use semantic blockquotes, and original paragraph styling
+adds no visible label inside source text. Existing sections without `paragraphs`
+remain supported. Never place generated notes inside preserved source text.
 
 Shared Fluent-inspired attached icon-and-label tabs, soft elevated cards and
 theme-aware accents establish hierarchy without a UI library. The active tab
@@ -242,6 +250,11 @@ The short `Přezdívka` label and input share a row, including on mobile.
 The three-letter/60-character requirements appear in a native tooltip and an
 accessible field description; validation errors stay visible. The redundant
 privacy paragraph is omitted from setup; session-local storage remains unchanged.
+In Učit se, compact `Rozbalit vše` / `Sbalit vše` controls affect only learning
+hints, steps, answers and explanations, never the glossary or quiz disclosures.
+Individual disclosures remain independently operable. Hints share a small
+right-aligned `Nápověda 💡` native summary instead of a full-width bordered bar;
+the explanation opens below it. Other kinds of reveal retain descriptive labels.
 Brief animations cover new questions/answer controls,
 feedback, results, tabs, glossary popovers and opened learning hints. They never
 auto-advance, change timing/scoring or obscure answers. Reduced-motion preference
@@ -257,8 +270,11 @@ migration. Original section text is unchanged. Emoji are decorative and hidden
 from assistive technology; meaningful headings and difficulty labels remain text.
 Icons use safe text nodes, never HTML, CSS, classes or asset URLs.
 
-The learning view is a single reading column with inline clickable glossary
-terms and an expandable all-terms list below the content. Definitions open
+The learning view has inline clickable glossary terms and a narrow collapsible
+right-side term list, initially open on desktop. At 760px and below, the same list
+moves above the lesson and starts collapsed. Changing between these layouts
+resets that default; learners can otherwise open/close it independently.
+Only term buttons are shown, not a wall of definitions. Definitions open
 beside the trigger in a viewport-constrained native popover, usable by mouse,
 touch and keyboard. Escape, outside click, the close button or changing views
 dismiss it; explicit close/Escape returns focus to the trigger.
@@ -304,7 +320,7 @@ the package archive nor existing published lessons is changed by this integratio
 
 | Gems detail | Shared generator decision |
 |---|---|
-| Wide desktop shell and learning/glossary columns | Replaced by a 1120px maximum shared shell and one reading column with an expandable glossary; original text keeps an 80-character reading width |
+| Wide desktop shell and learning/glossary columns | A 1120px maximum shared shell, a narrow collapsible right glossary and mobile glossary above the lesson; original text keeps an 80-character reading width |
 | Subject/audience badges and prominent active tabs | Subject badge retained, audience badge omitted; attached icon-and-label tabs use selected states, keyboard navigation and labelled panels |
 | Difficulty cards, visible hints and grade banner | Adapted in the common CSS; hints remain native keyboard-operable disclosures, with existing maths scaffolding unchanged |
 | Question progress and running score | Shared status header and labelled native progress bar; counts submitted tasks and sums adapter-awarded points, including history bonuses and maths partial credit |
@@ -344,7 +360,8 @@ cannot prove those educational properties.
 Maths top-level keys are `version: 3`, `subject: "maths"`, `language: "cs-CZ"`,
 `id` (stable lowercase kebab-case), `topic`, `subtitle`, `audience`, `original`, `glossary`,
 `examples`, and `exercises`. `original` is a nonempty array of plain-text
-`{ "heading", "text", "style" }` sections (`style` optional). Unknown keys, including history source/year fields or
+`{ "heading", "text", "style", "paragraphs" }` sections (`style` and `paragraphs`
+optional; styled paragraphs must preserve the source exactly). Unknown keys, including history source/year fields or
 timing settings, are rejected. History sources and history-specific review
 metadata are not part of the maths section. Version 1 maths JSON must be explicitly updated to v3
 with the actual original material; the builder never invents missing source text.

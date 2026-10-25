@@ -6,7 +6,7 @@
   "id": "defenestrace-a-bila-hora",
   "topic": "Od defenestrace k Bílé hoře",
   "audience": "Pro desetileté děti, které se učí česky",
-  "review": "Toto je krátká ukázková lekce, ne celá kapitola. Původní text tvoří nezměněné úryvky z existující ukázky v gems. Opravujeme původ slova defenestrace: pochází z latiny, ne z němčiny. Rok 1618 je doplněn podle uvedených zdrojů. Datum bitvy na Bílé hoře 8. listopadu 1620 odpovídá uvedenému přehledu bitvy. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
+  "review": "Původní text obsahuje všech sedm dodaných oddílů beze změny slov, včetně zajímavostí a závěrečné citace. Výuková část a deset otázek zatím procvičují jen stavovské povstání, Bílou horu a původ slova defenestrace, ne celou kapitolu. Opravujeme původ slova defenestrace: pochází z latiny, ne z němčiny. Rok 1618 je doplněn podle uvedených zdrojů. Datum bitvy na Bílé hoře 8. listopadu 1620 odpovídá uvedenému přehledu bitvy. Ostatní tvrzení rozšířeného podkladu a původ závěrečné citace nebyly nově ověřeny. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
   "sources": [
     {
       "title": "Defenestrace — původ slova z latiny",
@@ -23,23 +23,54 @@
   ],
   "original": [
     {
-      "heading": "STAVOVSKÉ POVSTÁNÍ",
+      "heading": "1. VLÁDA HABSBURKŮ V ČESKÝCH ZEMÍCH",
       "icon": "🏰",
       "style": "note",
+      "text": "Po odstoupení Rudolfa II. usedl na trůn jeho bratr Matyáš. Císaře Matyáše však nejvíce zajímalo, kolik peněz vybere na daních. Sídlil ve Vídni a v Čechách (v Praze) za něho vládli jeho úředníci. Ještě za Matyášova života byl českým králem zvolen a korunován jeho bratranec Ferdinand II. Štýrský (rovněž z rodu Habsburků). Ferdinand II. prosazoval katolickou víru, což se nelíbilo české šlechtě. Nespokojenost s vládou Habsburků v českých zemích neustále vzrůstala."
+    },
+    {
+      "heading": "STAVOVSKÉ POVSTÁNÍ",
+      "icon": "⚖️",
       "text": "Pražskou defenestrací byla zahájena otevřená vzpoura proti panovníkovi a začalo stavovské povstání. Stavy požadovaly rovnoprávné postavení českých zemí v habsburské monarchii, možnost volby krále a svobodu náboženského vyznání."
     },
     {
-      "heading": "BITVA NA BÍLÉ HOŘE — úryvek",
-      "text": "České stavy si zvolily za svého krále Fridricha Falckého. K rozhodujícímu střetnutí došlo 8. listopadu 1620 na Bílé hoře."
+      "heading": "BITVA NA BÍLÉ HOŘE",
+      "text": "České stavy si zvolily za svého krále Fridricha Falckého. K rozhodujícímu střetnutí došlo 8. listopadu 1620 na Bílé hoře. Fridrich Falcký po prohrané bitvě opustil Pražský hrad a odjel mimo říši. Pro svou krátkou vládu byl označován jako „zimní král“. O dalším osudu Českého království bylo rozhodnuto a pro povstalce následovaly tvrdé tresty."
     },
     {
-      "heading": "VÍŠ, ŽE...? — úryvek",
-      "text": "- Fenster znamená německy okno. Odtud pochází výraz defenestrace – vyhození z okna."
+      "heading": "VÍŠ, ŽE...?",
+      "icon": "💡",
+      "style": "fun",
+      "text": "- Fenster znamená německy okno. Odtud pochází výraz defenestrace – vyhození z okna.\n- Bílá hora je návrší v současné části Prahy 6.\n- Při bitvě stálo na císařské straně celkem asi 22 000 pěšáků a 5 500 jezdců. Na straně stavů něco přes 20 000 vojáků.\n- Celá bitva trvala jen 2 hodiny. Nejdéle se bránil pluk Moravanů u zdi obory Hvězda.\n- Oboru se stejnojmenným letohrádkem Hvězdou můžeš navštívit i dnes."
+    },
+    {
+      "heading": "DOBA POBĚLOHORSKÁ",
+      "text": "Dne 21. června 1621 bylo 27 povstalců popraveno. Rodinám povstalců byl zabaven veškerý majetek. Němčina začala být používána jako rovnoprávný jazyk s češtinou. Císař uzákonil dědičné právo Habsburků na český trůn a jediné právoplatné náboženství – katolické. Spousta lidí prchla ze země."
+    },
+    {
+      "heading": "VÍŠ, ŽE...?",
+      "icon": "💡",
+      "style": "fun",
+      "text": "- Popravu prováděl známý kat Jan Mydlář.\n- Mezi popravenými byl i lékař Jan Jesenský (Jessenius), který v Praze provedl první veřejnou pitvu člověka.\n- Zjisti, proč se podle pověsti ze třicetileté války zvoní v Brně poledne v 11 hodin."
+    },
+    {
+      "heading": "TŘICETILETÁ VÁLKA",
+      "text": "České stavovské povstání znamenalo začátek války, která trvala 30 let. Nese proto označení třicetiletá válka. Boje se postupně rozšířily do většiny států Evropy. Válka skončila roku 1648 uzavřením míru a neměla vítězů. Habsburkové si udrželi postavení ve své říši. České země válkou značně utrpěly. Byly pleněny vojsky, která přes ně neustále přecházela. Zanikla spousta vesnic, ubylo obyvatel, upadal obchod a řemesla. Lidé přišli o veškerý majetek. Sužoval je hlad, nemoci a bída.\n\n„Člověk jde až deset mil a nepotká člověka, kus dobytka, neuvidí ani špačka. V některých místech najde starého muže, dítě nebo dvě staré ženy. Ve všech vesnicích je v domech plno mrtvol. Muži, ženy, děti i čeleď, vepři, krávy a voli leží vedle sebe. Byli zardoušeni hladem a morem. Jsou plni larv a červů. Pošírají je vlci, lišky, psi, krkavci, vrány a jiní ptáci, poněvadž nebylo nikoho, kdo by je pochoval, politoval a oplakal.“",
+      "paragraphs": [
+        {
+          "style": "plain",
+          "text": "České stavovské povstání znamenalo začátek války, která trvala 30 let. Nese proto označení třicetiletá válka. Boje se postupně rozšířily do většiny států Evropy. Válka skončila roku 1648 uzavřením míru a neměla vítězů. Habsburkové si udrželi postavení ve své říši. České země válkou značně utrpěly. Byly pleněny vojsky, která přes ně neustále přecházela. Zanikla spousta vesnic, ubylo obyvatel, upadal obchod a řemesla. Lidé přišli o veškerý majetek. Sužoval je hlad, nemoci a bída."
+        },
+        {
+          "style": "quote",
+          "text": "„Člověk jde až deset mil a nepotká člověka, kus dobytka, neuvidí ani špačka. V některých místech najde starého muže, dítě nebo dvě staré ženy. Ve všech vesnicích je v domech plno mrtvol. Muži, ženy, děti i čeleď, vepři, krávy a voli leží vedle sebe. Byli zardoušeni hladem a morem. Jsou plni larv a červů. Pošírají je vlci, lišky, psi, krkavci, vrány a jiní ptáci, poněvadž nebylo nikoho, kdo by je pochoval, politoval a oplakal.“"
+        }
+      ]
     }
   ],
   "corrections": [
     {
-      "section": 2,
+      "section": 3,
       "quote": "Odtud pochází výraz defenestrace – vyhození z okna.",
       "explanation": "Fenster opravdu znamená německy okno. Slovo defenestrace ale pochází z latiny, ne z němčiny. Latinské fenestra znamená okno.",
       "sourceUrl": "https://cs.wikipedia.org/wiki/Defenestrace"

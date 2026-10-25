@@ -48,6 +48,12 @@ function initializeTutor(lesson, subject) {
         element.setAttribute('aria-hidden', 'true');
         return element;
     };
+    const hint = (...content) => {
+        const details = disclose('Nápověda ', ...content);
+        details.className = 'hint';
+        details.firstElementChild.append(iconNode('💡'));
+        return details;
+    };
     const heading = (text, icon, fallback) => {
         const element = node('h2');
         element.append(iconNode(icon || fallback), node('span', text, 'heading-text'));
@@ -122,8 +128,8 @@ function initializeTutor(lesson, subject) {
     lesson.glossary.forEach(entry => [entry.term, ...entry.forms].forEach(form => forms.set(form.toLocaleLowerCase('cs'), entry)));
     const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(${[...forms.keys()].sort((a, b) => b.length - a.length).map(escapeRegex).join('|')})(?![\\p{L}\\p{N}])`, 'giu');
-    const paragraph = text => {
-        const element = node('p');
+    const paragraph = (text, tag = 'p') => {
+        const element = node(tag);
         let offset = 0;
         for (const match of text.matchAll(pattern)) {
             element.append(document.createTextNode(text.slice(offset, match.index)));
@@ -134,17 +140,19 @@ function initializeTutor(lesson, subject) {
         element.append(document.createTextNode(text.slice(offset)));
         return element;
     };
-    const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor' };
-    const styleParagraph = (element, style = 'plain') => {
+    const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor',
+        comment: 'Komentář', fun: 'Zajímavost', quote: 'Citace' };
+    const styleParagraph = (element, style = 'plain', labelled = true) => {
         if (style !== 'plain') {
             element.className = `${element.className || ''} callout callout-${style}`.trim();
-            const label = node('strong', `${styles[style]}: `, 'callout-label');
-            element.prepend(label);
+            if (labelled) element.prepend(node('strong', `${styles[style]}: `, 'callout-label'));
+            else element.setAttribute('aria-label', styles[style]);
         }
         return element;
     };
-    const paragraphs = blocks => (blocks || []).map(block => styleParagraph(paragraph(block.text), block.style));
-    const context = { $, node, button, disclose, paragraph, paragraphs, heading };
+    const paragraphs = blocks => (blocks || []).map(block =>
+        styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p'), block.style));
+    const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
     if (lesson.review !== undefined) {
@@ -163,24 +171,52 @@ function initializeTutor(lesson, subject) {
     lesson.original.forEach((section, index) => {
         const article = node('article', undefined, 'card');
         article.append(heading(section.heading, section.icon, '📄'));
-        const text = node('p', undefined, 'original-text');
+        const text = node('div', undefined, 'original-text');
         const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
             .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
-        let offset = 0;
-        for (const correction of corrections) {
-            const start = section.text.indexOf(correction.quote);
-            text.append(document.createTextNode(section.text.slice(offset, start)));
-            const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
-            mark.title = correction.explanation;
-            text.append(mark);
-            offset = start + correction.quote.length;
-        }
-        text.append(document.createTextNode(section.text.slice(offset)));
+        (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
+            if (blockIndex) text.append(document.createTextNode('\n\n'));
+            const content = node(block.style === 'quote' ? 'blockquote' : 'p');
+            let offset = 0;
+            for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
+                const start = block.text.indexOf(correction.quote);
+                content.append(document.createTextNode(block.text.slice(offset, start)));
+                const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
+                mark.title = correction.explanation;
+                content.append(mark);
+                offset = start + correction.quote.length;
+            }
+            content.append(document.createTextNode(block.text.slice(offset)));
+            text.append(styleParagraph(content, block.style, false));
+        });
         styleParagraph(article, section.style);
         article.append(text);
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);
+    const learningDetails = [...$('learning-content').querySelectorAll('details')];
+    const syncLearningControls = () => {
+        $('expand-learning').disabled = learningDetails.every(details => details.open);
+        $('collapse-learning').disabled = learningDetails.every(details => !details.open);
+    };
+    const setLearningOpen = open => {
+        learningDetails.forEach(details => { details.open = open; });
+        syncLearningControls();
+    };
+    $('expand-learning').addEventListener('click', () => setLearningOpen(true));
+    $('collapse-learning').addEventListener('click', () => setLearningOpen(false));
+    $('learning-content').addEventListener('toggle', syncLearningControls, true);
+    syncLearningControls();
+    const compactLearning = matchMedia('(max-width: 760px)');
+    const syncGlossaryLayout = () => {
+        const collapsingTrigger = compactLearning.matches && definitionTrigger &&
+            $('glossary-panel').contains(definitionTrigger);
+        closeDefinition(!collapsingTrigger);
+        $('glossary-panel').open = !compactLearning.matches;
+        if (collapsingTrigger) $('glossary-title').focus({ preventScroll: true });
+    };
+    compactLearning.addEventListener('change', syncGlossaryLayout);
+    syncGlossaryLayout();
     lesson.glossary.forEach(entry => {
         const trigger = definitionButton(entry.term, entry.term, entry.definition, undefined, entry.icon);
         trigger.prepend(iconNode(entry.icon || '📖'));

@@ -65,14 +65,14 @@ const mathsSubject = {
     })),
     compareResults: (a, b) => b.total - a.total,
     validRecord: row => validRecords([row]),
-    renderLearning({ $, node, paragraph, paragraphs, disclose, heading }, lesson) {
+    renderLearning({ $, node, paragraph, paragraphs, disclose, hint, heading }, lesson) {
         const examples = node('div');
         examples.id = 'examples';
         lesson.examples.forEach((example, index) => {
             const article = node('article', undefined, 'card');
-            const hint = disclose('Nápověda', paragraph(example.hint));
-            hint.open = index === 0;
-            article.append(heading(example.heading, example.icon, '📐'), paragraph(example.prompt), ...paragraphs(example.paragraphs), hint);
+            const exampleHint = hint(paragraph(example.hint));
+            exampleHint.open = index === 0;
+            article.append(heading(example.heading, example.icon, '📐'), paragraph(example.prompt), ...paragraphs(example.paragraphs), exampleHint);
             const steps = node('ol');
             example.steps.forEach((step, stepIndex) => {
                 const item = node('li');
@@ -98,7 +98,7 @@ const mathsSubject = {
             article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'), paragraph(exercise.prompt));
             exercise.steps.forEach((step, stepIndex) => {
                 const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
-                article.append(node('h3', `${label}: ${step.prompt}`), disclose('Nápověda', paragraph(step.hint)),
+                article.append(node('h3', `${label}: ${step.prompt}`), hint(paragraph(step.hint)),
                     disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`), paragraph(step.solution)));
             });
             article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation)));

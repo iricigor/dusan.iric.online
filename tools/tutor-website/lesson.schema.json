@@ -20,7 +20,8 @@
           "heading": { "$ref": "#/$defs/text" },
           "icon": { "$ref": "#/$defs/icon" },
           "text": { "$ref": "#/$defs/text" },
-          "style": { "$ref": "#/$defs/style" }
+          "style": { "$ref": "#/$defs/style" },
+          "paragraphs": { "$ref": "#/$defs/paragraphs" }
         }
       }
     },
@@ -200,7 +201,7 @@
         }
       ]
     },
-    "style": { "enum": ["plain", "note", "example", "tip", "warning"] },
+    "style": { "enum": ["plain", "note", "example", "tip", "warning", "comment", "fun", "quote"] },
     "paragraphs": {
       "type": "array", "minItems": 1,
       "items": {

@@ -11,11 +11,18 @@ const { validateLesson } = require('../validate.js');
 const examplePath = path.join(__dirname, '..', 'examples', 'defenestrace.json');
 const example = () => JSON.parse(fs.readFileSync(examplePath, 'utf8'));
 
-test('example validates, preserving the selected original excerpts verbatim', () => {
+test('example preserves all seven supplied original sections verbatim with semantic styling', () => {
     const lesson = validateLesson('history', example());
     const original = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'gems', 'dusan-edu-webpage', 'sample.json'), 'utf8'));
-    const text = original.tabs.find(tab => tab.id === 'original').content.map(section => section.text).join('\n');
-    lesson.original.forEach(section => assert.ok(text.includes(section.text)));
+    const sections = original.tabs.find(tab => tab.id === 'original').content;
+    assert.equal(sections.length, 7);
+    assert.deepEqual(lesson.original.map(({ heading, text }) => ({ heading, text })), sections);
+    assert.deepEqual(lesson.original.filter(section => section.style === 'fun').map(section => section.heading),
+        ['VÍŠ, ŽE...?', 'VÍŠ, ŽE...?']);
+    const final = lesson.original.at(-1);
+    assert.equal(final.paragraphs.at(-1).style, 'quote');
+    assert.equal(final.paragraphs.map(block => block.text).join('\n\n'), final.text);
+    assert.equal(lesson.corrections[0].section, 3);
 });
 
 test('published example preserves the reviewed lesson data and Czech references', () => {
@@ -26,12 +33,16 @@ test('published example preserves the reviewed lesson data and Czech references'
     const payload = publishedHtml.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
     const publishedLesson = JSON.parse(payload);
     assert.equal(validateLesson('history', publishedLesson), publishedLesson);
-    const { version, subject, language, subtitle, ...content } = lesson;
-    content.original = content.original.map(({ style, icon, ...section }) => section);
+    const { version, subject, language, subtitle, original, review, ...content } = lesson;
     content.chunks = content.chunks.map(({ paragraphs, icon, ...chunk }) => chunk);
     content.questions = content.questions.map(({ assessment, icon, ...question }) => question);
     content.glossary = content.glossary.map(({ icon, ...entry }) => entry);
-    assert.deepEqual(publishedLesson, { version: 1, ...content });
+    const { original: publishedOriginal, review: publishedReview, ...publishedContent } = publishedLesson;
+    assert.deepEqual(publishedContent, { version: 1, ...content,
+        corrections: content.corrections.map(correction => ({ ...correction, section: 2 })) });
+    publishedOriginal.forEach(section => assert.ok(original.some(current => current.text.includes(section.text))));
+    assert.match(publishedReview, /úryvky/);
+    assert.match(review, /všech sedm/);
     assert.match(renderLesson('history', lesson), /function initializeTutor\(/);
 });
 
@@ -74,7 +85,7 @@ test('cross-field validation rejects duplicate, insufficient and ambiguous conte
         lesson => { lesson.glossary[1].forms.push(lesson.glossary[0].term); },
         lesson => { lesson.corrections[0].section = 99; },
         lesson => { lesson.corrections[0].quote = 'not in original'; },
-        lesson => { lesson.original[2].text += lesson.corrections[0].quote; },
+        lesson => { lesson.original[3].text += lesson.corrections[0].quote; },
         lesson => { lesson.corrections[0].sourceUrl = 'https://example.org/not-listed'; },
         lesson => { lesson.corrections.push({ ...lesson.corrections[0] }); }
     ];

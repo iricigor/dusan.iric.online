@@ -42,7 +42,7 @@ async function connect(url, events) {
             const id = ++sequence;
             const timeout = setTimeout(() => {
                 pending.delete(id);
-                reject(new Error(`CDP timeout: ${method}`));
+                reject(new Error(`CDP timeout: ${method}${params.expression ? `: ${params.expression.slice(0, 180)}` : ''}`));
             }, 10000);
             pending.set(id, { resolve, reject, timeout });
             socket.send(JSON.stringify({ id, method, params }));
@@ -104,7 +104,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     const capture = async name => {
         if (!process.env.TUTOR_SCREENSHOT_DIRECTORY) return;
         fs.mkdirSync(process.env.TUTOR_SCREENSHOT_DIRECTORY, { recursive: true });
-        await evaluate('Promise.all(document.getAnimations().map(animation => animation.finished))');
+        // Headless rendering can throttle animations inside offscreen disclosures.
+        await evaluate('document.getAnimations().forEach(animation => animation.finish())');
         const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
         fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${name}.png`), Buffer.from(screenshot.data, 'base64'));
     };
@@ -140,6 +141,53 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         })()`), subject === 'maths' ? lesson.examples.reduce((sum, example) => sum + (example.paragraphs?.length || 0), 0)
             : lesson.chunks.reduce((sum, chunk) => sum + (chunk.paragraphs?.length || 0), 0));
         assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
+        assert.equal(await evaluate(`(() => {
+            const details = [...document.querySelectorAll('#learning-content details')];
+            window.initialLearningOpen = details.map(item => item.open);
+            const glossary = document.getElementById('glossary-panel');
+            const glossaryOpen = glossary.open;
+            const rules = document.getElementById('scoring-rules');
+            const leaderboard = document.getElementById('leaderboard');
+            rules.open = leaderboard.open = true;
+            document.getElementById('expand-learning').click();
+            const expanded = details.length > 0 && details.every(item => item.open) &&
+                document.getElementById('expand-learning').disabled &&
+                !document.getElementById('collapse-learning').disabled;
+            document.getElementById('collapse-learning').click();
+            const collapsed = details.every(item => !item.open) &&
+                document.getElementById('collapse-learning').disabled &&
+                !document.getElementById('expand-learning').disabled;
+            const isolated = glossary.open === glossaryOpen && rules.open && leaderboard.open;
+            rules.open = leaderboard.open = false;
+            return expanded && collapsed && isolated;
+        })()`), true, `${subject}: expand/collapse all affects only learning disclosures`);
+        await evaluate(`document.querySelector('#learning-content .hint > summary').focus()`);
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
+        await delay(25);
+        assert.deepEqual(await evaluate(`(() => {
+            const hint = document.querySelector('#learning-content .hint');
+            const summary = hint.querySelector('summary');
+            return { open: hint.open, label: summary.textContent,
+                icon: summary.querySelector('[aria-hidden="true"]').textContent,
+                content: !!hint.querySelector('p').textContent,
+                below: hint.querySelector('p').getBoundingClientRect().top >= summary.getBoundingClientRect().bottom,
+                collapseEnabled: !document.getElementById('collapse-learning').disabled,
+                focused: document.activeElement === summary };
+        })()`), { open: true, label: 'Nápověda 💡', icon: '💡', content: true, below: true, collapseEnabled: true, focused: true },
+        `${subject}: compact hint opens with keyboard and updates controls`);
+        await evaluate(`document.getElementById('collapse-learning').click()`);
+        if (subject === 'history') {
+            assert.equal(await evaluate(`document.querySelectorAll('#original-content .callout-fun').length`), 2);
+            assert.equal(await evaluate(`document.querySelector('#original-content blockquote.callout-quote').textContent`),
+                lesson.original.at(-1).paragraphs.at(-1).text);
+            await evaluate(`document.querySelector('[data-tab="original"]').click();
+                document.querySelector('#original-content blockquote').scrollIntoView({ block: 'center' })`);
+            await capture('history-original-quotation');
+            await evaluate(`document.querySelector('#original-content .callout-fun').scrollIntoView({ block: 'center' })`);
+            await capture('history-original-fun');
+            await evaluate(`document.querySelector('[data-tab="learning"]').click()`);
+        }
         for (const width of [320, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
@@ -167,6 +215,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         const tab = document.querySelector('[data-tab="${tab}"]');
                         tab.focus();
                         tab.click();
+                        window.scrollTo(0, 0);
                         return !document.getElementById('${tab}').hidden && tab.getAttribute('aria-selected') === 'true' &&
                             tab.getAttribute('role') === 'tab' && tab.tabIndex === 0 &&
                             !!tab.querySelector('svg[aria-hidden="true"]') &&
@@ -174,6 +223,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                             document.getElementById('${tab}').getAttribute('aria-labelledby') === tab.id
                             && document.documentElement.scrollWidth <= innerWidth;
                     })()`), true, `${subject}/${tab}/${width}/${theme}`);
+                    if (tab === 'learning') {
+                        assert.equal(await evaluate(`(() => {
+                            const hint = document.querySelector('#learning-content .hint');
+                            const summary = hint.querySelector('summary');
+                            const a = hint.getBoundingClientRect(), b = summary.getBoundingClientRect();
+                            return Math.abs(a.right - b.right) <= 1 && b.width < a.width * .8 &&
+                                getComputedStyle(hint).borderTopWidth === '0px' &&
+                                !hint.open && b.height >= 44;
+                        })()`), true, `${subject}/${width}/${theme}: small right-aligned hint without a box`);
+                    }
                     if (tab === 'quiz') {
                         assert.equal(await evaluate(`(() => {
                             const label = document.querySelector('label[for="player"]');
@@ -232,12 +291,13 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     const glossary = document.querySelector('.glossary-card').getBoundingClientRect();
                     return {
                         sideBySide: glossary.left >= content.right,
-                        stacked: glossary.top >= content.bottom,
+                        above: glossary.bottom <= content.top,
+                        open: document.getElementById('glossary-panel').open,
                         labelled: [...document.querySelectorAll('[data-tab]')].every(tab =>
                             tab.getAttribute('aria-controls') === tab.dataset.tab)
                     };
                 })()`), {
-                    sideBySide: false, stacked: true,
+                    sideBySide: width > 760, above: width <= 760, open: width > 760,
                     labelled: true
                 }, `${subject}/${width}/${theme} shared layout`);
             }
@@ -256,20 +316,29 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         await client.send('Emulation.setEmulatedMedia', { features: [] });
         assert.equal(await evaluate(`(() => {
             document.querySelector('[data-tab="learning"]').click();
-            document.querySelector('.glossary-card').open = true;
+            const glossary = document.getElementById('glossary-panel');
+            glossary.querySelector('summary').click();
+            const collapsed = !glossary.open;
+            glossary.querySelector('summary').click();
             document.querySelector('#glossary button').click();
             const open = document.getElementById('definition').matches(':popover-open');
             document.getElementById('definition-close').click();
-            return open && !!document.getElementById('definition-text').textContent;
+            return collapsed && glossary.open && open && !!document.getElementById('definition-text').textContent;
         })()`), true);
         assert.equal(await evaluate('document.activeElement === document.querySelector("#glossary button")'), true);
+        await evaluate(`document.getElementById('expand-learning').click()`);
         for (const width of [320, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+            for (let attempt = 0; attempt < 50; attempt++) {
+                if (await evaluate(`document.getElementById('glossary-panel').open === ${width > 760}`)) break;
+                await delay(20);
+            }
+            assert.equal(await evaluate(`document.getElementById('glossary-panel').open`), width > 760);
             assert.equal(await evaluate(`(async () => {
                 const trigger = document.querySelector('#learning-content .term');
                 trigger.scrollIntoView({ block: 'center' });
                 trigger.click();
-                await Promise.all(document.getAnimations().map(animation => animation.finished));
+                document.getAnimations().forEach(animation => animation.finish());
                 const panel = document.getElementById('definition');
                 const bounds = panel.getBoundingClientRect();
                 return panel.matches(':popover-open') && bounds.left >= 0 && bounds.right <= innerWidth &&
@@ -291,6 +360,9 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.equal(await evaluate(`!document.getElementById('definition').matches(':popover-open') &&
                 document.querySelector('#learning-content .term').getAttribute('aria-expanded') === 'false'`), true, `${subject}: light dismiss`);
         }
+        await evaluate(`[...document.querySelectorAll('#learning-content details')].forEach((item, index) => {
+            item.open = window.initialLearningOpen[index];
+        })`);
         assert.equal(await evaluate(`(() => {
             document.querySelector('#glossary button').click();
             document.querySelector('[data-tab="quiz"]').click();

@@ -75,8 +75,15 @@ Use only schema-approved paragraph styles, not HTML/CSS/class names from data.
 Provide colorful light/dark presentation and short, reduced-motion-aware
 animations for quiz feedback, new questions, tab changes and learning reveals.
 Use the shared Fluent-inspired attached icon-and-label tabs and soft cards, default decorative
-emoji with optional schema `icon` overrides, anchored glossary popovers and an
-expandable glossary instead of a permanent sidebar. Quiz mode pills show only
+emoji with optional schema `icon` overrides and anchored glossary popovers.
+Keep a narrow collapsible glossary term list on the right, initially open on
+desktop; on mobile it sits above the lesson and starts collapsed. Definitions
+open on click instead of filling the sidebar. In Učit se, small Rozbalit vše /
+Sbalit vše controls affect only learning disclosures. Hints use a compact,
+right-aligned Nápověda 💡 summary and reveal text below without a bordered bar.
+Support comment/fun/quote alongside existing paragraph styles. Original styled
+paragraphs must reconstruct the canonical source text exactly; never insert
+labels or explanations into that text. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
 is a thin shrinking bar without a countdown or visible label. Celebrate every
 completed quiz with brief CSS confetti (disabled for reduced motion); show the

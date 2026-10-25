@@ -59,17 +59,32 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .callout-example { --callout: var(--teal); }
 .callout-tip { --callout: var(--good); }
 .callout-warning { --callout: var(--warning); }
+.callout-comment { --callout: var(--muted); }
+.callout-fun { --callout: var(--violet); }
+.callout-quote { --callout: var(--teal); font-style: italic; margin-inline: 0; }
 .original-text { white-space: pre-wrap; max-width: 80ch; }
-#learning { display: block; }
-#learning-content, .glossary-card { min-width: 0; }
+.original-text:has(> :nth-child(2)) { white-space: normal; }
+.original-text > * { white-space: pre-wrap; }
+#learning { display: grid; grid-template-columns: minmax(0, 1fr) minmax(10rem, 13rem); grid-template-areas: "content glossary"; gap: 1rem; align-items: start; }
+.learning-main { grid-area: content; min-width: 0; }
+.glossary-card { grid-area: glossary; min-width: 0; margin: 0; padding: .5rem .75rem; border-left-width: 1px; }
+.glossary-card > summary { font-weight: bold; }
+.learning-controls { display: flex; justify-content: flex-end; gap: .25rem; margin-bottom: .5rem; }
+.learning-controls button { font-size: .85rem; padding: .25rem .5rem; border-color: transparent; background: transparent; color: var(--muted); }
+.learning-controls button:disabled { opacity: .5; }
 .term, .correction { display: inline; min-height: 0; padding: .1em 0; border: 0; border-radius: .2rem; font: inherit; color: var(--primary); text-decoration: underline dotted; text-underline-offset: .2em; }
 .correction { color: var(--bad); white-space: pre-wrap; text-align: left; }
-#glossary { display: flex; flex-wrap: wrap; gap: .5rem; }
-#glossary button { text-align: left; background: var(--bg); overflow-wrap: anywhere; }
+#glossary { display: flex; flex-direction: column; gap: .25rem; padding-top: .5rem; }
+#glossary button { text-align: left; background: transparent; border-color: transparent; padding: .35rem .5rem; overflow-wrap: anywhere; font-size: .95rem; }
 details { border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: .5rem; padding: .5rem 1rem; margin-top: 1rem; }
 details[open] { background: var(--bg); }
 details[open] > :not(summary) { animation: reveal .3s ease-out; }
 summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height: 44px; }
+.hint { border: 0; border-radius: 0; padding: 0; margin-top: .5rem; }
+.hint[open] { background: transparent; }
+.hint > summary { width: fit-content; margin-left: auto; font-size: .95rem; }
+.hint > summary .card-icon { margin-right: 0; }
+.hint > :not(summary) { margin-top: .25rem; }
 .card > summary { font-size: 1.15rem; font-weight: bold; }
 label { display: block; }
 input[type="text"] { width: 100%; max-width: 35rem; border: 1px solid var(--border); border-radius: .5rem; padding: .75rem; background: var(--bg); color: var(--text); }
@@ -136,6 +151,10 @@ a { color: var(--primary); }
 .question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), main > section:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
 .question-enter { display: block; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
+@media (max-width: 760px) {
+    #learning { grid-template-columns: minmax(0, 1fr); grid-template-areas: "glossary" "content"; }
+    #glossary { flex-direction: row; flex-wrap: wrap; }
+}
 @media (max-width: 550px) {
     body { font-size: 1rem; }
     header { padding: .5rem 1rem 0; }

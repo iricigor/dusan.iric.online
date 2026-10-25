@@ -66,6 +66,11 @@ function validateLesson(subject, lesson) {
     };
     const poolKey = subject === 'maths' ? 'exercises' : 'questions';
     const pool = lesson[poolKey];
+    lesson.original.forEach((section, index) => {
+        if (section.paragraphs && section.paragraphs.map(block => block.text).join('\n\n') !== section.text) {
+            errors.push(`$.original[${index}].paragraphs: text joined by blank lines must exactly preserve the original section text`);
+        }
+    });
     unique(pool.map(task => task.id), `$.${poolKey} ids`);
     unique(pool.map(task => task.prompt), `$.${poolKey} prompts`);
     unique(lesson.glossary.map(entry => entry.term), '$.glossary terms');
@@ -109,6 +114,10 @@ function validateLesson(subject, lesson) {
                 return;
             }
             if (!urls.has(correction.sourceUrl)) errors.push(`$.corrections[${index}]: must refer to a listed source`);
+            const paragraphs = lesson.original[correction.section].paragraphs;
+            if (paragraphs && !paragraphs.some(block => block.text.includes(correction.quote))) {
+                errors.push(`$.corrections[${index}]: quote must stay within one styled original paragraph`);
+            }
             const start = text.indexOf(correction.quote);
             const end = start + correction.quote.length;
             const sectionRanges = ranges.get(correction.section) || [];

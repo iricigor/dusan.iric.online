@@ -87,9 +87,13 @@ GitHub issue, then wait for explicit confirmation to start implementation.
   They provide schema-valid JSON only, never custom HTML, JavaScript, page
   layouts, or quiz implementations. `tutor-website` turns that JSON into HTML.
 - Author both subjects with the shared version 3 schema. Use supported semantic
-  paragraph styles (`plain`, `note`, `example`, `tip`, `warning`) when helpful:
+  paragraph styles (`plain`, `note`, `example`, `tip`, `warning`, `comment`,
+  `fun`, `quote`) when helpful:
   `original[].style` decorates preserved source material without rewriting it;
-  optional `paragraphs` in maths examples/history chunks add clearly labelled
+  optional `original[].paragraphs` styles existing paragraphs only, with their
+  text joined by `\n\n` exactly matching the section's canonical `text`.
+  Keep correction quotes within one paragraph and use `quote` for quotations.
+  Optional `paragraphs` in maths examples/history chunks add clearly labelled
   teaching notes. Never put generated explanations into the original text.
   Website owns all CSS, animations, JavaScript and schema/validation logic.
 - The shared schema accepts optional plain-text emoji `icon` overrides on

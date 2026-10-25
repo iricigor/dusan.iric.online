@@ -74,10 +74,11 @@ test('legacy history v1 and maths v2 use the same validator without inventing or
 
 test('semantic paragraphs are shared, plain-text only and reject arbitrary styling fields', () => {
     for (const [subject, source, sectionKey] of [['history', history, 'chunks'], ['maths', mathsLesson(), 'examples']]) {
-        for (const style of ['plain', 'note', 'example', 'tip', 'warning']) {
+        for (const style of ['plain', 'note', 'example', 'tip', 'warning', 'comment', 'fun', 'quote']) {
             const lesson = structuredClone(source);
             const original = lesson.original[0].text;
             lesson.original[0].style = style;
+            lesson.original[0].paragraphs = [{ style, text: original }];
             lesson[sectionKey][0].paragraphs = [{ style, text: '</script><img src=x onerror=alert(1)>' }];
             assert.equal(validateLesson(subject, lesson), lesson);
             const html = renderLesson(subject, lesson);
@@ -96,4 +97,31 @@ test('semantic paragraphs are shared, plain-text only and reject arbitrary styli
         lesson.original[0].style = 'note" onclick="alert(1)';
         assert.throws(() => validateLesson(subject, lesson), /style/);
     }
+});
+
+test('styled original paragraphs preserve exact source text and correction boundaries', () => {
+    for (const [subject, source] of [['history', history], ['maths', mathsLesson()]]) {
+        const lesson = structuredClone(source);
+        lesson.original[0].text = 'První odstavec.\n\nDruhý odstavec.';
+        lesson.original[0].paragraphs = [
+            { style: 'comment', text: 'První odstavec.' },
+            { style: 'quote', text: 'Druhý odstavec.' }
+        ];
+        assert.equal(validateLesson(subject, lesson), lesson);
+        for (const text of ['Změněný odstavec.', 'První odstavec.\nDruhý odstavec.', 'První odstavec.\n\nDruhý odstavec. ']) {
+            assert.throws(() => validateLesson(subject, { ...lesson, original: [{ ...lesson.original[0], text }] }),
+                /must exactly preserve/);
+        }
+        lesson.original[0].paragraphs[0].className = 'injected';
+        assert.throws(() => validateLesson(subject, lesson), /paragraphs/);
+    }
+    const lesson = structuredClone(history);
+    const section = lesson.original[lesson.corrections[0].section];
+    section.paragraphs = [{ style: 'fun', text: section.text }];
+    assert.equal(validateLesson('history', lesson), lesson);
+    const parts = section.text.split('\n');
+    section.text = parts.join('\n\n');
+    section.paragraphs = parts.map(text => ({ style: 'plain', text }));
+    lesson.corrections[0].quote = `${parts[0]}\n\n${parts[1]}`;
+    assert.throws(() => validateLesson('history', lesson), /must stay within one styled original paragraph/);
 });

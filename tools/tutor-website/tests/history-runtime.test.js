@@ -22,6 +22,7 @@ class Element {
     }
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
+    get firstElementChild() { return this.children[0]; }
     append(...children) { this.children.push(...children); }
     prepend(...children) { this.children.unshift(...children); }
     replaceChildren(...children) { this.text = ''; this.children = children; }

@@ -33,12 +33,17 @@
             <div id="original-content"></div>
         </section>
         <section id="learning" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden>
-            <div id="learning-content"></div>
-            <details class="card glossary-card">
+            <details id="glossary-panel" class="glossary-card" open>
                 <summary id="glossary-title"><span class="card-icon" aria-hidden="true">📖</span>Slovníček</summary>
-                <p>Podtržená slova v učivu si můžeš rozkliknout. Tady najdeš všechna pohromadě.</p>
                 <div id="glossary"></div>
             </details>
+            <div class="learning-main">
+                <div class="learning-controls" role="group" aria-label="Nápovědy a řešení">
+                    <button id="expand-learning" type="button" aria-controls="learning-content">Rozbalit vše</button>
+                    <button id="collapse-learning" type="button" aria-controls="learning-content">Sbalit vše</button>
+                </div>
+                <div id="learning-content"></div>
+            </div>
         </section>
         <section id="quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden>
             <article id="setup" class="card">
