@@ -86,7 +86,7 @@ test('HTML is self-contained and payload cannot close a script or title', () => 
     const data = html.match(/<script id="lesson-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
     assert.deepEqual(JSON.parse(data), lesson);
     assert.ok(!data.includes('<'));
-    assert.equal((html.match(/<script(?: |>)/g) || []).length, 2);
+    assert.equal((html.match(/<script(?: |>)/gi) || []).length, 2);
     assert.ok(!/<(?:script|link)[^>]+(?:src|href)=/.test(html));
     assert.ok(!/\b(?:fetch|XMLHttpRequest)\(/.test(html));
     assert.ok(!/@@(?:STYLES|DATA)@@/.test(html));
