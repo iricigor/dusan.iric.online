@@ -3,22 +3,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { validateLesson } = require('./validate.js');
+const { renderPage } = require('../tutor-website/page.js');
 
 function renderLesson(lesson) {
     validateLesson(lesson);
-    const escapeHtml = text => text.replace(/[&<>"']/g, char => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    })[char]);
-    const data = JSON.stringify(lesson).replace(/[<>&\u2028\u2029]/g,
-        char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`);
-    const replacements = {
-        TITLE: escapeHtml(lesson.topic),
-        STYLES: fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8'),
-        DATA: data,
-        APP: fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8')
-    };
-    return fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8')
-        .replace(/@@(TITLE|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
+    return renderPage(lesson, path.join(__dirname, 'template.html'), path.join(__dirname, 'app.js'));
 }
 
 function build(input, output, force = false) {

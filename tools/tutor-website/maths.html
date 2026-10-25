@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@@TITLE@@</title>
+    <style>@@STYLES@@</style>
+</head>
+<body>
+    <header>
+        <div class="heading">
+            <div><span class="badge">Matematika</span><h1 id="topic"></h1></div>
+            <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
+        </div>
+        <p id="audience"></p>
+        <nav aria-label="Části lekce">
+            <button type="button" data-tab="learning" aria-pressed="true">Učit se</button>
+            <button type="button" data-tab="practice" aria-pressed="false">Procvičovat</button>
+        </nav>
+    </header>
+    <main>
+        <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
+        <section id="learning" aria-label="Učit se">
+            <div id="examples"></div>
+            <article class="card"><h2>Slovníček</h2><div id="glossary"></div></article>
+        </section>
+        <section id="practice" aria-label="Procvičovat" hidden>
+            <article class="card">
+                <h2>Procvičování s řešením</h2>
+                <p id="assessment-notice" role="status">Tato verze nabízí zadání, nápovědy a řešení. Zadávání a kontrola odpovědí, bodování a herní kvíz zatím nejsou dostupné. Výsledky se neukládají.</p>
+                <p>Nejprve si příklad zkus na papíře. Pak si můžeš otevřít nápovědu a porovnat svůj postup s řešením.</p>
+            </article>
+            <div id="exercises"></div>
+        </section>
+    </main>
+    <dialog id="definition" aria-labelledby="definition-title">
+        <h2 id="definition-title"></h2>
+        <p id="definition-text"></p>
+        <form method="dialog"><button>Zavřít</button></form>
+    </dialog>
+    <script id="lesson-data" type="application/json">@@DATA@@</script>
+    <script>@@APP@@</script>
+</body>
+</html>

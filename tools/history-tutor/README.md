@@ -2,7 +2,9 @@
 
 An opt-in tool inside a mixed-purpose repository. Nothing here changes Copilot's
 repository-wide behavior. `gems` is an independent, unchanged Gemini workflow;
-these files are not synchronized with it. Maths is out of scope.
+these files are not synchronized with it. This directory owns the unchanged
+history contract/runtime; shared generation and the separate maths contract
+are documented in `tools\tutor-website\README.md`.
 
 Requires Node.js 22 or newer. No package installation, Python, AI API key, web
 server, or network connection is needed to build or use a lesson. Copilot needs
@@ -29,10 +31,10 @@ than guessing. Transcribe it for confirmation before generating a lesson.
 - `tutor-common` holds shared audience, language, safety, and approval rules.
   Subject and website agents explicitly read its profile before working.
 - `tutor-website` is an internal collaborator owning the JSON contract and
-  validated build workflow. It currently wraps the existing history generator;
-  multi-subject generation is tracked in #30.
-- `tutor-maths` is a preparatory entry point, not a working maths generator yet
-  (#31). It must report that limitation rather than use the history schema.
+  validated build workflow for history and maths learning/practice pages.
+- `tutor-maths` remains a preparatory subject entry point (#31). Maths has a
+  separate website contract/renderer, but no answer evaluation, scoring or
+  playable quiz yet. Report that boundary rather than use the history schema.
 
 Profiles live in `.github\agents`. Subject profiles use
 `disable-model-invocation: true` to prevent automatic selection.
@@ -129,12 +131,16 @@ artifact directory for the example output path; it must be outside this repo.
 node tools\history-tutor\build.js tools\history-tutor\examples\defenestrace.json "C:\Temp\history-preview\defenestrace.html"
 Start-Process "C:\Temp\history-preview\defenestrace.html"
 node --test tools\history-tutor\tests\*.test.js
+node --test tools\history-tutor\tests\*.test.js tools\tutor-website\tests\*.test.js
 ```
 
 The builder validates before writing, creates missing output directories, and
 refuses to overwrite an existing file unless you pass `--force`. It also refuses
 outputs inside `gems`, `tools`, or `.github`, or over the input JSON. Only
 reviewed lessons should be built/copied into `site`.
+Internal agent handoffs use the guarded `tools\tutor-website\build.js` CLI,
+which requires absolute session artifact paths outside the repository. The
+legacy direct command above remains compatible for existing workflows.
 
 The example is a **short technical trial**, not a full textbook chapter. Its
 original sections are selected, unchanged excerpts from the existing
