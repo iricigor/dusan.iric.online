@@ -125,9 +125,12 @@ Výsledná stránka má tři části:
 | Učit se | Jednodušší vysvětlení, rozbalovací nápovědy a klikací slovníček |
 | Hrát si | Kvíz se 3, 5 nebo 10 otázkami, přehled odpovědí, body a českou školní známku |
 
-Stránka podporuje světlý i tmavý režim. Rychlostní bonus je volitelný a ve výchozím
-stavu vypnutý; jde o současné chování, jeho trvalé zapnutí řeší samostatný úkol
-#29. Přidání profilů agentů tuto změnu neprovádí.
+Stránka podporuje světlý i tmavý režim. Dějepisný rychlostní bonus je vždy zapnutý:
+zcela správná odpověď za méně než 15 sekund získá dvojnásobek základních bodů.
+Při odpovědi přesně za 15 sekund nebo později bonus nepřidáváme. Chybná ani
+částečně správná odpověď bonus nezíská. Odpovídat lze i po vypršení bonusu
+a dítě samo volí, kdy pokračovat. Známka vychází jen ze základních bodů,
+nikoli z rychlosti. Matematika nemá časovač ani rychlostní bonus.
 Výsledky se ukládají do úložiště relace prohlížeče, zvlášť pro každou
 lekci. Neodesílají se na server a neslouží jako trvalý záznam.
 

@@ -37,7 +37,7 @@ function selectQuestions(questions, mode, random = Math.random) {
     return shuffle(selected, random);
 }
 
-function scoreAnswer(question, answer, elapsedMs, speedEnabled) {
+function scoreAnswer(question, answer, elapsedMs) {
     let fraction = 0;
     if (question.type !== 'text') {
         fraction = answer === question.answer ? 1 : 0;
@@ -50,7 +50,7 @@ function scoreAnswer(question, answer, elapsedMs, speedEnabled) {
         fraction = question.acceptedAnswers.some(expected => normalizeAnswer(expected) === normalizeAnswer(answer)) ? 1 : 0;
     }
     const base = POINTS[question.difficulty] * fraction;
-    const bonus = speedEnabled && fraction === 1 && elapsedMs >= 0 && elapsedMs < 15000 ? base : 0;
+    const bonus = fraction === 1 && elapsedMs >= 0 && elapsedMs < 15000 ? base : 0;
     return { fraction, base, bonus, total: base + bonus };
 }
 
@@ -256,7 +256,7 @@ function initialize(lesson) {
         }
         quiz.locked = true;
         clearInterval(timer);
-        const score = scoreAnswer(question, answer, performance.now() - quiz.questionStarted, quiz.speed);
+        const score = scoreAnswer(question, answer, performance.now() - quiz.questionStarted);
         const correct = question.type === 'text' ? question.acceptedAnswers[0] : question.options[question.answer];
         const display = question.type === 'text' ? answer : question.options[answer];
         quiz.answers.push({ question, display, correct, score });
@@ -293,16 +293,13 @@ function initialize(lesson) {
             question.options.forEach((option, index) => $('answers').append(button(option, () => submit(index))));
         }
         quiz.questionStarted = performance.now();
-        $('bonus').textContent = '';
-        if (quiz.speed) {
-            const update = () => {
-                const remaining = Math.max(0, Math.ceil((15000 - (performance.now() - quiz.questionStarted)) / 1000));
-                $('bonus').textContent = remaining ? `2× bonus: ${remaining} s` : 'Bonus skončil. Na odpověď máš stále čas.';
-                if (!remaining) clearInterval(timer);
-            };
-            update();
-            timer = setInterval(update, 1000);
-        }
+        const update = () => {
+            const remaining = Math.max(0, Math.ceil((15000 - (performance.now() - quiz.questionStarted)) / 1000));
+            $('bonus').textContent = remaining ? `2× bonus: ${remaining} s` : 'Bonus skončil. Na odpověď máš stále čas.';
+            if (!remaining) clearInterval(timer);
+        };
+        update();
+        timer = setInterval(update, 1000);
         $('question').focus();
     }
     $('answers').addEventListener('submit', event => {
@@ -320,7 +317,7 @@ function initialize(lesson) {
         $('name-error').textContent = '';
         $('player').removeAttribute('aria-invalid');
         quiz = {
-            name, mode: control.dataset.mode, speed: $('speed').checked,
+            name, mode: control.dataset.mode,
             questions: selectQuestions(lesson.questions, control.dataset.mode),
             index: 0, answers: [], started: performance.now(), locked: false
         };

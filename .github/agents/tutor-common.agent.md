@@ -56,8 +56,10 @@ these instructions to unrelated repository work.
   existing local build workflow itself, but must not claim another agent ran.
 - Preserve subject-specific assessment rules. Do not transfer history's
   spelling or approximate-year tolerance to maths. Maths must have no timer or
-  speed bonus. Changes to the current history speed bonus belong to issue #29,
-  not to the shared-agent setup.
+  speed bonus. History's speed bonus is always enabled: fully correct answers
+  in less than 15 seconds earn twice their base points. History grades exclude
+  speed bonus points; the bonus deadline never prevents answering or controls
+  progression.
 
 ## Drafts, review, and publication
 

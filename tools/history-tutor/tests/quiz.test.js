@@ -35,31 +35,40 @@ test('text normalization supports Czech spelling tolerance and accepted alternat
         difficulty: 'hard', type: 'text', year: false,
         acceptedAnswers: ['Fridrich Falcký', 'Falcký']
     };
-    assert.equal(scoreAnswer(question, ' FALCKI ', 1000, false).base, 30);
-    assert.equal(scoreAnswer(question, '<img src=x>', 1000, false).base, 0);
+    assert.equal(scoreAnswer(question, ' FALCKI ', 1000).base, 30);
+    assert.equal(scoreAnswer(question, '<img src=x>', 1000).base, 0);
 });
 
 test('only marked years receive partial credit, strictly less than ten years', () => {
     const question = lesson.questions.find(q => q.id === 'h-defenestrace');
-    for (const answer of ['1618', ' 1618 ']) assert.equal(scoreAnswer(question, answer, 0, false).fraction, 1);
-    for (const answer of ['1609', '1627']) assert.equal(scoreAnswer(question, answer, 0, false).base, 15);
+    for (const answer of ['1618', ' 1618 ']) assert.equal(scoreAnswer(question, answer, 0).fraction, 1);
+    for (const answer of ['1609', '1627']) assert.equal(scoreAnswer(question, answer, 0).base, 15);
     for (const answer of ['1608', '1628', '1618foo', '1618.0', '1.618', '', '-1618', '0', 'Infinity']) {
-        assert.equal(scoreAnswer(question, answer, 0, false).base, 0, answer);
+        assert.equal(scoreAnswer(question, answer, 0).base, 0, answer);
     }
     const countQuestion = { ...question, year: false, acceptedAnswers: ['27'] };
-    assert.equal(scoreAnswer(countQuestion, '28', 0, false).base, 0);
+    assert.equal(scoreAnswer(countQuestion, '28', 0).base, 0);
 });
 
 test('points follow question level and bonus requires full correctness before deadline', () => {
-    const easy = lesson.questions[0];
-    const medium = lesson.questions[2];
+    for (const [difficulty, base] of [['easy', 10], ['medium', 20], ['hard', 30]]) {
+        const question = lesson.questions.find(q => q.difficulty === difficulty);
+        const answer = question.type === 'text' ? question.acceptedAnswers[0] : question.answer;
+        for (const elapsed of [0, 1000, 14999, 14999.999]) {
+            assert.deepEqual(scoreAnswer(question, answer, elapsed), { fraction: 1, base, bonus: base, total: 2 * base });
+        }
+        for (const elapsed of [15000, 15001, 60000, -1, NaN, Infinity]) {
+            assert.deepEqual(scoreAnswer(question, answer, elapsed), { fraction: 1, base, bonus: 0, total: base });
+        }
+        const wrong = question.type === 'text' ? 'wrong' : (question.answer + 1) % question.options.length;
+        for (const elapsed of [0, 14999, 15000, 60000]) {
+            assert.deepEqual(scoreAnswer(question, wrong, elapsed), { fraction: 0, base: 0, bonus: 0, total: 0 });
+        }
+    }
     const year = lesson.questions.find(q => q.year);
-    assert.equal(scoreAnswer(easy, easy.answer, 1000, false).total, 10);
-    assert.equal(scoreAnswer(medium, medium.answer, 1000, false).total, 20);
-    assert.equal(scoreAnswer(year, '1618', 14999, true).total, 60);
-    assert.equal(scoreAnswer(year, '1618', 15000, true).total, 30);
-    assert.equal(scoreAnswer(year, '1619', 0, true).total, 15);
-    assert.equal(scoreAnswer(easy, 1 - easy.answer, 0, true).total, 0);
+    for (const elapsed of [0, 14999, 15000, 60000]) {
+        assert.deepEqual(scoreAnswer(year, '1619', elapsed), { fraction: 0.5, base: 15, bonus: 0, total: 15 });
+    }
 });
 
 test('grades use exact thresholds and leaderboard sorting breaks ties by duration', () => {

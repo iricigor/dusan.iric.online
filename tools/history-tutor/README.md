@@ -108,11 +108,13 @@ Only explicitly marked year questions get half credit for a nonzero difference
 of **less than 10 years**. Other numbers must match exactly; number prefixes and
 answers with trailing words do not count as valid years.
 
-The optional speed bonus is off by default: a fully correct answer within 15
-seconds earns twice its base points. Czech grades are based on base points,
+The history speed bonus is always enabled, with no opt-in or opt-out: a fully
+correct answer in less than 15 seconds earns twice its base points. At exactly
+15 seconds or later, only base points apply; answering remains possible.
+Incorrect and partially correct answers never earn a speed bonus.
+Czech grades are based on base points,
 not speed: 1 at 80%, 2 at 60%, 3 at 40%, 4 at 20%, otherwise 5.
-This describes the current runtime; making the history bonus always enabled
-is tracked separately in #29 and is not implemented by the agent profiles.
+This rule is history-specific; maths must have no timer or speed bonus.
 Feedback explains each answer; the child chooses when to continue.
 The results show answers, grade and score, then a per-lesson leaderboard sorted
 by total points and duration, highlighting the current run. Results stay in
