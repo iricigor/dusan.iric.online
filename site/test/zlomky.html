@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zlomky: porovnávání, sčítání, odčítání a část z celku</title>
+    <style>:root {
+    color-scheme: light;
+    --bg: #f1f5f9; --card: #fff; --text: #172033; --muted: #475569;
+    --primary: #174cb5; --border: #cbd5e1; --good: #146b3a; --bad: #b42318;
+    --warning: #875300; --shadow: 0 4px 12px #1720330d;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #101827; --card: #1c293c; --text: #f1f5f9; --muted: #cbd5e1;
+        --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
+        --warning: #ffd082; --shadow: 0 4px 12px #0003;
+    }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #101827; --card: #1c293c; --text: #f1f5f9; --muted: #cbd5e1;
+    --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
+    --warning: #ffd082; --shadow: 0 4px 12px #0003;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1.1rem/1.7 system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 2; background: var(--card); padding: 1rem max(1rem, calc((100% - 1600px) / 2 + 1rem)); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+.heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+h1 { font-size: clamp(1.15rem, 3vw, 1.8rem); line-height: 1.3; margin: .4rem 0; }
+h2 { font-size: 1.3rem; line-height: 1.4; }
+header p { margin: .3rem 0; font-size: .9rem; }
+.badge, .audience { display: inline-block; border: 1px solid var(--border); border-radius: 2rem; padding: .15rem .75rem; }
+.badge { color: var(--primary); font-weight: bold; }
+.audience { color: var(--muted); }
+nav, .modes { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+button, input { font: inherit; }
+button { cursor: pointer; border: 1px solid var(--border); border-radius: .6rem; padding: .6rem .9rem; background: var(--card); color: var(--text); }
+button:hover, button[aria-pressed="true"] { border-color: var(--primary); color: var(--primary); }
+nav button { border: 0; border-bottom: 3px solid transparent; border-radius: .5rem .5rem 0 0; color: var(--muted); font-weight: bold; }
+nav button[aria-pressed="true"] { background: var(--bg); }
+button:disabled { cursor: default; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+main { max-width: 1600px; margin: 1.5rem auto; padding: 0 1rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; overflow-wrap: anywhere; box-shadow: var(--shadow); }
+.card > h2:first-child { margin-top: 0; color: var(--primary); }
+.original-text { white-space: pre-wrap; max-width: 80ch; }
+#learning { display: grid; grid-template-columns: minmax(0, 2fr) minmax(15rem, 1fr); align-items: start; gap: 1.5rem; }
+#learning-content, .glossary-card { min-width: 0; }
+.term, .correction { display: inline; padding: 0; border: 0; border-radius: 0; font: inherit; color: var(--primary); text-decoration: underline dotted; text-underline-offset: .2em; }
+.correction { color: var(--bad); white-space: pre-wrap; text-align: left; }
+#glossary { display: grid; gap: .5rem; }
+#glossary button { text-align: left; background: var(--bg); overflow-wrap: anywhere; }
+details { border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: .5rem; padding: .5rem 1rem; margin-top: 1rem; }
+details[open] { background: var(--bg); }
+summary { cursor: pointer; color: var(--primary); }
+label { display: block; }
+input[type="text"] { width: 100%; max-width: 35rem; border: 1px solid var(--border); border-radius: .5rem; padding: .75rem; background: var(--bg); color: var(--text); }
+.modes > button { flex: 1 1 12rem; padding: 1.25rem; border-width: 2px; border-left-width: 6px; font-weight: bold; }
+.modes > [data-mode="easy"] { border-left-color: var(--good); }
+.modes > [data-mode="medium"] { border-left-color: var(--warning); }
+.modes > [data-mode="hard"] { border-left-color: var(--bad); }
+.quiz-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; color: var(--muted); font-weight: bold; }
+.quiz-status p { margin: 0; }
+#quiz-progress { display: block; width: 100%; height: .75rem; margin: .75rem 0 1.5rem; accent-color: var(--primary); }
+#answers { display: grid; gap: .75rem; }
+#answers button { text-align: left; }
+#feedback { padding: 1rem; margin: 1rem 0; border: 2px solid var(--border); border-radius: .6rem; }
+.correct { color: var(--good); }
+.incorrect, #name-error, #storage-warning { color: var(--bad); }
+.grade { font-size: 1.4rem; font-weight: bold; text-align: center; padding: 1rem; border-radius: .75rem; background: var(--bg); color: var(--primary); }
+#summary li { margin-bottom: 1rem; }
+#summary p { margin: .25rem 0; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+th, td { text-align: left; border-bottom: 1px solid var(--border); padding: .5rem; white-space: nowrap; }
+tr.current { background: var(--bg); font-weight: bold; outline: 2px solid var(--primary); outline-offset: -2px; }
+dialog { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 1rem; max-width: min(90vw, 38rem); padding: 1.5rem; }
+dialog::backdrop { background: #0009; }
+a { color: var(--primary); }
+[hidden] { display: none !important; }
+@keyframes pop { 50% { transform: scale(1.015); } }
+@keyframes shake { 25%, 75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+.success { animation: pop .3s ease; }
+.failure { animation: shake .3s ease; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+@media (max-width: 1024px) {
+    #learning { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+@media (max-width: 550px) {
+    body { font-size: 1rem; }
+    header { padding: .5rem .75rem; }
+    .heading { align-items: flex-start; }
+    #theme { font-size: .8rem; padding: .4rem; flex-shrink: 0; }
+    .card { padding: 1rem; }
+    nav button { flex: 1; padding: .4rem .2rem; font-size: .9rem; }
+}
+</style>
+</head>
+<body>
+    <header>
+        <div class="heading">
+            <div><span class="badge">Matematika</span><h1 id="topic"></h1></div>
+            <button id="theme" type="button" aria-label="Přepnout světlý nebo tmavý režim">Světlý / tmavý</button>
+        </div>
+        <p id="audience" class="audience"></p>
+        <nav aria-label="Části lekce">
+            <button type="button" data-tab="original" aria-controls="original" aria-pressed="true">Původní text</button>
+            <button type="button" data-tab="learning" aria-controls="learning" aria-pressed="false">Učit se</button>
+            <button type="button" data-tab="quiz" aria-controls="quiz" aria-pressed="false">Hrát si</button>
+        </nav>
+    </header>
+    <main>
+        <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
+        <p id="storage-warning" role="alert" hidden></p>
+        <section id="original" aria-label="Původní text">
+            <article id="original-review" class="card" hidden>
+                <h2>Ověření a doplnění</h2><p id="review"></p><ul id="sources"></ul>
+            </article>
+            <div id="original-content"></div>
+        </section>
+        <section id="learning" aria-label="Učit se" hidden>
+            <div id="learning-content"></div>
+            <aside class="card glossary-card" aria-labelledby="glossary-title"><h2 id="glossary-title">Slovníček</h2><div id="glossary"></div></aside>
+        </section>
+        <section id="quiz" aria-label="Hrát si" hidden>
+            <article id="setup" class="card">
+                <h2>Vyber si kvíz</h2>
+                <label for="player">Tvoje jméno nebo přezdívka (alespoň 3 písmena)</label>
+                <input id="player" type="text" autocomplete="off" maxlength="60" placeholder="Tvoje přezdívka" aria-describedby="name-error">
+                <p id="name-error" role="alert"></p>
+                <p>Jméno nebo přezdívka zůstane jen ve výsledcích v tomto prohlížeči. Na server nic neposíláme.</p>
+                <p id="scoring"></p>
+                <div class="modes">
+                    <button type="button" data-mode="easy">Lehká: 3 úlohy</button>
+                    <button type="button" data-mode="medium">Střední: 5 úloh</button>
+                    <button type="button" data-mode="hard">Těžká: 10 úloh</button>
+                </div>
+            </article>
+            <article id="game" class="card" hidden>
+                <div class="quiz-status">
+                    <p id="progress"></p>
+                    <p id="score" role="status" aria-atomic="true"></p>
+                </div>
+                <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
+                
+                <h2 id="question" tabindex="-1"></h2>
+                <p id="answer-help" hidden></p>
+                <form id="answers" novalidate></form>
+                <div id="feedback" role="status" hidden></div>
+                <button id="next" type="button" hidden>Další úloha</button>
+            </article>
+            <article id="results" class="card" hidden>
+                <h2 id="results-title" tabindex="-1">Výsledek kvízu</h2>
+                <p id="grade" class="grade"></p>
+                <ol id="summary"></ol>
+                <button id="restart" type="button">Nový kvíz</button>
+            </article>
+            <article id="leaderboard" class="card">
+                <h2>Síň slávy této lekce</h2>
+                <p>Výsledky pouze v tomto prohlížeči a této relaci. Po ukončení relace mohou zmizet.</p>
+                <div id="leaderboard-content" class="table-scroll"></div>
+            </article>
+        </section>
+    </main>
+    <dialog id="definition" aria-labelledby="definition-title">
+        <h2 id="definition-title"></h2>
+        <p id="definition-text"></p>
+        <form method="dialog"><button>Zavřít</button></form>
+    </dialog>
+    <script id="lesson-data" type="application/json">{"version":2,"subject":"maths","language":"cs-CZ","id":"zlomky-porovnavani-smisena-cisla-cast-celku","topic":"Zlomky: porovnávání, sčítání, odčítání a část z celku","audience":"Pro děti kolem deseti let. Nejprve si ukážeme postup, potom počítáš samostatně.","original":[{"heading":"Zadané téma","text":"Porovnávání zlomků pomocí \u003c, \u003e a =, také se smíšenými čísly. Sčítání a odčítání zlomků, také se smíšenými čísly. Slovní úlohy k těmto tématům. Výpočet části z celku."}],"glossary":[{"term":"zlomek","definition":"Číslo zapsané například jako 3/4. Celek rozdělíme na čtyři stejné díly a vezmeme tři.","forms":["zlomky","zlomku","zlomků"]},{"term":"čitatel","definition":"Číslo nad zlomkovou čárou. Říká, kolik dílů bereme. Ve zlomku 3/4 je to 3.","forms":["čitatele","čitateli"]},{"term":"jmenovatel","definition":"Číslo pod zlomkovou čárou. Říká, na kolik stejných dílů dělíme celek. Nesmí být nula.","forms":["jmenovatele","jmenovateli"]},{"term":"společný jmenovatel","definition":"Stejné číslo pod zlomkovou čárou u dvou zlomků. Díly pak mají stejnou velikost a můžeme je porovnat, sčítat nebo odčítat.","forms":["společného jmenovatele","společným jmenovatelem"]},{"term":"rozšíření","definition":"Vynásobíme čitatele i jmenovatele stejným nenulovým číslem. Hodnota zlomku se nezmění: 1/2 = 2/4.","forms":["rozšířit","rozšíříme"]},{"term":"krácení","definition":"Vydělíme čitatele i jmenovatele stejným nenulovým číslem. Hodnota se nezmění: 6/8 = 3/4.","forms":["krátit","zkrátíme"]},{"term":"smíšené číslo","definition":"Má celou část a zlomek menší než jedna. Zápis 2 1/4 znamená 2 + 1/4, tedy dvě celé a jednu čtvrtinu.","forms":["smíšená čísla","smíšeného čísla","smíšenými čísly"]},{"term":"nepravý zlomek","definition":"Kladný zlomek s čitatelem alespoň tak velkým jako jmenovatel. Například 9/4 = 2 1/4.","forms":["nepravého zlomku","nepravé zlomky"]},{"term":"část z celku","definition":"Určený počet stejných dílů celku. Pro 3/4 z 20 nejprve spočítáme 20 : 4 = 5 a pak 5 × 3 = 15.","forms":["části z celku"]},{"term":"porovnávání","definition":"Zjišťujeme, které číslo je menší nebo větší, nebo zda jsou stejná. Znak \u003c znamená je menší než, \u003e znamená je větší než a = znamená rovná se. Otevřená strana míří k většímu číslu.","forms":["porovnat","porovnáme"]}],"examples":[{"kind":"simple","heading":"1. Stejně velké díly: porovnej, sečti a odečti","prompt":"Dva stejné koláče dělíme na čtvrtiny. Ema má 1/4 koláče a Matěj 3/4. Kdo má víc? Potom spočítej 1/4 + 2/4 a 3/4 - 1/4. Nakonec porovnej 1/2 s 2/4 a 3/4 s 2/3.","hint":"Porovnávej stejně velké celky. Stejný jmenovatel znamená stejně velké díly. Pak rozhoduje čitatel.","steps":[{"calculation":"1/4 \u003c 3/4","explanation":"Jedna čtvrtina je méně než tři čtvrtiny. Matěj má víc. Znak \u003c čteme je menší než. Opačně píšeme 3/4 \u003e 1/4."},{"calculation":"1/4 + 2/4 = 3/4","explanation":"Počítáme počet čtvrtin: jedna a dvě jsou tři. Jmenovatel zůstane 4. Nesčítáme jmenovatele."},{"calculation":"3/4 - 1/4 = 2/4 = 1/2","explanation":"Ze tří čtvrtin odebereme jednu. Zbydou dvě. Čitatele i jmenovatele vydělíme dvěma. To je krácení."},{"calculation":"1/2 = 2/4","explanation":"Každou polovinu rozdělíme na dvě stejné části. Dostaneme čtvrtiny. Dvě čtvrtiny jsou pořád polovina. Znak = znamená rovná se."},{"calculation":"3/4 = 9/12; 2/3 = 8/12; 9/12 \u003e 8/12","explanation":"Najdeme společný jmenovatel 12. U prvního zlomku násobíme obě čísla třemi, u druhého čtyřmi. To je rozšíření. Devět stejných dílů je více než osm."},{"calculation":"1/2 + 1/3 = 3/6 + 2/6 = 5/6; 3/4 - 1/6 = 9/12 - 2/12 = 7/12","explanation":"Při různých jmenovatelích nejdřív vytvoříme stejně velké díly. Potom sčítáme nebo odčítáme čitatele. Jmenovatel neměníme."}],"answer":"Ema má méně: 1/4 \u003c 3/4. Součet je 3/4 a rozdíl 1/2. Platí 1/2 = 2/4 a 3/4 \u003e 2/3."},{"kind":"complex","heading":"2. Smíšená čísla: celé části i zlomky","prompt":"Porovnej 2 1/4 s 1 3/4 a 1 2/3 s 1 3/4. Potom spočítej 2 1/4 + 1 2/3, 2 1/4 - 1 2/3 a 2 1/4 - 3/4.","hint":"Zápis 2 1/4 znamená dvě celé a jednu čtvrtinu. Pro výpočty jej změň na 9/4: dvě celé jsou osm čtvrtin a přidáš ještě jednu.","steps":[{"calculation":"2 1/4 \u003e 1 3/4","explanation":"Nejprve porovnáme celé části. Dvě celé jsou více než jedna celá. Zlomkové části obou smíšených čísel jsou menší než jedna."},{"calculation":"1 2/3 = 1 8/12; 1 3/4 = 1 9/12; 1 2/3 \u003c 1 3/4","explanation":"Celé části jsou stejné. Proto porovnáme zlomkové části. Osm dvanáctin je méně než devět. Také platí 1 1/2 = 1 2/4."},{"calculation":"2 1/4 = (2 × 4 + 1)/4 = 9/4; 1 2/3 = (1 × 3 + 2)/3 = 5/3","explanation":"Celou část násobíme jmenovatelem a přičteme čitatele. Dostaneme nepravý zlomek. Ten nám pomůže při počítání. Výsledek větší než jedna potom zapíšeme jako smíšené číslo."},{"calculation":"9/4 + 5/3 = 27/12 + 20/12 = 47/12 = 3 11/12","explanation":"Společný jmenovatel je 12. Sečteme 27 a 20. Čitatele 47 vydělíme jmenovatelem 12: dostaneme 3 celé a zbytek 11. Zbytek patří do čitatele a jmenovatel zůstane 12. Výsledek je 3 11/12. Zlomkovou část ještě zkrátíme, pokud to jde."},{"calculation":"9/4 - 5/3 = 27/12 - 20/12 = 7/12","explanation":"Použijeme stejné rozšíření jako při sčítání. Tentokrát čitatele odečteme."},{"calculation":"2 1/4 - 3/4 = 9/4 - 3/4 = 6/4 = 3/2 = 1 1/2","explanation":"Jedna čtvrtina nestačí na odebrání tří čtvrtin. Převod celého smíšeného čísla na čtvrtiny nám pomůže. Nemusíme odčítat malé číslo od většího v samotné zlomkové části."}],"answer":"Platí 2 1/4 \u003e 1 3/4, 1 2/3 \u003c 1 3/4 a 1 1/2 = 1 2/4. Výsledky výpočtů jsou 3 11/12, 7/12 a 1 1/2. Smíšené číslo piš s mezerou mezi celou a zlomkovou částí, například 1 1/2. Políčko přijme i stejnou hodnotu 3/2. Celý výsledek napiš jako celé číslo, například 3."},{"kind":"everyday","heading":"3. Svačina: část z celku a slovní úloha","prompt":"Na talíři je 24 jahod. Děti snědí 3/4 všech jahod. Kolik jahod snědí a kolik zůstane? K pití mají 1/2 litru šťávy a přilijí 1/4 litru. Kolik šťávy mají? Je to více než 2/3 litru?","hint":"U části z celku nejdřív děl jmenovatelem a potom násob čitatelem. Ve slovní úloze si řekni, zda něco přibývá, nebo ubývá.","steps":[{"calculation":"24 : 4 = 6; 6 × 3 = 18","explanation":"Jedna čtvrtina z 24 je 6 jahod. Tři takové díly obsahují 18 jahod. Pro výpočet části z celku dělíme jmenovatelem a násobíme čitatelem."},{"calculation":"24 - 18 = 6","explanation":"Od všech jahod odečteme snědené. Zůstane 6 jahod. Dohromady 18 + 6 = 24, takže kontrola vychází."},{"calculation":"1/2 + 1/4 = 2/4 + 1/4 = 3/4 litru","explanation":"Přilévání znamená sčítání. Polovinu rozšíříme na dvě čtvrtiny. Po přilití mají tři čtvrtiny litru."},{"calculation":"3/4 = 9/12; 2/3 = 8/12; 3/4 \u003e 2/3","explanation":"Porovnáváme stejné jednotky, tedy litry. Devět dvanáctin litru je více než osm. Mají více než dvě třetiny litru."}],"answer":"Děti snědí 18 jahod a zůstane 6 jahod. Mají 3/4 litru šťávy, což je více než 2/3 litru."},{"kind":"challenge","heading":"4. Výzva: spoj několik kroků","prompt":"Ve třídě je 36 knih. Děti přečtou nejprve 1/3 všech knih a potom ještě 1/4 všech knih. Žádnou knihu nečtou dvakrát. Kolik knih zbývá? Přečetly už více než polovinu? Pak vyřeš navíc: Jaká je 1/2 z 1 1/2 litru šťávy?","hint":"Obě části počítej z původních 36 knih. Potom je sečti a odečti od celku. Část z množství můžeme počítat i tehdy, když je množství zapsané zlomkem.","steps":[{"calculation":"36 : 3 × 1 = 12; 36 : 4 × 1 = 9","explanation":"Třetina všech knih je 12 a čtvrtina všech knih je 9. Druhou část nepočítáme ze zbytku, protože zadání říká všech knih."},{"calculation":"12 + 9 = 21; 36 - 21 = 15","explanation":"Přečetly 21 různých knih. Z celkových 36 odečteme 21. Zbývá 15 knih."},{"calculation":"1/3 + 1/4 = 4/12 + 3/12 = 7/12; 1/2 = 6/12; 7/12 \u003e 6/12","explanation":"Sečtené části jsou sedm dvanáctin. To je více než polovina, tedy šest dvanáctin. Také 21 knih je více než polovina z 36, což je 18 knih."},{"calculation":"1/2 z 3/2 litru: 3/2 : 2 = 3/4 litru","explanation":"Rozdělit množství na dva stejné díly znamená vzít polovinu. Tři poloviny litru rozdělíme na dvě skupiny: jedna má tři čtvrtiny litru. U zlomku můžeme při dělení kladným celým číslem tímto číslem násobit jmenovatele."},{"calculation":"2/3 z 3 litrů: 3 : 3 × 2 = 2 litry","explanation":"Postup je stejný: nejdřív najdeme jeden díl a potom vezmeme dva. Slovo z v takové úloze určuje část uvedeného množství."}],"answer":"Zbývá 15 knih. Děti přečetly 7/12 všech knih, tedy více než polovinu. Polovina z 1 1/2 litru je 3/4 litru. Dvě třetiny ze 3 litrů jsou 2 litry."}],"exercises":[{"id":"ctyri-vypocty-zlomky","difficulty":"easy","prompt":"Čtyři krátké výpočty se zlomky. Každý počítej samostatně. Výsledek menší než jedna napiš jako zlomek, například 3/4. Výsledek větší než jedna napiš jako smíšené číslo, například 1 5/6.","steps":[{"prompt":"1/4 + 1/2 = ?","hint":"Polovina jsou dvě čtvrtiny.","answer":{"format":"fraction","numerator":"3","denominator":"4"},"solution":"1/4 + 1/2 = 1/4 + 2/4 = 3/4."},{"prompt":"5/6 - 1/3 = ?","hint":"Třetinu rozšiř na šestiny.","answer":{"format":"fraction","numerator":"1","denominator":"2"},"solution":"5/6 - 1/3 = 5/6 - 2/6 = 3/6 = 1/2."},{"prompt":"1 1/2 + 1/3 = ?","hint":"1 1/2 je 3/2. Najdi společný jmenovatel 6. Nakonec zjisti, kolik celých obsahuje jedenáct šestin.","answer":{"format":"fraction","numerator":"11","denominator":"6"},"solution":"1 1/2 + 1/3 = 3/2 + 1/3 = 9/6 + 2/6 = 11/6 = 1 5/6. Jedenáct šestin obsahuje jednu celou a pět šestin."},{"prompt":"2 1/4 - 1/2 = ?","hint":"Dvě celé a čtvrtina jsou 9/4.","answer":{"format":"fraction","numerator":"7","denominator":"4"},"solution":"9/4 - 1/2 = 9/4 - 2/4 = 7/4, tedy 1 3/4."}],"explanation":"U sčítání i odčítání nejdřív vytvoř stejně velké díly. Smíšená čísla můžeš převést na nepravé zlomky. Každý výpočet má vlastní výsledek."},{"id":"ctyri-vypocty-smisena-a-casti","difficulty":"easy","prompt":"Druhá skupina: smíšená čísla a části z celku. První dvě odpovědi napiš jako smíšená čísla. Poslední dvě jako celá čísla.","steps":[{"prompt":"2/3 + 2/3 = ?","hint":"Sečti čitatele, jmenovatel nech stejný.","answer":{"format":"fraction","numerator":"4","denominator":"3"},"solution":"2/3 + 2/3 = 4/3, tedy 1 1/3."},{"prompt":"2 1/4 - 3/4 = ?","hint":"Převeď 2 1/4 na 9/4.","answer":{"format":"fraction","numerator":"3","denominator":"2"},"solution":"9/4 - 3/4 = 6/4 = 3/2, tedy 1 1/2."},{"prompt":"Kolik je 1/3 z 18?","hint":"Rozděl 18 na tři stejné díly.","answer":{"format":"integer","value":"6"},"solution":"18 : 3 × 1 = 6."},{"prompt":"Kolik je 3/4 z 20?","hint":"Nejdřív najdi jednu čtvrtinu, pak vezmi tři.","answer":{"format":"integer","value":"15"},"solution":"20 : 4 = 5; 5 × 3 = 15."}],"explanation":"Zlomek může být větší než jedna. U části z celku dělíme jmenovatelem a násobíme čitatelem. Výsledky zapisuj ve tvaru uvedeném u zadání."},{"id":"kolac-pro-sourozence","difficulty":"medium","prompt":"Klára snědla 1/3 koláče a její bratr 1/4 téhož koláče. Kolik koláče snědli dohromady? Napiš zlomek.","steps":[{"prompt":"Jakou část koláče snědli dohromady?","hint":"Dohromady znamená sčítání. Použij dvanáctiny.","answer":{"format":"fraction","numerator":"7","denominator":"12"},"solution":"1/3 + 1/4 = 4/12 + 3/12 = 7/12. Snědli sedm dvanáctin koláče."}],"explanation":"Oba zlomky patří ke stejnému celku. Sečteme stejně velké díly, proto nejprve rozšíříme na dvanáctiny."},{"id":"zbytek-pizzy","difficulty":"medium","prompt":"Po obědě zůstalo 5/6 pizzy. Eva snědla ještě 1/4 celé původní pizzy. Jaká část původní pizzy zůstala? Napiš zlomek.","steps":[{"prompt":"Jaká část původní pizzy zůstala?","hint":"Od pěti šestin odečti jednu čtvrtinu. Oba zlomky převeď na dvanáctiny.","answer":{"format":"fraction","numerator":"7","denominator":"12"},"solution":"5/6 - 1/4 = 10/12 - 3/12 = 7/12. Zůstalo sedm dvanáctin původní pizzy."}],"explanation":"Slovo snědla znamená, že množství ubývá. Jedna čtvrtina se podle zadání vztahuje k celé původní pizze, ne jen ke zbytku."},{"id":"dva-dzbany","difficulty":"medium","prompt":"V prvním džbánu je 1 1/2 litru vody. Ve druhém je 2 1/4 litru. Kolik litrů vody mají dohromady? Výsledek napiš jako smíšené číslo bez jednotky.","steps":[{"prompt":"Počet litrů dohromady, jako smíšené číslo:","hint":"1 1/2 = 3/2 a 2 1/4 = 9/4. Patnáct čtvrtin převeď zpět na smíšené číslo.","answer":{"format":"fraction","numerator":"15","denominator":"4"},"solution":"3/2 + 9/4 = 6/4 + 9/4 = 15/4 = 3 3/4. Mají 3 3/4 litru vody. Do políčka napiš 3 3/4."}],"explanation":"Vody přibývá, proto sčítáme. Celé části převedeme na zlomky. Odpovědní políčko požaduje počet litrů, nikoli textovou jednotku."},{"id":"mouka-na-peceni","difficulty":"medium","prompt":"V sáčku bylo 2 1/3 kilogramu mouky. Na pečení se spotřebovalo 1 3/4 kilogramu. Kolik kilogramů mouky zbylo? Napiš zlomek bez jednotky.","steps":[{"prompt":"Počet kilogramů zbývající mouky, jako zlomek:","hint":"Převeď množství na 7/3 a 7/4. Společný jmenovatel je 12.","answer":{"format":"fraction","numerator":"7","denominator":"12"},"solution":"2 1/3 - 1 3/4 = 7/3 - 7/4 = 28/12 - 21/12 = 7/12. Zbylo 7/12 kilogramu mouky."}],"explanation":"Spotřebu odečítáme od původního množství. Převod na nepravé zlomky pomůže i tehdy, když je první zlomková část menší než druhá."},{"id":"pastelky-ve-tride","difficulty":"medium","prompt":"Ve třídě je 28 pastelek. Tři sedminy všech pastelek jsou modré. Kolik modrých pastelek je ve třídě? Napiš jen celé číslo.","steps":[{"prompt":"Počet modrých pastelek:","hint":"Jednu sedminu zjistíš dělením sedmi. Potom vezmi tři takové díly.","answer":{"format":"integer","value":"12"},"solution":"28 : 7 = 4; 4 × 3 = 12. Modrých pastelek je 12."}],"explanation":"Sedm stejných skupin má po čtyřech pastelkách. Tři skupiny tedy obsahují dvanáct pastelek."},{"id":"porovnani-stuh","difficulty":"medium","prompt":"Anička má 3/4 metru stuhy a Petr 2/3 metru. Doplň správný znak v tomto pořadí: Aniččina délka 3/4 ___ Petrova délka 2/3. Vyber \u003c, \u003e nebo =.","steps":[{"prompt":"3/4 ___ 2/3","hint":"Obě délky jsou v metrech. Převeď zlomky na dvanáctiny.","answer":{"format":"comparison","value":"\u003e"},"solution":"3/4 = 9/12 a 2/3 = 8/12. Devět dvanáctin je více než osm. Platí 3/4 \u003e 2/3. Aniččina stuha je delší."}],"explanation":"Porovnáváme stejně velké jednotky. Levá hodnota je větší, proto otevřená strana znaku míří doleva."},{"id":"porovnani-cokolady","difficulty":"medium","prompt":"Adam má 2/5 tabulky čokolády a Bára 1/2 stejně velké tabulky. Doplň znak v pořadí Adamova část 2/5 ___ Bářina část 1/2. Vyber \u003c, \u003e nebo =.","steps":[{"prompt":"2/5 ___ 1/2","hint":"Použij desetiny.","answer":{"format":"comparison","value":"\u003c"},"solution":"2/5 = 4/10 a 1/2 = 5/10. Čtyři desetiny jsou méně než pět. Platí 2/5 \u003c 1/2. Adam má méně čokolády."}],"explanation":"Tabulky jsou stejně velké. Po rozšíření porovnáváme čtyři a pět stejných dílů."},{"id":"porovnani-stejnych-kolacu","difficulty":"medium","prompt":"Na jednom talíři jsou 3/6 koláče a na druhém 1/2 stejně velkého koláče. Doplň znak: první část 3/6 ___ druhá část 1/2. Vyber \u003c, \u003e nebo =.","steps":[{"prompt":"3/6 ___ 1/2","hint":"Zkrať tři šestiny třemi.","answer":{"format":"comparison","value":"="},"solution":"3/6 = (3 : 3)/(6 : 3) = 1/2. Obě části jsou stejné. Platí 3/6 = 1/2."}],"explanation":"Jiný zápis nemusí znamenat jinou hodnotu. Tři šestiny a jedna polovina představují stejnou část stejně velkého celku."},{"id":"porovnani-dzbanu","difficulty":"medium","prompt":"V modrém džbánu je 2 1/5 litru vody a v zeleném 1 4/5 litru. Doplň znak v pořadí modrý džbán 2 1/5 ___ zelený džbán 1 4/5. Vyber \u003c, \u003e nebo =.","steps":[{"prompt":"2 1/5 ___ 1 4/5","hint":"Nejprve porovnej celé části smíšených čísel.","answer":{"format":"comparison","value":"\u003e"},"solution":"První množství má dvě celé, druhé jen jednu. Platí 2 1/5 \u003e 1 4/5. Kontrola: 11/5 \u003e 9/5. V modrém džbánu je více vody."}],"explanation":"Čitatel samotné zlomkové části nerozhoduje, když se liší celé části. Dvě celé a něco navíc jsou více než jedna celá a zlomek menší než jedna."},{"id":"porovnani-prochazek","difficulty":"medium","prompt":"Ranní procházka měřila 1 2/3 kilometru a večerní 1 3/4 kilometru. Doplň znak v pořadí ranní délka 1 2/3 ___ večerní délka 1 3/4. Vyber \u003c, \u003e nebo =.","steps":[{"prompt":"1 2/3 ___ 1 3/4","hint":"Celé části jsou stejné. Porovnej dvě třetiny se třemi čtvrtinami.","answer":{"format":"comparison","value":"\u003c"},"solution":"2/3 = 8/12 a 3/4 = 9/12. Proto 1 8/12 \u003c 1 9/12. Platí 1 2/3 \u003c 1 3/4. Ranní procházka byla kratší."}],"explanation":"Když jsou celé části stejné, rozhodují zlomkové části. Ty nejprve převedeme na stejně velké díly."},{"id":"porovnani-stejnych-lahvi","difficulty":"medium","prompt":"V první láhvi je 1 1/2 litru vody a ve druhé 1 2/4 litru. Doplň znak v pořadí první množství 1 1/2 ___ druhé množství 1 2/4. Vyber \u003c, \u003e nebo =.","steps":[{"prompt":"1 1/2 ___ 1 2/4","hint":"Celé části jsou stejné. Je jedna polovina stejně velká jako dvě čtvrtiny?","answer":{"format":"comparison","value":"="},"solution":"1/2 = 2/4. Po přičtení jedné celé zůstává rovnost: 1 1/2 = 1 2/4. V obou láhvích je stejně vody."}],"explanation":"Stejná celá část a stejně velké zlomkové části dávají stejná smíšená čísla."},{"id":"knihy-na-polickach","difficulty":"hard","prompt":"Knihovna má 120 knih. Na první polici dá 1/3 všech knih a na druhou 1/4 všech knih. Ostatní zůstanou v krabici. Knihy na policích se nepřekrývají. Odpověz na tři otázky celými čísly.","steps":[{"prompt":"A: Kolik knih je na první polici?","hint":"Najdi třetinu ze 120.","answer":{"format":"integer","value":"40"},"solution":"120 : 3 = 40. Na první polici je 40 knih."},{"prompt":"B: Kolik knih je na obou policích dohromady?","hint":"Čtvrtina původních 120 knih je 30. Přičti počet na první polici.","answer":{"format":"integer","value":"70"},"solution":"120 : 4 = 30; 40 + 30 = 70. Na obou policích je dohromady 70 knih."},{"prompt":"C: Kolik knih zůstalo v krabici?","hint":"Od celkových 120 odečti knihy na obou policích.","answer":{"format":"integer","value":"50"},"solution":"120 - 70 = 50. V krabici zůstalo 50 knih. Kontrola: 40 + 30 + 50 = 120."}],"explanation":"Obě části počítáme z původního celku 120 knih. První krok najde první skupinu. Druhý přidá druhou skupinu. Třetí zjistí zbytek."},{"id":"stava-na-vylet","difficulty":"hard","prompt":"Na výlet vezmeme 2 1/2 litru jablečné šťávy a 1 3/4 litru hruškové. Smícháme je. Děti vypijí 1 1/4 litru směsi. Polovinu zbytku nalijeme do jedné láhve. Napiš počet litrů bez jednotky. Výsledky s celou i zlomkovou částí piš jako smíšená čísla. Celý výsledek napiš jako celé číslo.","steps":[{"prompt":"A: Kolik litrů směsi máme na začátku?","hint":"5/2 + 7/4 převeď na čtvrtiny.","answer":{"format":"fraction","numerator":"17","denominator":"4"},"solution":"2 1/2 + 1 3/4 = 5/2 + 7/4 = 10/4 + 7/4 = 17/4 = 4 1/4. Na začátku máme 4 1/4 litru."},{"prompt":"B: Kolik litrů zbude po pití?","hint":"Od počátečního množství odečti 5/4 litru.","answer":{"format":"fraction","numerator":"3","denominator":"1"},"solution":"17/4 - 5/4 = 12/4 = 3. Zbudou 3 litry. Do políčka napiš 3."},{"prompt":"C: Kolik litrů nalijeme do láhve?","hint":"Láhev má obsahovat polovinu zbývajících 3 litrů.","answer":{"format":"fraction","numerator":"3","denominator":"2"},"solution":"Polovina ze 3 litrů je 3 : 2 = 3/2 = 1 1/2. Do láhve nalijeme 1 1/2 litru."}],"explanation":"Nejprve množství sečteme, potom odečteme vypitou směs. Poslední část počítáme ze zbytku, protože to zadání výslovně říká. Každá otázka má svůj správný výsledek."},{"id":"stezka-u-rybnika","difficulty":"hard","prompt":"První část stezky měří 2 1/4 kilometru a druhá 1 1/2 kilometru. Při cestě zpět použijeme zkratku, která celou trasu zkrátí o 3/4 kilometru. Dvě třetiny takto zkrácené trasy vedou lesem. Napiš počet kilometrů bez jednotky. Výsledek s celou i zlomkovou částí napiš jako smíšené číslo, celé výsledky jako celá čísla.","steps":[{"prompt":"A: Kolik kilometrů měří původní celá trasa?","hint":"Sečti 9/4 a 3/2.","answer":{"format":"fraction","numerator":"15","denominator":"4"},"solution":"9/4 + 3/2 = 9/4 + 6/4 = 15/4 = 3 3/4. Původní trasa měří 3 3/4 kilometru."},{"prompt":"B: Kolik kilometrů měří zkrácená trasa?","hint":"Od původní délky odečti 3/4 kilometru.","answer":{"format":"fraction","numerator":"3","denominator":"1"},"solution":"15/4 - 3/4 = 12/4 = 3. Zkrácená trasa měří 3 kilometry. Do políčka napiš 3."},{"prompt":"C: Kolik kilometrů zkrácené trasy vede lesem?","hint":"Najdi dvě třetiny ze 3 kilometrů.","answer":{"format":"fraction","numerator":"2","denominator":"1"},"solution":"3 : 3 × 2 = 2. Lesem vedou 2 kilometry. Do políčka napiš 2."}],"explanation":"Délky nejprve sečteme. Zkratku odečteme od celé délky. Dvě třetiny počítáme až ze zkrácené trasy. Nejde o převody jednotek; celou dobu počítáme v kilometrech."}]}</script>
+    <script>'use strict';
+
+function initializeTutor(lesson, subject) {
+    const $ = id => document.getElementById(id);
+    const node = (tag, text, className) => {
+        const element = document.createElement(tag);
+        if (text !== undefined) element.textContent = text;
+        if (className) element.className = className;
+        return element;
+    };
+    const button = (text, action, className) => {
+        const element = node('button', text, className);
+        element.type = 'button';
+        element.addEventListener('click', action);
+        return element;
+    };
+    const disclose = (label, ...content) => {
+        const details = node('details');
+        details.append(node('summary', label), ...content);
+        return details;
+    };
+    const definition = (title, text) => {
+        $('definition-title').textContent = title;
+        $('definition-text').textContent = text;
+        $('definition').showModal();
+    };
+    const forms = new Map();
+    lesson.glossary.forEach(entry => [entry.term, ...entry.forms].forEach(form => forms.set(form.toLocaleLowerCase('cs'), entry)));
+    const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(${[...forms.keys()].sort((a, b) => b.length - a.length).map(escapeRegex).join('|')})(?![\\p{L}\\p{N}])`, 'giu');
+    const paragraph = text => {
+        const element = node('p');
+        let offset = 0;
+        for (const match of text.matchAll(pattern)) {
+            element.append(document.createTextNode(text.slice(offset, match.index)));
+            const entry = forms.get(match[0].toLocaleLowerCase('cs'));
+            element.append(button(match[0], () => definition(entry.term, entry.definition), 'term'));
+            offset = match.index + match[0].length;
+        }
+        element.append(document.createTextNode(text.slice(offset)));
+        return element;
+    };
+    const context = { $, node, button, disclose, paragraph };
+    $('topic').textContent = lesson.topic;
+    $('audience').textContent = lesson.audience;
+    if (lesson.review !== undefined) {
+        $('original-review').hidden = false;
+        $('review').textContent = lesson.review;
+        lesson.sources.forEach(source => {
+            const item = node('li');
+            const link = node('a', source.title);
+            link.href = source.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            item.append(link);
+            $('sources').append(item);
+        });
+    }
+    lesson.original.forEach((section, index) => {
+        const article = node('article', undefined, 'card');
+        article.append(node('h2', section.heading));
+        const text = node('p', undefined, 'original-text');
+        const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
+            .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
+        let offset = 0;
+        for (const correction of corrections) {
+            const start = section.text.indexOf(correction.quote);
+            text.append(document.createTextNode(section.text.slice(offset, start)));
+            const mark = button(correction.quote, () => definition('Historická oprava', correction.explanation), 'correction');
+            mark.title = correction.explanation;
+            text.append(mark);
+            offset = start + correction.quote.length;
+        }
+        text.append(document.createTextNode(section.text.slice(offset)));
+        article.append(text);
+        $('original-content').append(article);
+    });
+    subject.renderLearning(context, lesson);
+    lesson.glossary.forEach(entry => $('glossary').append(button(entry.term, () => definition(entry.term, entry.definition))));
+    document.querySelectorAll('[data-tab]').forEach(tab => tab.addEventListener('click', () => {
+        document.querySelectorAll('[data-tab]').forEach(other => {
+            const active = other === tab;
+            other.setAttribute('aria-pressed', String(active));
+            $(other.dataset.tab).hidden = !active;
+        });
+    }));
+    $('theme').addEventListener('click', () => {
+        const dark = document.documentElement.dataset.theme === 'dark' ||
+            (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+    });
+    $('scoring').textContent = subject.rules;
+    $('answer-help').textContent = subject.answerHelp || '';
+    $('answer-help').hidden = !subject.answerHelp;
+    const storageKey = `${subject.storagePrefix}:${lesson.id}`;
+    let records = [];
+    let storageReadable = true;
+    let currentRunId = null;
+    let quiz = null;
+    let timer = null;
+    const warnStorage = message => {
+        $('storage-warning').hidden = false;
+        $('storage-warning').textContent = message;
+    };
+    try {
+        const stored = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+        if (!Array.isArray(stored) || stored.some(row =>
+            !row || typeof row.id !== 'string' || typeof row.name !== 'string' ||
+            (row.name.match(/\p{L}/gu) || []).length < 3 || row.name.length > 60 ||
+            typeof row.time !== 'string' || !subject.validRecord(row))) {
+            throw new Error('Invalid tutor session results');
+        }
+        records = stored;
+    } catch (error) {
+        storageReadable = false;
+        console.warn('Tutor: cannot read session results.', error);
+        warnStorage('Uložené výsledky nelze načíst. Nové výsledky zůstanou jen v této stránce; původní úložiště nepřepíšeme.');
+    }
+    const points = value => String(value).replace('.', ',');
+    function renderLeaderboard() {
+        const container = $('leaderboard-content');
+        container.replaceChildren();
+        if (!records.length) {
+            container.append(node('p', 'Zatím žádné výsledky.'));
+            return;
+        }
+        const table = node('table');
+        const head = node('thead');
+        const labels = node('tr');
+        ['Hráč', 'Čas', ...(subject.speedBonus ? ['Délka'] : []), 'Obtížnost', 'Body', 'Známka'].forEach(label => {
+            const cell = node('th', label);
+            cell.scope = 'col';
+            labels.append(cell);
+        });
+        head.append(labels);
+        const body = node('tbody');
+        [...records].sort(subject.compareResults).forEach(record => {
+            const row = node('tr');
+            if (record.id === currentRunId) {
+                row.className = 'current';
+                row.setAttribute('aria-current', 'true');
+            }
+            [record.name, record.time, ...(subject.speedBonus ? [`${record.duration} s`] : []),
+                { easy: 'Lehká', medium: 'Střední', hard: 'Těžká' }[record.mode], `${points(record.total)} b`, String(record.grade)]
+                .forEach(value => row.append(node('td', value)));
+            body.append(row);
+        });
+        table.append(head, body);
+        container.append(table);
+    }
+    function finish() {
+        quiz.finished = true;
+        clearInterval(timer);
+        $('game').hidden = true;
+        $('results').hidden = false;
+        const result = subject.result(quiz.answers, quiz.questions);
+        $('grade').textContent = result.text;
+        $('summary').replaceChildren();
+        quiz.answers.forEach((answer, index) => {
+            const item = node('li');
+            item.append(node('strong', answer.question.prompt));
+            subject.feedback(context, item, answer, index + 1);
+            $('summary').append(item);
+        });
+        currentRunId = crypto.randomUUID();
+        records.push({
+            id: currentRunId, name: quiz.name, mode: quiz.mode, total: result.total, grade: result.grade,
+            time: new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' }),
+            ...(subject.speedBonus ? { duration: Math.round((performance.now() - quiz.started) / 1000) } : { maximum: result.maximum })
+        });
+        if (storageReadable) {
+            try {
+                sessionStorage.setItem(storageKey, JSON.stringify(records));
+                $('storage-warning').hidden = true;
+                $('storage-warning').textContent = '';
+            } catch (error) {
+                console.warn('Tutor: cannot save session results.', error);
+                warnStorage('Výsledky se nepodařilo uložit. Nové výsledky jsou vidět jen do obnovení této stránky.');
+            }
+        }
+        renderLeaderboard();
+        $('leaderboard').hidden = false;
+        $('results-title').focus();
+    }
+    function submit(values) {
+        if (!quiz || quiz.locked || quiz.finished) return;
+        if (!subject.acceptSubmission(values)) {
+            $('feedback').textContent = 'Nejdřív napiš odpověď.';
+            $('feedback').hidden = false;
+            return;
+        }
+        quiz.locked = true;
+        clearInterval(timer);
+        const question = quiz.questions[quiz.index];
+        const elapsed = subject.speedBonus ? performance.now() - quiz.questionStarted : 0;
+        const answer = { question, values, score: subject.score(question, values, elapsed) };
+        quiz.answers.push(answer);
+        $('score').textContent = `Skóre: ${points(quiz.answers.reduce((sum, item) => sum + item.score.total, 0))} b`;
+        $('quiz-progress').value = quiz.answers.length;
+        $('answers').querySelectorAll('input, button').forEach(control => { control.disabled = true; });
+        $('feedback').replaceChildren();
+        subject.feedback(context, $('feedback'), answer, quiz.index + 1);
+        $('feedback').hidden = false;
+        $('next').textContent = quiz.index === quiz.questions.length - 1 ? 'Zobrazit výsledek' : 'Další úloha';
+        $('next').hidden = false;
+        $('next').focus();
+    }
+    function showQuestion() {
+        clearInterval(timer);
+        quiz.locked = false;
+        const question = quiz.questions[quiz.index];
+        $('progress').textContent = `Úloha ${quiz.index + 1} / ${quiz.questions.length} · nejvýše ${subject.maximum([question])} b`;
+        $('quiz-progress').max = quiz.questions.length;
+        $('quiz-progress').value = quiz.answers.length;
+        $('question').textContent = question.prompt;
+        $('answers').replaceChildren();
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        if (question.options) {
+            question.options.forEach((option, index) => $('answers').append(button(option, () => submit([index]))));
+        } else {
+            subject.fields(question, quiz.index).forEach(field => {
+                const label = node('label', field.label);
+                label.htmlFor = field.id;
+                const input = node('input');
+                input.type = 'text';
+                input.id = field.id;
+                input.autocomplete = 'off';
+                input.maxLength = 80;
+                input.spellcheck = false;
+                if (field.inputMode) input.inputMode = field.inputMode;
+                if (subject.answerHelp) input.setAttribute('aria-describedby', 'answer-help');
+                $('answers').append(label, input);
+            });
+            const send = node('button', 'Odpovědět');
+            send.type = 'submit';
+            $('answers').append(send);
+        }
+        if (subject.speedBonus) {
+            quiz.questionStarted = performance.now();
+            const update = () => {
+                const remaining = Math.max(0, Math.ceil((15000 - (performance.now() - quiz.questionStarted)) / 1000));
+                $('bonus').textContent = remaining ? `2× bonus: ${remaining} s` : 'Bonus skončil. Na odpověď máš stále čas.';
+                if (!remaining) clearInterval(timer);
+            };
+            update();
+            timer = setInterval(update, 1000);
+        }
+        $('question').focus();
+    }
+    $('answers').addEventListener('submit', event => {
+        event.preventDefault();
+        if (quiz && !quiz.questions[quiz.index]?.options) {
+            submit([...$('answers').querySelectorAll('input')].map(input => input.value.trim()));
+        }
+    });
+    document.querySelectorAll('[data-mode]').forEach(control => control.addEventListener('click', () => {
+        if (quiz && !quiz.finished && $('setup').hidden) return;
+        const name = $('player').value.trim();
+        if ((name.match(/\p{L}/gu) || []).length < 3 || name.length > 60) {
+            $('name-error').textContent = 'Napiš jméno nebo přezdívku s alespoň třemi písmeny, nejvýše 60 znaků.';
+            $('player').setAttribute('aria-invalid', 'true');
+            $('player').focus();
+            return;
+        }
+        $('name-error').textContent = '';
+        $('player').removeAttribute('aria-invalid');
+        quiz = {
+            name, mode: control.dataset.mode, questions: subject.select(lesson, control.dataset.mode),
+            index: 0, answers: [], locked: false, finished: false,
+            ...(subject.speedBonus ? { started: performance.now() } : {})
+        };
+        $('setup').hidden = true;
+        $('results').hidden = true;
+        $('leaderboard').hidden = true;
+        $('game').hidden = false;
+        $('score').textContent = 'Skóre: 0 b';
+        showQuestion();
+    }));
+    $('next').addEventListener('click', () => {
+        if (!quiz || !quiz.locked || quiz.finished) return;
+        quiz.index++;
+        if (quiz.index === quiz.questions.length) finish();
+        else showQuestion();
+    });
+    $('restart').addEventListener('click', () => {
+        if (!quiz?.finished) return;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('player').focus();
+    });
+    renderLeaderboard();
+}
+
+'use strict';
+
+const MODES = { easy: [1, 1, 1], medium: [1, 2, 2], hard: [2, 5, 3] };
+const POINTS = { easy: 10, medium: 20, hard: 30 };
+const COMPARISON_OPTIONS = ['<', '>', '='];
+const UNITS = { mm: 1n, cm: 10n, dm: 100n, m: 1000n, km: 1000000n };
+const WHOLE = '-?(?:0|[1-9][0-9]{0,11})';
+const DECIMAL = `${WHOLE}(?:[.,][0-9]{1,12})?`;
+
+function rational(text) {
+    const [whole, part = ''] = text.replace(',', '.').split('.');
+    return { numerator: BigInt(whole + part), denominator: 10n ** BigInt(part.length) };
+}
+
+function checkAnswer(expected, raw) {
+    const text = raw.trim();
+    const invalid = message => ({ correct: false, valid: false, message });
+    if (!text) return invalid('Odpověď chybí.');
+    if (text.length > 80) return invalid('Odpověď je příliš dlouhá.');
+    let actual;
+    let target;
+    switch (expected.format) {
+        case 'comparison':
+            if (!COMPARISON_OPTIONS.includes(text)) return invalid('Vyber jeden ze znaků <, > nebo =.');
+            return { correct: text === expected.value, valid: true,
+                message: text === expected.value ? 'Správně.' : 'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.' };
+        case 'integer':
+            if (!new RegExp(`^${WHOLE}$`).test(text)) return invalid('Napiš celé číslo bez jednotky, například -12.');
+            actual = rational(text);
+            target = rational(expected.value);
+            break;
+        case 'fraction': {
+            const mixed = text.match(/^(-?[1-9][0-9]{0,11})\s+([1-9][0-9]{0,11})\s*\/\s*([1-9][0-9]{0,11})$/);
+            const match = text.match(new RegExp(`^(${WHOLE})\\s*/\\s*(${WHOLE})$`));
+            if (mixed) {
+                const whole = BigInt(mixed[1]);
+                const numerator = BigInt(mixed[2]);
+                const denominator = BigInt(mixed[3]);
+                if (numerator >= denominator) return invalid('Zlomková část smíšeného čísla musí být menší než jedna.');
+                actual = { numerator: whole * denominator + (whole < 0n ? -numerator : numerator), denominator };
+            } else if (match) {
+                actual = { numerator: BigInt(match[1]), denominator: BigInt(match[2]) };
+                if (actual.denominator === 0n) return invalid('Jmenovatel nesmí být nula.');
+            } else if (new RegExp(`^${WHOLE}$`).test(text)) {
+                actual = rational(text);
+            } else {
+                return invalid('Napiš zlomek jako 1/2, smíšené číslo jako 1 5/6 nebo celé číslo. Jmenovatel nesmí být nula.');
+            }
+            target = { numerator: BigInt(expected.numerator), denominator: BigInt(expected.denominator) };
+            break;
+        }
+        case 'decimal':
+            if (!new RegExp(`^${DECIMAL}$`).test(text)) return invalid('Napiš číslo s jednou desetinnou čárkou nebo tečkou, bez jednotky.');
+            actual = rational(text);
+            target = rational(expected.value);
+            break;
+        case 'length': {
+            if (new RegExp(`^${DECIMAL}$`).test(text)) return invalid('Doplň jednotku délky: mm, cm, dm, m nebo km.');
+            const match = text.match(new RegExp(`^(${DECIMAL})\\s*(mm|cm|dm|m|km)$`));
+            if (!match || match[1].startsWith('-')) return invalid('Napiš nezápornou délku s jednotkou mm, cm, dm, m nebo km, například 1,5 m.');
+            actual = rational(match[1]);
+            actual.numerator *= UNITS[match[2]];
+            target = rational(expected.value);
+            target.numerator *= UNITS[expected.unit];
+            break;
+        }
+        default:
+            throw new Error(`Unsupported maths answer format: ${expected.format}`);
+    }
+    const correct = actual.numerator * target.denominator === target.numerator * actual.denominator;
+    return { correct, valid: true, message: correct ? 'Správně.' : 'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.' };
+}
+
+function selectExercises(exercises, mode, random = Math.random) {
+    if (!Object.hasOwn(MODES, mode)) throw new Error(`Unknown maths quiz mode: ${mode}`);
+    if (new Set(exercises.map(exercise => exercise.id)).size !== exercises.length) throw new Error('Duplicate maths task ids');
+    const shuffle = items => {
+        const result = [...items];
+        for (let index = result.length - 1; index > 0; index--) {
+            const other = Math.floor(random() * (index + 1));
+            [result[index], result[other]] = [result[other], result[index]];
+        }
+        return result;
+    };
+    const selected = [];
+    ['easy', 'medium', 'hard'].forEach((level, index) => {
+        const pool = exercises.filter(exercise => exercise.difficulty === level);
+        if (pool.length < MODES[mode][index]) throw new Error(`Not enough ${level} maths tasks`);
+        selected.push(...shuffle(pool).slice(0, MODES[mode][index]));
+    });
+    return shuffle(selected);
+}
+
+function maximumPoints(exercises) {
+    return exercises.reduce((sum, exercise) => sum + POINTS[exercise.difficulty] + (exercise.difficulty === 'easy' ? 1 : 0), 0);
+}
+
+function scoreExercise(exercise, answers) {
+    const steps = exercise.steps.map((step, index) => {
+        const raw = answers[index];
+        const answer = step.answer.format === 'comparison' && Number.isInteger(raw) ?
+            COMPARISON_OPTIONS[raw] || '' : raw || '';
+        return checkAnswer(step.answer, answer);
+    });
+    const base = steps.filter(step => step.correct).length * POINTS[exercise.difficulty] / steps.length;
+    const accuracy = exercise.difficulty === 'easy' && steps.every(step => step.correct) ? 1 : 0;
+    return { steps, base, accuracy, total: base + accuracy };
+}
+
+function grade(total, maximum) {
+    return total >= maximum * 80 / 100 ? 1 : total >= maximum * 60 / 100 ? 2 :
+        total >= maximum * 40 / 100 ? 3 : total >= maximum * 20 / 100 ? 4 : 5;
+}
+
+function validRecords(records) {
+    return Array.isArray(records) && records.every(row => row && Object.hasOwn(MODES, row.mode) &&
+        row.maximum === MODES[row.mode].reduce((sum, count, index) => sum + count * [11, 20, 30][index], 0) &&
+        Number.isFinite(row.total) && row.total >= 0 && row.total <= row.maximum &&
+        Number.isInteger(row.total * 2) && row.grade === grade(row.total, row.maximum));
+}
+
+function formatAnswer(answer) {
+    if (answer.format === 'comparison') return answer.value;
+    if (answer.format === 'fraction') {
+        const numerator = BigInt(answer.numerator);
+        const denominator = BigInt(answer.denominator);
+        const sign = numerator < 0n ? '-' : '';
+        const magnitude = numerator < 0n ? -numerator : numerator;
+        const whole = magnitude / denominator;
+        const remainder = magnitude % denominator;
+        if (!remainder) return `${sign}${whole}`;
+        let divisor = remainder;
+        let other = denominator;
+        while (other) [divisor, other] = [other, divisor % other];
+        return `${sign}${whole ? `${whole} ` : ''}${remainder / divisor}/${denominator / divisor}`;
+    }
+    const value = answer.value.replace('.', ',');
+    return answer.format === 'length' ? `${value} ${answer.unit}` : value;
+}
+
+const mathsSubject = {
+    storagePrefix: 'maths-tutor:v2',
+    speedBonus: false,
+    rules: 'Lehká skupina: 4 × 2,5 bodu + 1 bod za vše správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů. Každý krok má vlastní body. Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Počítají se i body za všechny správné lehké výpočty. Nemusíš spěchat.',
+    answerHelp: 'Celé číslo piš bez jednotky. Zlomek piš jako 1/2 a smíšené číslo jako 1 5/6. Přijmeme i stejnou hodnotu 11/6. Celý výsledek můžeš napsat jako 3. Desetinné číslo může mít čárku nebo tečku. Délka musí mít jednotku mm, cm, dm, m nebo km (například 1,5 m). Prázdná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.',
+    select: (lesson, mode) => selectExercises(lesson.exercises, mode).map(exercise =>
+        exercise.steps[0].answer.format === 'comparison' ? { ...exercise, options: [...COMPARISON_OPTIONS] } : exercise),
+    maximum: maximumPoints,
+    score: scoreExercise,
+    acceptSubmission: () => true,
+    fields: (exercise, index) => exercise.steps.map((step, stepIndex) => ({
+        id: `answer-${stepIndex}`,
+        label: `${index + 1}${exercise.difficulty === 'easy' ? 'abcd'[stepIndex] : `.${stepIndex + 1}`}: ${step.prompt}`
+    })),
+    compareResults: (a, b) => b.total - a.total,
+    validRecord: row => validRecords([row]),
+    renderLearning({ $, node, paragraph, disclose }, lesson) {
+        const examples = node('div');
+        examples.id = 'examples';
+        lesson.examples.forEach((example, index) => {
+            const article = node('article', undefined, 'card');
+            const hint = disclose('Nápověda', paragraph(example.hint));
+            hint.open = index === 0;
+            article.append(node('h2', example.heading), paragraph(example.prompt), hint);
+            const steps = node('ol');
+            example.steps.forEach((step, stepIndex) => {
+                const item = node('li');
+                const detail = disclose('Odkrýt krok', paragraph(step.calculation), paragraph(step.explanation));
+                detail.open = index === 0 || (index === 1 && stepIndex === 0);
+                item.append(detail);
+                steps.append(item);
+            });
+            const answer = disclose('Výsledek', paragraph(example.answer));
+            answer.open = index === 0;
+            article.append(steps, answer);
+            examples.append(article);
+        });
+        const intro = node('article', undefined, 'card');
+        intro.append(node('h2', 'Teď to zkus samostatně'),
+            node('p', 'Začni lehkými příklady a postupuj k těžším. Nejprve počítej bez pomoci. Nápovědu nebo řešení si otevři, až je potřebuješ.'));
+        const exercises = node('div');
+        exercises.id = 'exercises';
+        const levels = { easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' };
+        const ordered = ['easy', 'medium', 'hard'].flatMap(level => lesson.exercises.filter(exercise => exercise.difficulty === level));
+        ordered.forEach((exercise, index) => {
+            const article = node('article', undefined, 'card');
+            article.append(node('h2', `${index + 1}. ${levels[exercise.difficulty]}`), paragraph(exercise.prompt));
+            exercise.steps.forEach((step, stepIndex) => {
+                const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
+                article.append(node('h3', `${label}: ${step.prompt}`), disclose('Nápověda', paragraph(step.hint)),
+                    disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`), paragraph(step.solution)));
+            });
+            article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation)));
+            exercises.append(article);
+        });
+        $('learning-content').append(examples, intro, exercises);
+    },
+    feedback({ node }, container, { question: exercise, values, score }, number) {
+        const points = value => String(value).replace('.', ',');
+        exercise.steps.forEach((step, index) => {
+            const label = exercise.difficulty === 'easy' ? `${number}${'abcd'[index]}` : `${number}.${index + 1}`;
+            const result = score.steps[index];
+            container.append(node('h3', `${label}: ${step.prompt}`),
+                node('p', `${result.message} Tvoje odpověď: ${
+                    step.answer.format === 'comparison' && Number.isInteger(values[index]) ?
+                        COMPARISON_OPTIONS[values[index]] || '(bez odpovědi)' : values[index] || '(bez odpovědi)'
+                }`, result.correct ? 'correct' : 'incorrect'),
+                node('p', `Body za výpočet: ${points(result.correct ? POINTS[exercise.difficulty] / exercise.steps.length : 0)}.`),
+                node('p', `Správná odpověď: ${formatAnswer(step.answer)}. ${step.solution}`));
+        });
+        container.append(node('p', exercise.explanation),
+            node('p', `Body: ${points(score.total)}${score.accuracy ? ' (včetně 1 bodu za všechny čtyři správné odpovědi)' : ''}.`));
+    },
+    result(answers, questions) {
+        const total = answers.reduce((sum, answer) => sum + answer.score.total, 0);
+        const maximum = maximumPoints(questions);
+        const mark = grade(total, maximum);
+        const points = value => String(value).replace('.', ',');
+        return { total, maximum, grade: mark,
+            text: `Body: ${points(total)}/${maximum} (${points(Math.round(total / maximum * 10000) / 100)} %). Známka: ${mark}` };
+    }
+};
+
+if (typeof document !== 'undefined') initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), mathsSubject);
+if (typeof module !== 'undefined') module.exports = {
+    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords
+};
+</script>
+</body>
+</html>
