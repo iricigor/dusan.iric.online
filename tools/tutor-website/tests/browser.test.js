@@ -10,7 +10,7 @@ const { spawn } = require('node:child_process');
 const { setTimeout: delay } = require('node:timers/promises');
 const { renderLesson } = require('../build.js');
 const { mathsAssessmentLesson } = require('./fixture.js');
-const history = require('../../history-tutor/examples/defenestrace.json');
+const history = require('../examples/defenestrace.json');
 const defaultMaths = require('../examples/zlomky-a-prevody-delky.json');
 
 const browserPath = process.env.TUTOR_BROWSER_PATH || [

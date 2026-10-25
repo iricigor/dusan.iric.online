@@ -16,13 +16,13 @@ Do not invoke subject agents or recursively delegate generation to yourself.
 
 For `subject: history`, the existing version 1 contract is defined by
 `tools\history-tutor\lesson.schema.json` and `tools\history-tutor\validate.js`.
-Read both and `tools\history-tutor\examples\defenestrace.json` before advising on
+Read both and `tools\tutor-website\examples\defenestrace.json` before advising on
 or building a lesson. The legacy builder is `tools\history-tutor\build.js`.
 Both subjects use `tools\tutor-website\template.html` and
 `tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
 History and maths content/assessment adapters live alongside them in
-`history.js` and `maths.js`; `tools\history-tutor\app.js` is only a legacy
-CommonJS re-export. Keep common presentation and lifecycle changes in the
+`history.js` and `maths.js`. Both prepared lesson sources live in
+`tools\tutor-website\examples`. Keep common presentation and lifecycle changes in the
 shared assets, not in per-subject copies. The independent Gems workflow is
 not an asset dependency; its selectively adapted design is documented in the
 shared generator README.

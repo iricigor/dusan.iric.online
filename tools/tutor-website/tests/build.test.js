@@ -9,7 +9,7 @@ const { spawnSync } = require('node:child_process');
 const { capabilities, renderLesson, build } = require('../build.js');
 const { validateLesson } = require('../validate.js');
 const { mathsLesson } = require('./fixture.js');
-const history = require('../../history-tutor/examples/defenestrace.json');
+const history = require('../examples/defenestrace.json');
 const { renderLesson: renderHistory } = require('../../history-tutor/build.js');
 const { formatAnswer } = require('../maths.js');
 
@@ -38,6 +38,7 @@ test('prepared defaults copy unchanged into guarded builds instead of using stru
     t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
     for (const subject of ['history', 'maths']) {
         const { examplePath, version } = capabilities(subject);
+        assert.equal(path.dirname(examplePath), path.join(__dirname, '..', 'examples'));
         const source = fs.readFileSync(examplePath, 'utf8');
         const lesson = JSON.parse(source);
         assert.equal(lesson.version, version);
@@ -170,8 +171,6 @@ test('both subjects embed the same shell and quiz controller, with no practice t
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
     const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
     assert.match(sharedStyles, /\.original-text \{[^}]*max-width: 80ch;/);
-    const legacyHistory = require('../../history-tutor/app.js');
-    assert.equal(legacyHistory, require('../history.js'));
     assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor', 'styles.css')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);

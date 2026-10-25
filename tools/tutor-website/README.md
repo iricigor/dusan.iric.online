@@ -39,7 +39,7 @@ asks for a default/example, it reuses `capabilities.examplePath`:
 
 | Subject | Prepared source | Topic |
 |---|---|---|
-| History | `tools\history-tutor\examples\defenestrace.json` | Od defenestrace k Bílé hoře |
+| History | `tools\tutor-website\examples\defenestrace.json` | Od defenestrace k Bílé hoře |
 | Maths | `tools\tutor-website\examples\zlomky-a-prevody-delky.json` | Zlomky a převody jednotek délky |
 
 These sources are prepared once, not synthesized on each default request.
@@ -125,9 +125,10 @@ progression, running score/progress, results and session-storage warnings for bo
 `history.js` and `maths.js` are adapters for content, answer formats,
 sampling and assessment rules, not independent quiz applications.
 `page.js` embeds the common assets and only the selected subject adapter.
-`tools\history-tutor\app.js` remains a thin CommonJS compatibility export;
-it is not a second browser runtime. History's schema, validator, legacy builder
-and technical fixture remain in their existing locations.
+Both prepared lesson sources live in `examples`, and the shared agent-profile
+suite lives in `tests\agents.test.js`. Import history assessment helpers directly
+from `history.js`; the old history `app.js` re-export has been removed.
+History's schema, validator and legacy builder remain in their existing locations.
 
 ### Selective Gems integration
 

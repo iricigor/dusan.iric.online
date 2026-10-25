@@ -75,7 +75,7 @@ ani podklady nebo výslovně požádáš o výchozí ukázku, použijí jej beze
 
 | Tutor | Výchozí lekce | Zdroj JSON |
 |-------|---------------|------------|
-| `tutor-history` | Od defenestrace k Bílé hoře | `tools\history-tutor\examples\defenestrace.json` |
+| `tutor-history` | Od defenestrace k Bílé hoře | `tools\tutor-website\examples\defenestrace.json` |
 | `tutor-maths` | Zlomky a převody jednotek délky | `tools\tutor-website\examples\zlomky-a-prevody-delky.json` |
 
 Stačí zadat například „Použij tutor-history a výchozí lekci“ nebo
@@ -90,7 +90,7 @@ balíčky npm, Python, klíče k AI službám ani místní webový server.
 Otevři PowerShell v kořenové složce repozitáře:
 
 ```powershell
-node tools\history-tutor\build.js tools\history-tutor\examples\defenestrace.json "C:\Temp\history-preview\defenestrace.html"
+node tools\history-tutor\build.js tools\tutor-website\examples\defenestrace.json "C:\Temp\history-preview\defenestrace.html"
 Start-Process "C:\Temp\history-preview\defenestrace.html"
 ```
 

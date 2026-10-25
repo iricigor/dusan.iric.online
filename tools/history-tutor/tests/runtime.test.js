@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const lesson = require('../examples/defenestrace.json');
+const lesson = require('../../tutor-website/examples/defenestrace.json');
 
 // Minimal DOM and clock for exercising the real runtime without dependencies.
 class Element {
