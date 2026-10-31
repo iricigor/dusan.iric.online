@@ -644,6 +644,111 @@ test('rough translucent markers wrap with visual spacing without changing copied
     assert.deepEqual(network, []);
 });
 
+test('learning cards prefer the mouse and fall back to the topmost card', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
+}, async t => {
+    const { directory, client, evaluate, exceptions, network } = await openBrowser(t);
+    const frame = () => evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
+    const current = () => evaluate(`(() => {
+        const top = document.getElementById('page-header').getBoundingClientRect().height + 16;
+        const cards = [...document.querySelectorAll('[data-learning-card]')];
+        return {
+            active: cards.filter(card => card.dataset.timelineActive === 'true').map(card => card.id),
+            segment: document.querySelector('.learning-segment[aria-current]')?.getAttribute('aria-controls'),
+            timeline: [...document.querySelectorAll('.timeline-node[aria-current]')].map(button => button.getAttribute('aria-controls')),
+            topmost: (cards.find(card => card.getBoundingClientRect().bottom > top) || cards.at(-1)).id
+        };
+    })()`);
+    for (const [subject, lesson] of [['history', history], ['maths', defaultMaths]]) {
+        const file = path.join(directory, `${subject}-mouse.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(lesson.topic)}`)) break;
+            await delay(20);
+        }
+        await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+        await client.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false });
+        await evaluate(`window.switchTutorTab('learning')`);
+        await evaluate(`document.querySelectorAll('[data-learning-card]').forEach(card => card.style.minHeight = '300px');
+            window.scrollTo(0, 0); window.dispatchEvent(new Event('blur'))`);
+        await frame();
+        let state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: no mouse uses the topmost card`);
+        const position = await evaluate(`(() => {
+            const cards = [...document.querySelectorAll('[data-learning-card]')];
+            const top = document.getElementById('page-header').getBoundingClientRect().height + 16;
+            window.scrollBy(0, cards[1].getBoundingClientRect().top - top - 150);
+            const bounds = cards[1].getBoundingClientRect();
+            return { x: bounds.left + 70, y: bounds.top + 65, id: cards[1].id };
+        })()`);
+        await frame();
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: position.x, y: position.y });
+        await frame();
+        state = await current();
+        assert.notEqual(state.topmost, position.id, 'the hovered card is not the topmost card');
+        assert.deepEqual(state.active, [position.id], `${subject}: mouse selects the whole card`);
+        assert.equal(state.segment, position.id, 'progress follows the mouse');
+        if (subject === 'history') assert.ok(state.timeline.length && state.timeline.every(id => id === position.id),
+            'timeline follows the mouse');
+        await evaluate(`(() => {
+            const cards = [...document.querySelectorAll('[data-learning-card]')];
+            window.scrollBy(0, cards[2].getBoundingClientRect().top - cards[1].getBoundingClientRect().top);
+        })()`);
+        await frame();
+        const third = await evaluate(`document.querySelectorAll('[data-learning-card]')[2].id`);
+        state = await current();
+        assert.notEqual(state.topmost, third);
+        assert.deepEqual(state.active, [third], `${subject}: scroll rechecks a stationary mouse`);
+        assert.equal(state.segment, third);
+        const gap = await evaluate(`document.getElementById(${JSON.stringify(third)}).getBoundingClientRect().top - 16`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: position.x, y: gap });
+        await frame();
+        state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: gaps between cards use the fallback`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 5, y: position.y });
+        await frame();
+        state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: outside cards falls back immediately`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: position.x, y: position.y });
+        await evaluate(`document.getElementById(${JSON.stringify(third)}).style.transform = 'translateX(1000px)';
+            window.dispatchEvent(new Event('resize'))`);
+        await frame();
+        state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: resize rechecks the card under a stationary mouse`);
+        await evaluate(`document.getElementById(${JSON.stringify(third)}).style.transform = '';
+            window.dispatchEvent(new Event('resize'))`);
+        await frame();
+        assert.deepEqual((await current()).active, [third], `${subject}: resize restores mouse precedence`);
+        await evaluate(`window.switchTutorTab('original')`);
+        await evaluate(`window.switchTutorTab('learning')`);
+        await evaluate(`window.dispatchEvent(new Event('resize'))`);
+        await frame();
+        state = await current();
+        assert.equal(state.segment, state.active[0], `${subject}: tab switching keeps selection synchronized`);
+        await evaluate(`(() => {
+            const bounds = document.getElementById(${JSON.stringify(third)}).getBoundingClientRect();
+            window.scrollBy(0, bounds.top - ${position.y - 65});
+        })()`);
+        await frame();
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: -1, y: -1 });
+        await frame();
+        state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: leaving the viewport clears the mouse`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: position.x, y: position.y });
+        await evaluate(`document.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true }))`);
+        state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: touch clears stale mouse selection`);
+        await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: position.x, y: position.y });
+        await evaluate(`window.dispatchEvent(new Event('blur'))`);
+        state = await current();
+        assert.deepEqual(state.active, [state.topmost], `${subject}: window blur clears stale mouse selection`);
+        assert.equal(await evaluate('document.querySelectorAll(".explored-control input:checked").length'), 0);
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('learning navigation, completion tones and timeline scrolling stay coordinated', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
 }, async t => {
