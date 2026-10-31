@@ -133,6 +133,9 @@ returns the resulting `publicationUrl`; the embedded QR code and visible link us
 that same canonical URL, never the draft or preview path. The QR image is
 generated into the standalone HTML and works offline; opening its destination
 still requires connectivity.
+The sharing block appears only on the original-text tab, beside its first
+section on desktop and immediately below that section on narrow screens
+(760px or less). Remaining original-text sections retain the full content width.
 
 For agent discovery the request is `{ "operation": "capabilities", "subject":
 "maths" }`; the CLI spelling above is equivalent. Read the returned contract

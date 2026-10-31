@@ -39,6 +39,9 @@ test('history and maths pages embed a high-contrast QR code and matching visible
         assert.match(share, /<path fill="#000"/);
         assert.doesNotMatch(share, /<img|https?:\/\/[^"]*(?:qr|image)/i);
         assert.doesNotMatch(html, /@@SHARE@@/);
+        const original = html.match(/<section id="original"[\s\S]*?<\/section>/)?.[0];
+        assert.ok(original?.includes(share), `${subject}: sharing belongs to the original-text tab`);
+        assert.equal(html.split('<aside class="lesson-share"').length - 1, 1);
     }
 });
 

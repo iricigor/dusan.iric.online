@@ -147,6 +147,32 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             await delay(50);
         }
         assert.equal(await evaluate('document.getElementById("topic")?.textContent'), lesson.topic);
+        for (const width of [1280, 760, 550, 375]) {
+            await client.send('Emulation.setDeviceMetricsOverride', {
+                width, height: 900, deviceScaleFactor: 1, mobile: false
+            });
+            assert.equal(await evaluate(`(() => {
+                const share = document.querySelector('.lesson-share');
+                const introduction = document.querySelector('#original-content > :first-child');
+                const qr = share.querySelector('svg').getBoundingClientRect();
+                const a = introduction.getBoundingClientRect();
+                const b = share.getBoundingClientRect();
+                const remaining = [...document.querySelectorAll('#original-content > :not(:first-child)')];
+                return share.closest('[role="tabpanel"]').id === 'original' &&
+                    (${width} > 760 ? b.left >= a.right && Math.abs(b.top - a.top) < 1 :
+                        b.top >= a.bottom && Math.abs(b.left - a.left) < 1) &&
+                    remaining.every(article => article.getBoundingClientRect().top >= b.bottom &&
+                        article.getBoundingClientRect().width > a.width - 1) &&
+                    qr.width >= 170 && Math.abs(qr.width - qr.height) < 1 &&
+                    document.documentElement.scrollWidth <= window.innerWidth;
+            })()`), true, `${subject}: QR introduction placement at ${width}px`);
+        }
+        await client.send('Emulation.clearDeviceMetricsOverride');
+        for (const tab of ['learning', 'quiz', 'original']) {
+            await evaluate(`window.switchTutorTab('${tab}')`);
+            assert.equal(await evaluate(`document.querySelector('.lesson-share').checkVisibility()`),
+                tab === 'original', `${subject}: QR visibility on ${tab}`);
+        }
         assert.equal(await evaluate(`(async () => {
             if (typeof document.startViewTransition !== 'function') return false;
             document.querySelector('[data-tab="learning"]').click();
