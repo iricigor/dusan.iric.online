@@ -1,0 +1,1901 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Osvícenství a vynálezy</title>
+    <link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0D%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23f1f5f9%22%2F%3E%0D%0A%20%20%3Cg%20id%3D%22mark%22%20transform%3D%22matrix(1.47619%200%200%201.47619%20-4.66666%20-11.30952)%22%3E%0D%0A%20%20%20%20%3Cpath%20fill%3D%22%231e3c72%22%20fill-rule%3D%22evenodd%22%20d%3D%22M10%2012h5c5.5%200%209%203%209%208.5S20.5%2029%2015%2029h-5a1%201%200%200%201-1-1V13a1%201%200%200%201%201-1zm4%204.5v8h1c2.5%200%204-1.5%204-4s-1.5-4-4-4z%22%2F%3E%0D%0A%20%20%20%20%3Cpath%20d%3D%22M17%209%205%2014v5%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0D%0A%20%20%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A">
+    <style>:root {
+    color-scheme: light;
+    --bg: #f1f5f9; --card: #fff; --text: #172033; --muted: #475569;
+    --primary: #174cb5; --border: #cbd5e1; --good: #146b3a; --bad: #b42318;
+    --warning: #875300; --shadow: 0 4px 12px #1720330d;
+    --violet: #7036b0; --teal: #087574;
+    --history-accent: #80551d; --maths-accent: #086e79;
+    --history-paper: #f9f0dd; --maths-paper: #eaf4f7;
+    --fun: #955900; --fun-paper: #fff0c2;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #101827; --card: #1c293c; --text: #f1f5f9; --muted: #cbd5e1;
+        --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
+        --warning: #ffd082; --shadow: 0 4px 12px #0003;
+        --violet: #d7b1ff; --teal: #77dfda;
+        --history-accent: #e2c28f; --maths-accent: #8bd5df;
+        --history-paper: #2c2e2f; --maths-paper: #1e343f;
+        --fun: #ffd47b; --fun-paper: #46371f;
+    }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #101827; --card: #1c293c; --text: #f1f5f9; --muted: #cbd5e1;
+    --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
+    --warning: #ffd082; --shadow: 0 4px 12px #0003;
+    --violet: #d7b1ff; --teal: #77dfda;
+    --history-accent: #e2c28f; --maths-accent: #8bd5df;
+    --history-paper: #2c2e2f; --maths-paper: #1e343f;
+    --fun: #ffd47b; --fun-paper: #46371f;
+}
+body[data-subject="history"] { --subject-accent: var(--history-accent); --subject-paper: var(--history-paper); --subject-pattern: radial-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) .675px, transparent .9px); --subject-pattern-size: 5px 7px; }
+body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-paper: var(--maths-paper); --subject-pattern: linear-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px); --subject-pattern-size: 1rem 1rem; }
+body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
+body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }
+* { box-sizing: border-box; }
+html { scrollbar-gutter: stable; view-transition-name: none; }
+@supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1.1rem/1.7 system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 2; background: var(--card); padding: 1rem max(1rem, calc((100% - 1120px) / 2 + 1rem)) 0; }
+.heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.lesson-identity { display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0; }
+.lesson-title-group { min-width: 0; }
+.lesson-header-mark, .lesson-footer-mark { display: block; flex-shrink: 0; object-fit: contain; }
+.lesson-header-mark { width: 64px; height: 64px; }
+.lesson-footer { display: flex; justify-content: center; padding: 0 1rem 1.5rem; }
+.lesson-footer-mark { width: 96px; height: 96px; }
+.lesson-heading { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.lesson-heading .badge { flex-shrink: 0; }
+.lesson-heading h1 { min-width: 0; overflow-wrap: anywhere; }
+h1 { font-size: clamp(1.15rem, 3vw, 1.8rem); line-height: 1.3; margin: .4rem 0; }
+h2 { font-size: 1.3rem; line-height: 1.4; }
+header p { margin: .3rem 0; font-size: .9rem; }
+.motivation { color: var(--primary); font-weight: bold; }
+.badge { display: inline-block; border: 1px solid var(--border); border-radius: 2rem; padding: .15rem .75rem; }
+.badge { color: var(--primary); font-weight: bold; }
+nav, .modes { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+button, input { font: inherit; }
+button { cursor: pointer; min-height: 44px; border: 1px solid var(--border); border-radius: .6rem; padding: .6rem .9rem; background: var(--card); color: var(--text); transition: background-color .2s, border-color .2s, transform .2s; }
+button:where(:not(:disabled):not(.term):not(.correction)):hover { background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
+button:hover { border-color: var(--primary); color: var(--primary); }
+.tab-bar { display: flex; align-items: stretch; gap: .5rem; margin-top: .75rem; border-bottom: 1px solid var(--border); }
+nav { flex: 1; min-width: 0; gap: .35rem; flex-wrap: nowrap; }
+.tab-bar nav { margin-top: 0; }
+nav button { display: flex; flex: 1 1 0; max-width: 12rem; align-items: center; justify-content: center; gap: .5rem; min-width: 0; border: 1px solid transparent; border-radius: .65rem .65rem 0 0; margin-bottom: -1px; color: var(--muted); background: var(--bg); font-weight: bold; line-height: 1.4; }
+nav button[aria-selected="true"] { position: relative; background: var(--card); color: var(--primary); border-color: var(--border); border-bottom-color: var(--card); box-shadow: inset 0 3px var(--primary); }
+.tab-icon { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
+#theme { position: relative; flex: 0 0 74px; width: 74px; height: 44px; border-radius: 2rem; padding: 0; background: var(--bg); }
+#theme::before { content: ""; position: absolute; top: 6px; left: 6px; width: 30px; height: 30px; border-radius: 50%; background: var(--card); box-shadow: var(--shadow); transition: transform .2s; }
+#theme[aria-checked="true"]::before { transform: translateX(30px); }
+#theme svg { position: absolute; top: 11px; width: 20px; height: 20px; color: var(--muted); }
+#theme .theme-sun { left: 11px; }
+#theme .theme-moon { right: 11px; }
+#theme[aria-checked="false"] .theme-sun, #theme[aria-checked="true"] .theme-moon { color: var(--primary); }
+button:disabled { cursor: default; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; padding: 1rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--card); view-transition-name: lesson-panel; }
+.card { --card-padding: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: var(--card-padding); margin-bottom: 1rem; overflow-wrap: anywhere; box-shadow: var(--shadow); }
+.card > h2:first-child { margin-top: 0; color: var(--primary); }
+.card-icon { display: inline-block; flex-shrink: 0; margin-right: .55em; font-size: 1.15em; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
+.callout { --callout: var(--primary); border-left: 5px solid var(--callout); border-radius: .5rem; padding: .8rem 1rem; background: color-mix(in srgb, var(--callout) 9%, var(--card)); }
+.callout-label { color: var(--callout); }
+.callout-note { --callout: var(--violet); }
+.callout-example { --callout: var(--teal); }
+.callout-tip { --callout: var(--good); }
+.callout-warning { --callout: var(--warning); }
+.callout-comment { --callout: var(--muted); }
+.callout-fun { --callout: var(--fun); position: relative; background: var(--fun-paper); border: 1px solid color-mix(in srgb, var(--fun) 55%, var(--border)); border-left: 5px solid var(--fun); }
+.callout-fun::before, .callout-fun::after { content: ""; position: absolute; pointer-events: none; background: var(--fun); opacity: .65; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.callout-fun::before { top: .8rem; right: 1.2rem; width: .9rem; height: .9rem; }
+.callout-fun::after { top: 1.6rem; right: .65rem; width: .55rem; height: .55rem; }
+.callout-fun > .callout-label { display: table; padding: .1rem .6rem; margin-bottom: .5rem; border-radius: 2rem; background: color-mix(in srgb, var(--fun) 16%, transparent); }
+.callout-fun .card-icon { display: inline-grid; place-items: center; min-width: 2rem; min-height: 2rem; border-radius: 50%; background: color-mix(in srgb, var(--fun) 20%, transparent); }
+.callout-quote { --callout: var(--teal); font-style: italic; margin-inline: 0; }
+.original-text { white-space: pre-wrap; }
+.original-text:has(> :nth-child(2)) { white-space: normal; }
+.original-text > * { white-space: pre-wrap; }
+#glossary-toggle { position: fixed; z-index: 3; right: max(0px, calc((100% - 1088px) / 2 - 44px)); top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: center; gap: .4rem; width: 44px; min-width: 44px; padding: .6rem .4rem; border-radius: .75rem 0 0 .75rem; color: var(--primary); box-shadow: var(--shadow); }
+#glossary-toggle > span:last-child { writing-mode: vertical-rl; font-size: .9rem; }
+#glossary-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(22rem, calc(100vw - 1rem)); max-width: none; height: 100dvh; max-height: none; padding: 1rem; border: 0; border-left: 1px solid var(--border); background: var(--card); color: var(--text); box-shadow: -8px 0 24px #0003; opacity: 0; transform: translateX(100%); transition: transform .2s ease, opacity .2s ease, display .2s allow-discrete, overlay .2s allow-discrete; }
+#glossary-drawer:popover-open { display: flex; flex-direction: column; opacity: 1; transform: translateX(0); }
+@starting-style { #glossary-drawer:popover-open { opacity: 0; transform: translateX(100%); } }
+.drawer-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.drawer-heading h2 { margin: 0; color: var(--primary); }
+#glossary-close { flex-shrink: 0; font-size: 1.4rem; line-height: 1; }
+.learning-controls { display: flex; align-items: center; gap: .25rem; }
+.learning-controls button { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; border-color: transparent; background: transparent; color: var(--muted); }
+.learning-controls svg { width: 1.2rem; height: 1.2rem; }
+.learning-controls button:disabled { opacity: .5; }
+.term, .correction { display: inline; min-height: 0; padding: .1em 0; border: 0; border-radius: .2rem; background: transparent; font: inherit; color: var(--primary); text-decoration: underline dotted; text-underline-offset: .2em; }
+.correction { color: var(--bad); white-space: pre-wrap; text-align: left; }
+#glossary { display: flex; flex-direction: column; gap: .25rem; padding-top: 1rem; overflow-y: auto; min-height: 0; }
+#glossary button { text-align: left; background: transparent; border-color: transparent; padding: .35rem .5rem; overflow-wrap: anywhere; font-size: .95rem; }
+details { border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: .5rem; padding: .5rem 1rem; margin-top: 1rem; }
+details[open] { background: var(--bg); }
+details[open] > :not(summary) { animation: reveal .3s ease-out; }
+summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height: 44px; }
+#learning-content details { border: 0; padding: 0; margin: .15rem 0; }
+#learning-content details[open] { background: transparent; }
+#learning-content summary { width: fit-content; min-height: 32px; padding: .1rem .25rem; font-size: .95rem; }
+#learning-content summary:hover { text-decoration: underline; }
+#learning-content details > :not(summary) { margin: .35rem 0; }
+#learning-content ol { padding-left: 1.4rem; margin: .4rem 0; }
+.hint-prompt { display: flow-root; }
+.hint { text-align: center; margin-top: .75rem; }
+.hint-prompt, .hint-drawer { text-align: left; }
+.hint-toggle { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; max-width: 100%; margin: .4rem 0; border-radius: 2rem; padding: .4rem .8rem; background: color-mix(in srgb, var(--primary) 10%, var(--card)); color: var(--primary); font-size: .9rem; }
+.hint-toggle .card-icon { margin-right: 0; }
+.hint-drawer { overflow: hidden; border-left: 3px solid var(--primary); border-radius: .5rem; background: color-mix(in srgb, var(--primary) 7%, var(--card)); }
+.hint-content { margin: 0; padding: .75rem 1rem; }
+.hint-content:not([hidden]) { animation: reveal .3s ease-out; }
+.learning-progress { display: flex; align-items: center; gap: .75rem; padding: .25rem 0; font-size: .85rem; }
+#learning-segments { display: flex; flex: 1; align-items: center; min-width: 0; gap: 3px; height: 52px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.learning-segment { flex: 1 0 44px; min-width: 44px; height: 44px; padding: 0 2px; border: 0; background: transparent; }
+.learning-segment::before { content: ""; display: block; height: .6rem; border-radius: .2rem; background: var(--border); }
+.learning-segment[data-explored="true"]::before { background: color-mix(in srgb, var(--subject-accent) var(--completion-intensity), var(--border)); }
+.learning-segment[aria-current]::before { outline: 2px solid var(--primary); outline-offset: 1px; }
+.learning-segment:focus-visible { outline-offset: -2px; }
+#learning-counter { flex-shrink: 0; color: var(--text); }
+#learning-content .card[data-learning-card] { margin-bottom: 2rem; }
+#learning-content .card[data-explored="true"] { color: var(--muted); }
+.learning-card-footer { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .5rem; min-height: 44px; margin: .75rem -.5rem calc(-1 * var(--card-padding) - 22px); }
+.learning-card-footer .hint-toggle { grid-column: 2; margin: 0; padding: .35rem .6rem; font-size: .85rem; white-space: nowrap; }
+.explored-control { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: .6rem; background: var(--card); color: var(--primary); font-size: .85rem; white-space: nowrap; cursor: pointer; user-select: none; }
+.explored-control input { width: 20px; height: 20px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.explored-control:has(:checked) { background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
+#learning.has-timeline { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 1rem; }
+#learning-content { min-width: 0; }
+.learning-timeline { position: sticky; top: var(--learning-offset, 12rem); max-height: calc(100dvh - var(--learning-offset, 12rem) - 1rem); overflow: auto; align-self: start; padding-right: 2rem; }
+.learning-timeline details { position: sticky; top: 0; z-index: 1; border: 0; margin: 0; padding: .25rem; background: var(--bg); }
+.learning-timeline summary { display: flex; align-items: center; gap: .35rem; min-height: 44px; }
+.learning-timeline summary::-webkit-details-marker { display: none; }
+.learning-timeline summary::before { content: "▶"; font-size: .7rem; flex-shrink: 0; }
+.learning-timeline details[open] summary::before { content: "▼"; }
+.timeline-title { min-width: 0; overflow-wrap: anywhere; }
+.timeline-track { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); margin: .5rem 0; padding-left: .75rem; gap: 0; }
+.timeline-track::before { content: ""; position: absolute; left: .25rem; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.timeline-year { position: relative; grid-column: 1; padding: .15rem 0 .3rem .2rem; min-width: 0; }
+.timeline-year:has(.timeline-node)::before { content: ""; position: absolute; left: -.6875rem; top: .4rem; width: .5rem; height: .5rem; border: 1px solid var(--bg); border-radius: 50%; background: var(--muted); }
+.timeline-year:has([aria-current])::before { background: var(--primary); }
+.timeline-date { display: block; color: var(--muted); font-size: .75rem; line-height: 1.25; }
+.timeline-year-link { display: none; }
+.timeline-node { position: relative; display: block; width: 100%; margin: .1rem 0; padding: .25rem .35rem; font-size: .8rem; line-height: 1.35; text-align: left; overflow-wrap: anywhere; background: transparent; border-color: transparent; }
+.timeline-node[aria-current] { background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary); border-color: var(--primary); }
+#learning-content .card[data-timeline-active="true"] { outline: 2px solid var(--primary); outline-offset: -2px; }
+.highlight-tools { position: relative; flex-shrink: 0; align-self: center; border: 0; padding: 0; margin: 0; background: transparent; }
+.highlight-tools > summary { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; list-style: none; border-radius: .5rem; }
+.highlight-tools > summary::-webkit-details-marker { display: none; }
+.highlight-panel { position: fixed; right: max(1rem, calc((100% - 1120px) / 2 + 1rem)); width: max-content; max-width: calc(100vw - 2rem); padding: .4rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); color: var(--text); box-shadow: var(--shadow); z-index: 4; }
+.highlight-panel [role="group"] { display: flex; flex-wrap: nowrap; gap: .25rem; }
+.highlight-panel button { flex: 0 0 auto; min-width: 44px; padding: .4rem .35rem; font-size: .85rem; white-space: nowrap; }
+.highlight-panel button:disabled { opacity: .5; }
+button[data-highlight-action]:not([data-highlight-action="remove"]) { color: #17212b; border-radius: .15em; background: var(--marker); }
+[data-highlight-color="yellow"], [data-highlight-action="yellow"] { --marker: #ffe589; }
+[data-highlight-color="blue"], [data-highlight-action="blue"] { --marker: #b5ddff; }
+[data-highlight-color="green"], [data-highlight-action="green"] { --marker: #b9edbd; }
+mark[data-highlight-color="yellow"] { --marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath fill='%23ffd54f' fill-opacity='.35' d='M3 5L15 4 27 2 40 3 53 1 67 3 81 2 94 4 107 2 118 4 117 9 120 12 116 16 119 22 116 27 103 28 91 27 77 30 65 28 52 29 40 27 26 29 14 27 2 28 3 22 1 19 4 14 1 10Z'/%3E%3C/svg%3E"); }
+mark[data-highlight-color="blue"] { --marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath fill='%2374c4ff' fill-opacity='.35' d='M3 5L15 4 27 2 40 3 53 1 67 3 81 2 94 4 107 2 118 4 117 9 120 12 116 16 119 22 116 27 103 28 91 27 77 30 65 28 52 29 40 27 26 29 14 27 2 28 3 22 1 19 4 14 1 10Z'/%3E%3C/svg%3E"); }
+mark[data-highlight-color="green"] { --marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath fill='%237fda87' fill-opacity='.35' d='M3 5L15 4 27 2 40 3 53 1 67 3 81 2 94 4 107 2 118 4 117 9 120 12 116 16 119 22 116 27 103 28 91 27 77 30 65 28 52 29 40 27 26 29 14 27 2 28 3 22 1 19 4 14 1 10Z'/%3E%3C/svg%3E"); }
+mark[data-highlight-color] { color: var(--text); border-radius: 0; background: transparent var(--marker-stroke) center / 100% 100% no-repeat; padding: .04em .12em; margin-inline: .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.card > summary { font-size: 1.15rem; font-weight: bold; }
+label { display: block; }
+input[type="text"] { width: 100%; max-width: 35rem; border: 1px solid var(--border); border-radius: .5rem; padding: .75rem; background: var(--bg); color: var(--text); }
+.player-row { display: flex; align-items: center; gap: .75rem; }
+.player-row label { flex-shrink: 0; }
+#player { flex: 1; min-width: 0; width: auto; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#name-error:empty { margin: 0; }
+#quiz-tools { position: relative; flex-shrink: 0; align-self: center; margin: 0; padding: 0; border: 0; background: transparent; }
+#quiz-tools > summary { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; border-radius: .5rem; list-style: none; color: var(--muted); opacity: .65; }
+#quiz-tools > summary::-webkit-details-marker { display: none; }
+#quiz-tools > summary:hover { background: var(--bg); }
+#quiz-tools[open] > summary, #quiz-tools > summary:is(:hover, :focus-visible) { opacity: 1; }
+#quiz-tools svg { width: 1rem; height: 1rem; }
+#quiz-tools-panel { position: absolute; z-index: 1; top: calc(100% + .25rem); right: 0; width: max-content; max-width: min(14rem, calc(100vw - 2rem)); padding: .5rem; background: var(--card); border: 1px solid var(--border); border-radius: .6rem; box-shadow: var(--shadow); }
+#quiz-export { padding: .35rem .65rem; font-size: .9rem; }
+#export-error { color: var(--bad); margin: .5rem 0 0; font-size: .85rem; line-height: 1.5; }
+.modes > button { flex: 1 1 10rem; padding: .8rem 1.2rem; border-radius: 1.5rem; font-weight: bold; }
+.modes > button { border-color: var(--mode-color); background: color-mix(in srgb, var(--mode-color) 24%, var(--card)); }
+.modes > [data-mode="easy"] { --mode-color: var(--good); }
+.modes > [data-mode="medium"] { --mode-color: var(--warning); }
+.modes > [data-mode="hard"] { --mode-color: var(--bad); }
+.modes > button:hover { background: color-mix(in srgb, var(--mode-color) 32%, var(--card)); }
+.mode-count { display: block; font-size: .9rem; font-weight: normal; color: var(--muted); }
+#scoring li { margin: .6rem 0; }
+.difficulty { width: fit-content; border-radius: 2rem; padding: .15rem .8rem; color: var(--good); background: color-mix(in srgb, currentColor 10%, var(--card)); font-weight: bold; }
+.difficulty[data-level="medium"] { color: var(--warning); }
+.difficulty[data-level="hard"] { color: var(--violet); }
+.quiz-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; color: var(--muted); font-weight: bold; }
+.quiz-status p { margin: 0; }
+#quiz-progress { display: block; width: 100%; height: .75rem; margin: .75rem 0 1.5rem; accent-color: var(--primary); }
+#bonus { height: 3px; border-radius: 2px; overflow: hidden; background: var(--bg); margin: .75rem 0; }
+#bonus-bar { height: 100%; background: var(--teal); transform-origin: left; transition: transform .1s linear; }
+.question-heading { display: flex; align-items: baseline; }
+.question-heading h2 { min-width: 0; }
+#answers { display: grid; gap: .75rem; }
+#answers button { text-align: left; }
+#feedback { padding: 1rem; margin: 1rem 0; border: 2px solid var(--border); border-radius: .6rem; }
+#feedback.success { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--card)); }
+#feedback.encouragement, #feedback.try-again { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--card)); }
+.correct { color: var(--good); }
+.incorrect, #name-error, #storage-warning { color: var(--bad); }
+.grade { font-size: 1.4rem; font-weight: bold; text-align: center; padding: 1rem; border-radius: .75rem; background: var(--bg); color: var(--primary); }
+#results { position: relative; overflow: hidden; }
+#restart { margin-top: 1rem; }
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.confetti span { --x: 8%; --drift: 20px; --delay: 0s; position: absolute; top: 0; left: var(--x); width: 7px; height: 12px; background: var(--primary); opacity: 0; }
+.confetti span:nth-child(6n + 2) { --x: 25%; --drift: -30px; background: var(--teal); }
+.confetti span:nth-child(6n + 3) { --x: 42%; --drift: 35px; background: var(--violet); }
+.confetti span:nth-child(6n + 4) { --x: 58%; --drift: -25px; background: var(--good); }
+.confetti span:nth-child(6n + 5) { --x: 75%; --drift: 30px; background: var(--warning); }
+.confetti span:nth-child(6n) { --x: 92%; --drift: -20px; background: var(--teal); }
+.confetti span:nth-child(n + 7) { --delay: .15s; width: 5px; }
+.confetti span:nth-child(n + 13) { --delay: .3s; height: 7px; }
+#results:not([hidden]) .confetti span { animation: confetti 1.4s ease-out var(--delay) both; }
+@keyframes confetti { 0% { opacity: 0; transform: translateY(-15px) rotate(0); } 15% { opacity: .8; } 100% { opacity: 0; transform: translate(var(--drift), 230px) rotate(240deg); } }
+#summary li { margin-bottom: 1rem; }
+#summary p { margin: .25rem 0; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+caption { text-align: left; white-space: normal; color: var(--muted); font-size: .85rem; padding-bottom: .75rem; }
+th, td { text-align: left; border-bottom: 1px solid var(--border); padding: .5rem; white-space: nowrap; }
+tr.current { background: var(--bg); font-weight: bold; outline: 2px solid var(--primary); outline-offset: -2px; }
+#definition { position: fixed; inset: auto; margin: 0; width: min(24rem, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; box-shadow: 0 8px 32px #0003; overflow-wrap: anywhere; }
+#definition h2 { margin-top: 0; }
+#quiz-leave-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; background: var(--card); color: var(--text); font: inherit; border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 8px 32px #0003; }
+#quiz-leave-dialog::backdrop { background: #0008; }
+#quiz-leave-dialog h2 { margin-top: 0; }
+.quiz-leave-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.quiz-leave-actions button { flex: 1 1 12rem; }
+#quiz-stay { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 16%, var(--card)); color: var(--primary); font-weight: bold; }
+#quiz-stay:hover { background: color-mix(in srgb, var(--primary) 24%, var(--card)); }
+a { color: var(--primary); }
+#original { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; column-gap: 1rem; }
+#original-content { display: contents; }
+#original-content > * { grid-column: 1 / -1; min-width: 0; }
+#original-content > :first-child { grid-column: 1; grid-row: 1; }
+.lesson-share { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; align-items: stretch; gap: .75rem; min-width: 0; margin: 0 0 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); overflow-wrap: anywhere; font-size: .9rem; }
+.lesson-share p { margin: 0 0 .4rem; }
+.lesson-share a { word-break: break-word; }
+.lesson-share svg { display: block; align-self: center; width: 11rem; max-width: 100%; height: auto; padding: .5rem; border: 1px solid var(--border); border-radius: .5rem; background: #fff; }
+[hidden] { display: none !important; }
+@keyframes pop { 50% { transform: scale(1.015); } }
+@keyframes shake { 25%, 75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+@keyframes reveal { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tab-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tab-leave { to { opacity: 0; transform: translateY(-4px); } }
+::view-transition { pointer-events: none; }
+::view-transition-group(lesson-panel) { animation-duration: .3s; animation-timing-function: ease-out; }
+::view-transition-old(lesson-panel) { animation: tab-leave .18s ease-out both; }
+::view-transition-new(lesson-panel) { animation: tab-enter .3s ease-out both; }
+.success { animation: pop .3s ease; }
+.failure { animation: shake .3s ease; }
+.question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
+.question-enter { display: block; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
+@media (pointer: coarse) { #learning-content summary { min-height: 44px; } }
+@media (min-width: 761px) {
+    #learning.has-timeline:has(#timeline-details:not([open])) { grid-template-columns: minmax(0, 1fr) 6.5rem; }
+    #timeline-details:not([open]) summary { font-size: .75rem; gap: .15rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year { padding: .05rem 0; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year::before { top: 50%; transform: translateY(-50%); }
+    #timeline-details:not([open]) + .timeline-track .timeline-node,
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has(.timeline-year-link) > span.timeline-date { display: none; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link { display: block; position: relative; z-index: 0; width: 100%; min-width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; font-size: .8rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link::before { content: ""; position: absolute; z-index: -1; inset: 6px 4px; border: 1px solid var(--year-border, var(--border)); border-radius: .4rem; background: var(--year-background, var(--card)); pointer-events: none; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link:hover { --year-background: color-mix(in srgb, var(--primary) 8%, var(--card)); --year-border: var(--primary); }
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has([aria-current]) .timeline-year-link { --year-background: color-mix(in srgb, var(--primary) 12%, var(--card)); --year-border: var(--primary); color: var(--primary); }
+}
+@media (max-width: 760px) {
+    #learning.has-timeline { display: flex; flex-direction: column; gap: .5rem; }
+    .learning-timeline { order: -1; position: static; width: 100%; padding-right: 0; max-height: none; overflow: visible; }
+    .learning-timeline details { position: static; }
+    .learning-timeline .timeline-track { max-height: 18rem; overflow: auto; }
+    #timeline-details:not([open]) + .timeline-track { display: none; }
+    #original { grid-template-columns: minmax(0, 1fr); }
+    .lesson-share { grid-column: 1; grid-row: 2; }
+}
+@media (max-width: 550px) {
+    body { font-size: 1rem; }
+    header { padding: .5rem 1rem 0; }
+    .heading { align-items: flex-start; }
+    .lesson-identity { gap: .5rem; }
+    .lesson-header-mark { width: 48px; height: 48px; }
+    .lesson-footer-mark { width: 64px; height: 64px; }
+    .lesson-heading { gap: .5rem; }
+    .lesson-heading .badge { padding: .1rem .4rem; font-size: .8rem; }
+    .card { --card-padding: 1rem; }
+    .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
+    .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .2rem; }
+    .explored-control { grid-column: 2; padding-inline: .2rem; }
+    .tab-bar { gap: 0; }
+    .tab-bar nav { gap: 0; }
+    .learning-controls { gap: 0; }
+    nav { gap: .2rem; }
+    nav button { flex: 1; gap: .25rem; padding: .5rem .3rem; font-size: .85rem; }
+    .tab-bar:has(.learning-controls:not([hidden])) nav button { flex-direction: column; justify-content: flex-start; gap: .1rem; min-width: 44px; padding-inline: 0; font-size: .75rem; }
+    .tab-bar:has(.learning-controls:not([hidden])) nav button:first-child { min-width: min-content; }
+    .tab-icon { width: 1rem; height: 1rem; }
+    .player-row { gap: .5rem; }
+}
+@media (max-width: 400px) {
+    .heading { flex-wrap: wrap; gap: .5rem; }
+    .lesson-identity { flex-basis: 100%; order: 1; }
+    #theme { margin-left: auto; }
+}
+</style>
+</head>
+<body data-subject="history">
+    <header id="page-header">
+        <div class="heading">
+            <div class="lesson-identity">
+                <img class="lesson-header-mark" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0D%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23f1f5f9%22%2F%3E%0D%0A%20%20%3Cg%20id%3D%22mark%22%20transform%3D%22matrix(1.47619%200%200%201.47619%20-4.66666%20-11.30952)%22%3E%0D%0A%20%20%20%20%3Cpath%20fill%3D%22%231e3c72%22%20fill-rule%3D%22evenodd%22%20d%3D%22M10%2012h5c5.5%200%209%203%209%208.5S20.5%2029%2015%2029h-5a1%201%200%200%201-1-1V13a1%201%200%200%201%201-1zm4%204.5v8h1c2.5%200%204-1.5%204-4s-1.5-4-4-4z%22%2F%3E%0D%0A%20%20%20%20%3Cpath%20d%3D%22M17%209%205%2014v5%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0D%0A%20%20%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" alt="" width="64" height="64">
+                <div class="lesson-title-group">
+                    <div class="lesson-heading"><span class="badge">Dějepis</span><h1 id="topic"></h1></div>
+                    <p id="subtitle" class="motivation"></p>
+                </div>
+            </div>
+            <button id="theme" type="button" role="switch" aria-checked="false" aria-label="Tmavý režim" title="Přepnout světlý nebo tmavý režim">
+                <svg class="theme-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                <svg class="theme-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 13A9 9 0 0 1 11 3.5 9 9 0 1 0 20.5 13Z"/></svg>
+            </button>
+        </div>
+        <div class="tab-bar">
+        <nav role="tablist" aria-label="Části lekce">
+            <button id="tab-original" type="button" role="tab" data-tab="original" aria-controls="original" aria-selected="true" tabindex="0"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Původní text</span></button>
+            <button id="tab-learning" type="button" role="tab" data-tab="learning" aria-controls="learning" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v16m0-16C9 3 5 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 1Z"/></svg><span>Učit se</span></button>
+            <button id="tab-quiz" type="button" role="tab" data-tab="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10c3 0 5 11 3 12-1 1-4-3-4-3H8s-3 4-4 3C2 18 4 7 7 7ZM6 11h6m-3-3v6"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="14" r="1"/></svg><span>Hrát si</span></button>
+        </nav>
+        <details id="highlight-tools" class="highlight-tools">
+            <summary aria-label="Zvýraznění textu" aria-keyshortcuts="Alt+H" title="Zvýraznění textu (Alt+H)">🖍️</summary>
+            <div class="highlight-panel">
+                <p id="highlight-help" class="visually-hidden">Vyber text a zvol barvu. Klávesová zkratka: Alt+H. Změny zůstávají jen v této kartě prohlížeče, i po obnovení stránky. Neodesílají se online.</p>
+                <div role="group" aria-label="Barva zvýraznění" aria-describedby="highlight-help">
+                    <button type="button" data-highlight-action="yellow">Žlutě</button>
+                    <button type="button" data-highlight-action="blue">Modře</button>
+                    <button type="button" data-highlight-action="green">Zeleně</button>
+                    <button type="button" data-highlight-action="remove">Odstranit</button>
+                </div>
+                <p id="highlight-status" class="visually-hidden" role="status" aria-live="polite"></p>
+            </div>
+        </details>
+        <div id="learning-controls" class="learning-controls" role="group" aria-label="Nápovědy a řešení" hidden>
+            <button id="expand-learning" type="button" aria-controls="learning-content" aria-label="Rozbalit vše" title="Rozbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9V3m-4 4 4-4 4 4M12 15v6m-4-4 4 4 4-4"/></svg></button>
+            <button id="collapse-learning" type="button" aria-controls="learning-content" aria-label="Sbalit vše" title="Sbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6m-4-4 4 4 4-4M12 21v-6m-4 4 4-4 4 4"/></svg></button>
+        </div>
+        <details id="quiz-tools" hidden>
+            <summary aria-label="Nástroje kvízu" title="Nástroje kvízu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 3h3l1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-3Z"/><circle cx="11.5" cy="10.5" r="3"/></svg></summary>
+            <div id="quiz-tools-panel">
+                <button id="quiz-export" type="button" title="Celá lekce včetně původního textu, učiva a všech otázek se správnými odpověďmi." aria-describedby="quiz-export-help">Stáhnout lekci (JSON)</button>
+                <span id="quiz-export-help" class="visually-hidden">Export obsahuje celou lekci včetně všech otázek a správných odpovědí.</span>
+                <p id="export-error" role="alert" hidden></p>
+            </div>
+        </details>
+        </div>
+        <div id="learning-progress" class="learning-progress" hidden>
+            <div id="learning-segments" role="navigation" aria-label="Přejít na kartu lekce"></div>
+            <span id="learning-counter" role="progressbar" aria-label="Prozkoumané karty" aria-valuemin="0" aria-valuenow="0" aria-live="polite" aria-atomic="true"></span>
+        </div>
+    </header>
+    <main>
+        <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
+        <p id="storage-warning" role="alert" hidden></p>
+        <p id="highlight-warning" role="alert" hidden></p>
+        <section id="original" role="tabpanel" aria-labelledby="tab-original" tabindex="0">
+            <div id="original-content"></div>
+            <aside class="lesson-share" aria-label="Odkaz na lekci"><div><p>Otevři si tuto lekci na jiném zařízení naskenováním QR kódu nebo kliknutím na odkaz:</p><a href="https://dusan.iric.online/test/osvicenstvi-a-vynalezy-v2.html">https://dusan.iric.online/test/osvicenstvi-a-vynalezy-v2.html</a></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" shape-rendering="crispEdges"><path fill="#fff" d="M0 0h41v41H0z"/><path fill="#000" d="M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM33 4h1v1h-1zM34 4h1v1h-1zM35 4h1v1h-1zM36 4h1v1h-1zM4 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM25 5h1v1h-1zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM33 6h1v1h-1zM34 6h1v1h-1zM36 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM16 7h1v1h-1zM17 7h1v1h-1zM18 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM22 7h1v1h-1zM23 7h1v1h-1zM26 7h1v1h-1zM30 7h1v1h-1zM32 7h1v1h-1zM33 7h1v1h-1zM34 7h1v1h-1zM36 7h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM13 8h1v1h-1zM17 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM36 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM24 9h1v1h-1zM30 9h1v1h-1zM36 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM33 10h1v1h-1zM34 10h1v1h-1zM35 10h1v1h-1zM36 10h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM19 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM27 11h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM29 12h1v1h-1zM31 12h1v1h-1zM33 12h1v1h-1zM35 12h1v1h-1zM8 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM20 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM29 13h1v1h-1zM30 13h1v1h-1zM34 13h1v1h-1zM35 13h1v1h-1zM36 13h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM14 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM21 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM33 14h1v1h-1zM35 14h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM8 15h1v1h-1zM11 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM20 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM24 15h1v1h-1zM25 15h1v1h-1zM30 15h1v1h-1zM31 15h1v1h-1zM32 15h1v1h-1zM34 15h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM18 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM28 16h1v1h-1zM29 16h1v1h-1zM31 16h1v1h-1zM32 16h1v1h-1zM33 16h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM27 17h1v1h-1zM30 17h1v1h-1zM35 17h1v1h-1zM36 17h1v1h-1zM5 18h1v1h-1zM7 18h1v1h-1zM8 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM19 18h1v1h-1zM22 18h1v1h-1zM26 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM31 18h1v1h-1zM32 18h1v1h-1zM35 18h1v1h-1zM5 19h1v1h-1zM8 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM18 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM27 19h1v1h-1zM29 19h1v1h-1zM32 19h1v1h-1zM34 19h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM15 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM24 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM29 20h1v1h-1zM31 20h1v1h-1zM32 20h1v1h-1zM35 20h1v1h-1zM4 21h1v1h-1zM7 21h1v1h-1zM8 21h1v1h-1zM13 21h1v1h-1zM16 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM21 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM27 21h1v1h-1zM30 21h1v1h-1zM31 21h1v1h-1zM33 21h1v1h-1zM35 21h1v1h-1zM36 21h1v1h-1zM7 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM31 22h1v1h-1zM32 22h1v1h-1zM33 22h1v1h-1zM35 22h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM30 23h1v1h-1zM32 23h1v1h-1zM34 23h1v1h-1zM7 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM35 24h1v1h-1zM4 25h1v1h-1zM5 25h1v1h-1zM9 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM14 25h1v1h-1zM20 25h1v1h-1zM22 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM30 25h1v1h-1zM33 25h1v1h-1zM35 25h1v1h-1zM36 25h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM11 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM19 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM33 26h1v1h-1zM35 26h1v1h-1zM4 27h1v1h-1zM6 27h1v1h-1zM7 27h1v1h-1zM8 27h1v1h-1zM11 27h1v1h-1zM12 27h1v1h-1zM14 27h1v1h-1zM15 27h1v1h-1zM18 27h1v1h-1zM19 27h1v1h-1zM20 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM26 27h1v1h-1zM30 27h1v1h-1zM31 27h1v1h-1zM33 27h1v1h-1zM34 27h1v1h-1zM4 28h1v1h-1zM7 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM15 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM30 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM36 28h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM14 29h1v1h-1zM16 29h1v1h-1zM17 29h1v1h-1zM18 29h1v1h-1zM21 29h1v1h-1zM22 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM28 29h1v1h-1zM32 29h1v1h-1zM33 29h1v1h-1zM34 29h1v1h-1zM36 29h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM9 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM20 30h1v1h-1zM24 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM34 30h1v1h-1zM35 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM13 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM19 31h1v1h-1zM22 31h1v1h-1zM24 31h1v1h-1zM25 31h1v1h-1zM27 31h1v1h-1zM28 31h1v1h-1zM32 31h1v1h-1zM33 31h1v1h-1zM34 31h1v1h-1zM35 31h1v1h-1zM4 32h1v1h-1zM6 32h1v1h-1zM7 32h1v1h-1zM8 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM16 32h1v1h-1zM18 32h1v1h-1zM20 32h1v1h-1zM21 32h1v1h-1zM26 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM30 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM33 32h1v1h-1zM35 32h1v1h-1zM36 32h1v1h-1zM4 33h1v1h-1zM6 33h1v1h-1zM7 33h1v1h-1zM8 33h1v1h-1zM10 33h1v1h-1zM12 33h1v1h-1zM13 33h1v1h-1zM14 33h1v1h-1zM20 33h1v1h-1zM22 33h1v1h-1zM23 33h1v1h-1zM24 33h1v1h-1zM29 33h1v1h-1zM31 33h1v1h-1zM32 33h1v1h-1zM33 33h1v1h-1zM34 33h1v1h-1zM35 33h1v1h-1zM36 33h1v1h-1zM4 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM12 34h1v1h-1zM13 34h1v1h-1zM15 34h1v1h-1zM16 34h1v1h-1zM19 34h1v1h-1zM24 34h1v1h-1zM25 34h1v1h-1zM27 34h1v1h-1zM30 34h1v1h-1zM33 34h1v1h-1zM34 34h1v1h-1zM4 35h1v1h-1zM10 35h1v1h-1zM12 35h1v1h-1zM13 35h1v1h-1zM14 35h1v1h-1zM15 35h1v1h-1zM18 35h1v1h-1zM23 35h1v1h-1zM25 35h1v1h-1zM26 35h1v1h-1zM29 35h1v1h-1zM30 35h1v1h-1zM32 35h1v1h-1zM33 35h1v1h-1zM34 35h1v1h-1zM4 36h1v1h-1zM5 36h1v1h-1zM6 36h1v1h-1zM7 36h1v1h-1zM8 36h1v1h-1zM9 36h1v1h-1zM10 36h1v1h-1zM12 36h1v1h-1zM14 36h1v1h-1zM15 36h1v1h-1zM20 36h1v1h-1zM21 36h1v1h-1zM26 36h1v1h-1zM27 36h1v1h-1zM28 36h1v1h-1zM29 36h1v1h-1zM30 36h1v1h-1zM31 36h1v1h-1zM33 36h1v1h-1zM35 36h1v1h-1z"/></svg></aside>
+        </section>
+        <section id="learning" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden>
+            <div id="learning-content"></div>
+        </section>
+        <section id="quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden>
+            <article id="setup" class="card">
+                <h2><span class="card-icon" aria-hidden="true">🎯</span>Vyber si kvíz</h2>
+                <div class="player-row">
+                    <label for="player" title="Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků.">Přezdívka</label>
+                    <input id="player" name="player-name" type="text" autocomplete="on" maxlength="60" placeholder="Napiš sem" title="Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků." aria-describedby="name-help name-error">
+                </div>
+                <span id="name-help" class="visually-hidden">Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků.</span>
+                <p id="name-error" role="alert"></p>
+                <div class="modes">
+                    <button type="button" data-mode="easy"><span aria-hidden="true">🟢</span> Lehká <span class="mode-count">3 úlohy</span></button>
+                    <button type="button" data-mode="medium"><span aria-hidden="true">🟡</span> Střední <span class="mode-count">5 úloh</span></button>
+                    <button type="button" data-mode="hard"><span aria-hidden="true">🔴</span> Těžká <span class="mode-count">10 úloh</span></button>
+                </div>
+                <details id="scoring-rules"><summary>Jak se počítají body?</summary><ul id="scoring"></ul></details>
+            </article>
+            <article id="game" class="card" hidden>
+                <div class="quiz-status">
+                    <p id="progress"></p>
+                    <p id="score" role="status" aria-atomic="true"></p>
+                </div>
+                <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
+                <div id="bonus" aria-hidden="true"><div id="bonus-bar"></div></div>
+                <p id="difficulty" class="difficulty"></p>
+                <div class="question-heading"><span id="question-icon" class="card-icon" aria-hidden="true"></span><h2 id="question" tabindex="-1"></h2></div>
+                <p id="answer-help" hidden></p>
+                <form id="answers" novalidate></form>
+                <div id="feedback" role="status" hidden></div>
+                <button id="next" type="button" hidden>Další úloha</button>
+            </article>
+            <article id="results" class="card" hidden>
+                <div class="confetti" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <h2 id="results-title" tabindex="-1"><span class="card-icon" aria-hidden="true">🎉</span>Hotovo! Kvíz máš za sebou.</h2>
+                <p>Každý pokus ti pomáhá učit se. Podívej se, co už umíš a co si ještě procvičíš.</p>
+                <p id="grade" class="grade"></p>
+                <p id="answer-duration"></p>
+                <details><summary>Prohlédnout odpovědi a vysvětlení</summary><ol id="summary"></ol></details>
+                <button id="restart" type="button">Nový kvíz</button>
+            </article>
+            <details id="leaderboard" class="card">
+                <summary><span class="card-icon" aria-hidden="true">🏅</span>Síň slávy této lekce</summary>
+                <p>Výsledky se ukládají jen v této kartě prohlížeče, ne online ani na jiných zařízeních. Po zavření karty se mohou ztratit.</p>
+                <p id="leaderboard-rank" hidden></p>
+                <div id="leaderboard-content" class="table-scroll"></div>
+            </details>
+        </section>
+    </main>
+    <footer class="lesson-footer">
+        <img class="lesson-footer-mark" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%2032%2032%22%3E%0D%0A%20%20%3Cdefs%3E%0D%0A%20%20%20%20%3CradialGradient%20id%3D%22tile%22%20cx%3D%220.3%22%20cy%3D%220.2%22%20r%3D%221%22%3E%3Cstop%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%220.6%22%20stop-color%3D%22%23f1f5f9%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23d9e8ed%22%2F%3E%3C%2FradialGradient%3E%0D%0A%20%20%20%20%3ClinearGradient%20id%3D%22ink%22%20x2%3D%220.7%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%234774aa%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%231e3c72%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2318516a%22%2F%3E%3C%2FlinearGradient%3E%0D%0A%20%20%20%20%3CclipPath%20id%3D%22letter%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%2012h5c5.5%200%209%203%209%208.5S20.5%2029%2015%2029h-5a1%201%200%200%201-1-1V13a1%201%200%200%201%201-1zm4%204.5v8h1c2.5%200%204-1.5%204-4s-1.5-4-4-4z%22%2F%3E%3C%2FclipPath%3E%0D%0A%20%20%3C%2Fdefs%3E%0D%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22url(%23tile)%22%2F%3E%0D%0A%20%20%3Crect%20x%3D%220.7%22%20y%3D%220.7%22%20width%3D%2230.6%22%20height%3D%2230.6%22%20rx%3D%226.3%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.85%22%20stroke-width%3D%220.5%22%2F%3E%0D%0A%20%20%3Cg%20id%3D%22mark%22%20transform%3D%22matrix(1.47619%200%200%201.47619%20-4.66666%20-11.30952)%22%3E%0D%0A%20%20%20%20%3Cpath%20fill%3D%22url(%23ink)%22%20fill-rule%3D%22evenodd%22%20d%3D%22M10%2012h5c5.5%200%209%203%209%208.5S20.5%2029%2015%2029h-5a1%201%200%200%201-1-1V13a1%201%200%200%201%201-1zm4%204.5v8h1c2.5%200%204-1.5%204-4s-1.5-4-4-4z%22%2F%3E%0D%0A%20%20%20%20%3Cpath%20d%3D%22M9.7%2027.5v-14a0.8%200.8%200%200%201%20.8-.8H15c4.3%200%207%202%207.7%205%22%20clip-path%3D%22url(%23letter)%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.3%22%20stroke-width%3D%220.4%22%2F%3E%0D%0A%20%20%20%20%3Cpath%20d%3D%22M17%209%205%2014v5%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0D%0A%20%20%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A" alt="" width="96" height="96">
+    </footer>
+    <button id="glossary-toggle" type="button" aria-haspopup="dialog" aria-controls="glossary-drawer" aria-expanded="false" title="Otevřít slovníček" hidden><span aria-hidden="true">🔖</span><span>Slovníček</span></button>
+    <aside id="glossary-drawer" popover="manual" role="dialog" aria-modal="false" aria-labelledby="glossary-title">
+        <div class="drawer-heading">
+            <h2 id="glossary-title"><span class="card-icon" aria-hidden="true">🔖</span>Slovníček</h2>
+            <button id="glossary-close" type="button" aria-label="Zavřít slovníček" title="Zavřít slovníček">×</button>
+        </div>
+        <div id="glossary"></div>
+    </aside>
+    <div id="definition" popover="auto" role="dialog" aria-labelledby="definition-title" aria-describedby="definition-text">
+        <h2 id="definition-title"></h2>
+        <p id="definition-text"></p>
+        <button id="definition-close" type="button">Zavřít</button>
+    </div>
+    <dialog id="quiz-leave-dialog" aria-labelledby="quiz-leave-title" aria-describedby="quiz-leave-description">
+        <h2 id="quiz-leave-title">Pokračovat v kvízu?</h2>
+        <p id="quiz-leave-description">Kvíz ještě není hotový. Zůstaň a pokračuj tam, kde jsi skončil. Pokud přepneš záložku, tento pokus se ukončí a jeho odpovědi, body a postup se ztratí.</p>
+        <div class="quiz-leave-actions">
+            <button id="quiz-stay" type="button" autofocus>Pokračovat v kvízu</button>
+            <button id="quiz-leave" type="button">Ukončit kvíz a přepnout</button>
+        </div>
+    </dialog>
+    <script id="lesson-data" type="application/json">{"version":3,"subject":"history","language":"cs-CZ","id":"osvicenstvi-a-vynalezy","topic":"Osvícenství a vynálezy","subtitle":"Objev, jak nové myšlenky a vynálezy měnily život lidí!","audience":"Pro desetileté děti, které se učí česky","review":"Čtvrtý místní návrh mění pouze výukovou část podle zadání uživatele. Odstraňuje životopisné odstavce označené Poznámka, ale zachovává životopisné tooltips ve slovníčku. Jména obou vynálezců Veverkových jsou ve výukovém textu uvedena jednotlivě, aby jejich tooltips zůstaly dostupné i bez poznámek. Vojenská reforma obsahuje pouze doložený stručný výklad, nikoli komentář o neověřeném věku. Původní věkový údaj není nově potvrzen ani testován. Tři části o Klementinu jsou spojeny do jedné při zachování učiva o budovách, knihách, astronomii a počasí. Samostatná část Jak byli Veverkovi příbuzní je odstraněna. Původní text, jeho čtyři poznámky, slovníček, zdroje a všech 30 kvízových otázek s hodnocením jsou beze změny. Přetrvávají omezení historického ověření popsaná v předchozích návrzích; nejisté životopisné údaje zůstávají označeny v tooltips. Nejde o schválení publikace. Tento nový místní návrh přidává pouze formátování původních odstavců, barevné zvýraznění a časovou osu ve výukové části. Kanonický původní text a všech 30 otázek včetně hodnocení zůstávají beze změny. Roky 1556, 1722 a 1775 byly znovu ověřeny v uvedené historii Národní knihovny, rok 1781 v uvedeném článku Českého rozhlasu a rok 1827 v uvedené historii obce Rybitví. Ostatní dřívější omezení ověření přetrvávají. Návrh není schválen k publikaci. Další uživatelem vyžádaná úprava odstraňuje barevné zvýraznění původního textu, ale zachovává členění a styly odstavců. Časová osa nyní začíná přibližným evropským počátkem osvícenství kolem roku 1700; nejde o přesné datum vzniku ani o datum jeho rozšíření v českých zemích. Všechny události Klementina byly z osy odstraněny. Osa rozlišuje převzetí vlády Marií Terezií roku 1740 od jejích pozdějších korunovací, školskou reformu 1774, samostatnou vládu Josefa II. od 1780 a nástup Leopolda II. roku 1790. Zachovává patent 1781 a ruchadlo 1827 a přidává veřejnou zkoušku lodního šroubu na Civettě roku 1829. Údaje o nástupech Josefa a Leopolda byly znovu ověřeny v uvedených životopisech Historické šlechty, školská reforma v uvedeném přehledu tereziánských reforem a Civetta v uvedeném článku Českých center. Nové uvedené encyklopedické zdroje dokládají evropské časové vymezení osvícenství a začátek vlády Marie Terezie. Texty původních odstavců, učivo a všech 30 otázek včetně hodnocení zůstávají beze změny.","sources":[{"title":"Český rozhlas — tereziánské reformy a školská reforma","url":"https://archiv.radio.cz/cz/static/marie-terezie/reformy"},{"title":"Český rozhlas — patent o zrušení nevolnictví a zachovaná robota","url":"https://strednicechy.rozhlas.cz/patent-o-zruseni-nevolnictvi-vydal-josef-ii-zavadeni-zmen-se-neobeslo-bez-9390461"},{"title":"Národní zemědělské muzeum — bratranci Veverkovi a ruchadlo","url":"https://www.nzm.cz/o-nas/aktuality/170-let-od-smrti-bratrancu-veverkovych"},{"title":"Obec Rybitví — rodina Veverkových a vznik ruchadla","url":"https://rybitvi.cz/br-veverkove-a-jejich-ruchadlo/"},{"title":"Rodopisná studie — rodiče a společný dědeček Veverkových","url":"https://www.eliskavlasta.cz/2025/05/01/bratranci-veverkovi/"},{"title":"Národní knihovna — historie knihovny a areálu Klementina","url":"https://www.nkp.cz/o-knihovne/historie-knihovny"},{"title":"Prague City Tourism — knihovní sál, meridiánová síň a astronomická věž","url":"https://praguecitytourism.cz/co-delame/provoz-pamatkovych-objektu/astronomicka-vez-a-barokni-knihovna-klementina/"},{"title":"ČHMÚ — historie meteorologických měření v Klementinu","url":"https://www.chmi.cz/namerena-data/historicka-data/klementinum"},{"title":"Česká centra — Josef Ressel, Civetta a lodní šroub","url":"https://rome.czechcentres.gov.cz/blog/2022/04/jose-frantisek-ressel-v-terstu"},{"title":"Ministerstvo obrany — historie vojenské služby","url":"https://www.mo.gov.cz/scripts/detail.php?id=3895"},{"title":"Ptejte se knihovny — reformy odvodů a výjimky z vojenské povinnosti","url":"https://www.ptejteseknihovny.cz/dotazy/povinna-vojenska-sluzba-v-nasich-zemich-kdy-a-kterym-panovnikem-ustanovena"},{"title":"Internetová jazyková příručka — shoda přísudku s podmětem","url":"https://prirucka.ujc.cas.cz/?id=600"},{"title":"Český rozhlas — Karel VI. a pragmatická sankce","url":"https://strednicechy.rozhlas.cz/diky-pragmaticke-sankci-mohla-marie-terezii-usednout-na-trun-po-otcove-smrti-9141352"},{"title":"Česká encyklopedie — Prokop Diviš","url":"https://cs.wikipedia.org/wiki/Prokop_Divi%C5%A1"},{"title":"Česká encyklopedie — tereziánské reformy a výuka v triviálních školách","url":"https://cs.wikipedia.org/wiki/Terezi%C3%A1nsk%C3%A9_reformy"},{"title":"Historická šlechta — Marie Terezie, rodiče a životní data","url":"https://www.historickaslechta.cz/osobnosti/habsburska-marie-terezie-1717-%E2%80%A01780/"},{"title":"Historická šlechta — Karel VI., rodiče a období vlády","url":"https://www.historickaslechta.cz/osobnosti/habsbursky-karel-vi-ii-1685-%E2%80%A01740/"},{"title":"Historická šlechta — Josef II., rodiče a období vlády","url":"https://www.historickaslechta.cz/osobnosti/habsbursko-lotrinsky-josef-ii-1741-%E2%80%A01790/"},{"title":"Historická šlechta — Leopold II., rodiče a období vlády","url":"https://www.historickaslechta.cz/osobnosti/habsbursko-lotrinsky-leopold-ii-1747-%E2%80%A01792/"},{"title":"Biografický slovník českých zemí — František I. Štěpán Lotrinský","url":"https://biography.hiu.cas.cz/wiki/FRANTI%C5%A0EK_I._%C5%A0t%C4%9Bp%C3%A1n_Lotrinsk%C3%BD_1708%E2%80%931765"},{"title":"Biografický slovník českých zemí — Prokop Václav Diviš","url":"https://biography.hiu.cas.cz/wiki/DIVI%C5%A0_Prokop_V%C3%A1clav_1698%E2%80%931765"},{"title":"Česká encyklopedie — Josef Stepling, život a otec","url":"https://cs.wikipedia.org/wiki/Joseph_Stepling"},{"title":"Chrudimské osobnosti — Josef Ressel a jeho otec","url":"https://www.chrudim.info/historie/chrudim/index.php3?stranka=ressel\u0026lang=cz"},{"title":"Česká encyklopedie — Josef Ressel a životní data","url":"https://cs.wikipedia.org/wiki/Josef_Ressel"},{"title":"Česká encyklopedie — osvícenství v 17. a 18. století","url":"https://cs.wikipedia.org/wiki/Osv%C3%ADcenstv%C3%AD"},{"title":"Česká encyklopedie — Marie Terezie a začátek vlády roku 1740","url":"https://cs.wikipedia.org/wiki/Marie_Terezie"}],"original":[{"heading":"1. Osvícenství","icon":"💡","text":"Otázka:\n\nCo je osvícenství? Do kterého století patří jeho rozvoj v zemích Koruny české?\n\nOdpověď:\n\n• Osvícenství bylo období, kdy lidé zdůrazňovali rozum, vzdělání, vědu a pokrok.\n• Patří do 18. století.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Co je osvícenství? Do kterého století patří jeho rozvoj v zemích Koruny české?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"• Osvícenství bylo období, kdy lidé zdůrazňovali rozum, vzdělání, vědu a pokrok.\n• Patří do 18. století."}]},{"heading":"2. Otec Marie Terezie","icon":"👑","text":"Otázka:\n\nKdo byl otcem Marie Terezie?\nCo zajistil a vyjednal s ostatními panovníky, aby mohla zajistit vládu v habsburské monarchii?\n\nOdpověď:\n\n• Otec: Karel VI. Habsburský\n• Zajistil: Pragmatickou sankci, umožnila, aby po něm mohla vládnout jeho dcera Marie.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Kdo byl otcem Marie Terezie?\nCo zajistil a vyjednal s ostatními panovníky, aby mohla zajistit vládu v habsburské monarchii?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"• Otec: Karel VI. Habsburský\n• Zajistil: Pragmatickou sankci, umožnila, aby po něm mohla vládnout jeho dcera Marie."}]},{"heading":"3. Koruny a císařský titul","icon":"👑","text":"Otázka:\n\nKolika královskými korunami byla Marie Terezie korunována a které to byly? Proč se jí říkalo také císařovna?\n\nOdpověď:\n\n• Počet korun: 2\n• Které koruny: česká a uherská.\n• Proč císařovna: byla manželkou císaře Františka Štěpána Lotrinského.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Kolika královskými korunami byla Marie Terezie korunována a které to byly? Proč se jí říkalo také císařovna?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"• Počet korun: 2\n• Které koruny: česká a uherská.\n• Proč císařovna: byla manželkou císaře Františka Štěpána Lotrinského."}]},{"heading":"4. Reformy Marie Terezie","icon":"📚","text":"Otázka:\n\nUveď alespoň tři významné reformy Marie Terezie.\n\nOdpověď:\n\n1. Povinná školní docházka.\n2. Vojenská reforma – branná povinnost pro muže od 17-40let.\n3. Zlepšila správu státu a výběr daní.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Uveď alespoň tři významné reformy Marie Terezie."},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"1. Povinná školní docházka.\n2. Vojenská reforma – branná povinnost pro muže od 17-40let.\n3. Zlepšila správu státu a výběr daní."}]},{"heading":"5. Co se děti učily","icon":"📖","text":"Otázka:\n\nCo se podle školské reformy Marie Terezie měly děti učit? Uveď čtyři činnosti nebo oblasti.\n\nOdpověď:\n\n1. Číst.\n2. Psát.\n3. Počítat.\n4. Náboženství.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Co se podle školské reformy Marie Terezie měly děti učit? Uveď čtyři činnosti nebo oblasti."},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"1. Číst.\n2. Psát.\n3. Počítat.\n4. Náboženství."}]},{"heading":"6. Nástupci Marie Terezie","icon":"👑","text":"Otázka:\n\nKolik dětí Marie Terezie se po ní vystřídalo ve vládě v českých zemích?\nNapiš jejich jména v pořadí, v jakém vládly.\n\nOdpověď:\n\nPočet: 2\n1. Josef II.\n2. Leopold II.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Kolik dětí Marie Terezie se po ní vystřídalo ve vládě v českých zemích?\nNapiš jejich jména v pořadí, v jakém vládly."},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"Počet: 2\n1. Josef II.\n2. Leopold II."}]},{"heading":"7. Dva patenty Josefa II.","icon":"📜","text":"Otázka:\n\nJak se jmenovaly dva významné patenty Josefa II. z roku 1781? Který z nich upravoval postavení nevolníků? Zrušil také robotu?\n\nOdpověď:\n\n1. Toleranční patent.\n2. Patent o zrušení nevolnictví.\nPostavení nevolníků upravoval: Patent o zrušení nevolnictví.\nRobota: Nezrušil, jen ji omezil.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Jak se jmenovaly dva významné patenty Josefa II. z roku 1781? Který z nich upravoval postavení nevolníků? Zrušil také robotu?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"1. Toleranční patent.\n2. Patent o zrušení nevolnictví.\nPostavení nevolníků upravoval: Patent o zrušení nevolnictví.\nRobota: Nezrušil, jen ji omezil."}]},{"heading":"8. Po zrušení nevolnictví","icon":"🌱","text":"Otázka:\n\nJak se označovali lidé, kteří byli zbavení nevolnictví, ale dál měli poddanské povinnosti? Kdo patent vydal a v kterém roce?\n\nOdpověď:\n\nNové označení: poddaní.\nPanovník: Josef II.\nRok: 1781.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Jak se označovali lidé, kteří byli zbavení nevolnictví, ale dál měli poddanské povinnosti? Kdo patent vydal a v kterém roce?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"Nové označení: poddaní.\nPanovník: Josef II.\nRok: 1781."}]},{"heading":"9. Pražská observatoř","icon":"🔭","text":"Otázka:\n\nJosef Stepling založil v Praze pražskou observatoř. Jak se jmenovala?\n\nOdpověď:\n\nKlementinum.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Josef Stepling založil v Praze pražskou observatoř. Jak se jmenovala?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"Klementinum."}]},{"heading":"10. Bleskosvod","icon":"⚡","text":"Otázka:\n\nKterému českému vynálezci se připisuje sestrojení bleskosvodu?\n\nOdpověď:\n\nProkop Diviš.","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Kterému českému vynálezci se připisuje sestrojení bleskosvodu?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"Prokop Diviš."}]},{"heading":"11. Ruchadlo","icon":"🌾","text":"Otázka:\n\nCo je ruchadlo a k čemu sloužilo?\n\nOdpověď:\n\nTo je zemědělský pluh, který lépe rozrušoval a obracel půdu.\nVynálezci: bratři Veverkové (František a Václav).","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Co je ruchadlo a k čemu sloužilo?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"To je zemědělský pluh, který lépe rozrušoval a obracel půdu.\nVynálezci: bratři Veverkové (František a Václav)."}]},{"heading":"12. Lodní šroub","icon":"🚢","text":"Otázka:\n\nKterý vynálezce z českých zemí se proslavil lodním šroubem? Na kterém parníku jej vyzkoušel a jaké rychlosti loď dosáhla?\n\nOdpověď:\n\nVynálezce: Josef Ressel.\nParník: Civetta.\nRychlost: 6 uzlů (což je cca 11 km/h).","paragraphs":[{"style":"plain","text":"Otázka:"},{"style":"quote","text":"Který vynálezce z českých zemí se proslavil lodním šroubem? Na kterém parníku jej vyzkoušel a jaké rychlosti loď dosáhla?"},{"style":"plain","text":"Odpověď:"},{"style":"example","text":"Vynálezce: Josef Ressel.\nParník: Civetta.\nRychlost: 6 uzlů (což je cca 11 km/h)."}]},{"heading":"Závěrečné přání","icon":"🍀","text":"Hodně štěstí při minutovce!","paragraphs":[{"style":"quote","text":"Hodně štěstí při minutovce!"}]}],"corrections":[{"section":6,"quote":"Robota: Nezrušil, jen ji omezil.","explanation":"Patent o zrušení nevolnictví z roku 1781 odstranil osobní omezení, například nutnost žádat vrchnost o svolení ke sňatku. Robotu ale nezrušil a sám tímto patentem neomezil její rozsah. Poddaní museli robotovat dál. Omezení roboty souviselo s jinými opatřeními, například s robotním patentem Marie Terezie z roku 1775. Rozlišuj osobní svobodu a povinnost pracovat pro vrchnost.","sourceUrl":"https://strednicechy.rozhlas.cz/patent-o-zruseni-nevolnictvi-vydal-josef-ii-zavadeni-zmen-se-neobeslo-bez-9390461"},{"section":7,"quote":"Nové označení: poddaní.","explanation":"Odpověď poddaní je pro školní otázku vhodná, ale nešlo o úplně nové označení. Poddanými byli tito lidé už před rokem 1781. Patent zrušil nevolnictví, ale poddanské povinnosti, například robota a dávky vrchnosti, zůstaly. Přesněji: zůstali poddanými, ale už nebyli nevolníky.","sourceUrl":"https://strednicechy.rozhlas.cz/patent-o-zruseni-nevolnictvi-vydal-josef-ii-zavadeni-zmen-se-neobeslo-bez-9390461"},{"section":8,"quote":"Klementinum.","explanation":"Klementinum je historický areál na Starém Městě v Praze, ne jen hvězdárna. Jezuité zde začali budovat kolej roku 1556; hlavní výstavba probíhala v letech 1578–1726. Dnes tu sídlí Národní knihovna. K významným místům patří Barokní knihovní sál s malbami a glóby, Astronomická věž dokončená roku 1722 a Zrcadlová kaple. Josef Stepling rozvíjel zdejší hvězdárnu. V meridiánové síni se určovalo pravé poledne. Meteorologická řada se počítá od roku 1775 a podle ČHMÚ je bez mezer od roku 1784.","sourceUrl":"https://www.nkp.cz/o-knihovne/historie-knihovny"},{"section":10,"quote":"bratři Veverkové (František a Václav).","explanation":"Veverkovi byli bratranci, ne bratři. František byl rolník, Václav kovář; ruchadlo dokončili roku 1827. Františkovým otcem byl Václav, Václavovým Ignác (Hynek). Otcové byli synové Jiřího Veverky, společného dědečka vynálezců.","sourceUrl":"https://rybitvi.cz/br-veverkove-a-jejich-ruchadlo/"}],"glossary":[{"term":"Marie Terezie","forms":["Marie Terezie Habsburská","Marii Terezii","Marií Terezií"],"definition":"Marie Terezie (1717–1780). Tituly: česká a uherská královna, rakouská arcivévodkyně. Otec: Karel VI. Habsburský. Vláda v habsburských zemích: 1740–1780; uherská korunovace 1741, česká 1743. Jako císařovna byla manželkou císaře, ne vládnoucí císařovnou Svaté říše římské. Měnila školství, správu státu i armádu a byla matkou Josefa II. a Leopolda II.","icon":"👑"},{"term":"Karel VI.","forms":["Karel VI. Habsburský","Karla VI.","Karla VI. Habsburského"],"definition":"Karel VI. Habsburský (1685–1740). Tituly: císař Svaté říše římské a český a uherský král. Otec: císař Leopold I. Vláda: 1711–1740. Byl otcem Marie Terezie a vydal pragmatickou sankci. V různých zemích měl panovník někdy jiné pořadové číslo; zde používáme běžné císařské označení Karel VI.","icon":"👑"},{"term":"František Štěpán Lotrinský","forms":["Františka Štěpána Lotrinského","František I. Štěpán Lotrinský","Františka I. Štěpána Lotrinského"],"definition":"František I. Štěpán Lotrinský (1708–1765). Tituly: císař Svaté říše římské, dříve lotrinský vévoda a také toskánský velkovévoda. Otec: Leopold Josef, vévoda lotrinský. Císařem byl v letech 1745–1765. Byl manželem Marie Terezie a otcem Josefa II. a Leopolda II. Jeho císařská hodnost nebyla totéž co vlastní vláda Marie Terezie nad habsburskými zeměmi.","icon":"👑"},{"term":"Josef II.","forms":["Josefa II.","Josefu II.","Josefem II."],"definition":"Josef II. (1741–1790). Tituly: císař Svaté říše římské, český a uherský král. Otec: František Štěpán Lotrinský. Matka: Marie Terezie. Císařem byl v letech 1765–1790; do roku 1780 byl spoluvladařem své matky. Samostatně vládl habsburským zemím a jako český král v letech 1780–1790. Českou korunovaci nepodstoupil. Vydal toleranční patent a patent o zrušení nevolnictví.","icon":"👑"},{"term":"Leopold II.","forms":["Leopolda II.","Leopoldovi II.","Leopoldem II."],"definition":"Leopold II. (1747–1792). Tituly: císař Svaté říše římské a český a uherský král. Otec: František Štěpán Lotrinský. Matka: Marie Terezie. Po svém bratru Josefovi II. vládl v letech 1790–1792. Českým králem byl korunován roku 1791. Předtím působil jako toskánský velkovévoda.","icon":"👑"},{"term":"Josef Stepling","forms":["Josefa Steplinga","Josefem Steplingem","Joseph Stepling"],"definition":"Josef Stepling (1716–1778). Povolání a role: jezuitský kněz, matematik, fyzik, astronom a učitel. Otec: Heinrich Wilhelm Stepling, sekretář vyslanectví u říšského sněmu v Řezně. Nebyl panovníkem, proto nemá období vlády. Rozvíjel hvězdárnu v Klementinu a podporoval pozorování oblohy i měření počasí.","icon":"🔭"},{"term":"Prokop Diviš","forms":["Prokopa Diviše","Prokopem Divišem","Diviš","Diviše"],"definition":"Prokop Diviš (1698–1765), původním jménem Václav Divíšek. Povolání a role: katolický kněz, premonstrát a badatel v oboru elektřiny. Otec: Jan Divíšek, majitel poddanské chalupy. Nebyl panovníkem. Je znám jako jeden z průkopníků bleskosvodu; svůj povětrnostní stroj postavil roku 1754 v Příměticích.","icon":"⚡"},{"term":"Josef Ressel","forms":["Josefa Ressela","Josefem Resselem","Ressel","Ressela"],"definition":"Josef Ressel (1793–1857). Povolání a role: lesník a vynálezce lodního šroubu. Otec: Anton Herrmann Ressel. Narodil se v Chrudimi a působil také v Terstu. Nebyl panovníkem, proto nemá období vlády. Roku 1829 veřejně zkoušel lodní šroub na parníku Civetta.","icon":"🚢"},{"term":"František Veverka","forms":["Františka Veverky","Františkovi Veverkovi"],"definition":"František Veverka (1799–1849). Povolání a role: rolník a spoluvynálezce ruchadla. Otec: Václav Veverka, hospodář v Rybitví; nejde o stejného Václava, který byl Františkovým bratrancem a spolupracovníkem. František nebyl panovníkem. S bratrancem Václavem dokončil ruchadlo roku 1827.","icon":"🌾"},{"term":"Václav Veverka","forms":["Václava Veverky","Václavu Veverkovi"],"definition":"V lekci se vyskytují dva různí lidé jménem Václav Veverka. Vynálezce Václav Veverka (1796–1849) byl kovář a spoluvynálezce ruchadla. Jeho otcem byl Ignác Veverka, zvaný Hynek. Nebyl panovníkem. Druhý Václav Veverka byl rolník, otec Františka Veverky a syn Jiřího Veverky; jeho narození zde není ověřeno, rodopisná studie uvádí úmrtí roku 1823. Nezaměňuj otce s bratrancem!","icon":"🔨"},{"term":"Ignác Veverka","forms":["Ignáce Veverky","Hynek","Hynek Veverka","Hynka Veverky"],"definition":"Ignác Veverka, zvaný také Hynek. Povolání a role: kovář a otec vynálezce Václava Veverky. Otec: Jiří Veverka. Data narození a úmrtí se při tomto ověření nepodařilo spolehlivě doložit. Nebyl panovníkem, proto nemá období vlády.","icon":"🔨"},{"term":"Jiří Veverka","forms":["Jiřího Veverky","Jiřímu Veverkovi"],"definition":"Jiří Veverka byl rolník a rychtář v Rybitví, tedy představitel obce. Byl společným dědečkem obou vynálezců a otcem Václava a Ignáce, zvaného Hynka. Data narození a úmrtí ani jméno jeho otce zde nejsou ověřena. Nebyl panovníkem; jako rychtář působil podle historie obce v letech 1751–1757.","icon":"🌳"},{"term":"osvícenství","forms":["osvícenstvím"],"definition":"Myšlenkový směr, který zdůrazňoval rozum, vzdělání, vědu a pokrok. V českých zemích ho spojujeme hlavně s 18. stoletím.","icon":"💡"},{"term":"reforma","forms":["reformy","reformou","reformách"],"definition":"Změna pravidel nebo fungování něčeho, například školství nebo armády.","icon":"🛠️"},{"term":"monarchie","forms":["monarchii","monarchií"],"definition":"Stát nebo soubor zemí, kterým vládne panovník, například král nebo císař.","icon":"👑"},{"term":"pragmatická sankce","forms":["pragmatickou sankci","pragmatické sankce"],"definition":"Dokument Karla VI., který upravoval dědění habsburských zemí také v ženské linii.","icon":"📜"},{"term":"patent","forms":["patenty","patentu","patentem"],"definition":"V této historické lekci panovníkův veřejně vyhlášený právní předpis. Nezaměňuj ho s dnešním patentem na vynález.","icon":"📜"},{"term":"nevolnictví","forms":["nevolníci","nevolníků","nevolníkem","nevolníky"],"definition":"Osobní závislost na vrchnosti. Člověk potřeboval její svolení například ke sňatku nebo změně bydliště.","icon":"🔗"},{"term":"poddaní","forms":["poddanými","poddaných","poddaným","poddané"],"definition":"Lidé s povinnostmi vůči vrchnosti. Po zrušení nevolnictví jim zůstala například robota a dávky.","icon":"🌱"},{"term":"robota","forms":["robotu","roboty","robotou","robotovat"],"definition":"Povinná práce pro vrchnost. Patent o zrušení nevolnictví z roku 1781 tuto práci nezrušil.","icon":"🌾"},{"term":"vrchnost","forms":["vrchnosti"],"definition":"Pán nebo instituce spravující panství, vůči nimž měli poddaní povinnosti.","icon":"🏰"},{"term":"toleranční patent","forms":["tolerančního patentu","tolerančním patentem"],"definition":"Předpis Josefa II. z roku 1781, který umožnil omezené vyznávání také některých nekatolických náboženství.","icon":"🕊️"},{"term":"observatoř","forms":["observatoře","observatoří"],"definition":"Místo pro vědecké pozorování. Astronomická observatoř je hvězdárna: pozoruje oblohu a nebeská tělesa.","icon":"🔭"},{"term":"Klementinum","forms":["Klementina","Klementinu"],"definition":"Historický areál v Praze. Sídlí zde Národní knihovna a jsou tu také Barokní knihovní sál a Astronomická věž.","icon":"📚"},{"term":"jezuité","forms":["jezuitů","jezuity"],"definition":"Členové katolického řádu, kteří mimo jiné zakládali školy. Roku 1556 začali budovat kolej v Klementinu.","icon":"📖"},{"term":"glóbus","forms":["glóby","glóbů"],"definition":"Kulový model Země nebo hvězdné oblohy. Historické glóby najdeš v Barokním knihovním sále Klementina.","icon":"🌍"},{"term":"bleskosvod","forms":["bleskosvodu","bleskosvodem"],"definition":"Zařízení pro ochranu před účinky blesku. Je spojováno s českým vynálezcem Prokopem Divišem.","icon":"⚡"},{"term":"ruchadlo","forms":["ruchadla","ruchadlem"],"definition":"Zdokonalený pluh, který půdu rozrušoval a obracel. Vytvořili ho bratranci Veverkovi.","icon":"🌾"},{"term":"rolník","forms":["rolníci","rolníkem","rolníka"],"definition":"Člověk, který obdělává pole a pěstuje plodiny. František Veverka byl rolník.","icon":"🌱"},{"term":"kovář","forms":["kováře","kovářem"],"definition":"Řemeslník, který opracovává kov, často pomocí ohně a kladiva. Václav Veverka byl kovář.","icon":"🔨"},{"term":"lodní šroub","forms":["lodním šroubem","lodního šroubu"],"definition":"Otáčivé zařízení, které působí na vodu a pomáhá pohánět loď.","icon":"🚢"},{"term":"uzel","forms":["uzlů","uzly"],"definition":"Jednotka rychlosti používaná například u lodí. Šest uzlů odpovídá přibližně jedenácti kilometrům za hodinu.","icon":"🚢"}],"chunks":[{"heading":"Nové myšlenky: rozum a poznávání","icon":"💡","sentences":["Osvícenství zdůrazňovalo rozum, vzdělání, vědu a pokrok.","V zemích Koruny české patří jeho rozvoj hlavně do 18. století.","Lidé chtěli světu lépe rozumět a hledali způsoby, jak zlepšit život."],"explanation":"Rozum používáme, když hledáme důvody a přemýšlíme nad řešením. Věda zkoumá svět pomocí pozorování a pokusů. Změna pravidel, která má zlepšit fungování státu, se nazývá reforma."},{"heading":"Marie Terezie a dědění vlády","icon":"👑","sentences":["Marie Terezie byla česká a uherská královna, která žila v letech 1717–1780 a vládla habsburským zemím v letech 1740–1780.","Jejím otcem byl Karel VI. Habsburský.","Pragmatická sankce umožňovala dědění habsburských zemí také v ženské linii.","Pomohla vytvořit právní základ pro vládu Marie Terezie.","Marie Terezie byla korunována uherskou a českou královnou.","Císařovnou se nazývala jako manželka císaře Františka Štěpána Lotrinského."],"explanation":"Dědění v ženské linii znamená, že vládu mohla převzít i žena z panovnického rodu. Marie Terezie (1717–1780) byla dcerou Karla VI. a vládla v letech 1740–1780. Její manžel František Štěpán byl císařem od roku 1745. Královna a císařovna nejsou v tomto příběhu totéž. Kliknutím na jméno otevřeš životopisné vysvětlení."},{"heading":"Školy a správa státu","icon":"📚","sentences":["Marie Terezie měnila školství, armádu, správu státu a výběr daní.","Školská reforma byla vyhlášena roku 1774.","Zavedla všeobecnou vzdělávací povinnost pro děti od 6 do 12 let.","Děti se učily číst, psát, počítat a náboženství.","Daně jsou platby, z nichž stát hradí své výdaje."],"explanation":"Čtení, psaní a počítání pomáhají v každodenním životě. Stát potřeboval vzdělanější obyvatele i lepší správu. Pro školní přehled se běžně používá označení povinná školní docházka."},{"heading":"Vojenská reforma","icon":"🛡️","sentences":["Marie Terezie reformovala armádu a způsob jejího doplňování.","Vojenská povinnost tehdy neplatila stejně pro všechny skupiny obyvatel."],"explanation":"Doplňování armády znamená získávání nových vojáků. Některé skupiny obyvatel byly od vojenské povinnosti osvobozeny."},{"heading":"Dva synové na trůně","icon":"👑","sentences":["Po Marii Terezii se ve vládě v českých zemích vystřídali dva její synové.","Nejprve vládl Josef II.","Po něm vládl Leopold II."],"explanation":"Zapamatuj si pořadí: Marie Terezie → Josef II. → Leopold II. Josef II. (1741–1790) a Leopold II. (1747–1792) byli synové Marie Terezie a Františka Štěpána Lotrinského. Nástupce přebírá vládu po předchozím panovníkovi."},{"heading":"Josef II.: dva patenty, dva různé úkoly","icon":"📜","sentences":["Josef II. vydal roku 1781 toleranční patent a patent o zrušení nevolnictví.","Toleranční patent umožnil omezené vyznávání také některých nekatolických náboženství.","Patent o zrušení nevolnictví odstraňoval osobní závislost na vrchnosti.","Poddaní mohli například uzavírat sňatky, stěhovat se a zvolit si řemeslo bez dřívějšího vrchnostenského svolení."],"explanation":"Tolerance souvisí s náboženstvím. Zrušení nevolnictví souvisí s osobní svobodou. Historický patent je panovníkův právní předpis; nejde zde o dnešní ochranu vynálezu."},{"heading":"Osobní svoboda není totéž co konec roboty","icon":"🌱","sentences":["Patent o zrušení nevolnictví z roku 1781 robotu nezrušil.","Robota byla povinná práce poddaných pro vrchnost.","Zůstaly také další hospodářské povinnosti.","Lidé zůstali poddanými, ale už nebyli nevolníky.","Slovo poddaní se používalo už před rokem 1781."],"explanation":"Představ si dvě různé věci: možnost rozhodovat o svém životě a povinnost pracovat pro pána. Patent změnil první věc, ale druhou ponechal. Proto věta jen ji omezil v původním taháku potřebuje vysvětlení.","paragraphs":[{"style":"example","text":"Člověk se mohl rozhodnout, koho si vezme. To ale neznamenalo, že přestal mít robotní povinnosti."}]},{"heading":"Klementinum: areál, ne jen hvězdárna","icon":"🏛️","sentences":["Klementinum je rozsáhlý historický areál na Starém Městě v Praze.","Počátky jeho budování souvisejí s příchodem jezuitů roku 1556.","Jezuité zde budovali kolej, tedy místo pro studium a vzdělávání.","Hlavní výstavba probíhala v letech 1578 až 1726.","Celý areál tedy nevznikl v jediném roce.","Klementinum je dnes sídlem Národní knihovny České republiky.","Knihovna uchovává a zpřístupňuje knihy a další dokumenty.","Významný Barokní knihovní sál zdobí malby a historické glóby.","Glóbus je kulový model Země nebo oblohy.","Astronomická věž byla dokončena roku 1722.","Josef Stepling se zasloužil o rozvoj zdejší hvězdárny.","Astronomická observatoř slouží k pozorování oblohy a nebeských těles.","V Klementinu začala meteorologická měření roku 1752.","Za počátek dlouhé řady měření se považuje rok 1775.","Podle ČHMÚ je řada zcela bez mezer od roku 1784.","Měření pokračují dodnes a pomáhají poznávat počasí a podnebí."],"explanation":"Areál je soubor budov a prostorů, které patří k sobě. Rok 1556 označuje začátek budování jezuitské koleje, ne dokončení všech budov. Klementinum spojuje uchovávání poznatků v knihách s pozorováním oblohy a počasí. Meteorologie zkoumá počasí; dlouhá řada měření pomáhá sledovat jeho změny.","paragraphs":[{"style":"fun","text":"V Klementinu najdeš i Zrcadlovou kapli a meridiánovou síň. V meridiánové síni se pomocí slunečního světla určovalo pravé poledne."}]},{"heading":"Prokop Diviš a bleskosvod","icon":"⚡","sentences":["Prokop Diviš je český vynálezce spojovaný s bleskosvodem.","Bleskosvod pomáhá chránit před účinky blesku.","Diviš se zabýval přírodními jevy a pokusy s elektřinou."],"explanation":"Prokop Diviš (1698–1765) byl kněz a badatel v oboru elektřiny. Jeho otcem byl Jan Divíšek. V této otázce hledáme českého vynálezce, ne jediného člověka na světě, který se ochranou před bleskem zabýval. Zařízení proti blesku není věc, se kterou by sis měl při bouřce zkoušet hrát."},{"heading":"Ruchadlo a spolupráce bratranců","icon":"🌾","sentences":["Ruchadlo je zdokonalený zemědělský pluh.","Půdu rozrušovalo a obracelo, a tím usnadňovalo orbu.","Vytvořili ho František Veverka a jeho bratranec Václav Veverka z Rybitví.","Byli bratranci, nikoli bratři.","František byl rolník a Václav kovář.","Roku 1827 dokončili pokusy s novou konstrukcí."],"explanation":"František Veverka (1799–1849) byl rolník a syn Václava Veverky. Jeho bratranec Václav Veverka (1796–1849) byl kovář a syn Ignáce, zvaného Hynka. Spojili zkušenosti s půdou a dovednost vyrábět nástroje. Orba připravuje půdu pro pěstování plodin."},{"heading":"Josef Ressel a pohon lodi","icon":"🚢","sentences":["Josef Ressel se proslavil lodním šroubem.","Lodní šroub se otáčí, působí na vodu a pohání loď.","Ressel ho veřejně vyzkoušel na parníku Civetta v Terstu roku 1829.","Loď dosáhla rychlosti šesti uzlů, přibližně jedenácti kilometrů za hodinu.","Pokus přerušila porucha parního zařízení, ne důkaz, že lodní šroub nefungoval."],"explanation":"Josef Ressel (1793–1857) byl lesník a vynálezce. Jeho otcem byl Anton Herrmann Ressel. Parník využívá parní stroj a lodní šroub působí na vodu. Uzel je jednotka rychlosti, ne vzdálenosti. Údaj jedenáct kilometrů za hodinu je zaokrouhlený."},{"heading":"Propoj myšlenky a vynálezy","icon":"🧩","sentences":["Osvícenství zdůrazňovalo poznávání a vzdělávání.","Školské reformy měnily možnosti učení.","Klementinum spojovalo knihy a vědecké pozorování.","Bleskosvod, ruchadlo a lodní šroub řešily různé praktické potřeby: ochranu, práci na poli a dopravu."],"explanation":"Ne všechny události patří do stejného roku ani století. Reformy Marie Terezie a Josefa II. patří do 18. století. Ruchadlo dokončené roku 1827 a zkouška Civetty roku 1829 už patří do 19. století. Důležité je poznat souvislost mezi přemýšlením, zkušeností a zlepšováním života."}],"questions":[{"id":"easy-rozum","difficulty":"easy","type":"trueFalse","prompt":"Osvícenství zdůrazňovalo rozum, vzdělání a vědu.","options":["Pravda","Nepravda"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Tyto hodnoty patřily k hlavním myšlenkám osvícenství."},{"id":"easy-robota","difficulty":"easy","type":"trueFalse","prompt":"Patent o zrušení nevolnictví z roku 1781 zároveň zrušil robotu.","options":["Pravda","Nepravda"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Zrušil osobní omezení, ale robotní povinnosti zůstaly."},{"id":"easy-ruchadlo","difficulty":"easy","type":"trueFalse","prompt":"Ruchadlo pomáhalo při obdělávání půdy.","options":["Pravda","Nepravda"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Byl to zdokonalený pluh, který půdu rozrušoval a obracel."},{"id":"easy-klementinum-rok","difficulty":"easy","type":"trueFalse","prompt":"Všechny budovy Klementina byly dokončeny najednou v roce 1556.","options":["Pravda","Nepravda"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Rok 1556 souvisí s příchodem jezuitů a počátky budování. Areál vznikal postupně."},{"id":"easy-bleskosvod","difficulty":"easy","type":"trueFalse","prompt":"Bleskosvod je zařízení, které pomáhá chránit před účinky blesku.","options":["Pravda","Nepravda"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Jeho účel souvisí s ochranou před bleskem, ne s pohonem nebo orbou."},{"id":"easy-stejne-stoleti","difficulty":"easy","type":"trueFalse","prompt":"Školská reforma z roku 1774 a dokončení ruchadla roku 1827 patří do stejného století.","options":["Pravda","Nepravda"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Rok 1774 je v 18. století, rok 1827 už v 19. století."},{"id":"medium-stoleti","difficulty":"medium","type":"choice","prompt":"Do kterého století patří hlavní rozvoj osvícenství v českých zemích?","options":["Do 15. století","Do 18. století","Do 20. století","Do 12. století"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"V českých zemích spojujeme osvícenství hlavně s 18. stoletím."},{"id":"medium-sankce","difficulty":"medium","type":"choice","prompt":"Co umožňovala pragmatická sankce v habsburských zemích?","options":["Dědění vlády také v ženské linii","Pohon lodí pomocí šroubu","Zrušení všech daní","Povinné pozorování hvězd"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Upravovala nástupnictví a vytvořila právní základ pro vládu Marie Terezie."},{"id":"medium-koruny","difficulty":"medium","type":"choice","prompt":"Které dvě královské korunovace se vztahují k Marii Terezii?","options":["Francouzská a španělská","Anglická a dánská","Česká a uherská","Polská a norská"],"answer":2,"assessment":{"input":"number","exact":{"type":"number","value":"2"}},"explanation":"Marie Terezie byla korunována uherskou a českou královnou."},{"id":"medium-cisarovna","difficulty":"medium","type":"choice","prompt":"Proč se Marii Terezii říkalo také císařovna?","options":["Protože vynalezla bleskosvod","Protože její manžel František Štěpán Lotrinský byl císařem","Protože byla ředitelkou hvězdárny","Protože slovo královna tehdy neexistovalo"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Císařský titul zde souvisí s postavením manželky císaře."},{"id":"medium-vyuka","difficulty":"medium","type":"choice","prompt":"Která skupina obsahuje čtyři základní oblasti tehdejší školní výuky?","options":["Čtení, psaní, počítání a náboženství","Programování, robotika, létání a film","Šerm, plavání, jízda autem a fotografování","Pouze zpěv, tanec, kreslení a vaření"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Školská reforma podporovala základní dovednosti čtení, psaní a počítání i náboženskou výuku."},{"id":"medium-dane","difficulty":"medium","type":"choice","prompt":"K čemu státu slouží vybrané daně?","options":["K měření rychlosti lodí","Jen k určování polohy hvězd","K hrazení jeho výdajů","K obracení půdy pluhem"],"answer":2,"assessment":{"input":"number","exact":{"type":"number","value":"2"}},"explanation":"Daně jsou platby, ze kterých stát hradí výdaje. Marie Terezie zlepšovala jejich výběr."},{"id":"medium-tolerance","difficulty":"medium","type":"choice","prompt":"Které oblasti se týkal toleranční patent?","options":["Zpracování kovu","Náboženského vyznání","Pěstování brambor","Rychlosti lodní dopravy"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Umožnil omezené vyznávání také některých nekatolických náboženství."},{"id":"medium-osobni-svoboda","difficulty":"medium","type":"choice","prompt":"Která změna přímo souvisela se zrušením nevolnictví?","options":["Každý člověk přestal platit všechny daně","Každý poddaný dostal parník","Všechny knihovny se zavřely","Poddaní mohli uzavírat sňatky bez dřívějšího svolení vrchnosti"],"answer":3,"assessment":{"input":"number","exact":{"type":"number","value":"3"}},"explanation":"Patent odstraňoval osobní omezení. Hospodářské povinnosti přitom zůstaly."},{"id":"medium-poddani","difficulty":"medium","type":"choice","prompt":"Jak nejpřesněji popíšeme bývalé nevolníky po roce 1781?","options":["Všichni se stali šlechtici","Zůstali poddanými, ale už nebyli nevolníky","Slovo poddaní se použilo vůbec poprvé","Neměli už žádné povinnosti vůči vrchnosti"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Poddanství a nevolnictví nejsou totéž. Označení poddaní existovalo už dříve."},{"id":"medium-knihovna","difficulty":"medium","type":"choice","prompt":"Která významná instituce dnes sídlí v Klementinu?","options":["Národní knihovna České republiky","Továrna na parníky","Výrobna zemědělských pluhů","Hlavní letiště"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Klementinum je sídlem Národní knihovny, která uchovává a zpřístupňuje knihy a dokumenty."},{"id":"medium-observator","difficulty":"medium","type":"choice","prompt":"Co se zkoumá v astronomické observatoři?","options":["Jen úroda na poli","Pouze způsob vybírání daní","Obloha a nebeská tělesa","Výhradně výroba podkov"],"answer":2,"assessment":{"input":"number","exact":{"type":"number","value":"2"}},"explanation":"Astronomická observatoř je hvězdárna. Pozorování oblohy probíhalo i v Klementinu."},{"id":"medium-globus","difficulty":"medium","type":"choice","prompt":"Co je glóbus, jaký můžeme vidět v Barokním knihovním sále?","options":["Nástroj na kování železa","Kulový model Země nebo oblohy","Jednotka lodní rychlosti","Panovníkův právní předpis"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Glóbus ukazuje Zemi nebo oblohu na kulovém modelu."},{"id":"medium-veverkove-spoluprace","difficulty":"medium","type":"choice","prompt":"Jaké zkušenosti spojili František a Václav Veverkovi při tvorbě ruchadla?","options":["Knihovnictví a námořní plavbu","Lékařství a malování","Rolnictví a kovářství","Pozorování hvězd a výběr daní"],"answer":2,"assessment":{"input":"number","exact":{"type":"number","value":"2"}},"explanation":"František byl rolník, Václav kovář. Spojili znalost práce na poli s opracováním kovu."},{"id":"medium-civetta","difficulty":"medium","type":"choice","prompt":"Na kterém parníku Ressel veřejně zkoušel lodní šroub?","options":["Civetta","Klementinum","Ruchadlo","Pragmatická sankce"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Zkouška proběhla na Civettě v Terstu roku 1829."},{"id":"medium-uzel","difficulty":"medium","type":"choice","prompt":"Co vyjadřuje údaj šest uzlů u Civetty?","options":["Počet členů posádky","Délku lodi šest metrů","Počet lodních šroubů","Rychlost přibližně jedenáct kilometrů za hodinu"],"answer":3,"assessment":{"input":"number","exact":{"type":"number","value":"3"}},"explanation":"Uzel je jednotka rychlosti. Přepočet šesti uzlů na přibližně jedenáct kilometrů za hodinu je zaokrouhlený."},{"id":"hard-karel","difficulty":"hard","type":"text","year":false,"prompt":"Jak se jmenoval otec Marie Terezie? Uveď jméno a panovnické číslo.","acceptedAnswers":["Karel VI.","Karel VI","Karel VI. Habsburský","Karel VI Habsburský","Karel 6","Karel šestý"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Karel VI.","normalization":"czech"},{"type":"string","value":"Karel VI","normalization":"czech"},{"type":"string","value":"Karel VI. Habsburský","normalization":"czech"},{"type":"string","value":"Karel VI Habsburský","normalization":"czech"},{"type":"string","value":"Karel 6","normalization":"czech"},{"type":"string","value":"Karel šestý","normalization":"czech"}]}},"explanation":"Otcem Marie Terezie byl Karel VI. Habsburský. Samotné jméno Karel bez čísla není dostatečně přesné."},{"id":"hard-josef","difficulty":"hard","type":"text","year":false,"prompt":"Který panovník vydal roku 1781 patent o zrušení nevolnictví? Uveď jméno a číslo.","acceptedAnswers":["Josef II.","Josef II","Josef 2","Josef druhý"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Josef II.","normalization":"czech"},{"type":"string","value":"Josef II","normalization":"czech"},{"type":"string","value":"Josef 2","normalization":"czech"},{"type":"string","value":"Josef druhý","normalization":"czech"}]}},"explanation":"Patent vydal Josef II., syn a nástupce Marie Terezie."},{"id":"hard-leopold","difficulty":"hard","type":"text","year":false,"prompt":"Který další syn Marie Terezie vládl po Josefu II.? Uveď jméno a číslo.","acceptedAnswers":["Leopold II.","Leopold II","Leopold 2","Leopold druhý"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Leopold II.","normalization":"czech"},{"type":"string","value":"Leopold II","normalization":"czech"},{"type":"string","value":"Leopold 2","normalization":"czech"},{"type":"string","value":"Leopold druhý","normalization":"czech"}]}},"explanation":"Pořadí bylo Marie Terezie, Josef II. a Leopold II."},{"id":"hard-patent-rok","difficulty":"hard","type":"text","year":true,"prompt":"Ve kterém roce byl vydán patent o zrušení nevolnictví? Napiš přesný rok; odhad 1779–1783 získá polovinu bodů.","acceptedAnswers":["1781"],"assessment":{"input":"number","exact":{"type":"number","value":"1781"},"partial":{"match":{"type":"range","min":"1779","max":"1783","includeMin":true,"includeMax":true},"credit":0.5}},"explanation":"Přesný rok je 1781. Jen výslovně uvedený blízký odhad získá polovinu bodů; přesný rok má plný počet."},{"id":"hard-skola-rok","difficulty":"hard","type":"text","year":true,"prompt":"Ve kterém roce byla vyhlášena školská reforma Marie Terezie?","acceptedAnswers":["1774"],"assessment":{"input":"number","exact":{"type":"number","value":"1774"}},"explanation":"Všeobecný školní řád byl vyhlášen roku 1774."},{"id":"hard-klementinum","difficulty":"hard","type":"text","year":false,"prompt":"Jak se jmenuje pražský areál, kde působila hvězdárna spojená s Josefem Steplingem?","acceptedAnswers":["Klementinum","pražské Klementinum"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Klementinum","normalization":"czech"},{"type":"string","value":"pražské Klementinum","normalization":"czech"}]}},"explanation":"Jde o Klementinum na Starém Městě. Hvězdárna byla částí tohoto rozsáhlého areálu."},{"id":"hard-divis","difficulty":"hard","type":"text","year":false,"prompt":"Který český vynálezce je spojován s bleskosvodem?","acceptedAnswers":["Prokop Diviš","Diviš","Václav Prokop Diviš"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Prokop Diviš","normalization":"czech"},{"type":"string","value":"Diviš","normalization":"czech"},{"type":"string","value":"Václav Prokop Diviš","normalization":"czech"}]}},"explanation":"Českým průkopníkem v této oblasti byl Prokop Diviš."},{"id":"hard-veverkove","difficulty":"hard","type":"text","year":false,"prompt":"Jaké příjmení měli bratranci František a Václav, kteří vytvořili ruchadlo?","acceptedAnswers":["Veverka","Veverkovi","Veverkové","bratranci Veverkovi","bratranci Veverkové","František a Václav Veverkovi","František a Václav Veverkové"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Veverka","normalization":"czech"},{"type":"string","value":"Veverkovi","normalization":"czech"},{"type":"string","value":"Veverkové","normalization":"czech"},{"type":"string","value":"bratranci Veverkovi","normalization":"czech"},{"type":"string","value":"bratranci Veverkové","normalization":"czech"},{"type":"string","value":"František a Václav Veverkovi","normalization":"czech"},{"type":"string","value":"František a Václav Veverkové","normalization":"czech"}]}},"explanation":"Byli to bratranci Veverkovi z Rybitví, nikoli bratři."},{"id":"hard-ressel","difficulty":"hard","type":"text","year":false,"prompt":"Který vynálezce z českých zemí se proslavil lodním šroubem?","acceptedAnswers":["Josef Ressel","Ressel","Josef František Ressel"],"assessment":{"input":"text","exact":{"type":"array","items":[{"type":"string","value":"Josef Ressel","normalization":"czech"},{"type":"string","value":"Ressel","normalization":"czech"},{"type":"string","value":"Josef František Ressel","normalization":"czech"}]}},"explanation":"Josef Ressel veřejně zkoušel lodní šroub na Civettě v Terstu."}],"timeline":[{"chunk":0,"year":1700,"label":"Počátky evropského osvícenství (přibližně)"},{"chunk":1,"year":1740,"label":"Marie Terezie přebírá vládu"},{"chunk":2,"year":1774,"label":"Školská reforma"},{"chunk":4,"year":1780,"label":"Josef II. začíná samostatně vládnout"},{"chunk":5,"year":1781,"label":"Patent o zrušení nevolnictví"},{"chunk":4,"year":1790,"label":"Leopold II. přebírá vládu"},{"chunk":9,"year":1827,"label":"Dokončení ruchadla"},{"chunk":10,"year":1829,"label":"Ressel zkouší lodní šroub na Civettě"}]}</script>
+    <script>'use strict';
+
+const tutorAssessment = (() => {
+    const UNITS = { mm: 1n, cm: 10n, dm: 100n, m: 1000n, km: 1000000n };
+    const WHOLE = '-?(?:0|[1-9][0-9]{0,11})';
+    const DECIMAL = `${WHOLE}(?:[.,][0-9]{1,12})?`;
+    const numericHelp = 'Napiš celé nebo desetinné číslo, zlomek (1/2) či smíšené číslo (1 3/4). Jmenovatel nesmí být nula.';
+    const normalizeAnswer = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase('cs').replace(/y/g, 'i').trim().replace(/\s+/g, ' ');
+    function rational(text) {
+        const [whole, part = ''] = text.replace(',', '.').split('.');
+        return { numerator: BigInt(whole + part), denominator: 10n ** BigInt(part.length) };
+    }
+    function parseNumber(text) {
+        if (new RegExp(`^${DECIMAL}$`).test(text)) return rational(text);
+        const fraction = text.match(new RegExp(`^(${WHOLE})\\s*/\\s*(${WHOLE})$`));
+        if (fraction) {
+            const numerator = BigInt(fraction[1]);
+            const denominator = BigInt(fraction[2]);
+            if (denominator === 0n) return null;
+            return denominator < 0n ? { numerator: -numerator, denominator: -denominator } : { numerator, denominator };
+        }
+        const mixed = text.match(/^(-?)(0|[1-9][0-9]{0,11})\s+([1-9][0-9]{0,11})\s*\/\s*([1-9][0-9]{0,11})$/);
+        if (!mixed) return null;
+        const [, sign, whole, part, denominator] = mixed;
+        if (BigInt(part) >= BigInt(denominator)) return null;
+        return {
+            numerator: (BigInt(whole) * BigInt(denominator) + BigInt(part)) * (sign ? -1n : 1n),
+            denominator: BigInt(denominator)
+        };
+    }
+    const compare = (a, b) => {
+        const difference = a.numerator * b.denominator - b.numerator * a.denominator;
+        return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+    };
+    function parseInput(policy, raw) {
+        if (typeof raw !== 'string') return { error: 'Odpověď musí být text.' };
+        const text = raw.trim();
+        if (!text) return { error: 'Odpověď chybí.' };
+        if (text.length > 80) return { error: 'Odpověď je příliš dlouhá.' };
+        if (policy.input === 'text') return { text };
+        if (policy.input === 'length') {
+            if (new RegExp(`^${DECIMAL}$`).test(text)) return { error: 'Doplň jednotku délky: mm, cm, dm, m nebo km.' };
+            const match = text.match(new RegExp(`^(${DECIMAL})\\s*(mm|cm|dm|m|km)$`));
+            if (!match || match[1].startsWith('-')) return { error: 'Napiš nezápornou délku s jednotkou mm, cm, dm, m nebo km, například 1,5 m.' };
+            const value = rational(match[1]);
+            value.numerator *= UNITS[match[2]];
+            value.denominator *= UNITS[policy.unit];
+            return { text, value };
+        }
+        const formats = {
+            integer: [`^${WHOLE}$`, 'Napiš celé číslo bez jednotky, například -12.'],
+            fraction: [`^(${WHOLE})\\s*/\\s*(${WHOLE})$`, 'Napiš zlomek, například 1/2. Jmenovatel nesmí být nula.'],
+            decimal: [`^${DECIMAL}$`, 'Napiš číslo s jednou desetinnou čárkou nebo tečkou, bez jednotky.'],
+            year: ['^[0-9]{1,4}$', 'Napiš letopočet pomocí jedné až čtyř číslic.']
+        };
+        if (formats[policy.input] && !new RegExp(formats[policy.input][0]).test(text)) {
+            return { error: formats[policy.input][1] };
+        }
+        if (policy.input !== 'number' && !Object.hasOwn(formats, policy.input)) throw new Error(`Unsupported answer input: ${policy.input}`);
+        const value = policy.input === 'year' ? rational(String(Number(text))) : parseNumber(text);
+        return value ? { text, value } : { error: numericHelp };
+    }
+    function matches(matcher, parsed) {
+        switch (matcher.type) {
+            case 'string': {
+                const normalize = matcher.normalization === 'czech' ? normalizeAnswer : text => text.trim().normalize('NFC');
+                return normalize(parsed.text) === normalize(matcher.value);
+            }
+            case 'number': {
+                const actual = parsed.value || parseNumber(parsed.text);
+                return Boolean(actual && compare(actual, parseNumber(matcher.value)) === 0);
+            }
+            case 'range': {
+                const actual = parsed.value || parseNumber(parsed.text);
+                if (!actual) return false;
+                const lower = compare(actual, parseNumber(matcher.min));
+                const upper = compare(actual, parseNumber(matcher.max));
+                return (lower > 0 || (lower === 0 && matcher.includeMin)) &&
+                    (upper < 0 || (upper === 0 && matcher.includeMax));
+            }
+            case 'array':
+                return matcher.items.some(item => matches(item, parsed));
+            default:
+                throw new Error(`Unsupported answer matcher: ${matcher.type}`);
+        }
+    }
+    function evaluate(policy, raw) {
+        const parsed = parseInput(policy, raw);
+        if (parsed.error) return { fraction: 0, correct: false, valid: false, status: 'invalid', message: parsed.error };
+        const fraction = matches(policy.exact, parsed) ? 1 :
+            policy.partial && matches(policy.partial.match, parsed) ? policy.partial.credit : 0;
+        return {
+            fraction, correct: fraction === 1, valid: true,
+            status: fraction === 1 ? 'correct' : fraction > 0 ? 'partial' : 'incorrect',
+            message: fraction === 1 ? 'Správně.' : fraction > 0 ? 'Částečně správně. Získáváš polovinu bodů.' :
+                'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.'
+        };
+    }
+    function legacyMathsPolicy(answer) {
+        if (!['integer', 'fraction', 'decimal', 'length'].includes(answer.format)) throw new Error(`Unsupported maths answer format: ${answer.format}`);
+        return {
+            input: answer.format,
+            ...(answer.format === 'length' ? { unit: answer.unit } : {}),
+            exact: { type: 'number', value: answer.format === 'fraction' ? `${answer.numerator}/${answer.denominator}` : answer.value }
+        };
+    }
+    function legacyHistoryPolicy(question) {
+        if (question.type !== 'text') return { input: 'integer', exact: { type: 'number', value: String(question.answer) } };
+        if (!question.year) return {
+            input: 'text', exact: { type: 'array', items: question.acceptedAnswers.map(value => ({ type: 'string', value, normalization: 'czech' })) }
+        };
+        const year = Number(question.acceptedAnswers[0]);
+        return {
+            input: 'year', exact: { type: 'number', value: String(year) },
+            partial: { credit: .5, match: { type: 'range', min: String(year - 9), max: String(year + 9), includeMin: true, includeMax: true } }
+        };
+    }
+    return { parseNumber, parseInput, compare, evaluate, normalizeAnswer, legacyMathsPolicy, legacyHistoryPolicy };
+})();
+
+if (typeof module !== 'undefined') module.exports = tutorAssessment;
+
+'use strict';
+
+const tutorHighlights = (() => {
+    const colors = ['yellow', 'blue', 'green'];
+    const targets = lesson => {
+        const result = new Map();
+        const add = (key, text) => result.set(key, text);
+        const paragraphs = (item, key) => (item.paragraphs || []).forEach((block, index) =>
+            add(`${key}.paragraphs.${index}.text`, block.text));
+        lesson.original.forEach((section, index) => add(`original.${index}.text`, section.text));
+        (lesson.chunks || []).forEach((chunk, index) => {
+            const key = `chunks.${index}`;
+            add(`${key}.sentences`, chunk.sentences.join(' '));
+            add(`${key}.explanation`, chunk.explanation);
+            paragraphs(chunk, key);
+        });
+        (lesson.examples || []).forEach((example, index) => {
+            const key = `examples.${index}`;
+            ['prompt', 'hint', 'answer'].forEach(field => add(`${key}.${field}`, example[field]));
+            paragraphs(example, key);
+            example.steps.forEach((step, stepIndex) => ['calculation', 'explanation'].forEach(field =>
+                add(`${key}.steps.${stepIndex}.${field}`, step[field])));
+        });
+        (lesson.exercises || []).forEach((exercise, index) => {
+            const key = `exercises.${index}`;
+            ['prompt', 'explanation'].forEach(field => add(`${key}.${field}`, exercise[field]));
+            exercise.steps.forEach((step, stepIndex) => ['prompt', 'hint', 'solution'].forEach(field =>
+                add(`${key}.steps.${stepIndex}.${field}`, step[field])));
+        });
+        return result;
+    };
+    const boundary = (text, index) => index === 0 || index === text.length ||
+        !(/[\uD800-\uDBFF]/.test(text[index - 1]) && /[\uDC00-\uDFFF]/.test(text[index]));
+    const validRange = (range, text, allowRemoval = false) => range && Number.isInteger(range.start) &&
+        Number.isInteger(range.end) && range.start >= 0 && range.end > range.start && range.end <= text.length &&
+        boundary(text, range.start) && boundary(text, range.end) &&
+        (colors.includes(range.color) || (allowRemoval && range.color === null));
+    const replaceRange = (ranges, replacement) => {
+        const next = [];
+        for (const range of ranges) {
+            if (range.end <= replacement.start || range.start >= replacement.end) next.push({ ...range });
+            else {
+                if (range.start < replacement.start) next.push({ ...range, end: replacement.start });
+                if (range.end > replacement.end) next.push({ ...range, start: replacement.end });
+            }
+        }
+        next.push({ ...replacement });
+        next.sort((a, b) => a.start - b.start);
+        return next.reduce((merged, range) => {
+            const last = merged.at(-1);
+            if (last && last.end === range.start && last.color === range.color) last.end = range.end;
+            else merged.push(range);
+            return merged;
+        }, []);
+    };
+    const authored = lesson => {
+        const textTargets = targets(lesson);
+        const ranges = new Map();
+        const errors = [];
+        (lesson.highlights || []).forEach((highlight, index) => {
+            const at = `$.highlights[${index}]`;
+            const text = textTargets.get(highlight.target);
+            if (text === undefined) {
+                errors.push(`${at}.target: expected a supported original or learning text target`);
+                return;
+            }
+            const start = text.indexOf(highlight.quote);
+            const range = { start, end: start + highlight.quote.length, color: highlight.color };
+            if (start < 0 || start !== text.lastIndexOf(highlight.quote) || !validRange(range, text)) {
+                errors.push(`${at}.quote: must match exactly one complete passage in the target text`);
+                return;
+            }
+            const previous = ranges.get(highlight.target) || [];
+            if (previous.some(item => item.start < range.end && item.end > range.start)) {
+                errors.push(`${at}.quote: overlaps another authored highlight`);
+            } else ranges.set(highlight.target, replaceRange(previous, range));
+        });
+        return { ranges, errors };
+    };
+
+    function initialize(lesson, document) {
+        const $ = id => document.getElementById(id);
+        const source = targets(lesson);
+        const defaults = authored(lesson).ranges;
+        const roots = [];
+        const edits = new Map();
+        const tools = $('highlight-tools');
+        const actions = [...tools.querySelectorAll('[data-highlight-action]')];
+        const key = `tutor-highlights:v1:${lesson.subject || 'history'}:${lesson.id}`;
+        let tab = 'original';
+        let pending = [];
+        let storageUsable = true;
+        const warn = (message, error) => {
+            $('highlight-warning').hidden = false;
+            $('highlight-warning').textContent = message;
+            console.warn(message, error);
+        };
+        try {
+            const saved = sessionStorage.getItem(key);
+            if (saved !== null) {
+                const record = JSON.parse(saved);
+                if (!record || record.version !== 1 || !Array.isArray(record.edits)) throw new Error('Invalid highlight record');
+                for (const edit of record.edits) {
+                    const text = source.get(edit.target);
+                    if (text === undefined || edit.text !== text || edits.has(edit.target) || !Array.isArray(edit.ranges) ||
+                        edit.ranges.some((range, index) => !validRange(range, text, true) ||
+                            (index && range.start < edit.ranges[index - 1].end))) throw new Error('Invalid or outdated highlight ranges');
+                    edits.set(edit.target, edit.ranges);
+                }
+            }
+        } catch (error) {
+            edits.clear();
+            storageUsable = false;
+            warn('Uložené zvýraznění nelze načíst. Nové změny zůstanou jen do obnovení stránky; původní uložená data ponecháváme.', error);
+        }
+        const effective = target => {
+            let ranges = defaults.get(target) || [];
+            for (const edit of edits.get(target) || []) ranges = replaceRange(ranges, edit);
+            return ranges.filter(range => range.color !== null);
+        };
+        const paint = entry => {
+            const { root, target, offset } = entry;
+            for (const mark of root.querySelectorAll('mark[data-highlight-color]')) mark.replaceWith(...mark.childNodes);
+            root.normalize();
+            const ranges = effective(target);
+            if (!ranges.length) return;
+            const walker = document.createTreeWalker(root, 4);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            let position = offset;
+            for (const textNode of nodes) {
+                const text = textNode.textContent;
+                const end = position + text.length;
+                const matches = ranges.filter(range => range.start < end && range.end > position);
+                if (matches.length) {
+                    const fragment = document.createDocumentFragment();
+                    let consumed = 0;
+                    for (const range of matches) {
+                        const start = Math.max(0, range.start - position);
+                        const stop = Math.min(text.length, range.end - position);
+                        fragment.append(document.createTextNode(text.slice(consumed, start)));
+                        const mark = document.createElement('mark');
+                        mark.dataset.highlightColor = range.color;
+                        mark.textContent = text.slice(start, stop);
+                        fragment.append(mark);
+                        consumed = stop;
+                    }
+                    fragment.append(document.createTextNode(text.slice(consumed)));
+                    textNode.replaceWith(fragment);
+                }
+                position = end;
+            }
+        };
+        const sync = () => actions.forEach(action => { action.disabled = !pending.length; });
+        const capture = () => {
+            const selection = document.getSelection();
+            if (selection?.isCollapsed && tools.contains(document.activeElement)) return;
+            pending = [];
+            if (selection && !selection.isCollapsed && selection.rangeCount === 1 && tab !== 'quiz') {
+                const range = selection.getRangeAt(0);
+                for (const entry of roots) {
+                    if (entry.root.closest('[role="tabpanel"]').id !== tab || !entry.root.checkVisibility() ||
+                        !range.intersectsNode(entry.root)) continue;
+                    const whole = document.createRange();
+                    whole.selectNodeContents(entry.root);
+                    let start = 0;
+                    let end = entry.root.textContent.length;
+                    const prefix = document.createRange();
+                    prefix.selectNodeContents(entry.root);
+                    if (range.compareBoundaryPoints(0, whole) > 0) {
+                        prefix.setEnd(range.startContainer, range.startOffset);
+                        start = prefix.toString().length;
+                    }
+                    if (range.compareBoundaryPoints(2, whole) < 0) {
+                        prefix.setEnd(range.endContainer, range.endOffset);
+                        end = prefix.toString().length;
+                    }
+                    start += entry.offset;
+                    end += entry.offset;
+                    const text = source.get(entry.target);
+                    if (!boundary(text, start)) start--;
+                    if (!boundary(text, end)) end++;
+                    if (end > start) pending.push({ target: entry.target, start, end });
+                }
+            }
+            sync();
+        };
+        const save = () => {
+            if (!storageUsable) return false;
+            try {
+                sessionStorage.setItem(key, JSON.stringify({ version: 1, edits: [...edits].map(([target, ranges]) =>
+                    ({ target, text: source.get(target), ranges })) }));
+                $('highlight-warning').hidden = true;
+                return true;
+            } catch (error) {
+                warn('Zvýraznění se nepodařilo uložit. Tato změna zůstane jen do obnovení stránky.', error);
+                return false;
+            }
+        };
+        for (const action of actions) {
+            action.addEventListener('pointerdown', event => event.preventDefault());
+            action.addEventListener('click', () => {
+                if (!pending.length) return;
+                const color = action.dataset.highlightAction === 'remove' ? null : action.dataset.highlightAction;
+                const changed = new Set();
+                for (const range of pending) {
+                    edits.set(range.target, replaceRange(edits.get(range.target) || [], { start: range.start, end: range.end, color }));
+                    changed.add(range.target);
+                }
+                for (const entry of roots) if (changed.has(entry.target)) paint(entry);
+                pending = [];
+                document.getSelection().removeAllRanges();
+                sync();
+                const saved = save();
+                $('highlight-status').textContent = `${color === null ? 'Zvýraznění odstraněno.' : 'Text zvýrazněn.'} ${saved
+                    ? 'Uloženo v této kartě prohlížeče.' : 'Změna není uložená pro obnovení stránky.'}`;
+                tools.querySelector('summary').focus({ preventScroll: true });
+            });
+        }
+        document.addEventListener('selectionchange', capture);
+        document.addEventListener('pointerup', () => {
+            capture();
+            if (pending.length) tools.open = true;
+        });
+        document.addEventListener('keydown', event => {
+            if (event.altKey && event.code === 'KeyH' && tab !== 'quiz') {
+                event.preventDefault();
+                capture();
+                tools.open = true;
+                (actions.find(action => !action.disabled) || tools.querySelector('summary')).focus();
+            } else if (event.key === 'Escape' && tools.open) {
+                tools.open = false;
+                if (tools.contains(document.activeElement)) tools.querySelector('summary').focus();
+            }
+        });
+        document.addEventListener('pointerdown', event => {
+            if (!tools.contains(event.target)) {
+                tools.open = false;
+                pending = [];
+                sync();
+            }
+        });
+        sync();
+        return {
+            register(root, target, offset = 0) {
+                root.dataset.highlightTarget = target;
+                const entry = { root, target, offset };
+                roots.push(entry);
+                paint(entry);
+            },
+            setTab(name) {
+                tab = name;
+                tools.hidden = name === 'quiz';
+                tools.open = false;
+                pending = [];
+                sync();
+            }
+        };
+    }
+    return { colors, targets, authored, boundary, validRange, replaceRange, initialize };
+})();
+
+if (typeof module !== 'undefined' && module.exports) module.exports = tutorHighlights;
+
+'use strict';
+
+function initializeLearning(lesson, document) {
+    const $ = id => document.getElementById(id);
+    const node = (tag, text, className) => {
+        const element = document.createElement(tag);
+        if (text !== undefined) element.textContent = text;
+        if (className) element.className = className;
+        return element;
+    };
+    const cards = [...$('learning-content').querySelectorAll('[data-learning-card]')];
+    const explored = new Set();
+    const segments = [];
+    const controls = [];
+    const timelineNodes = [];
+    let timeline;
+    let activeCardId;
+    let selectedTimelineRow;
+    const sync = () => {
+        cards.forEach((card, index) => {
+            const complete = explored.has(card.id);
+            card.dataset.explored = String(complete);
+            segments[index].dataset.explored = String(complete);
+            segments[index].setAttribute('aria-label', `${card.querySelector('h2').textContent}: ${complete ? 'prozkoumáno' : 'neprozkoumáno'}`);
+            controls[index].checked = complete;
+        });
+        $('learning-counter').textContent = `${explored.size}/${cards.length} Prozkoumáno`;
+        $('learning-counter').setAttribute('aria-valuenow', String(explored.size));
+        $('learning-counter').setAttribute('aria-valuetext', $('learning-counter').textContent);
+        const fraction = cards.length ? explored.size / cards.length : 0;
+        $('learning-segments').style.setProperty('--completion-intensity', `${30 + 70 * fraction}%`);
+    };
+    $('learning-counter').setAttribute('aria-valuemax', String(cards.length));
+    cards.forEach(card => {
+        card.tabIndex = -1;
+        const footer = node('div', undefined, 'learning-card-footer');
+        const hints = [...card.children].filter(child => child.classList.contains('hint'));
+        if (hints.length === 1) {
+            const prompt = hints[0].querySelector('.hint-prompt');
+            hints[0].before(prompt);
+            card.append(hints[0]);
+            footer.append(hints[0].querySelector('.hint-toggle'));
+        }
+        const control = node('input');
+        control.type = 'checkbox';
+        control.setAttribute('aria-label', `Prozkoumáno: ${card.querySelector('h2').textContent}`);
+        control.addEventListener('change', () => {
+            if (control.checked) explored.add(card.id);
+            else explored.delete(card.id);
+            sync();
+        });
+        const label = node('label', undefined, 'explored-control');
+        label.append(control, node('span', 'Prozkoumáno'));
+        footer.append(label);
+        card.append(footer);
+        controls.push(control);
+        const segment = node('button', undefined, 'learning-segment');
+        segment.type = 'button';
+        segment.setAttribute('aria-controls', card.id);
+        segment.setAttribute('title', card.querySelector('h2').textContent);
+        segment.addEventListener('click', () => focusCard(card));
+        $('learning-segments').append(segment);
+        segments.push(segment);
+    });
+    sync();
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const offset = () => {
+        const top = $('page-header').getBoundingClientRect().height + 16;
+        $('learning').style.setProperty('--learning-offset', `${top}px`);
+        return top;
+    };
+    const focusCard = (card, row) => {
+        selectedTimelineRow = row;
+        card.style.scrollMarginTop = `${offset()}px`;
+        card.focus({ preventScroll: true });
+        card.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+        setActive(card.id, row);
+    };
+    if (lesson.timeline?.length) {
+        $('learning').classList.add('has-timeline');
+        const aside = node('aside', undefined, 'learning-timeline');
+        aside.setAttribute('aria-label', 'Časová osa');
+        const details = node('details');
+        details.id = 'timeline-details';
+        const summary = node('summary');
+        summary.setAttribute('aria-label', 'Časová osa');
+        summary.setAttribute('aria-controls', 'timeline-track');
+        summary.setAttribute('title', 'Rozbalit nebo sbalit časovou osu');
+        summary.append(node('span', 'Časová osa', 'timeline-title'));
+        details.append(summary);
+        const track = node('nav', undefined, 'timeline-track');
+        track.id = 'timeline-track';
+        track.setAttribute('aria-label', 'Časová osa');
+        const years = [...new Set(lesson.timeline.flatMap(event =>
+            [event.year, ...(event.lifespan ? [event.lifespan.birth, event.lifespan.death] : [])]))].sort((a, b) => a - b);
+        const rows = new Map();
+        years.forEach((year, index) => {
+            const row = node('div', undefined, 'timeline-year');
+            row.style.gridRow = String(index + 1);
+            row.dataset.year = String(year);
+            row.append(node('span', String(year), 'timeline-date'));
+            track.append(row);
+            rows.set(year, row);
+        });
+        lesson.timeline.forEach(event => {
+            const card = $(`learning-chunk-${event.chunk}`);
+            const control = node('button', event.label, 'timeline-node');
+            control.type = 'button';
+            const label = `${event.year}: ${event.label}${event.lifespan ? `; život: ${event.lifespan.birth}–${event.lifespan.death}` : ''}`;
+            control.setAttribute('aria-label', label);
+            control.setAttribute('title', label);
+            control.setAttribute('aria-controls', card.id);
+            control.addEventListener('click', () => focusCard(card, control.parentElement));
+            rows.get(event.year).append(control);
+            timelineNodes.push({ card, control });
+        });
+        rows.forEach((row, year) => {
+            const entries = timelineNodes.filter(({ control }) => control.parentElement === row);
+            if (!entries.length) return;
+            const yearControl = node('button', String(year), 'timeline-date timeline-year-link');
+            yearControl.type = 'button';
+            const label = entries.map(({ control }) => control.getAttribute('aria-label')).join('; ');
+            yearControl.setAttribute('aria-label', label);
+            yearControl.setAttribute('title', label);
+            yearControl.addEventListener('click', () => {
+                if (entries.length === 1) entries[0].control.click();
+                else {
+                    details.open = true;
+                    entries[0].control.focus({ preventScroll: true });
+                }
+            });
+            row.append(yearControl);
+        });
+        aside.append(details, track);
+        $('learning').append(aside);
+        const mobile = matchMedia('(max-width: 760px)');
+        timeline = { aside, track, mobile };
+        details.open = !mobile.matches;
+        mobile.addEventListener('change', event => { details.open = !event.matches; });
+        details.addEventListener('toggle', () => {
+            if (activeCardId) setActive(activeCardId, document.activeElement?.closest('.timeline-year'), true);
+        });
+    }
+    function setActive(id, preferredRow, force = false) {
+        const changed = activeCardId !== id;
+        activeCardId = id;
+        segments.forEach((segment, index) => {
+            if (cards[index].id === id) segment.setAttribute('aria-current', 'step');
+            else segment.removeAttribute('aria-current');
+        });
+        timelineNodes.forEach(({ card, control }) => {
+            const active = card.id === id;
+            if (active) control.setAttribute('aria-current', 'step');
+            else control.removeAttribute('aria-current');
+            card.dataset.timelineActive = String(active);
+        });
+        if (!changed && !preferredRow && !force) return;
+        const segment = segments[cards.findIndex(card => card.id === id)];
+        if (segment?.checkVisibility()) {
+            const bar = $('learning-segments');
+            const bounds = segment.getBoundingClientRect();
+            const left = bar.getBoundingClientRect().left;
+            const right = left + bar.clientWidth;
+            const delta = bounds.left < left ? bounds.left - left : bounds.right > right ? bounds.right - right : 0;
+            if (delta) bar.scrollBy({ left: delta, behavior: 'instant' });
+        }
+        if (!timeline?.track.checkVisibility()) return;
+        const selectedRow = preferredRow || (timelineNodes.some(entry =>
+            entry.card.id === id && entry.control.parentElement === selectedTimelineRow) ? selectedTimelineRow : undefined);
+        const rows = selectedRow ? [selectedRow] :
+            [...new Set(timelineNodes.filter(entry => entry.card.id === id).map(entry => entry.control.parentElement))];
+        if (!rows.length) return;
+        const scroller = timeline.mobile.matches ? timeline.track : timeline.aside;
+        const scrollerTop = scroller.getBoundingClientRect().top + scroller.clientTop;
+        const viewTop = scrollerTop + (timeline.mobile.matches ? 0 : $('timeline-details').getBoundingClientRect().height);
+        const viewBottom = scrollerTop + scroller.clientHeight;
+        const bounds = rows.map(row => row.getBoundingClientRect());
+        let top = Math.min(...bounds.map(row => row.top));
+        let bottom = Math.max(...bounds.map(row => row.bottom));
+        if (bottom - top > viewBottom - viewTop) {
+            top = bounds[0].top;
+            bottom = bounds[0].bottom;
+        }
+        const delta = top < viewTop ? top - viewTop : bottom > viewBottom ? bottom - viewBottom : 0;
+        if (delta) scroller.scrollBy({ top: delta < 0 ? Math.floor(delta) : Math.ceil(delta), behavior: 'instant' });
+    }
+    const onScroll = (force = false) => {
+        if ($('learning').hidden || !cards.length) return;
+        const top = offset();
+        setActive((cards.find(card => card.getBoundingClientRect().bottom > top) || cards.at(-1)).id, undefined, force);
+    };
+    document.addEventListener('scroll', () => onScroll(), { passive: true });
+    window.addEventListener('resize', () => onScroll(true));
+    return { setTab(name) {
+        $('learning-progress').hidden = name !== 'learning';
+        if (name === 'learning') onScroll(true);
+    } };
+}
+
+'use strict';
+
+const tutorQuiz = {
+    MODES: { easy: [1, 1, 1], medium: [1, 2, 2], hard: [2, 5, 3] },
+    POINTS: { easy: 10, medium: 20, hard: 30 },
+    shuffle(items, random = Math.random) {
+        const result = [...items];
+        for (let index = result.length - 1; index > 0; index--) {
+            const other = Math.floor(random() * (index + 1));
+            [result[index], result[other]] = [result[other], result[index]];
+        }
+        return result;
+    },
+    grade(total, maximum) {
+        return total >= maximum * 80 / 100 ? 1 : total >= maximum * 60 / 100 ? 2 :
+            total >= maximum * 40 / 100 ? 3 : total >= maximum * 20 / 100 ? 4 : 5;
+    },
+    formatDuration(milliseconds) {
+        if (milliseconds < 1000) return 'méně než 1 s';
+        const seconds = Math.round(milliseconds / 1000);
+        return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
+    }
+};
+
+if (typeof module !== 'undefined') module.exports = tutorQuiz;
+
+function initializeTutor(lesson, subject) {
+    const context = {
+        ...initializeTutorLearning(lesson, subject),
+        points: value => String(value).replace('.', ',')
+    };
+    let quiz;
+    // Register navigation before quiz setup; handlers resolve the controller on interaction.
+    initializeTutorNavigation(context, {
+        isActive: () => quiz.isActive(),
+        pauseAnswerClock: () => quiz.pauseAnswerClock(),
+        resumeAnswerClock: () => quiz.resumeAnswerClock(),
+        abandonQuiz: () => quiz.abandonQuiz()
+    });
+    quiz = initializeTutorQuiz(lesson, subject, context);
+}
+
+'use strict';
+
+function initializeTutorLearning(lesson, subject) {
+    const $ = id => document.getElementById(id);
+    const node = (tag, text, className) => {
+        const element = document.createElement(tag);
+        if (text !== undefined) element.textContent = text;
+        if (className) element.className = className;
+        return element;
+    };
+    const button = (text, action, className) => {
+        const element = node('button', text, className);
+        element.type = 'button';
+        element.addEventListener('click', action);
+        return element;
+    };
+    const disclose = (label, ...content) => {
+        const details = node('details');
+        details.append(node('summary', label), ...content);
+        return details;
+    };
+    const iconNode = icon => {
+        const element = node('span', icon, 'card-icon');
+        element.setAttribute('aria-hidden', 'true');
+        return element;
+    };
+    const highlighting = tutorHighlights.initialize(lesson, document);
+    const hints = [];
+    const hint = (text, explanation, tag = 'p', targets = {}) => {
+        const block = node('div', undefined, 'hint');
+        const prompt = paragraph(text, tag, { target: targets.prompt, prefix: targets.prefix });
+        prompt.className = 'hint-prompt';
+        const content = paragraph(explanation, 'p', { target: targets.explanation });
+        content.className = 'hint-content';
+        content.id = `hint-content-${hints.length + 1}`;
+        const drawer = node('div', undefined, 'hint-drawer');
+        drawer.append(content);
+        let animation;
+        const setOpen = (expanded, animate = true) => {
+            const from = drawer.getBoundingClientRect().height;
+            animation?.cancel();
+            trigger.setAttribute('aria-expanded', String(expanded));
+            drawer.inert = !expanded;
+            content.hidden = false;
+            drawer.hidden = false;
+            const finish = () => {
+                content.hidden = !expanded;
+                drawer.hidden = !expanded;
+                animation = undefined;
+            };
+            if (!animate || !drawer.checkVisibility() || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                finish();
+                return;
+            }
+            const current = drawer.animate([
+                { height: `${from}px`, opacity: expanded ? .4 : 1 },
+                { height: `${expanded ? drawer.getBoundingClientRect().height : 0}px`, opacity: expanded ? 1 : 0 }
+            ], { duration: 220, easing: 'ease-out' });
+            animation = current;
+            current.finished.then(() => {
+                if (animation === current) finish();
+            }).catch(error => {
+                if (error.name !== 'AbortError') console.error('Animaci nápovědy se nepodařilo dokončit.', error);
+            });
+        };
+        const trigger = button('', () => {
+            setOpen(trigger.getAttribute('aria-expanded') !== 'true');
+            syncLearningControls();
+        }, 'hint-toggle');
+        trigger.append(iconNode('💡'), document.createTextNode(' '), node('span', 'Nápověda'));
+        trigger.setAttribute('aria-controls', content.id);
+        block.append(prompt, trigger, drawer);
+        setOpen(false, false);
+        hints.push({ content, setOpen, get open() { return trigger.getAttribute('aria-expanded') === 'true'; } });
+        return block;
+    };
+    const heading = (text, icon, fallback) => {
+        const element = node('h2');
+        element.append(iconNode(icon || fallback), node('span', text, 'heading-text'));
+        return element;
+    };
+    const focusContent = element => {
+        element.focus({ preventScroll: true });
+        const top = $('page-header').getBoundingClientRect().bottom + 16;
+        const bounds = element.getBoundingClientRect();
+        if (bounds.top < top || bounds.bottom > innerHeight) {
+            element.style.scrollMarginTop = `${top}px`;
+            element.scrollIntoView({ block: 'start' });
+        }
+    };
+    let definitionTrigger = null;
+    const positionDefinition = () => {
+        if (!definitionTrigger || !$('definition').matches(':popover-open')) return;
+        const anchor = definitionTrigger.getBoundingClientRect();
+        const panel = $('definition');
+        const bounds = panel.getBoundingClientRect();
+        const gap = 12;
+        const top = anchor.bottom + gap + bounds.height <= innerHeight
+            ? anchor.bottom + gap : anchor.top - gap - bounds.height;
+        panel.style.left = `${Math.max(gap, Math.min(anchor.left, innerWidth - bounds.width - gap))}px`;
+        panel.style.top = `${Math.max(gap, Math.min(top, innerHeight - bounds.height - gap))}px`;
+    };
+    const closeDefinition = (restoreFocus = false) => {
+        const trigger = definitionTrigger;
+        $('definition').hidePopover();
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        definitionTrigger = null;
+        if (restoreFocus && trigger) trigger.focus({ preventScroll: true });
+    };
+    const definition = (trigger, title, text, icon = '📖') => {
+        if (definitionTrigger === trigger && $('definition').matches(':popover-open')) {
+            closeDefinition(true);
+            return;
+        }
+        if (definitionTrigger) definitionTrigger.setAttribute('aria-expanded', 'false');
+        definitionTrigger = trigger;
+        trigger.setAttribute('aria-controls', 'definition');
+        trigger.setAttribute('aria-expanded', 'true');
+        $('definition-title').replaceChildren(iconNode(icon), node('span', title));
+        $('definition-text').textContent = text;
+        $('definition').showPopover();
+        positionDefinition();
+        $('definition-close').focus({ preventScroll: true });
+    };
+    const definitionButton = (label, title, text, className, icon) => {
+        const trigger = button(label, () => definition(trigger, title, text, icon), className);
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.setAttribute('aria-controls', 'definition');
+        trigger.setAttribute('aria-expanded', 'false');
+        return trigger;
+    };
+    $('definition-close').addEventListener('click', () => closeDefinition(true));
+    $('definition').addEventListener('toggle', event => {
+        if (event.newState === 'closed' && definitionTrigger) {
+            const restoreFocus = $('definition').contains(document.activeElement) || document.activeElement === document.body;
+            closeDefinition(restoreFocus);
+        }
+    });
+    const closeGlossary = (restoreFocus = true) => {
+        closeDefinition();
+        $('glossary-drawer').hidePopover();
+        $('glossary-toggle').setAttribute('aria-expanded', 'false');
+        if (restoreFocus && !$('glossary-toggle').hidden) $('glossary-toggle').focus({ preventScroll: true });
+    };
+    $('glossary-toggle').addEventListener('click', () => {
+        if ($('glossary-drawer').matches(':popover-open')) {
+            closeGlossary();
+            return;
+        }
+        closeDefinition();
+        $('glossary-drawer').showPopover();
+        $('glossary-toggle').setAttribute('aria-expanded', 'true');
+        $('glossary-close').focus({ preventScroll: true });
+    });
+    $('glossary-close').addEventListener('click', () => closeGlossary());
+    const closeQuizTools = (restoreFocus = false) => {
+        if (!$('quiz-tools').open) return;
+        $('quiz-tools').open = false;
+        if (restoreFocus) $('quiz-tools').querySelector('summary').focus({ preventScroll: true });
+    };
+    const dismissGlossaryOutside = event => {
+        if ($('glossary-drawer').matches(':popover-open') &&
+            !$('glossary-drawer').contains(event.target) &&
+            !$('definition').contains(event.target) &&
+            !$('glossary-toggle').contains(event.target)) closeGlossary(false);
+    };
+    document.addEventListener('pointerdown', dismissGlossaryOutside);
+    document.addEventListener('focusin', dismissGlossaryOutside);
+    const dismissQuizToolsOutside = event => {
+        if (!$('quiz-tools').contains(event.target)) closeQuizTools();
+    };
+    document.addEventListener('pointerdown', dismissQuizToolsOutside);
+    document.addEventListener('focusin', dismissQuizToolsOutside);
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && $('definition').matches(':popover-open')) {
+            event.preventDefault();
+            closeDefinition(true);
+        } else if (event.key === 'Escape' && $('glossary-drawer').matches(':popover-open')) {
+            event.preventDefault();
+            closeGlossary();
+        } else if (event.key === 'Escape' && $('quiz-tools').open) {
+            event.preventDefault();
+            closeQuizTools(true);
+        }
+    });
+    window.addEventListener('resize', positionDefinition);
+    document.addEventListener('scroll', positionDefinition, true);
+    const forms = new Map();
+    lesson.glossary.forEach(entry => [entry.term, ...entry.forms].forEach(form => forms.set(form.toLocaleLowerCase('cs'), entry)));
+    const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(${[...forms.keys()].sort((a, b) => b.length - a.length).map(escapeRegex).join('|')})(?![\\p{L}\\p{N}])`, 'giu');
+    const paragraph = (text, tag = 'p', highlight = {}) => {
+        const element = node(tag);
+        const prefix = highlight.prefix || 0;
+        if (prefix) element.append(document.createTextNode(text.slice(0, prefix)));
+        text = text.slice(prefix);
+        const container = highlight.target ? node('span', undefined, 'highlight-text') : element;
+        let offset = 0;
+        for (const match of text.matchAll(pattern)) {
+            container.append(document.createTextNode(text.slice(offset, match.index)));
+            const entry = forms.get(match[0].toLocaleLowerCase('cs'));
+            container.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
+            offset = match.index + match[0].length;
+        }
+        container.append(document.createTextNode(text.slice(offset)));
+        if (highlight.target) {
+            element.append(container);
+            highlighting.register(container, highlight.target);
+        }
+        return element;
+    };
+    const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor',
+        comment: 'Komentář', fun: 'Zajímavost', quote: 'Citace' };
+    const styleParagraph = (element, style = 'plain', labelled = true) => {
+        if (style !== 'plain') {
+            element.className = `${element.className || ''} callout callout-${style}`.trim();
+            if (labelled) element.prepend(node('strong', `${styles[style]}: `, 'callout-label'));
+            else element.setAttribute('aria-label', styles[style]);
+        }
+        return element;
+    };
+    const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
+        styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
+            { target: target ? `${target}.${index}.text` : undefined }), block.style));
+    const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading };
+    $('topic').textContent = lesson.topic;
+    $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
+    lesson.original.forEach((section, index) => {
+        const article = node('article', undefined, 'card');
+        article.append(heading(section.heading, section.icon, '📄'));
+        const text = node('div', undefined, 'original-text');
+        const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
+            .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
+        let paragraphOffset = 0;
+        (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
+            if (blockIndex) text.append(document.createTextNode('\n\n'));
+            const content = node(block.style === 'quote' ? 'blockquote' : 'p');
+            const source = node('span', undefined, 'highlight-text');
+            let offset = 0;
+            for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
+                const start = block.text.indexOf(correction.quote);
+                source.append(document.createTextNode(block.text.slice(offset, start)));
+                const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
+                mark.title = correction.explanation;
+                source.append(mark);
+                offset = start + correction.quote.length;
+            }
+            source.append(document.createTextNode(block.text.slice(offset)));
+            content.append(source);
+            highlighting.register(source, `original.${index}.text`, paragraphOffset);
+            paragraphOffset += block.text.length + 2;
+            text.append(styleParagraph(content, block.style, false));
+        });
+        styleParagraph(article, section.style);
+        article.append(text);
+        $('original-content').append(article);
+    });
+    subject.renderLearning(context, lesson);
+    const learning = initializeLearning(lesson, document);
+    const learningDetails = [...$('learning-content').querySelectorAll('details')];
+    const syncLearningControls = () => {
+        $('expand-learning').disabled = learningDetails.every(details => details.open) && hints.every(hint => hint.open);
+        $('collapse-learning').disabled = learningDetails.every(details => !details.open) && hints.every(hint => !hint.open);
+    };
+    const setLearningOpen = open => {
+        learningDetails.forEach(details => { details.open = open; });
+        hints.forEach(hint => hint.setOpen(open));
+        syncLearningControls();
+    };
+    $('expand-learning').addEventListener('click', () => setLearningOpen(true));
+    $('collapse-learning').addEventListener('click', () => setLearningOpen(false));
+    $('learning-content').addEventListener('toggle', syncLearningControls, true);
+    syncLearningControls();
+    lesson.glossary.forEach(entry => {
+        const trigger = definitionButton(entry.term, entry.term, entry.definition, undefined, entry.icon);
+        trigger.prepend(iconNode(entry.icon || '📖'));
+        $('glossary').append(trigger);
+    });
+    return { ...context, focusContent, closeGlossary, closeQuizTools, highlighting, learning,
+        finishLearningAnimations: () => hints.forEach(hint => hint.setOpen(hint.open, false)) };
+}
+
+'use strict';
+
+function initializeTutorNavigation(context, quiz) {
+    const { $, closeGlossary, closeQuizTools, highlighting, learning, finishLearningAnimations } = context;
+    const { pauseAnswerClock, resumeAnswerClock, abandonQuiz } = quiz;
+    const tabs = [...document.querySelectorAll('[data-tab]')];
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let requestedTab = tabs[0];
+    let pendingTab = null;
+    let tabTransition;
+    let tabEntrance;
+    reducedMotion.addEventListener('change', event => {
+        if (event.matches) {
+            tabTransition?.skipTransition();
+            tabEntrance?.cancel();
+            finishLearningAnimations();
+        }
+    });
+    const activateTab = tab => {
+        if (tab === requestedTab) return true;
+        if (quiz.isActive()) {
+            if ($('quiz-leave-dialog').open) return false;
+            pauseAnswerClock();
+            closeGlossary(false);
+            closeQuizTools();
+            pendingTab = tab;
+            $('quiz-leave-dialog').showModal();
+            $('quiz-stay').focus({ preventScroll: true });
+            return false;
+        }
+        requestedTab = tab;
+        tabTransition?.skipTransition();
+        tabEntrance?.cancel();
+        const update = () => {
+            if (tab !== requestedTab) return;
+            closeGlossary(false);
+            $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
+            $('learning-controls').hidden = tab.dataset.tab !== 'learning';
+            $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
+            highlighting.setTab(tab.dataset.tab);
+            learning.setTab(tab.dataset.tab);
+            if ($('quiz-tools').hidden) $('quiz-tools').open = false;
+            pauseAnswerClock();
+            tabs.forEach(other => {
+                const active = other === tab;
+                other.setAttribute('aria-selected', String(active));
+                other.tabIndex = active ? 0 : -1;
+                $(other.dataset.tab).hidden = !active;
+            });
+            resumeAnswerClock();
+        };
+        if (typeof document.startViewTransition === 'function' && !reducedMotion.matches) {
+            tabTransition = document.startViewTransition(update);
+            tabTransition.ready.catch(error => {
+                if (error.name !== 'AbortError') console.error('Animaci přepnutí záložky se nepodařilo spustit.', error);
+            });
+        } else {
+            update();
+            const panel = $(tab.dataset.tab);
+            if (!reducedMotion.matches && typeof panel.animate === 'function') {
+                tabEntrance = panel.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+                    { duration: 300, easing: 'ease-out' });
+            }
+        }
+        return true;
+    };
+    const stayInQuiz = () => {
+        if (!pendingTab) return;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        resumeAnswerClock();
+        requestedTab.focus({ preventScroll: true });
+    };
+    $('quiz-stay').addEventListener('click', stayInQuiz);
+    $('quiz-leave-dialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        stayInQuiz();
+    });
+    $('quiz-leave').addEventListener('click', () => {
+        if (!pendingTab) return;
+        const tab = pendingTab;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        abandonQuiz();
+        if (activateTab(tab)) tab.focus({ preventScroll: true });
+    });
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activateTab(tab));
+        tab.addEventListener('keydown', event => {
+            if (event.altKey || event.ctrlKey || event.metaKey) return;
+            const target = {
+                ArrowRight: (index + 1) % tabs.length,
+                ArrowLeft: (index + tabs.length - 1) % tabs.length,
+                Home: 0,
+                End: tabs.length - 1
+            }[event.key];
+            if (target === undefined) return;
+            event.preventDefault();
+            if (activateTab(tabs[target])) tabs[target].focus();
+        });
+    });
+    const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+    const isDark = () => document.documentElement.dataset.theme === 'dark' ||
+        (!document.documentElement.dataset.theme && systemTheme.matches);
+    const syncTheme = () => $('theme').setAttribute('aria-checked', String(isDark()));
+    syncTheme();
+    systemTheme.addEventListener('change', syncTheme);
+    $('theme').addEventListener('click', () => {
+        document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+        syncTheme();
+    });
+}
+
+'use strict';
+
+function initializeTutorResults(lesson, subject, context) {
+    const { $, node, points } = context;
+    const storageKey = `${subject.storagePrefix}:${lesson.id}`;
+    let records = [];
+    let storageReadable = true;
+    let currentRunId = null;
+    const warnStorage = message => {
+        $('storage-warning').hidden = false;
+        $('storage-warning').textContent = message;
+    };
+    try {
+        const stored = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+        if (!Array.isArray(stored) || stored.some(row =>
+            !row || typeof row.id !== 'string' || typeof row.name !== 'string' ||
+            (row.name.match(/\p{L}/gu) || []).length < 3 || row.name.length > 60 ||
+            typeof row.time !== 'string' || !subject.validRecord(row) ||
+            (row.answerDurationMs !== undefined && (!Number.isSafeInteger(row.answerDurationMs) || row.answerDurationMs < 0)))) {
+            throw new Error('Invalid tutor session results');
+        }
+        records = stored;
+    } catch (error) {
+        storageReadable = false;
+        console.warn('Tutor: cannot read session results.', error);
+        warnStorage('Uložené výsledky nelze načíst. Nové výsledky zůstanou jen v této stránce; původní úložiště nepřepíšeme.');
+    }
+    function renderLeaderboard() {
+        const container = $('leaderboard-content');
+        container.replaceChildren();
+        if (!records.length) {
+            container.append(node('p', 'Zatím žádné výsledky.'));
+            return;
+        }
+        const table = node('table');
+        table.append(node('caption', 'Pořadí pokusů v této relaci. Doba odpovídání nezahrnuje čtení zpětné vazby. Starší pokusy ji nemají zaznamenanou.'));
+        const head = node('thead');
+        const labels = node('tr');
+        ['Pořadí', 'Hráč', 'Kdy', 'Doba odpovídání', 'Obtížnost', 'Body', 'Známka'].forEach(label => {
+            const cell = node('th', label);
+            cell.scope = 'col';
+            labels.append(cell);
+        });
+        head.append(labels);
+        const body = node('tbody');
+        [...records].sort(subject.compareResults).forEach((record, index) => {
+            const row = node('tr');
+            if (record.id === currentRunId) {
+                row.className = 'current';
+                row.setAttribute('aria-current', 'true');
+                $('leaderboard-rank').textContent = `Tvůj poslední pokus: ${index + 1}. místo z ${records.length} pokusů v této relaci.`;
+                $('leaderboard-rank').hidden = false;
+            }
+            [`${index + 1}.`, record.name, record.time,
+                record.answerDurationMs === undefined ? 'Nezaznamenáno' : tutorQuiz.formatDuration(record.answerDurationMs),
+                { easy: 'Lehká', medium: 'Střední', hard: 'Těžká' }[record.mode], `${points(record.total)} b`, String(record.grade)]
+                .forEach(value => row.append(node('td', value)));
+            body.append(row);
+        });
+        table.append(head, body);
+        container.append(table);
+    }
+    function save(name, mode, result, answerDurationMs) {
+        currentRunId = crypto.randomUUID();
+        records.push({
+            id: currentRunId, name, mode, total: result.total, grade: result.grade,
+            time: new Date().toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' }),
+            answerDurationMs,
+            ...(subject.speedBonus ? { duration: Math.round(answerDurationMs / 1000) } : { maximum: result.maximum })
+        });
+        if (storageReadable) {
+            try {
+                sessionStorage.setItem(storageKey, JSON.stringify(records));
+                $('storage-warning').hidden = true;
+                $('storage-warning').textContent = '';
+            } catch (error) {
+                console.warn('Tutor: cannot save session results.', error);
+                warnStorage('Výsledky se nepodařilo uložit. Nové výsledky jsou vidět jen do obnovení této stránky.');
+            }
+        }
+        renderLeaderboard();
+    }
+    return { save, renderLeaderboard };
+}
+
+'use strict';
+
+function initializeTutorQuiz(lesson, subject, context) {
+    const { $, node, button, points, focusContent, closeQuizTools } = context;
+    subject.rules.forEach(rule => $('scoring').append(node('li', rule)));
+    $('answer-help').textContent = subject.answerHelp || '';
+    $('answer-help').hidden = !subject.answerHelp;
+    $('quiz-export').addEventListener('click', () => {
+        $('export-error').hidden = true;
+        let url;
+        let link;
+        try {
+            const json = JSON.stringify(lesson, null, 2) + '\n';
+            url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
+            link = node('a');
+            link.href = url;
+            link.download = `${lesson.id}-lekce.json`;
+            document.body.append(link);
+            link.click();
+            closeQuizTools(true);
+        } catch (error) {
+            console.error('Tutor: cannot export lesson.', error);
+            $('export-error').textContent = 'JSON se nepodařilo stáhnout. Zkus to znovu.';
+            $('export-error').hidden = false;
+        } finally {
+            if (link) link.remove();
+            if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+    });
+    const results = initializeTutorResults(lesson, subject, context);
+    let quiz = null;
+    let timer = null;
+    const warnBeforeUnload = event => {
+        if (!quiz || quiz.finished) return;
+        event.preventDefault();
+        event.returnValue = '';
+    };
+    function abandonQuiz() {
+        pauseAnswerClock();
+        clearInterval(timer);
+        timer = null;
+        quiz = null;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
+        $('game').hidden = true;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('answers').replaceChildren();
+        $('feedback').replaceChildren();
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        $('score').textContent = 'Skóre: 0 b';
+        $('quiz-progress').value = 0;
+        $('leaderboard').hidden = false;
+        $('leaderboard').open = false;
+    }
+    function pauseAnswerClock() {
+        if (quiz && quiz.answerStarted !== null) {
+            quiz.questionElapsedMs += Math.max(0, performance.now() - quiz.answerStarted);
+            quiz.answerStarted = null;
+        }
+    }
+    function resumeAnswerClock() {
+        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden &&
+            !$('quiz-leave-dialog').open && quiz.answerStarted === null) {
+            quiz.answerStarted = performance.now();
+        }
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseAnswerClock();
+        else resumeAnswerClock();
+    });
+    function finish() {
+        quiz.finished = true;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
+        clearInterval(timer);
+        $('game').hidden = true;
+        $('results').hidden = false;
+        const result = subject.result(quiz.answers, quiz.questions);
+        $('grade').textContent = result.text;
+        const answerDurationMs = Math.round(quiz.answerDurationMs);
+        $('answer-duration').textContent = `Doba odpovídání: ${tutorQuiz.formatDuration(answerDurationMs)}. Čtení vysvětlení se nepočítá.`;
+        $('summary').replaceChildren();
+        quiz.answers.forEach((answer, index) => {
+            const item = node('li');
+            item.append(node('strong', answer.question.prompt));
+            subject.feedback(context, item, answer, index + 1);
+            $('summary').append(item);
+        });
+        results.save(quiz.name, quiz.mode, result, answerDurationMs);
+        $('leaderboard').open = true;
+        $('leaderboard').hidden = false;
+        focusContent($('results-title'));
+    }
+    function submit(values) {
+        if (!quiz || quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
+        if (!subject.acceptSubmission(values)) {
+            $('feedback').textContent = 'Nejdřív napiš odpověď.';
+            $('feedback').hidden = false;
+            return;
+        }
+        pauseAnswerClock();
+        quiz.locked = true;
+        quiz.answerDurationMs += quiz.questionElapsedMs;
+        clearInterval(timer);
+        const question = quiz.questions[quiz.index];
+        const elapsed = subject.speedBonus ? performance.now() - quiz.questionStarted : 0;
+        const answer = { question, values, score: subject.score(question, values, elapsed) };
+        quiz.answers.push(answer);
+        $('score').textContent = `Skóre: ${points(quiz.answers.reduce((sum, item) => sum + item.score.total, 0))} b`;
+        $('quiz-progress').value = quiz.answers.length;
+        $('answers').querySelectorAll('input, button').forEach(control => { control.disabled = true; });
+        $('feedback').replaceChildren();
+        subject.feedback(context, $('feedback'), answer, quiz.index + 1);
+        const full = answer.score.total === subject.maximum([question]) ||
+            answer.score.fraction === 1;
+        $('feedback').className = full ? 'success' : answer.score.total > 0 ? 'encouragement' : 'try-again';
+        $('feedback').hidden = false;
+        $('next').textContent = quiz.index === quiz.questions.length - 1 ? 'Zobrazit výsledek' : 'Další úloha';
+        $('next').hidden = false;
+        $('next').focus();
+    }
+    function showQuestion() {
+        clearInterval(timer);
+        quiz.locked = false;
+        quiz.questionElapsedMs = 0;
+        quiz.answerStarted = null;
+        const question = quiz.questions[quiz.index];
+        $('progress').textContent = `Úloha ${quiz.index + 1} / ${quiz.questions.length} · nejvýše ${subject.maximum([question])} b`;
+        $('quiz-progress').max = quiz.questions.length;
+        $('quiz-progress').value = quiz.answers.length;
+        $('question').replaceChildren(node('span', question.prompt, 'question-enter'));
+        $('question-icon').textContent = question.icon || (subject.speedBonus ? '🏰' : '📐');
+        $('difficulty').textContent = { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' }[question.difficulty];
+        $('difficulty').dataset.level = question.difficulty;
+        $('answers').replaceChildren();
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        if (question.options) {
+            question.options.forEach((option, index) => $('answers').append(button(option, () => submit([index]))));
+        } else {
+            subject.fields(question, quiz.index).forEach(field => {
+                const label = node('label', field.label);
+                label.htmlFor = field.id;
+                const input = node('input');
+                input.type = 'text';
+                input.id = field.id;
+                input.autocomplete = 'off';
+                input.maxLength = 80;
+                input.spellcheck = false;
+                if (field.inputMode) input.inputMode = field.inputMode;
+                if (subject.answerHelp) input.setAttribute('aria-describedby', 'answer-help');
+                $('answers').append(label, input);
+            });
+            const send = node('button', 'Odpovědět');
+            send.type = 'submit';
+            $('answers').append(send);
+        }
+        if (subject.speedBonus) {
+            quiz.questionStarted = performance.now();
+            const update = () => {
+                const remaining = Math.max(0, 1 - (performance.now() - quiz.questionStarted) / 15000);
+                $('bonus-bar').style.transform = `scaleX(${remaining})`;
+                if (!remaining) clearInterval(timer);
+            };
+            update();
+            timer = setInterval(update, 100);
+        }
+        focusContent($('question'));
+        resumeAnswerClock();
+    }
+    $('answers').addEventListener('submit', event => {
+        event.preventDefault();
+        if (quiz && !quiz.questions[quiz.index]?.options) {
+            submit([...$('answers').querySelectorAll('input')].map(input => input.value.trim()));
+        }
+    });
+    document.querySelectorAll('[data-mode]').forEach(control => control.addEventListener('click', () => {
+        if ($('quiz-leave-dialog').open) return;
+        if (quiz && !quiz.finished && $('setup').hidden) return;
+        const name = $('player').value.trim();
+        if ((name.match(/\p{L}/gu) || []).length < 3 || name.length > 60) {
+            $('name-error').textContent = 'Napiš jméno nebo přezdívku s alespoň třemi písmeny, nejvýše 60 znaků.';
+            $('player').setAttribute('aria-invalid', 'true');
+            $('player').focus();
+            return;
+        }
+        $('name-error').textContent = '';
+        $('player').removeAttribute('aria-invalid');
+        quiz = {
+            name, mode: control.dataset.mode, questions: subject.select(lesson, control.dataset.mode),
+            index: 0, answers: [], locked: false, finished: false,
+            answerDurationMs: 0, questionElapsedMs: 0, answerStarted: null
+        };
+        window.addEventListener('beforeunload', warnBeforeUnload);
+        $('quiz-tools').open = false;
+        $('setup').hidden = true;
+        $('results').hidden = true;
+        $('leaderboard').hidden = true;
+        $('game').hidden = false;
+        $('score').textContent = 'Skóre: 0 b';
+        showQuestion();
+    }));
+    $('next').addEventListener('click', () => {
+        if (!quiz || !quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
+        quiz.index++;
+        if (quiz.index === quiz.questions.length) finish();
+        else showQuestion();
+    });
+    $('restart').addEventListener('click', () => {
+        if (!quiz?.finished) return;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('leaderboard').open = false;
+        $('player').focus();
+    });
+    results.renderLeaderboard();
+    return { isActive: () => !!quiz && !quiz.finished, pauseAnswerClock, resumeAnswerClock, abandonQuiz };
+}
+
+'use strict';
+
+const { MODES, POINTS, shuffle, grade } = typeof module !== 'undefined' && module.exports
+    ? require('./runtime.js') : tutorQuiz;
+
+const { evaluate, normalizeAnswer, legacyHistoryPolicy } = typeof module !== 'undefined' && module.exports
+    ? require('./assessment.js') : tutorAssessment;
+
+function selectQuestions(questions, mode, random = Math.random) {
+    if (!Object.hasOwn(MODES, mode)) throw new Error(`Unknown quiz mode: ${mode}`);
+    const selected = [];
+    ['easy', 'medium', 'hard'].forEach((level, index) => {
+        const pool = questions.filter(q => q.difficulty === level);
+        const count = MODES[mode][index];
+        if (pool.length < count) throw new Error(`Not enough ${level} questions`);
+        if (mode === 'hard' && level === 'hard') {
+            const years = pool.filter(q => q.year);
+            if (!years.length) throw new Error('Hard mode needs a year question');
+            const year = shuffle(years, random)[0];
+            const hard = [year, ...shuffle(pool.filter(q => q.id !== year.id), random).slice(0, count - 1)];
+            selected.push(...shuffle(hard, random));
+        } else {
+            selected.push(...shuffle(pool, random).slice(0, count));
+        }
+    });
+    return selected;
+}
+
+function scoreAnswer(question, answer, elapsedMs) {
+    const result = evaluate(question.assessment || legacyHistoryPolicy(question), typeof answer === 'number' ? String(answer) : answer);
+    const { fraction } = result;
+    const base = POINTS[question.difficulty] * fraction;
+    const bonus = fraction === 1 && elapsedMs >= 0 && elapsedMs < 15000 ? base : 0;
+    return { fraction, base, bonus, total: base + bonus, assessment: result };
+}
+
+function compareResults(a, b) {
+    return b.total - a.total || (a.answerDurationMs ?? a.duration * 1000) - (b.answerDurationMs ?? b.duration * 1000);
+}
+
+const historySubject = {
+    storagePrefix: 'history-tutor:v1',
+    speedBonus: true,
+    rules: [
+        'Lehká otázka: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
+        'Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Tenký proužek ukazuje, dokud je bonus dostupný. Potom můžeš dál odpovídat za základní body. Nemusíš spěchat.',
+        'Známka nezávisí na rychlosti: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5.',
+        'Pokusy řadíme podle bodů. Při stejných bodech rozhoduje kratší doba odpovídání. Čtení vysvětlení ani pobyt mimo kvíz se do ní nepočítají. U starších pokusů zůstává původní celková doba.'
+    ],
+    select: (lesson, mode) => selectQuestions(lesson.questions, mode),
+    maximum: questions => questions.reduce((sum, question) => sum + POINTS[question.difficulty], 0),
+    score: (question, values, elapsed) => scoreAnswer(question, values[0], elapsed),
+    acceptSubmission: values => typeof values[0] !== 'string' || Boolean(values[0].trim()),
+    fields: question => [{ id: 'answer-input', label: 'Tvoje odpověď', inputMode: question.year ? 'numeric' : undefined }],
+    compareResults,
+    validRecord: row => Object.hasOwn(MODES, row.mode) && Number.isFinite(row.total) && row.total >= 0 &&
+        Number.isFinite(row.duration) && row.duration >= 0 && Number.isInteger(row.grade) && row.grade >= 1 && row.grade <= 5,
+    renderLearning({ $, node, paragraphs, hint, heading }, lesson) {
+        const chunks = node('div');
+        chunks.id = 'chunks';
+        lesson.chunks.forEach((chunk, index) => {
+            const article = node('article', undefined, 'card');
+            article.id = `learning-chunk-${index}`;
+            article.dataset.learningCard = 'true';
+            article.tabIndex = -1;
+            article.append(heading(chunk.heading, chunk.icon, '🏰'),
+                hint(chunk.sentences.join(' '), chunk.explanation, 'p', {
+                    prompt: `chunks.${index}.sentences`, explanation: `chunks.${index}.explanation`
+                }), ...paragraphs(chunk.paragraphs, `chunks.${index}.paragraphs`));
+            chunks.append(article);
+        });
+        $('learning-content').append(chunks);
+    },
+    feedback({ node }, container, { question, values, score }) {
+        const correct = question.type === 'text' ? question.acceptedAnswers[0] : question.options[question.answer];
+        const display = question.type === 'text' ? values[0] : question.options[values[0]];
+        const label = score.fraction === 1 ? 'Správně!' : score.fraction > 0 ? 'Blízko! Máš polovinu bodů.' : 'Tentokrát ne. Zkus to příště!';
+        container.append(node('p', `${score.assessment.valid ? label : score.assessment.message} Tvoje odpověď: ${display}. Správná odpověď: ${correct}. ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`,
+            score.fraction > 0 ? 'correct' : 'incorrect'));
+    },
+    result(answers, questions) {
+        const base = answers.reduce((sum, answer) => sum + answer.score.base, 0);
+        const bonus = answers.reduce((sum, answer) => sum + answer.score.bonus, 0);
+        const maximum = historySubject.maximum(questions);
+        const mark = grade(base, maximum);
+        return { total: base + bonus, maximum, grade: mark,
+            text: `Body: ${base + bonus} (základ ${base}/${maximum}, bonus ${bonus}). Známka: ${mark}` };
+    }
+};
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults };
+}
+if (typeof document !== 'undefined') {
+    initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), historySubject);
+}
+</script>
+</body>
+</html>
