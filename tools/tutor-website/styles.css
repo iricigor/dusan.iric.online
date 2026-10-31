@@ -187,6 +187,14 @@ tr.current { background: var(--bg); font-weight: bold; outline: 2px solid var(--
 #definition { position: fixed; inset: auto; margin: 0; width: min(24rem, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; box-shadow: 0 8px 32px #0003; overflow-wrap: anywhere; }
 #definition h2 { margin-top: 0; }
 a { color: var(--primary); }
+#original { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; column-gap: 1rem; }
+#original-content { display: contents; }
+#original-content > * { grid-column: 1 / -1; min-width: 0; }
+#original-content > :first-child { grid-column: 1; grid-row: 1; }
+.lesson-share { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; align-items: stretch; gap: .75rem; min-width: 0; margin: 0 0 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); overflow-wrap: anywhere; font-size: .9rem; }
+.lesson-share p { margin: 0 0 .4rem; }
+.lesson-share a { word-break: break-word; }
+.lesson-share svg { display: block; align-self: center; width: 11rem; max-width: 100%; height: auto; padding: .5rem; border: 1px solid var(--border); border-radius: .5rem; background: #fff; }
 [hidden] { display: none !important; }
 @keyframes pop { 50% { transform: scale(1.015); } }
 @keyframes shake { 25%, 75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
@@ -203,6 +211,10 @@ a { color: var(--primary); }
 .question-enter { display: block; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
 @media (pointer: coarse) { #learning-content summary { min-height: 44px; } }
+@media (max-width: 760px) {
+    #original { grid-template-columns: minmax(0, 1fr); }
+    .lesson-share { grid-column: 1; grid-row: 2; }
+}
 @media (max-width: 550px) {
     body { font-size: 1rem; }
     header { padding: .5rem 1rem 0; }
