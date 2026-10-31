@@ -176,7 +176,8 @@ guesses years or lifespans from prose. Multiple events can share a year or
 target a card, and date-free cards remain fully trackable.
 Timeline nodes are chronological; cards retain their educational order.
 The right-side track displays each year once above event labels with compact text
-and tight spacing, without side lines, lifespan brackets or event dots;
+and tight spacing, with one vertical line and one dot per year that has events.
+Birth/death-only years have no dot, and lifespan brackets are not drawn;
 event buttons retain 44px targets. Optional lifespan dates remain in the year
 list, accessible event names and tooltips. Accessible names also include the event year. Nodes scroll
 to and highlight their card below the sticky header; scrolling updates the
@@ -240,6 +241,12 @@ The latest child action wins on overlapping ranges, splitting earlier ranges
 as needed. Removal also masks authored highlights without editing lesson JSON.
 Markers wrap text inside existing glossary/correction buttons, preserving their
 listeners and accessible behavior. No new paragraph styling is introduced.
+Both authored and child-added markers use translucent, rough-edged strokes
+embedded as SVG backgrounds, without external assets. Strokes repeat on wrapped
+lines, keep the theme's readable text color, and let the underlying paper show
+through. Small inline padding and margins separate the stroke from nearby text
+without inserting characters or changing copied text. The palette retains solid
+color swatches for clear controls.
 
 Child edits use `tutor-highlights:v1:<subject>:<lesson-id>` in `sessionStorage`,
 separate from quizzes and authored metadata. They survive reloads in this tab,

@@ -366,17 +366,41 @@ test('learning progress, optional timelines and authored/child highlights preser
         }
         for (const theme of ['light', 'dark']) {
             await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
-            assert.equal(await evaluate(`(() => {
-                const rgb = value => value.match(/\\d+/g).slice(0, 3).map(Number).map(n => {
+            assert.equal(await evaluate(`(async () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 120; canvas.height = 32;
+                const context = canvas.getContext('2d');
+                const rgb = values => values.slice(0, 3).map(n => {
                     n /= 255; return n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4;
                 }).reduce((sum, n, i) => sum + n * [.2126, .7152, .0722][i], 0);
-                return ['yellow', 'blue', 'green'].every(color => {
+                for (const color of ['yellow', 'blue', 'green']) {
                     const marker = document.querySelector('mark[data-highlight-color="' + color + '"]') ||
                         document.querySelector('[data-highlight-action="' + color + '"]');
                     const style = getComputedStyle(marker);
-                    const a = rgb(style.color), b = rgb(style.backgroundColor);
-                    return (Math.max(a, b) + .05) / (Math.min(a, b) + .05) >= 4.5;
-                });
+                    context.fillStyle = style.color;
+                    context.fillRect(0, 0, 120, 32);
+                    const ink = rgb([...context.getImageData(0, 0, 1, 1).data]);
+                    context.fillStyle = '#fff';
+                    context.fillRect(0, 0, 120, 32);
+                    const ancestors = [];
+                    for (let element = marker; element; element = element.parentElement) ancestors.push(element);
+                    ancestors.reverse().forEach(element => {
+                        context.fillStyle = getComputedStyle(element).backgroundColor;
+                        context.fillRect(0, 0, 120, 32);
+                    });
+                    if (marker.tagName === 'MARK') {
+                        const image = new Image();
+                        image.src = style.backgroundImage.slice(5, -2);
+                        await image.decode();
+                        context.drawImage(image, 0, 0, 120, 32);
+                    }
+                    const pixels = context.getImageData(0, 0, 120, 32).data;
+                    for (let index = 0; index < pixels.length; index += 4) {
+                        const paper = rgb([...pixels.slice(index, index + 3)]);
+                        if ((Math.max(ink, paper) + .05) / (Math.min(ink, paper) + .05) < 4.5) return false;
+                    }
+                }
+                return true;
             })()`), true, `${subject}/${theme}: highlighted text meets 4.5:1 contrast`);
         }
         await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -443,6 +467,82 @@ test('learning progress, optional timelines and authored/child highlights preser
         await ready();
         assert.equal(await evaluate('document.getElementById("highlight-warning").hidden'), true, 'different lessons have independent highlight records');
         assert.deepEqual(await marked('original.0.text'), [[lesson.original[0].text.slice(0, 8), 'yellow']]);
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
+test('rough translucent markers wrap with visual spacing without changing copied text', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    for (const [subject, source] of [['history', history], ['maths', defaultMaths]]) {
+        const lesson = structuredClone(source);
+        const learningTarget = subject === 'history' ? 'chunks.0.sentences' : 'examples.0.prompt';
+        const learningText = subject === 'history' ? lesson.chunks[0].sentences.join(' ') : lesson.examples[0].prompt;
+        lesson.highlights = lesson.original.slice(0, 3).map((section, index) => ({
+            target: `original.${index}.text`, quote: section.text, color: ['yellow', 'blue', 'green'][index]
+        }));
+        lesson.highlights.push({ target: learningTarget, quote: learningText, color: 'green' });
+        const file = path.join(directory, `${subject}-rough-markers.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(lesson.topic)}`)) break;
+            await delay(20);
+        }
+        await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+        for (const width of [320, 1024]) {
+            await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+            for (const theme of ['light', 'dark']) {
+                await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
+                for (const tab of ['original', 'learning']) {
+                    await evaluate(`window.switchTutorTab('${tab}')`);
+                    const target = tab === 'original' ? 'original.0.text' : learningTarget;
+                    const expected = tab === 'original' ? lesson.original[0].text : learningText;
+                    const result = await evaluate(`(async () => {
+                        const root = document.querySelector('[data-highlight-target="${target}"]');
+                        const marks = [...root.querySelectorAll('mark')];
+                        const style = getComputedStyle(marks[0]);
+                        const image = new Image();
+                        image.src = style.backgroundImage.slice(5, -2);
+                        await image.decode();
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 120; canvas.height = 32;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(image, 0, 0, 120, 32);
+                        const pixels = context.getImageData(0, 0, 120, 32).data;
+                        const alpha = Array.from(pixels).filter((_, index) => index % 4 === 3);
+                        const edges = Array.from({ length: 32 }, (_, row) => {
+                            for (let x = 0; x < 120; x++) if (pixels[(row * 120 + x) * 4 + 3] > 40) return x;
+                        }).filter(x => x !== undefined);
+                        const range = document.createRange();
+                        range.selectNodeContents(root);
+                        const selection = window.getSelection();
+                        selection.removeAllRanges(); selection.addRange(range);
+                        const copy = selection.toString();
+                        selection.removeAllRanges();
+                        return { text: root.textContent, copy, wraps: marks.some(mark => mark.getClientRects().length > 1),
+                            alpha: Math.max(...alpha), transparent: Math.min(...alpha) === 0,
+                            rough: new Set(edges).size > 1, opacity: style.opacity,
+                            padding: parseFloat(style.paddingLeft) / parseFloat(style.fontSize),
+                            margin: parseFloat(style.marginLeft) / parseFloat(style.fontSize),
+                            decoration: style.boxDecorationBreak, overflow: document.documentElement.scrollWidth > innerWidth };
+                    })()`);
+                    assert.equal(result.text, expected);
+                    assert.equal(result.copy, expected, `${subject}/${tab}: visual gaps do not alter copied text`);
+                    assert.ok(result.alpha > 40 && result.alpha < 128 && result.transparent && result.rough,
+                        `the embedded stroke is translucent with uneven edges: ${JSON.stringify(result)}`);
+                    assert.equal(result.opacity, '1', 'only the marker ink is translucent, not its text');
+                    assert.ok(Math.abs(result.padding - .12) < .001 && Math.abs(result.margin - .04) < .001,
+                        'markers add small visual breathing room');
+                    assert.equal(result.decoration, 'clone', 'each wrapped line gets a complete marker stroke');
+                    assert.equal(result.overflow, false);
+                    if (width === 320 && tab === 'original') assert.equal(result.wraps, true, 'long highlights wrap naturally');
+                    await capture(`${subject}-rough-marker-${tab}-${theme}-${width}`);
+                }
+            }
+        }
     }
     assert.deepEqual(exceptions, []);
     assert.deepEqual(network, []);
@@ -524,6 +624,9 @@ test('learning navigation, completion tones and timeline scrolling stay coordina
                     document.querySelector('.timeline-year[data-year="1552"]').getBoundingClientRect().height <= 28 &&
                     !rail.querySelector('.timeline-lifespan') &&
                     [...rail.querySelectorAll('.timeline-year')].every(year => getComputedStyle(year).borderLeftWidth === '0px') &&
+                    getComputedStyle(document.getElementById('timeline-track'), '::before').width === '2px' &&
+                    [...rail.querySelectorAll('.timeline-year')].every(year =>
+                        (getComputedStyle(year, '::before').content !== 'none') === !!year.querySelector('.timeline-node')) &&
                     [...rail.querySelectorAll('.timeline-node')].every(button => getComputedStyle(button, '::before').content === 'none');
             })()`), true, 'the clean timeline pins its title above visible selected years');
             const scroll = await evaluate('window.scrollY');
