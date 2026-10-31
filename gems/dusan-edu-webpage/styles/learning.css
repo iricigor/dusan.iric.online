@@ -1,0 +1,67 @@
+
+.chunk-item p {
+    display: inline;
+}
+
+.chunk-item > div {
+    display: inline-block;
+    flex: 1;
+}
+
+.chunk-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hint-btn {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.hint-btn:hover {
+    transform: scale(1.2);
+}
+
+.hint-box {
+    margin-top: 0.5rem;
+    background-color: rgba(59, 130, 246, 0.1);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--primary);
+    display: none;
+}
+
+.hint-box.visible {
+    display: block;
+}
+
+.keyterms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.keyterm-badge {
+    background-color: var(--border-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    text-align: left;
+    border: none;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.keyterm-badge:hover {
+    background-color: var(--primary);
+    color: white;
+}

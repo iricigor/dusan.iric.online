@@ -32,5 +32,9 @@ before generating a page or changing agents.
   draft pull request with a title starting with `WIP: `. Include `Closes #<issue>`
   in its description to mark that merging the pull request will close the agreed
   issue.
+- Once the agreed changes are complete, validated, and pushed to the pull
+  request branch, remove the `WIP: ` prefix from the title and mark the pull
+  request as ready for review (not draft). Keep `Closes #<issue>` in its
+  description. This does not authorize merging or deployment.
 - If a webpage-only request needs agent or tooling changes, explain the
   limitation and follow this approval path instead of silently expanding scope.

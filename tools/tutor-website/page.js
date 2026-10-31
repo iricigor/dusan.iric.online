@@ -4,6 +4,17 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createQrSvg } = require('./qr.js');
 
+function readRuntimeSource(subject) {
+    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    return [
+        'assessment.js', 'highlights.js', 'learning.js', 'runtime.js',
+        path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
+        path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js'),
+        `${subject}.js`
+    ]
+        .map(file => fs.readFileSync(path.join(__dirname, file), 'utf8')).join('\n');
+}
+
 function renderPage(lesson, subject, publicationUrl) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     const escapeHtml = text => text.replace(/[&<>"']/g, char => ({
@@ -20,14 +31,10 @@ function renderPage(lesson, subject, publicationUrl) {
         STYLES: fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8'),
         DATA: JSON.stringify(lesson).replace(/[<>&\u2028\u2029]/g,
             char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`),
-        APP: fs.readFileSync(path.join(__dirname, 'assessment.js'), 'utf8') + '\n' +
-            fs.readFileSync(path.join(__dirname, 'highlights.js'), 'utf8') + '\n' +
-            fs.readFileSync(path.join(__dirname, 'learning.js'), 'utf8') + '\n' +
-            fs.readFileSync(path.join(__dirname, 'runtime.js'), 'utf8') + '\n' +
-            fs.readFileSync(path.join(__dirname, `${subject}.js`), 'utf8')
+        APP: readRuntimeSource(subject)
     };
     return fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8')
         .replace(/@@(TITLE|FAVICON|WEBPAGE_LOGO|SUBJECT|SUBJECT_ID|TIMING|SHARE|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
 }
 
-module.exports = { renderPage };
+module.exports = { renderPage, readRuntimeSource };
