@@ -38,15 +38,9 @@ function compareResults(a, b) {
     return b.total - a.total || (a.answerDurationMs ?? a.duration * 1000) - (b.answerDurationMs ?? b.duration * 1000);
 }
 
-function exportQuestion(question) {
-    return { ...question, correctAnswers: question.type === 'text'
-        ? [...question.acceptedAnswers] : [question.options[question.answer]] };
-}
-
 const historySubject = {
     storagePrefix: 'history-tutor:v1',
     speedBonus: true,
-    exportQuestion,
     rules: [
         'Lehká otázka: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
         'Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Tenký proužek ukazuje, dokud je bonus dostupný. Potom můžeš dál odpovídat za základní body. Nemusíš spěchat.',
@@ -90,7 +84,7 @@ const historySubject = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults, exportQuestion };
+    module.exports = { normalizeAnswer, shuffle, selectQuestions, scoreAnswer, grade, compareResults };
 }
 if (typeof document !== 'undefined') {
     initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), historySubject);

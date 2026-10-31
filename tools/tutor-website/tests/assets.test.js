@@ -37,7 +37,7 @@ test('standalone and VM loaders assemble every shared controller once in the sam
     }
     assert.throws(() => readRuntimeSource('science'), /Unsupported subject: science/);
     assert.deepEqual(Object.keys(require('../runtime.js')), [
-        'MODES', 'POINTS', 'shuffle', 'grade', 'formatDuration', 'questionBank'
+        'MODES', 'POINTS', 'shuffle', 'grade', 'formatDuration'
     ]);
 });
 

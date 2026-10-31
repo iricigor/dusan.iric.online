@@ -157,9 +157,15 @@ alt text, not navigation controls. Keep their designs unchanged and embedded
 for offline use across history and maths.
 The subdued quiz cog sits at the right of the tab bar, outside tablist semantics,
 in the same action area as learning controls; show it only in Hrát si. Keep its
-44px target and keyboard access. It toggles tools for a local UTF-8 JSON export of the
-complete question bank, with total/easy/medium/hard counts and correct answers
-(including every maths step). Never include learner/attempt data or make network
+44px target and keyboard access. It toggles tools for one local UTF-8 JSON export of the
+complete embedded lesson, named `<lesson-id>-lekce.json`, preserving its numeric
+version, metadata, original text, glossary, learning content and all questions,
+correct answers and assessment policies (including every maths step). This replaces
+the question-only export; do not add section exports or derived bank fields.
+Use `Stáhnout lekci (JSON)` with a Czech tooltip/accessibility description stating
+that the whole lesson includes correct answers. Keep the current UI placement
+and theme switch; schema publication/identification changes are separate work.
+Never include learner/attempt data or make network
 requests for export; make failures visible and retain the shared quiz lifecycle.
 Keep its panel compact: a download action with a tooltip/accessibility description
 instead of a visible explanatory paragraph. Close after a successful download,

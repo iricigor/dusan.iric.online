@@ -10,16 +10,16 @@ function initializeTutorQuiz(lesson, subject, context) {
         let url;
         let link;
         try {
-            const json = JSON.stringify(tutorQuiz.questionBank(lesson, subject), null, 2) + '\n';
+            const json = JSON.stringify(lesson, null, 2) + '\n';
             url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
             link = node('a');
             link.href = url;
-            link.download = `${lesson.id}-otazky.json`;
+            link.download = `${lesson.id}-lekce.json`;
             document.body.append(link);
             link.click();
             closeQuizTools(true);
         } catch (error) {
-            console.error('Tutor: cannot export question bank.', error);
+            console.error('Tutor: cannot export lesson.', error);
             $('export-error').textContent = 'JSON se nepodařilo stáhnout. Zkus to znovu.';
             $('export-error').hidden = false;
         } finally {
