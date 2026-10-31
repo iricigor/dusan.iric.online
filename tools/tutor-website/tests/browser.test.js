@@ -305,7 +305,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             await capture('history-original-fun');
             await evaluate(`window.switchTutorTab('learning')`);
         }
-        for (const width of [320, 550, 551, 1024, 1600]) {
+        for (const width of [320, 400, 401, 550, 551, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
                 await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
@@ -354,6 +354,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     assert.equal(await evaluate(`document.getElementById('quiz-tools').hidden`), tab !== 'quiz');
                     assert.equal(await evaluate(`(() => {
                         const mark = document.querySelector('.lesson-header-mark').getBoundingClientRect();
+                        const heading = document.querySelector('.heading').getBoundingClientRect();
+                        const identity = document.querySelector('.lesson-identity').getBoundingClientRect();
                         const text = document.querySelector('.lesson-title-group').getBoundingClientRect();
                         const title = document.getElementById('topic').getBoundingClientRect();
                         const subtitle = document.getElementById('subtitle').getBoundingClientRect();
@@ -363,7 +365,10 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         const footer = document.querySelector('.lesson-footer').getBoundingClientRect();
                         const logo = document.querySelector('.lesson-footer-mark').getBoundingClientRect();
                         return mark.width === ${width <= 550 ? 48 : 64} && mark.height === mark.width &&
-                            mark.right <= text.left && text.right <= theme.left &&
+                            mark.right <= text.left && title.width >= 80 &&
+                            heading.height <= innerHeight / 2 &&
+                            (${width} <= 400 ? theme.bottom <= identity.top && theme.right <= heading.right :
+                                text.right <= theme.left) &&
                             Math.abs((mark.top + mark.bottom - text.top - text.bottom) / 2) < 1 &&
                             title.top >= text.top && subtitle.bottom <= text.bottom &&
                             tabs.top >= Math.max(mark.bottom, text.bottom, theme.bottom) &&

@@ -339,6 +339,9 @@ and heading typography. Long titles wrap within their column on narrow screens.
 Motivational subtitles use the subject accent, not purple. The simple identity
 mark sits to the left, vertically centered against the combined title/subtitle
 block; the theme switch stays to the right and tabs remain below.
+On screens up to 400px wide, the theme switch has its own upper-right row so
+the mark and text can use the full header width without squeezing long titles
+into an excessively tall sticky header.
 Trusted subject selectors in the one shared stylesheet provide sepia/amber
 history accents and blue/teal maths accents. Softly visible CSS-only paper grain or
 graph-paper backgrounds cover entire original/learning cards, including headings

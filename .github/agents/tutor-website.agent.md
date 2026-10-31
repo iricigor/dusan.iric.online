@@ -148,7 +148,9 @@ for new pages; do not add fancy gradients/details to the favicon or retrofit
 already published pages. Center the simple header mark vertically beside the
 combined subject badge/title and motivational subtitle block, with the theme
 switch to the right and tabs below. Use a 64px square header mark on desktop,
-48px on narrow screens up to 550px. Center the matching approved Rounded satin
+48px on narrow screens up to 550px. At widths up to 400px, place the theme
+switch in its own upper-right row above the full-width mark/text block to keep
+long titles readable and the sticky header compact. Center the matching approved Rounded satin
 fancy logo below the active lesson content in the shared footer: 96px square
 on desktop, 64px on narrow screens. Both marks are decorative images with empty
 alt text, not navigation controls. Keep their designs unchanged and embedded
