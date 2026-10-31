@@ -35,7 +35,8 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         if (subject === 'maths' && lesson.id === 'shared-lesson-id') {
             lesson.glossary[0].icon = '<img src=x onerror=alert(1)>';
         }
-        const file = path.join(directory, `${subject}-${lesson.id}.html`);
+        // File-URL storage sharing varies by browser; test key isolation at one stable URL.
+        const file = path.join(directory, 'shared-lesson.html');
         const legacyResults = lesson.version === 4
             ? await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`) : null;
         fs.writeFileSync(file, renderLesson(subject, lesson));
