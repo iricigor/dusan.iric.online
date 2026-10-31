@@ -720,7 +720,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 if ((getComputedStyle(document.documentElement).colorScheme === 'dark') !== ${theme === 'dark'})
                     document.getElementById('theme').click();
             })()`);
-            assert.equal(await evaluate(`(() => {
+            const exportLayout = await evaluate(`(() => {
                 const tools = document.getElementById('quiz-tools');
                 const cog = tools.querySelector('summary');
                 const tabs = document.querySelector('[role="tablist"]').getBoundingClientRect();
@@ -733,7 +733,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 const panel = content.getBoundingClientRect();
                 const download = document.getElementById('quiz-export');
                 const description = document.getElementById(download.getAttribute('aria-describedby'));
-                return initiallyClosed && tools.open && cog.getAttribute('aria-label') === 'Nástroje kvízu' &&
+                const valid = initiallyClosed && tools.open && cog.getAttribute('aria-label') === 'Nástroje kvízu' &&
                     !!cog.querySelector('svg[aria-hidden="true"]') &&
                     tools.parentElement.className === 'tab-bar' && !tools.closest('[role="tablist"]') &&
                     !document.getElementById('setup').contains(tools) && Number(restingOpacity) <= .7 &&
@@ -744,7 +744,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     description.classList.contains('visually-hidden') && description.textContent.includes('správných odpovědí') &&
                     !content.querySelector('p:not([hidden])') &&
                     document.documentElement.scrollWidth <= innerWidth;
-            })()`), true, `${subject}/${width}/${theme}: compact, accessible, viewport-safe export action`);
+                return { valid, initiallyClosed, open: tools.open, restingOpacity,
+                    focused: document.activeElement.id, hovered: cog.matches(':hover'),
+                    trigger: trigger.toJSON(), tabs: tabs.toJSON(), panel: panel.toJSON(),
+                    download: download.getBoundingClientRect().toJSON(),
+                    viewport: [innerWidth, innerHeight], scrollWidth: document.documentElement.scrollWidth };
+            })()`);
+            assert.equal(exportLayout.valid, true,
+                `${subject}/${width}/${theme}: compact, accessible, viewport-safe export action: ${JSON.stringify(exportLayout)}`);
             await capture(`${subject}-quiz-tools-${width}-${theme}`);
             assert.equal(await evaluate(`(() => {
                 document.getElementById('quiz-tools-panel').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
