@@ -18,5 +18,6 @@ matematické výukové stránky s agentem `tutor-maths`, společným schématem 
 motivačními podtitulky, barevnými poznámkami a animacemi, procvičováním, přesnou
 kontrolou rovnocenných odpovědí, částečným bodováním a kvízy bez časového omezení.
 Otázky obou předmětů postupují od lehkých po těžké.
-Výsledky zůstávají v relaci prohlížeče. Ukázkové matematické lekce patří do #32;
+Výsledky se ukládají jen v této kartě prohlížeče, ne online ani na jiných zařízeních.
+Po zavření karty se mohou ztratit. Ukázkové matematické lekce patří do #32;
 symbolická algebra a interaktivní geometrie nejsou podporovány.

@@ -315,11 +315,13 @@ test('both subjects embed the selected full-height Rounded satin simple favicon'
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
     const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+    const storageNotice = 'Výsledky se ukládají jen v této kartě prohlížeče, ne online ani na jiných zařízeních. Po zavření karty se mohou ztratit.';
     assert.doesNotMatch(sharedStyles, /\.original-text \{[^}]*max-width:/);
     assert.equal(fs.existsSync(path.join(__dirname, '..', '..', 'history-tutor')), false);
     assert.equal(fs.existsSync(path.join(__dirname, '..', 'maths.schema.json')), false);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
+        assert.ok(html.includes(`<p>${storageNotice}</p>`));
         assert.ok(html.includes(sharedRuntime));
         assert.equal(html.match(/<style>([\s\S]*?)<\/style>/)[1], sharedStyles);
         assert.ok(html.includes(`<body data-subject="${subject}">`));
