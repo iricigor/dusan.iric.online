@@ -340,6 +340,11 @@ Only term buttons are shown, not a wall of definitions. Definitions open
 beside the trigger in a viewport-constrained native popover, usable by mouse,
 touch and keyboard. Escape, outside click, the close button or changing views
 dismiss it; explicit close/Escape returns focus to the trigger.
+In teaching paragraphs, only the first occurrence of each glossary entry is
+linked; later occurrences remain plain text without changing the wording.
+Aliases, inflected forms and capitalization variants share the same entry.
+Tracking resets for each paragraph, including hints and styled teaching notes,
+so the first occurrence is linked again in the next paragraph.
 The runtime requires a modern browser with the native Popover API.
 
 `favicon.svg` uses the selected **03 / Rounded satin** simple design from

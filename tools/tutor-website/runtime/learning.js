@@ -195,11 +195,16 @@ function initializeTutorLearning(lesson, subject) {
         if (prefix) element.append(document.createTextNode(text.slice(0, prefix)));
         text = text.slice(prefix);
         const container = highlight.target ? node('span', undefined, 'highlight-text') : element;
+        const linkedEntries = new Set();
         let offset = 0;
         for (const match of text.matchAll(pattern)) {
             container.append(document.createTextNode(text.slice(offset, match.index)));
             const entry = forms.get(match[0].toLocaleLowerCase('cs'));
-            container.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
+            if (linkedEntries.has(entry)) container.append(document.createTextNode(match[0]));
+            else {
+                container.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
+                linkedEntries.add(entry);
+            }
             offset = match.index + match[0].length;
         }
         container.append(document.createTextNode(text.slice(offset)));
