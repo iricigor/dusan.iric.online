@@ -9,37 +9,39 @@ const { validateLesson } = require('../validate.js');
 const { mathsLesson } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
 const { formatAnswer } = require('../maths.js');
-const { questionBank, MODES } = require('../runtime.js');
+const { MODES } = require('../runtime.js');
 
-test('question bank export counts complete tasks and includes canonical answers without learner data', () => {
+test('embedded complete lessons retain current and legacy contracts and regenerate without data loss', () => {
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
-        const before = JSON.stringify(lesson);
-        const adapter = require(`../${subject}.js`);
-        const result = questionBank(lesson, adapter);
-        const tasks = lesson.questions || lesson.exercises;
-        assert.deepEqual(Object.keys(result), ['subject', 'lessonId', 'topic', 'summary', 'questions']);
-        assert.equal(result.subject, subject);
-        assert.equal(result.lessonId, lesson.id);
-        assert.equal(result.summary.totalQuestions, tasks.length);
-        assert.deepEqual(result.summary.byDifficulty, subject === 'history'
-            ? { easy: 6, medium: 15, hard: 9 } : { easy: 2, medium: 5, hard: 3 });
-        assert.deepEqual(result.questions.map(question => question.id), tasks.map(question => question.id));
-        result.questions.forEach((question, index) => {
+        const legacy = structuredClone(lesson);
+        if (subject === 'history') {
+            legacy.version = 1;
+            delete legacy.subject;
+            delete legacy.language;
+            delete legacy.subtitle;
+            legacy.questions.forEach(question => { delete question.assessment; });
+        } else {
+            legacy.version = 2;
+            delete legacy.subtitle;
+            legacy.exercises.forEach(exercise => exercise.steps.forEach(step => { delete step.assessment; }));
+        }
+        for (const source of [lesson, legacy]) {
+            const before = JSON.stringify(source);
+            const html = renderLesson(subject, source);
+            const embedded = JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]);
+            const exported = JSON.parse(JSON.stringify(embedded, null, 2) + '\n');
+            assert.deepEqual(exported, source);
+            assert.equal(validateLesson(subject, exported), exported);
+            assert.equal(renderLesson(subject, exported), html);
+            assert.equal(JSON.stringify(source), before);
+            assert.equal(exported.version, source.version);
             if (subject === 'history') {
-                assert.deepEqual(question.correctAnswers, tasks[index].type === 'text'
-                    ? tasks[index].acceptedAnswers : [tasks[index].options[tasks[index].answer]]);
+                assert.equal(Object.hasOwn(exported, 'subject'), Object.hasOwn(source, 'subject'));
             } else {
-                assert.deepEqual(question.steps.map(step => step.correctAnswer), tasks[index].steps.map(step => formatAnswer(step.answer)));
-                assert.deepEqual(question.steps.map(step => step.answer), tasks[index].steps.map(step => step.answer));
+                assert.deepEqual(exported.examples, source.examples);
             }
-            assert.deepEqual(question.assessment, tasks[index].assessment);
-        });
-        assert.equal(JSON.stringify(lesson), before);
-        assert.deepEqual(JSON.parse(JSON.stringify(result)), result);
+        }
     }
-    const legacy = { ...history, version: 1 };
-    delete legacy.subject;
-    assert.equal(questionBank(legacy, require('../history.js')).subject, 'history');
 });
 
 test('discovery identifies real contracts and available untimed maths assessment', () => {
@@ -149,8 +151,8 @@ test('both prepared banks contain 30 distinct tasks with complete export and can
         const tasks = lesson.questions || lesson.exercises;
         assert.ok(tasks.length >= 30, `${subject}: whole tasks, not maths steps`);
         assert.equal(new Set(tasks.map(task => task.prompt.trim().toLocaleLowerCase('cs'))).size, tasks.length);
-        const exported = questionBank(lesson, require(`../${subject}.js`));
-        assert.deepEqual(exported.summary, { totalQuestions: 30, byDifficulty: { easy: 6, medium: 15, hard: 9 } });
+        assert.deepEqual(Object.fromEntries(['easy', 'medium', 'hard'].map(level =>
+            [level, tasks.filter(task => task.difficulty === level).length])), { easy: 6, medium: 15, hard: 9 });
         tasks.forEach(task => {
             if (subject === 'history') {
                 const answers = task.type === 'text' ? task.acceptedAnswers : [task.answer];
