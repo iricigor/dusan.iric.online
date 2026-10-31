@@ -41,7 +41,7 @@ function capabilities(subject) {
     };
 }
 
-function getPublicationUrl(subject, lessonId, publicationPath = `${subject}/${lessonId}.html`) {
+function getPublicationUrl(subject, lessonId, publicationPath = `test/${lessonId}.html`) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     if (typeof publicationPath !== 'string' || publicationPath.startsWith('/') ||
         /[?#\\]/.test(publicationPath) || !publicationPath.endsWith('.html')) {

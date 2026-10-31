@@ -123,10 +123,10 @@ The calling agent sends this JSON object (use actual absolute session paths):
 ```
 
 `publicationPath` is optional and, when supplied, must be a relative `.html`
-path under the deployed `site` root (for example, `history/defenestrace.html`,
-not `site/history/defenestrace.html`). The default is
-`<subject>/<lesson.id>.html`, so history lessons use `history/` and maths lessons
-use `maths/`. This explicit override supports existing and future publication
+path under the deployed `site` root (for example, `test/defenestrace.html`,
+not `site/test/defenestrace.html`). The default is
+`test/<lesson.id>.html`, so published lessons are available under the `test/`
+folder. This explicit override supports existing and future publication
 folders without guessing from a local draft filename. The generator resolves the
 path against `https://dusan.iric.online/`, URL-encodes each path segment, and
 returns the resulting `publicationUrl`; the embedded QR code and visible link use

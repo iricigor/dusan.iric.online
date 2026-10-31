@@ -9,11 +9,11 @@ const { build, getPublicationUrl, renderLesson } = require('../build.js');
 const history = require('../examples/defenestrace.json');
 const { mathsLesson } = require('./fixture.js');
 
-test('canonical lesson URLs use subject folders by default and accept explicit site paths', () => {
+test('canonical lesson URLs use the test folder by default and accept explicit site paths', () => {
     assert.equal(getPublicationUrl('history', 'od-defenestrace-k-bile-hore'),
-        'https://dusan.iric.online/history/od-defenestrace-k-bile-hore.html');
+        'https://dusan.iric.online/test/od-defenestrace-k-bile-hore.html');
     assert.equal(getPublicationUrl('maths', 'zlomky'),
-        'https://dusan.iric.online/maths/zlomky.html');
+        'https://dusan.iric.online/test/zlomky.html');
     assert.equal(getPublicationUrl('history', 'lesson', 'test/á-probírku.html'),
         'https://dusan.iric.online/test/%C3%A1-prob%C3%ADrku.html');
     for (const publicationPath of [
