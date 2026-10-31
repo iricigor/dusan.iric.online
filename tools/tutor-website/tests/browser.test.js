@@ -420,3 +420,34 @@ test('learning progress, optional timelines and authored/child highlights preser
     assert.deepEqual(exceptions, []);
     assert.deepEqual(network, []);
 });
+
+test('legacy offline pages download complete lessons without upgrading their contracts', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const browser = await openBrowser(t);
+    const legacyHistory = structuredClone(history);
+    legacyHistory.version = 1;
+    delete legacyHistory.subject;
+    delete legacyHistory.language;
+    delete legacyHistory.subtitle;
+    legacyHistory.questions.forEach(question => { delete question.assessment; });
+    const legacyMaths = structuredClone(defaultMaths);
+    legacyMaths.version = 2;
+    delete legacyMaths.subtitle;
+    legacyMaths.exercises.forEach(exercise => exercise.steps.forEach(step => { delete step.assessment; }));
+    for (const [subject, lesson] of [['history', legacyHistory], ['maths', legacyMaths]]) {
+        const file = path.join(browser.directory, `${subject}-legacy.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await browser.client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await browser.evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(lesson.topic)}`)) break;
+            await delay(50);
+        }
+        assert.equal(await browser.evaluate(`document.getElementById('topic').textContent`), lesson.topic);
+        await browser.evaluate(`window.switchTutorTab('quiz')`, true);
+        await checkExport({ ...browser, subject, lesson });
+    }
+    assert.deepEqual(browser.exceptions, []);
+    assert.deepEqual(browser.network, []);
+});

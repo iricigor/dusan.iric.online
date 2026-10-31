@@ -4,8 +4,8 @@ const assert = require('node:assert/strict');
 const { setTimeout: delay } = require('node:timers/promises');
 const fs = require('node:fs');
 const path = require('node:path');
-const { questionBank } = require('../../runtime.js');
-const subjectExports = { history: require('../../history.js'), maths: require('../../maths.js') };
+const { validateLesson } = require('../../validate.js');
+const { renderLesson } = require('../../build.js');
 
 async function checkExport({ client, evaluate, capture, downloads, subject, lesson }) {
     for (const [width, theme] of [320, 1600].flatMap(width => ['light', 'dark'].map(theme => [width, theme]))) {
@@ -27,14 +27,17 @@ async function checkExport({ client, evaluate, capture, downloads, subject, less
             const panel = content.getBoundingClientRect();
             const download = document.getElementById('quiz-export');
             const description = document.getElementById(download.getAttribute('aria-describedby'));
+            const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
             const valid = initiallyClosed && tools.open && cog.getAttribute('aria-label') === 'Nástroje kvízu' &&
                 !!cog.querySelector('svg[aria-hidden="true"]') &&
                 tools.parentElement.className === 'tab-bar' && !tools.closest('[role="tablist"]') &&
                 !document.getElementById('setup').contains(tools) && Number(restingOpacity) <= .7 &&
                 trigger.left >= tabs.right && trigger.width >= 44 && trigger.height >= 44 &&
                 panel.left >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight &&
-                panel.width <= 180 && panel.height <= 80 &&
-                download.getBoundingClientRect().height >= 44 && !!download.title &&
+                panel.width <= Math.min(14 * rootFontSize, innerWidth - 2 * rootFontSize) &&
+                panel.height <= 80 &&
+                download.getBoundingClientRect().height >= 44 && download.textContent === 'Stáhnout lekci (JSON)' &&
+                download.title.includes('Celá lekce') &&
                 description.classList.contains('visually-hidden') && description.textContent.includes('správných odpovědí') &&
                 !content.querySelector('p:not([hidden])') &&
                 document.documentElement.scrollWidth <= innerWidth;
@@ -85,12 +88,15 @@ async function checkExport({ client, evaluate, capture, downloads, subject, less
         return document.getElementById('quiz-tools').open && !document.getElementById('export-error').hidden &&
             document.getElementById('export-error').textContent.includes('nepodařilo');
     })()`), true, `${subject}: export failure is visible`);
-    const downloadPath = path.join(downloads, `${lesson.id}-otazky.json`);
+    const downloadPath = path.join(downloads, `${lesson.id}-lekce.json`);
     if (fs.existsSync(downloadPath)) fs.unlinkSync(downloadPath);
     await evaluate(`document.getElementById('quiz-export').click()`);
     for (let attempt = 0; attempt < 100 && !fs.existsSync(downloadPath); attempt++) await delay(20);
     assert.ok(fs.existsSync(downloadPath), `${subject}: JSON download completes offline`);
-    assert.deepEqual(JSON.parse(fs.readFileSync(downloadPath, 'utf8')), questionBank(lesson, subjectExports[subject]));
+    const exported = JSON.parse(fs.readFileSync(downloadPath, 'utf8'));
+    assert.deepEqual(exported, lesson);
+    assert.equal(validateLesson(subject, exported), exported);
+    assert.equal(renderLesson(subject, exported), renderLesson(subject, lesson));
     assert.equal(await evaluate(`!document.getElementById('quiz-tools').open &&
         document.activeElement === document.querySelector('#quiz-tools summary') &&
         document.getElementById('export-error').hidden &&

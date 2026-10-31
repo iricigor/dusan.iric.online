@@ -28,6 +28,14 @@ async function checkQuizGuard({ client, evaluate, capture, handleDialog, subject
     assert.equal(await unloadProtected(), false, `${subject}: no unload guard before starting`);
     await startGuardedQuiz();
     const unfinished = await quizSnapshot();
+    const contentBeforeExport = await evaluate(`document.getElementById('lesson-data').textContent`);
+    const recordsBeforeExport = await evaluate(`JSON.stringify(Object.entries(sessionStorage))`);
+    await evaluate(`document.querySelector('#quiz-tools summary').click(); document.getElementById('quiz-export').click()`);
+    assert.deepEqual(await quizSnapshot(), unfinished, `${subject}: export preserves an active quiz and entered answers`);
+    assert.equal(await evaluate(`document.getElementById('lesson-data').textContent`), contentBeforeExport,
+        `${subject}: export does not mutate embedded lesson data`);
+    assert.equal(await evaluate(`JSON.stringify(Object.entries(sessionStorage))`), recordsBeforeExport,
+        `${subject}: export does not change learner records`);
     assert.equal(await unloadProtected(), true);
     await evaluate(`window.switchTutorTab('learning')`);
     assert.equal(await evaluate(`(() => {

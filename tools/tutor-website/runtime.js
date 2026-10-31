@@ -19,18 +19,6 @@ const tutorQuiz = {
         if (milliseconds < 1000) return 'méně než 1 s';
         const seconds = Math.round(milliseconds / 1000);
         return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
-    },
-    questionBank(lesson, subject) {
-        const questions = (lesson.questions || lesson.exercises).map(subject.exportQuestion);
-        return {
-            subject: lesson.subject || 'history', lessonId: lesson.id, topic: lesson.topic,
-            summary: {
-                totalQuestions: questions.length,
-                byDifficulty: Object.fromEntries(['easy', 'medium', 'hard'].map(level =>
-                    [level, questions.filter(question => question.difficulty === level).length]))
-            },
-            questions
-        };
     }
 };
 

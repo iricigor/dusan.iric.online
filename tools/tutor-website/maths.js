@@ -45,14 +45,9 @@ function formatAnswer(answer) {
     return answer.format === 'length' ? `${value} ${answer.unit}` : value;
 }
 
-function exportQuestion(exercise) {
-    return { ...exercise, steps: exercise.steps.map(step => ({ ...step, correctAnswer: formatAnswer(step.answer) })) };
-}
-
 const mathsSubject = {
     storagePrefix: 'maths-tutor:v2',
     speedBonus: false,
-    exportQuestion,
     rules: [
         'Lehká skupina: 4 × 2,5 bodu + 1 bod za vše zcela správně. Střední úloha: 20 bodů. Těžká úloha: 3 × 10 bodů.',
         'Každý krok má vlastní body. Pokud úloha uznává částečnou odpověď, získáš polovinu bodů za krok.',
@@ -144,5 +139,5 @@ const mathsSubject = {
 
 if (typeof document !== 'undefined') initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), mathsSubject);
 if (typeof module !== 'undefined') module.exports = {
-    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords, exportQuestion
+    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords
 };

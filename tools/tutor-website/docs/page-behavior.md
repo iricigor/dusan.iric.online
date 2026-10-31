@@ -261,14 +261,20 @@ backgrounds remain neutral; no lesson-supplied CSS or external assets are used.
 A subdued, smaller cog at the right of the tab bar toggles native quiz tools
 only in Hrát si, in the same action area as learning expand/collapse controls.
 It remains keyboard-accessible with a 44px target and brightens on focus/hover.
-`Stáhnout JSON` downloads the complete question bank locally as UTF-8 JSON,
-including correct answers, without starting a quiz or reading learner records.
-The export has `subject`, `lessonId`, `topic`, `summary` and `questions`.
-`summary.totalQuestions` counts history questions or whole maths exercises;
-`summary.byDifficulty` contains `easy`, `medium` and `hard` counts.
-History entries preserve question data and add a `correctAnswers` array;
-maths exercises preserve typed step answers/assessment and add a formatted
-`correctAnswer` to each step. No attempt, nickname or student answers are exported.
+`Stáhnout lekci (JSON)` downloads the complete embedded lesson locally as UTF-8
+JSON named `<lesson-id>-lekce.json`, without starting a quiz or reading learner
+records. This single download replaces the question-bank-only export. It preserves
+the supported numeric `version` and all original metadata, text, paragraph styles,
+icons, glossary and subject-specific data: history sources/review/corrections,
+learning chunks and questions, or maths worked examples and exercises. All
+questions, canonical answers, assessment policies and solutions present in the
+lesson are included unchanged; no derived question-bank fields are added.
+The exported lesson validates and regenerates with the matching supported builder,
+including legacy history v1 and maths v2. Shared runtime scoring/selection code is
+not part of the lesson contract. No attempt, nickname or student answers are
+exported. Exporting does not mutate lesson data or reset an active quiz.
+Downloads require no network access; schema publication and `$schema`-based
+identification are separate future work.
 The compact panel contains just the download action; its explanation is in a
 tooltip and accessible description. It closes after successfully starting a
 download, on outside click/focus, Escape or its cog. Download/Escape restore cog
