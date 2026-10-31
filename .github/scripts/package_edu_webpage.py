@@ -9,6 +9,14 @@ ARCHIVE_PATH = ROOT / "gems" / "dusan-edu-webpage.zip"
 
 
 def main():
+    css_parts = ["base.css", "learning.css", "quiz.css", "effects-results.css"]
+    css_source = "".join(
+        (PACKAGE_DIR / "styles" / name).read_text(encoding="utf-8")
+        for name in css_parts
+    )
+    if (PACKAGE_DIR / "styles.css").read_text(encoding="utf-8") != css_source:
+        raise SystemExit("styles.css does not match its ordered source files in styles/")
+
     app_js = (PACKAGE_DIR / "app.js").read_text(encoding="utf-8")
     app_js_lines = json.loads((PACKAGE_DIR / "app.js.json").read_text(encoding="utf-8"))
     if (
