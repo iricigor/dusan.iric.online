@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "subtitle": "Zvládneš zlomky i délky. Objevuj je krok za krokem!",
   "subject": "maths",
   "language": "cs-CZ",
@@ -9,419 +9,185 @@
   "highlights": [
     {"target": "original.0.text", "quote": "části z celku", "color": "yellow"},
     {"target": "original.0.text", "quote": "převody jednotek délky", "color": "blue"},
-    {"target": "examples.0.prompt", "quote": "Tři čtvrtiny", "color": "green"},
     {"target": "examples.0.steps.0.calculation", "quote": "20 : 4 = 5", "color": "yellow"},
-    {"target": "exercises.0.steps.0.prompt", "quote": "1/2", "color": "blue"}
+    {"target": "exercises.0.prompt", "quote": "jmenovatel", "color": "blue"}
   ],
   "original": [
     {"heading": "Zadání", "icon": "📐", "style": "example", "text": "Výpočet části z celku pomocí zlomků a převody jednotek délky."}
   ],
   "glossary": [
-    {
-      "term": "zlomek",
-      "icon": "🍰",
-      "definition": "Zapisuje část celku, například 3/4. Celek rozdělíme na čtyři stejně velké části a vezmeme tři z nich.",
-      "forms": ["zlomky", "zlomku", "zlomků"]
-    },
-    {
-      "term": "čitatel",
-      "definition": "Číslo nad zlomkovou čarou. Říká, kolik stejných částí bereme. Ve zlomku 3/4 je to 3.",
-      "forms": ["čitatele", "čitatelem"]
-    },
-    {
-      "term": "jmenovatel",
-      "definition": "Číslo pod zlomkovou čarou. Říká, na kolik stejných částí dělíme celek. Ve zlomku 3/4 je to 4. Nesmí být nula.",
-      "forms": ["jmenovatele", "jmenovatelem"]
-    },
-    {
-      "term": "celek",
-      "definition": "Celé množství, ze kterého počítáme část. Mohou to být všechny korálky nebo celá délka provazu. Část zjistíme dělením jmenovatelem a násobením čitatelem.",
-      "forms": ["celku"]
-    },
-    {
-      "term": "rovnocenné zlomky",
-      "definition": "Zlomky se stejnou hodnotou, například 1/2 a 2/4. Čitatele i jmenovatele násobíme nebo dělíme stejným nenulovým číslem. Zápis 4/10 zkrátíme dělením obou čísel dvěma na 2/5.",
-      "forms": ["rovnocenný zlomek"]
-    },
-    {
-      "term": "jednotka délky",
-      "definition": "Říká, v čem délku měříme. Platí 1 km = 1000 m, 1 m = 10 dm, 1 dm = 10 cm a 1 cm = 10 mm. Proto 1 m = 100 cm = 1000 mm. Na menší jednotku násobíme, na větší dělíme.",
-      "forms": ["jednotky délky", "jednotek délky"]
-    },
-    {
-      "term": "desetinné číslo",
-      "definition": "Čárka odděluje celou část od části menší než jedna. Například 1,25 m je 1 m a 25 cm. Čtvrtina je 1/4 = 0,25. Při násobení 10, 100 a 1000 posouváme čárku doprava o 1, 2 a 3 místa, při dělení doleva.",
-      "forms": ["desetinná čísla"]
-    }
+    {"term": "zlomek", "icon": "🍰", "definition": "Zapisuje část celku, například 3/4. Celek rozdělíme na čtyři stejně velké části a vezmeme tři z nich.", "forms": ["zlomky", "zlomku", "zlomků"]},
+    {"term": "čitatel", "definition": "Číslo nad zlomkovou čarou. Říká, kolik stejných částí bereme. Ve zlomku 3/4 je to 3.", "forms": ["čitatele", "čitatelem"]},
+    {"term": "jmenovatel", "definition": "Číslo pod zlomkovou čarou. Říká, na kolik stejných částí dělíme celek. Ve zlomku 3/4 je to 4. Nesmí být nula.", "forms": ["jmenovatele", "jmenovatelem"]},
+    {"term": "celek", "definition": "Celé množství, ze kterého počítáme část. Část zjistíme dělením jmenovatelem a násobením čitatelem.", "forms": ["celku"]},
+    {"term": "rovnocenné zlomky", "definition": "Zlomky se stejnou hodnotou, například 1/2 a 2/4. Čitatele i jmenovatele násobíme nebo dělíme stejným nenulovým číslem.", "forms": ["rovnocenný zlomek"]},
+    {"term": "jednotka délky", "definition": "Říká, v čem délku měříme. Platí 1 km = 1000 m, 1 m = 10 dm, 1 dm = 10 cm a 1 cm = 10 mm. Proto 1 m = 100 cm = 1000 mm. Na menší jednotku násobíme, na větší dělíme.", "forms": ["jednotky délky", "jednotek délky"]},
+    {"term": "desetinné číslo", "definition": "Čárka odděluje celou část od části menší než jedna. Například 1,25 m je 1 m a 25 cm. Čtvrtina je 1/4 = 0,25.", "forms": ["desetinná čísla"]},
+    {"term": "rovnice", "definition": "Rovnost s neznámým číslem, například x + 20 = 200. Písmeno x zastupuje číslo, které hledáme.", "forms": ["rovnici"]},
+    {"term": "porovnání", "definition": "Znak = znamená stejně, < menší, > větší a <> nestejně. Délky porovnávej ve stejné jednotce.", "forms": ["porovnávat"]}
   ],
   "examples": [
     {
-      "kind": "simple",
-      "heading": "1. Zlomek jako část celku",
-      "icon": "🍰",
-      "paragraphs": [
-        {"style": "note", "text": "Různé zápisy mohou znamenat stejnou hodnotu: 0,5 = 1/2 a 7/4 = 1 3/4 = 1,75."},
-        {"style": "tip", "text": "Nejdřív si celek představ rozdělený na stejně velké části. Potom počítej."}
-      ],
-      "prompt": "V krabičce je 20 korálků. Tři čtvrtiny jsou modré. Kolik modrých korálků je v krabičce? Zápis 3/4 čteme tři čtvrtiny.",
+      "kind": "simple", "heading": "1. Část celku a různé zápisy", "icon": "🍰",
+      "prompt": "V krabičce je 20 korálků. Tři čtvrtiny jsou modré. Kolik modrých korálků je v krabičce?",
       "hint": "Nejprve najdi jednu čtvrtinu dělením čtyřmi. Potom vezmi tři takové části.",
-      "steps": [
-        {"calculation": "20 : 4 = 5", "explanation": "Jmenovatel 4 říká, na kolik stejných částí dělíme celek. Jedna čtvrtina z 20 je 5."},
-        {"calculation": "5 × 3 = 15", "explanation": "Čitatel 3 říká, kolik částí bereme. Tři čtvrtiny z 20 jsou 15. Obecně dělíme jmenovatelem a násobíme čitatelem."},
-        {"calculation": "3 ze 6 = 3/6 = 1/2; 4 z 10 = 4/10 = 2/5", "explanation": "Když se ptáme, jaký zlomek tvoří část, zapíšeme počet vybraných věcí nad celkový počet. Obě čísla můžeme vydělit stejným číslem. Rovnocenné zlomky znamenají stejnou část."},
-        {"calculation": "1/4 = 1 : 4 = 0,25", "explanation": "Zlomek lze někdy zapsat přesně desetinným číslem. Když úloha zkoumá hodnotu, uznáváme 1/4, 0,25 i 0.25. Když žádá zkrácený zlomek, záleží i na zápisu: 1/2 získá plné body, nezkrácený zápis 3/6 polovinu."}
-      ],
-      "answer": "Modrých korálků je 15. Pokud otázka chce počet korálků, napiš celé číslo 15, ne zlomek 3/4."
-    },
-    {
-      "kind": "complex",
-      "heading": "2. Převody délky i s desetinnou čárkou",
-      "prompt": "Převeď 1,25 m na centimetry a 40 mm na centimetry. Zapamatuj si vztahy: 1 km = 1000 m, 1 m = 10 dm, 1 dm = 10 cm a 1 cm = 10 mm.",
-      "hint": "Z metrů na centimetry násob 100. Z milimetrů na centimetry děl 10. Mezi km a m je faktor 1000, ne 10.",
-      "steps": [
-        {"calculation": "1 m = 10 dm = 100 cm = 1000 mm", "explanation": "Každý z těchto tří kroků na menší jednotku násobí počet deseti. Délka se nemění, mění se její zápis."},
-        {"calculation": "1,25 × 100 = 125; 1,25 m = 125 cm", "explanation": "Čárku posuneme o dvě místa doprava. Kontrola: 1 m je 100 cm a 0,25 m je 25 cm."},
-        {"calculation": "40 : 10 = 4; 40 mm = 4 cm", "explanation": "Na větší jednotku dělíme. Také 25 dm = 2,5 m, protože 25 : 10 = 2,5."},
-        {"calculation": "2 km = 2000 m; 2400 m = 2,4 km", "explanation": "Mezi kilometry a metry násobíme nebo dělíme tisícem. Pokud otázka určuje jednotku, do pole napiš pouze číslo v této jednotce. Při převodu 2 km na metry tedy napiš 2000."}
-      ],
-      "answer": "1,25 m = 125 cm a 40 mm = 4 cm. Protože zadání určuje centimetry, do odpovědí napiš pouze čísla 125 a 4."
-    },
-    {
-      "kind": "everyday",
-      "heading": "3. Zlomky a délka společně: stuha na dárek",
       "paragraphs": [
-        {"style": "example", "text": "Stejné kusy: z 60 cm uděláš 5 dílů po 12 cm, protože 60 : 12 = 5. Naopak 5 dílů po 12 cm měří 5 × 12 = 60 cm. Prodloužení o polovinu: ke 40 cm přidáš 40 : 2 = 20 cm, celkem 60 cm."},
-        {"style": "tip", "text": "Část ze zbytku: ze 16 korálků nejprve použiješ polovinu, tedy 8. Čtvrtina ze zbylých 8 je 2, ne 4. Vždy si ujasni, co právě tvoří celek."}
+        {"style": "note", "text": "Lehká otázka ověřuje porozumění: Je jmenovatel počet stejných částí celku? Ano. Je možné dělit nulou? Ne, takové dělení není definované."},
+        {"style": "example", "text": "Polovina z 12 je 12 : 2 = 6. Čtvrtina je 1 : 4 = 0,25. Rovnocenné zápisy: 1/2 = 2/4 = 0,5 a 7/4 = 1 3/4 = 1,75. Zlomek 3/6 zkrátíme dělením obou čísel třemi: 1/2."},
+        {"style": "tip", "text": "Při porovnání zlomků se stejným jmenovatelem porovnej čitatele: 1/4 < 3/4. Dvě poloviny tvoří celek: 2/2 = 1. Zápis 1/2 <> 1/4 říká, že hodnoty nejsou stejné."}
       ],
-      "prompt": "Máš 2 m stuhy. Na dárek použiješ 3/4 celé stuhy. Kolik centimetrů použiješ a kolik centimetrů zůstane?",
-      "hint": "Nejprve převeď celou délku na centimetry. Pak vypočítej tři čtvrtiny a odečti je od celku.",
       "steps": [
-        {"calculation": "2 × 100 = 200 cm", "explanation": "Vše budeme počítat v centimetrech. Metry a centimetry nemůžeme přímo sčítat ani odčítat bez převodu."},
-        {"calculation": "200 : 4 × 3 = 50 × 3 = 150 cm", "explanation": "Jedna čtvrtina je 50 cm. Tři stejné části mají dohromady 150 cm."},
-        {"calculation": "200 − 150 = 50 cm", "explanation": "Použitou délku odečteme. Kontrola: 150 cm + 50 cm = 200 cm. Stejný postup funguje i pro třetiny nebo osminy."}
+        {"calculation": "20 : 4 = 5", "explanation": "Jmenovatel určuje počet stejných částí. Jedna čtvrtina z 20 je 5."},
+        {"calculation": "5 × 3 = 15", "explanation": "Čitatel určuje, kolik částí vezmeme. Tři čtvrtiny z 20 jsou 15."}
       ],
-      "answer": "Použiješ 150 cm a zůstane 50 cm. Na otázky, kolik centimetrů použiješ a kolik zůstane, odpověz pouze čísly 150 a 50."
+      "answer": "Modrých korálků je 15. Počet korálků zapisujeme číslem 15, ne zlomkem 3/4."
     },
     {
-      "kind": "challenge",
-      "heading": "4. Výzva: část trasy a rozdělení zbytku",
-      "prompt": "Trasa výletu měří 2,4 km. Ráno ujdeš 1/4 trasy. Zbytek rozdělíš na tři stejně dlouhé úseky. Kolik metrů ujdeš ráno, kolik zbývá a kolik měří jeden další úsek?",
-      "hint": "Převeď kilometry na metry. Vypočítej čtvrtinu. Zbytek nejprve odečti, teprve potom jej rozděl třemi.",
-      "steps": [
-        {"calculation": "2,4 × 1000 = 2400 m; 2400 : 4 = 600 m", "explanation": "Celá trasa má 2400 m. Čtvrtina znamená jednu ze čtyř stejných částí."},
-        {"calculation": "2400 − 600 = 1800 m", "explanation": "Zbývající délku zjistíme odečtením. Kontrola: 600 + 1800 = 2400."},
-        {"calculation": "1800 : 3 = 600 m", "explanation": "Zbytek dělíme na tři stejné úseky. Stejně můžeme rozdělovat zbylý provaz nebo stuhu na stejné kusy."}
+      "kind": "complex", "heading": "2. Jeden výpočet, převod a rovnice",
+      "prompt": "Převeď 1,25 m na centimetry. Potom si ukaž jeden samostatný výpočet a jednu rovnici.",
+      "hint": "Metry na centimetry převádíme násobením stem. U rovnice najdi číslo, které po přičtení 20 dává 200.",
+      "paragraphs": [
+        {"style": "note", "text": "Mezi mm, cm, dm a m je v každém sousedním kroku faktor 10. Mezi km a m je faktor 1000. Délka se převodem nemění. Na větší jednotku dělíme: 135 mm = 13,5 cm."},
+        {"style": "example", "text": "Střední výběr může nabídnout čísla, slova nebo znaky. Pro 1 m a 100 cm vyber =. Pro 1/4 a 3/4 vyber <. Pro 3/4 a 1/4 vyber >. Znak <> značí nestejně, například 1/2 <> 1/4."},
+        {"style": "tip", "text": "Střední číselné zadání má právě jeden výpočet a matematický zápis, ne příběh. Zápis x + 20 = 200 žádá pouze číselnou hodnotu x. Napiš 180, ne x = 180. V převodu je jednotka v zadání, do pole patří jen číslo."}
       ],
-      "answer": "Ráno ujdeš 600 m, zbývá 1800 m a jeden další úsek měří 600 m. V kvízu se každý krok hodnotí samostatně."
+      "steps": [
+        {"calculation": "1,25 × 100 = 125; 1,25 m = 125 cm", "explanation": "Násobení 100 posune čárku o dvě místa doprava. Naopak 125 : 100 = 1,25."},
+        {"calculation": "30 × 60 = 1800", "explanation": "3 × 6 = 18 a dvě desítky dají faktor 100. Proto 30 × 60 = 18 × 100 = 1800."},
+        {"calculation": "x = 200 − 20 = 180; kontrola: 180 + 20 = 200", "explanation": "Přičítání 20 zrušíme odečtením 20. Hledané číslo určí jeden výpočet. Kontrola ověří rovnost."}
+      ],
+      "answer": "1,25 m je 125 cm, součin je 1800 a v rovnici je x rovno 180."
+    },
+    {
+      "kind": "everyday", "heading": "3. Stuha na dárek",
+      "prompt": "Máš 2 m stuhy. Na dárek použiješ 3/4 celé stuhy. Kolik centimetrů měří celek, kolik použiješ a kolik zůstane?",
+      "hint": "Převeď celek na centimetry, vypočítej jeho část a pak ji odečti.",
+      "paragraphs": [
+        {"style": "example", "text": "Stejné kusy: z 60 cm uděláš 5 dílů po 12 cm, protože 60 : 12 = 5. Naopak 5 dílů po 12 cm měří 5 × 12 = 60 cm. Prodloužení o třetinu: ke 150 cm přidáš 150 : 3 = 50 cm, celkem 200 cm."},
+        {"style": "tip", "text": "Při sčítání a odčítání používej stejnou jednotku. Například 1,2 m + 80 cm = 120 cm + 80 cm = 200 cm. Část ze zbytku počítej až po odečtení použité části."}
+      ],
+      "steps": [
+        {"calculation": "2 × 100 = 200 cm", "explanation": "Celou délku převedeme na centimetry."},
+        {"calculation": "200 : 4 × 3 = 150 cm", "explanation": "Ze čtyř stejných částí bereme tři."},
+        {"calculation": "200 − 150 = 50 cm", "explanation": "Použitou délku odečteme od celku. Kontrola: 150 + 50 = 200."}
+      ],
+      "answer": "Celek měří 200 cm, použiješ 150 cm a zůstane 50 cm. Každá odpověď má vlastní body."
+    },
+    {
+      "kind": "challenge", "heading": "4. Část trasy a rozdělení zbytku",
+      "prompt": "Trasa výletu měří 2,4 km. Ráno ujdeš 1/4 trasy. Zbytek rozdělíš na tři stejně dlouhé úseky. Kolik metrů měří celek, ranní cesta, zbytek a další úsek?",
+      "hint": "Převeď kilometry na metry, najdi čtvrtinu, odečti ji a zbytek rozděl třemi.",
+      "steps": [
+        {"calculation": "2,4 × 1000 = 2400 m", "explanation": "Kilometr obsahuje tisíc metrů."},
+        {"calculation": "2400 : 4 = 600 m", "explanation": "Ranní cesta je jedna ze čtyř stejných částí."},
+        {"calculation": "2400 − 600 = 1800 m", "explanation": "Zbytek nyní tvoří nový celek pro dělení."},
+        {"calculation": "1800 : 3 = 600 m", "explanation": "Každý další úsek je třetina ze zbytku, ne z původní délky."}
+      ],
+      "answer": "Celek: 2400 m, ráno: 600 m, zbytek: 1800 m, další úsek: 600 m. V kvízu napiš jen čísla."
     }
   ],
   "exercises": [
+    {"id": "jmenovatel-casti", "difficulty": "easy", "type": "trueFalse", "prompt": "Říká jmenovatel, na kolik stejných částí dělíme celek?", "options": ["Ano", "Ne"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Vzpomeň si na spodní číslo ve zlomku 3/4.", "solution": "Ano. Jmenovatel 4 rozděluje celek na čtyři stejné části.", "explanation": "Čitatel pak říká, kolik těchto částí vezmeme."},
+    {"id": "citatel-casti", "difficulty": "easy", "type": "trueFalse", "prompt": "Říká čitatel, kolik stejných částí bereme?", "options": ["Ano", "Ne"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Podívej se na horní číslo zlomku.", "solution": "Ano. Ve zlomku 3/4 bereme tři ze čtyř částí.", "explanation": "Horní číslo určuje počet vybraných částí."},
+    {"id": "deleni-nulou", "difficulty": "easy", "type": "trueFalse", "prompt": "Může být jmenovatel zlomku nula?", "options": ["Ano", "Ne"], "answer": 1, "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}}, "hint": "Zlomková čára znamená také dělení.", "solution": "Ne. Dělení nulou není definované.", "explanation": "Jmenovatel musí být nenulový."},
+    {"id": "mensi-jednotka", "difficulty": "easy", "type": "trueFalse", "prompt": "Při převodu metrů na centimetry násobíme?", "options": ["Ano", "Ne"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Do jednoho metru se vejde mnoho centimetrů.", "solution": "Ano. Centimetr je menší jednotka: 1 m = 100 cm.", "explanation": "Menších jednotek potřebujeme na stejnou délku více."},
+    {"id": "kilometr-faktor", "difficulty": "easy", "type": "trueFalse", "prompt": "Je mezi kilometry a metry převodní faktor 10?", "options": ["Ano", "Ne"], "answer": 1, "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}}, "hint": "Vzpomeň si, kolik metrů má jeden kilometr.", "solution": "Ne. 1 km = 1000 m, faktor je 1000.", "explanation": "Kilometry a metry nejsou sousední kroky s faktorem 10."},
+    {"id": "stejna-delka", "difficulty": "easy", "type": "trueFalse", "prompt": "Změní se skutečná délka provazu, když ji zapíšeme jinou jednotkou?", "options": ["Ano", "Ne"], "answer": 1, "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}}, "hint": "Provaz při převodu nestříháme ani neprodlužujeme.", "solution": "Ne. 1 m a 100 cm označují stejnou délku.", "explanation": "Mění se číslo a jednotka, nikoli měřená délka."},
+    {"id": "stejna-jednotka", "difficulty": "easy", "type": "trueFalse", "prompt": "Musíme délky před sčítáním vyjádřit stejnou jednotkou?", "options": ["Ano", "Ne"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Jeden metr a jeden centimetr nejsou stejně velké díly.", "solution": "Ano. Nejprve například převeď metry na centimetry.", "explanation": "Sčítáme počty stejně velkých jednotek."},
+    {"id": "rovnocenne-casti", "difficulty": "easy", "type": "trueFalse", "prompt": "Označují 1/2 a 2/4 stejnou část celku?", "options": ["Ano", "Ne"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Rozděl každou polovinu ještě na dvě části.", "solution": "Ano. Dvě čtvrtiny jsou jedna polovina.", "explanation": "Vynásobení čitatele i jmenovatele dvěma nemění hodnotu."},
+    {"id": "cast-ze-zbytku", "difficulty": "easy", "type": "trueFalse", "prompt": "Když hledáme třetinu ze zbytku, počítáme ji vždy z původního celku?", "options": ["Ano", "Ne"], "answer": 1, "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}}, "hint": "Co tvoří celek po odebrání první části?", "solution": "Ne. Novým celkem je zbývající množství.", "explanation": "Nejprve zjistíme zbytek, potom jeho třetinu."},
+    {"id": "vyber-citatel", "difficulty": "medium", "type": "choice", "prompt": "Jak se jmenuje horní číslo zlomku?", "options": ["čitatel", "jmenovatel", "jednotka"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Horní číslo počítá vybrané části.", "solution": "Horní číslo je čitatel.", "explanation": "Jmenovatel je pod zlomkovou čarou."},
+    {"id": "vyber-prevod", "difficulty": "medium", "type": "choice", "prompt": "Kolik centimetrů je 1 m?", "options": ["10", "100", "1000"], "answer": 1, "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}}, "hint": "V jednom metru je deset decimetrů, každý má deset centimetrů.", "solution": "1 m = 100 cm. Vyber 100.", "explanation": "Počet metrů násobíme stem."},
+    {"id": "vyber-rovnost", "difficulty": "medium", "type": "choice", "prompt": "Doplň znak: 1 m ___ 100 cm.", "options": ["=", "<", ">", "<>"], "answer": 0, "assessment": {"input": "number", "exact": {"type": "number", "value": "0"}}, "hint": "Porovnej délky ve stejné jednotce.", "solution": "1 m = 100 cm, proto vyber =.", "explanation": "Znak = vyjadřuje rovnost."},
+    {"id": "vyber-mensi", "difficulty": "medium", "type": "choice", "prompt": "Doplň nejpřesnější znak: 1/4 ___ 3/4.", "options": ["=", "<", ">", "<>"], "answer": 1, "assessment": {"input": "number", "exact": {"type": "number", "value": "1"}}, "hint": "Čtvrtiny mají stejnou velikost. Porovnej jejich počty.", "solution": "Jedna čtvrtina je menší než tři čtvrtiny. Vyber <.", "explanation": "Pro nestejně velké hodnoty vyber přesnější znak < nebo >, ne obecný znak <>."},
+    {"id": "vyber-vetsi", "difficulty": "medium", "type": "choice", "prompt": "Doplň nejpřesnější znak: 3/4 ___ 1/4.", "options": ["=", "<", ">", "<>"], "answer": 2, "assessment": {"input": "number", "exact": {"type": "number", "value": "2"}}, "hint": "Obě hodnoty počítají stejně velké čtvrtiny.", "solution": "Tři čtvrtiny jsou větší než jedna. Vyber >.", "explanation": "Znak > určuje také směr nerovnosti."},
+    {"id": "vyber-nestejne", "difficulty": "medium", "type": "choice", "prompt": "Který znak říká jen „nestejně“, bez určení větší nebo menší hodnoty?", "options": ["=", "<", ">", "<>"], "answer": 3, "assessment": {"input": "number", "exact": {"type": "number", "value": "3"}}, "hint": "Hledáme obecnou nerovnost, ne její směr.", "solution": "Vyber <>. Například 1/2 <> 1/4.", "explanation": "Znaky < a > navíc říkají, která hodnota je menší nebo větší."},
+    {"id": "soucin-desitek", "difficulty": "medium", "type": "number", "prompt": "30 × 60 = ?", "steps": [{"prompt": "30 × 60 = ?", "hint": "Vynásob 3 a 6 a zohledni obě desítky.", "answer": {"format": "integer", "value": "1800"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1800"}}, "solution": "30 × 60 = 1800."}], "explanation": "Jde o jeden součin. Dvě desítky dávají faktor 100."},
+    {"id": "jednokrokova-rovnice", "difficulty": "medium", "type": "number", "prompt": "x + 20 = 200. x = ?", "steps": [{"prompt": "x + 20 = 200. x = ?", "hint": "Od pravé strany odečti přičítaných 20.", "answer": {"format": "integer", "value": "180"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "180"}}, "solution": "x = 200 − 20 = 180. Kontrola: 180 + 20 = 200."}], "explanation": "Napiš pouze číselnou hodnotu x, nikoli výraz ani rovnici."},
+    {"id": "polovina-dvanacti", "difficulty": "medium", "type": "number", "prompt": "12 : 2 = ?", "steps": [{"prompt": "12 : 2 = ?", "hint": "Rozděl dvanáct na dvě stejné části.", "answer": {"format": "integer", "value": "6"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "6"}}, "solution": "12 : 2 = 6."}], "explanation": "Jedna polovina z dvanácti je šest."},
+    {"id": "metr-na-centimetry", "difficulty": "medium", "type": "number", "prompt": "1,25 × 100 = ? (cm při převodu z m)", "steps": [{"prompt": "1,25 × 100 = ? (cm)", "hint": "Při násobení stem posuň čárku o dvě místa doprava.", "answer": {"format": "integer", "value": "125"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "125"}}, "solution": "1,25 × 100 = 125; 1,25 m = 125 cm."}], "explanation": "Jednotku určuje zadání, proto napiš pouze číslo."},
+    {"id": "milimetry-na-centimetry", "difficulty": "medium", "type": "number", "prompt": "135 : 10 = ? (cm při převodu z mm)", "steps": [{"prompt": "135 : 10 = ? (cm)", "hint": "Deset milimetrů tvoří jeden centimetr.", "answer": {"format": "decimal", "value": "13.5"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "13.5"}}, "solution": "135 : 10 = 13,5; 135 mm = 13,5 cm."}], "explanation": "Výsledek je přesný. Můžeš použít čárku nebo tečku."},
+    {"id": "ctvrtina-hodnota", "difficulty": "medium", "type": "number", "prompt": "1 : 4 = ?", "steps": [{"prompt": "1 : 4 = ?", "hint": "Najdi hodnotu jedné čtvrtiny.", "answer": {"format": "fraction", "numerator": "1", "denominator": "4"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1/4"}}, "solution": "1 : 4 = 1/4 = 0,25."}], "explanation": "Uznáváme přesně rovnocenné zlomky i desetinné číslo."},
     {
-      "id": "ctyri-zlomky",
-      "difficulty": "easy",
-      "prompt": "Čtyři samostatné výpočty se zlomky. U každého dodrž požadovaný zápis odpovědi.",
+      "id": "provaz-na-kusy", "difficulty": "hard", "type": "number",
+      "prompt": "Provaz měří 6 m. Použiješ 1/3 provazu a zbytek rozdělíš na čtyři stejné kusy. Odpovídej čísly v centimetrech.",
       "steps": [
-        {"prompt": "Kolik je 1/2 z 12?", "hint": "Dvanáct rozděl na dvě stejné části.", "answer": {"format": "integer", "value": "6"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "6"}}, "solution": "12 : 2 = 6."},
-        {"prompt": "Kolik je 3/4 z 20?", "hint": "Nejprve děl čtyřmi a potom násob třemi.", "answer": {"format": "integer", "value": "15"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "15"}}, "solution": "20 : 4 × 3 = 5 × 3 = 15."},
-        {"prompt": "Jaký zlomek všech kuliček tvoří 3 kuličky ze 6? Zkrať jej na základní tvar a napiš zlomek bez mezer. Za nezkrácený zápis 3/6 získáš polovinu bodů.", "hint": "Vybrané kuličky patří do čitatele, všechny do jmenovatele. Obě čísla vyděl třemi.", "answer": {"format": "fraction", "numerator": "1", "denominator": "2"}, "assessment": {"input": "number", "exact": {"type": "string", "value": "1/2"}, "partial": {"credit": 0.5, "match": {"type": "string", "value": "3/6"}}}, "solution": "3/6 = 1/2. Obě čísla jsme vydělili třemi. Zkrácený zápis 1/2 získá plné body, zápis 3/6 polovinu."},
-        {"prompt": "Jakou hodnotu má 1/4? Můžeš použít desetinné číslo nebo rovnocenný zlomek.", "hint": "Vyděl jedna čtyřmi. Můžeš použít čárku nebo tečku.", "answer": {"format": "decimal", "value": "0.25"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "0.25"}}, "solution": "1 : 4 = 0,25."}
-      ],
-      "explanation": "Zlomek může označovat část množství i část jednoho celku. Sleduj zadání: při krácení záleží i na zápisu, jinak uznáváme přesně stejnou hodnotu."
+        {"prompt": "Kolik centimetrů použiješ?", "hint": "Převeď celek na centimetry a najdi třetinu.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "6 m = 600 cm; 600 : 3 = 200 cm."},
+        {"prompt": "Kolik centimetrů zůstane?", "hint": "Použitou část odečti od celku.", "answer": {"format": "integer", "value": "400"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "400"}}, "solution": "600 − 200 = 400 cm."},
+        {"prompt": "Kolik centimetrů měří jeden nový kus?", "hint": "Zbytek rozděl na čtyři stejné části.", "answer": {"format": "integer", "value": "100"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "100"}}, "solution": "400 : 4 = 100 cm."}
+      ], "explanation": "Výsledky na sebe navazují. Kontrola: 200 + 4 × 100 = 600 cm."
     },
     {
-      "id": "ctyri-prevody",
-      "icon": "📏",
-      "difficulty": "easy",
-      "prompt": "Čtyři samostatné převody délky. Napiš pouze číslo v jednotce určené otázkou.",
+      "id": "vylet-na-etapy", "difficulty": "hard", "type": "number",
+      "prompt": "Výlet měří 2,4 km. Ráno ujdeš 1/4 trasy a zbytek rozdělíš na tři stejné úseky. Odpovídej čísly v metrech.",
       "steps": [
-        {"prompt": "Převeď 3 m na centimetry.", "hint": "Jeden metr obsahuje 100 centimetrů.", "answer": {"format": "integer", "value": "300"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "300"}}, "solution": "3 × 100 = 300; 3 m = 300 cm."},
-        {"prompt": "Převeď 50 mm na centimetry.", "hint": "Deset milimetrů je jeden centimetr.", "answer": {"format": "integer", "value": "5"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "5"}}, "solution": "50 : 10 = 5; 50 mm = 5 cm."},
-        {"prompt": "Převeď 2 km na metry.", "hint": "Jeden kilometr je 1000 metrů.", "answer": {"format": "integer", "value": "2000"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "2000"}}, "solution": "2 × 1000 = 2000; 2 km = 2000 m."},
-        {"prompt": "Převeď 1,5 m na decimetry.", "hint": "Jeden metr je 10 decimetrů.", "answer": {"format": "integer", "value": "15"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "15"}}, "solution": "1,5 × 10 = 15; 1,5 m = 15 dm."}
-      ],
-      "explanation": "Na menší jednotku násobíme, na větší dělíme. Mezi km a m je faktor 1000. Otázka určuje jednotku, proto do odpovědi patří pouze výsledné číslo v této jednotce."
+        {"prompt": "Kolik metrů měří celá trasa?", "hint": "Kilometry násob tisícem.", "answer": {"format": "integer", "value": "2400"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "2400"}}, "solution": "2,4 × 1000 = 2400 m."},
+        {"prompt": "Kolik metrů ujdeš ráno?", "hint": "Najdi čtvrtinu celku.", "answer": {"format": "integer", "value": "600"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "600"}}, "solution": "2400 : 4 = 600 m."},
+        {"prompt": "Kolik metrů zbývá?", "hint": "Odečti ranní cestu.", "answer": {"format": "integer", "value": "1800"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1800"}}, "solution": "2400 − 600 = 1800 m."},
+        {"prompt": "Kolik metrů měří další úsek?", "hint": "Třetinu počítej ze zbytku.", "answer": {"format": "integer", "value": "600"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "600"}}, "solution": "1800 : 3 = 600 m."}
+      ], "explanation": "Čtyři odpovědi tvoří jeden spojený postup, nikoli čtvrtou obtížnost."
     },
     {
-      "id": "modre-koralky",
-      "difficulty": "medium",
-      "prompt": "Na stole je 18 korálků. Dvě třetiny jsou modré. Kolik modrých korálků je na stole?",
+      "id": "stuzka-na-masle", "difficulty": "hard", "type": "number",
+      "prompt": "Stužka měří 120 cm. Odstřihneš 3/8 a zbytek rozdělíš na pět dílů. Odpovídej čísly v centimetrech.",
       "steps": [
-        {"prompt": "Napiš počet modrých korálků.", "hint": "Nejprve najdi třetinu z 18. Pak vezmi dvě takové části.", "answer": {"format": "integer", "value": "12"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "12"}}, "solution": "18 : 3 × 2 = 6 × 2 = 12."}
-      ],
-      "explanation": "Jmenovatel určí dělení a čitatel násobení. Modrých korálků je méně než všech 18."
+        {"prompt": "Kolik centimetrů odstřihneš?", "hint": "Najdi osminu a vezmi tři takové části.", "answer": {"format": "integer", "value": "45"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "45"}}, "solution": "120 : 8 × 3 = 45 cm."},
+        {"prompt": "Kolik centimetrů zůstane?", "hint": "Odečti odstřiženou část.", "answer": {"format": "integer", "value": "75"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "75"}}, "solution": "120 − 45 = 75 cm."},
+        {"prompt": "Kolik centimetrů měří jeden díl?", "hint": "Zbytek rozděl pěti.", "answer": {"format": "integer", "value": "15"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "15"}}, "solution": "75 : 5 = 15 cm."}
+      ], "explanation": "Kontrola: 45 + 5 × 15 = 120 cm."
     },
     {
-      "id": "dve-tycky",
-      "difficulty": "medium",
-      "prompt": "Položíš za sebe tyčku dlouhou 7 dm a tyčku dlouhou 25 cm. Jaká je jejich celková délka v centimetrech?",
+      "id": "cesta-k-rybniku", "difficulty": "hard", "type": "number",
+      "prompt": "Cesta měří 3 km. Ujdeš 2/5 a pak dalších 600 m. Odpovídej čísly v metrech.",
       "steps": [
-        {"prompt": "Napiš pouze počet centimetrů celkové délky.", "hint": "Nejprve převeď decimetry na centimetry.", "answer": {"format": "integer", "value": "95"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "95"}}, "solution": "7 dm = 70 cm. Potom 70 + 25 = 95 cm."}
-      ],
-      "explanation": "Sčítáme délky ve stejné jednotce. Délka obou tyček dohromady je 95 cm."
+        {"prompt": "Kolik metrů ujdeš v první části?", "hint": "Převeď celek na metry a najdi dvě pětiny.", "answer": {"format": "integer", "value": "1200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1200"}}, "solution": "3 km = 3000 m; 3000 : 5 × 2 = 1200 m."},
+        {"prompt": "Kolik metrů zbývá po první části?", "hint": "Odečti první úsek.", "answer": {"format": "integer", "value": "1800"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1800"}}, "solution": "3000 − 1200 = 1800 m."},
+        {"prompt": "Kolik metrů zbývá po dalších 600 m?", "hint": "Odečti druhý úsek od předchozího zbytku.", "answer": {"format": "integer", "value": "1200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1200"}}, "solution": "1800 − 600 = 1200 m."}
+      ], "explanation": "Každé další použití zmenšuje aktuální zbytek."
     },
     {
-      "id": "stuha-na-darek",
-      "difficulty": "medium",
-      "prompt": "Ze stuhy dlouhé 2 m použiješ 3/4 na dárek. Kolik centimetrů stuhy použiješ?",
+      "id": "knizky-na-policce", "difficulty": "hard", "type": "number",
+      "prompt": "Polička měří 6 dm. Knihám vyhradíš 3/5 délky. Jedna kniha je silná 2 cm.",
       "steps": [
-        {"prompt": "Napiš pouze počet použitých centimetrů.", "hint": "Dva metry jsou 200 cm. Z nich vypočítej tři čtvrtiny.", "answer": {"format": "integer", "value": "150"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "150"}}, "solution": "2 m = 200 cm. Potom 200 : 4 × 3 = 150 cm."}
-      ],
-      "explanation": "Nejprve převedeme celek na vhodnou jednotku a teprve potom vypočítáme jeho část."
+        {"prompt": "Kolik centimetrů měří polička?", "hint": "Decimetry násob deseti.", "answer": {"format": "integer", "value": "60"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "60"}}, "solution": "6 × 10 = 60 cm."},
+        {"prompt": "Kolik centimetrů vyhradíš knihám?", "hint": "Vezmi tři pětiny z předchozí délky.", "answer": {"format": "integer", "value": "36"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "36"}}, "solution": "60 : 5 × 3 = 36 cm."},
+        {"prompt": "Kolik knih se vejde do vyhrazené části?", "hint": "Délku děl tloušťkou jedné knihy.", "answer": {"format": "integer", "value": "18"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "18"}}, "solution": "36 : 2 = 18 knih."}
+      ], "explanation": "Poslední odpověď je počet knih, ne délka. Kontrola: 18 × 2 = 36 cm."
     },
     {
-      "id": "prectene-strany",
-      "difficulty": "medium",
-      "prompt": "Krátký příběh má 10 stran. Přečetl jsi 4 strany. Jaký zlomek příběhu jsi přečetl?",
+      "id": "draha-auticka", "difficulty": "hard", "type": "number",
+      "prompt": "Dráha má dva díly: 1,2 m a 80 cm. Autíčko projede 3/4 celé dráhy. Odpověz čísly v určených jednotkách.",
       "steps": [
-        {"prompt": "Napiš hodnotu přečtené části. Uznáváme rovnocenné zápisy.", "hint": "Počet přečtených stran napiš nad celkový počet. Zlomek můžeš zkrátit.", "answer": {"format": "fraction", "numerator": "2", "denominator": "5"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "2/5"}}, "solution": "Přečtená část je 4/10. Po vydělení čitatele i jmenovatele dvěma získáme 2/5."}
-      ],
-      "explanation": "Zápisy 4/10 a 2/5 označují stejnou část příběhu. Oba se uznávají."
+        {"prompt": "Kolik centimetrů měří celek?", "hint": "Převeď první díl na centimetry a sečti.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "1,2 m = 120 cm; 120 + 80 = 200 cm."},
+        {"prompt": "Kolik centimetrů autíčko projede?", "hint": "Vezmi tři čtvrtiny celku.", "answer": {"format": "integer", "value": "150"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "150"}}, "solution": "200 : 4 × 3 = 150 cm."},
+        {"prompt": "Kolik milimetrů zbývá?", "hint": "Najdi zbytek v centimetrech a násob deseti.", "answer": {"format": "integer", "value": "500"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "500"}}, "solution": "200 − 150 = 50 cm; 50 × 10 = 500 mm."}
+      ], "explanation": "Stejná délka může mít jiný číselný zápis. Sleduj jednotku každé otázky."
     },
     {
-      "id": "cesta-do-knihovny",
-      "difficulty": "medium",
-      "prompt": "Do knihovny jdeš nejprve 1/2 kilometru po ulici a potom dalších 250 m parkem. Kolik metrů ujdeš celkem?",
+      "id": "dva-kabely", "difficulty": "hard", "type": "number",
+      "prompt": "Z kabelu dlouhého 2,5 m použiješ 4/5. Připojíš další kus dlouhý 350 mm, beze ztrát.",
       "steps": [
-        {"prompt": "Napiš pouze počet metrů celkové délky.", "hint": "Kilometr je 1000 m. Vypočítej jeho polovinu a přičti 250 m.", "answer": {"format": "integer", "value": "750"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "750"}}, "solution": "1000 : 2 = 500 m. Potom 500 + 250 = 750 m."}
-      ],
-      "explanation": "Polovina kilometru je 500 m. Před sčítáním mají obě délky stejnou jednotku."
+        {"prompt": "Kolik centimetrů použiješ z prvního kabelu?", "hint": "Převeď celek na centimetry a najdi čtyři pětiny.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "2,5 m = 250 cm; 250 : 5 × 4 = 200 cm."},
+        {"prompt": "Kolik centimetrů měří spojené kusy?", "hint": "Druhý kabel převeď na centimetry a přičti.", "answer": {"format": "integer", "value": "235"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "235"}}, "solution": "350 mm = 35 cm; 200 + 35 = 235 cm."},
+        {"prompt": "Kolik metrů měří spojené kusy?", "hint": "Centimetry děl stem.", "answer": {"format": "decimal", "value": "2.35"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "2.35"}}, "solution": "235 : 100 = 2,35 m."}
+      ], "explanation": "Před sčítáním vyjádříme oba kusy ve stejné jednotce."
     },
     {
-      "id": "provaz-na-kusy",
-      "difficulty": "hard",
-      "prompt": "Provaz měří 6 m. Použiješ 1/3 provazu a zbytek rozdělíš na čtyři stejné kusy. Odpovědi napiš pouze čísly v jednotkách určených otázkami.",
-      "steps": [
-        {"prompt": "Kolik centimetrů provazu použiješ?", "hint": "Šest metrů převeď na centimetry a vyděl třemi.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "6 m = 600 cm. Potom 600 : 3 = 200 cm."},
-        {"prompt": "Kolik centimetrů provazu zůstane?", "hint": "Od celé délky odečti použitou třetinu.", "answer": {"format": "integer", "value": "400"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "400"}}, "solution": "600 − 200 = 400 cm."},
-        {"prompt": "Kolik centimetrů měří jeden ze čtyř nových kusů?", "hint": "Zbývající délku rozděl na čtyři stejné části.", "answer": {"format": "integer", "value": "100"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "100"}}, "solution": "400 : 4 = 100 cm. Kontrola: 4 × 100 cm = 400 cm."}
-      ],
-      "explanation": "Převod, část celku, odčítání a rozdělení zbytku na sebe navazují. Každý správný krok získá body nezávisle na ostatních."
-    },
-    {
-      "id": "vylet-na-etapy",
-      "difficulty": "hard",
-      "prompt": "Trasa výletu má 2,4 km. Ráno ujdeš 1/4 trasy. Zbytek rozdělíš na tři stejně dlouhé úseky. Všechny odpovědi napiš pouze čísly v metrech.",
-      "steps": [
-        {"prompt": "Kolik metrů ujdeš ráno?", "hint": "Převeď 2,4 km na metry a vypočítej čtvrtinu.", "answer": {"format": "integer", "value": "600"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "600"}}, "solution": "2,4 km = 2400 m. Potom 2400 : 4 = 600 m."},
-        {"prompt": "Kolik metrů zbývá po ranní cestě?", "hint": "Od celé délky odečti ranní část.", "answer": {"format": "integer", "value": "1800"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1800"}}, "solution": "2400 − 600 = 1800 m."},
-        {"prompt": "Kolik metrů měří jeden ze tří dalších úseků?", "hint": "Zbývající délku vyděl třemi.", "answer": {"format": "integer", "value": "600"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "600"}}, "solution": "1800 : 3 = 600 m."}
-      ],
-      "explanation": "Nejprve použijeme převod a zlomek, potom odčítání a dělení. Celkem ujdeme 600 + 3 × 600 = 2400 m."
-    },
-    {
-      "id": "stuzka-na-masle",
-      "difficulty": "hard",
-      "prompt": "Stužka měří 120 cm. Na ozdobu odstřihneš 3/8 celé stužky. Zbytek rozdělíš na pět stejných dílů na malé mašle. Odpovědi napiš pouze čísly v centimetrech.",
-      "steps": [
-        {"prompt": "Kolik centimetrů odstřihneš na ozdobu?", "hint": "Najdi osminu ze 120 a vynásob ji třemi.", "answer": {"format": "integer", "value": "45"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "45"}}, "solution": "120 : 8 = 15 cm. Potom 15 × 3 = 45 cm."},
-        {"prompt": "Kolik centimetrů stužky zůstane?", "hint": "Odstřiženou délku odečti od 120 cm.", "answer": {"format": "integer", "value": "75"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "75"}}, "solution": "120 − 45 = 75 cm."},
-        {"prompt": "Kolik centimetrů měří jeden z pěti dílů?", "hint": "Zbytek rozděl na pět stejných částí.", "answer": {"format": "integer", "value": "15"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "15"}}, "solution": "75 : 5 = 15 cm. Kontrola: 45 + 5 × 15 = 120 cm."}
-      ],
-      "explanation": "Tři osminy z celku neznamenají dělit třemi. Dělíme osmi a násobíme třemi. Všechny tři otázky určují centimetry, proto odpovídáme pouze čísly."
-    },
-    {
-      "id": "zapis-a-kraceni",
-      "difficulty": "easy",
-      "prompt": "Čtyři různé zápisy částí celku. Sleduj, zda se ptáme na hodnotu, nebo na zkrácený zlomek.",
-      "steps": [
-        {"prompt": "Jakou část tvoří 2 zelené kostky z 8? Napiš hodnotu jako zlomek nebo desetinné číslo.", "hint": "Počet zelených kostek napiš nad celkový počet.", "answer": {"format": "fraction", "numerator": "1", "denominator": "4"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1/4"}}, "solution": "Zelená část je 2/8 = 1/4 = 0,25."},
-        {"prompt": "Zkrať 6/9 na základní tvar. Napiš zlomek bez mezer.", "hint": "Obě čísla jsou dělitelná třemi.", "answer": {"format": "fraction", "numerator": "2", "denominator": "3"}, "assessment": {"input": "number", "exact": {"type": "string", "value": "2/3"}}, "solution": "6 : 3 = 2 a 9 : 3 = 3. Zkrácený zlomek je 2/3."},
-        {"prompt": "Jakou hodnotu má 3/5? Můžeš napsat desetinné číslo nebo rovnocenný zlomek.", "hint": "Tři děl pěti.", "answer": {"format": "decimal", "value": "0.6"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "0.6"}}, "solution": "3 : 5 = 0,6."},
-        {"prompt": "Kolik je 2/3 z 27?", "hint": "Najdi třetinu a vezmi ji dvakrát.", "answer": {"format": "integer", "value": "18"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "18"}}, "solution": "27 : 3 × 2 = 9 × 2 = 18."}
-      ],
-      "explanation": "U hodnoty uznáváme rovnocenné zápisy. Když zadání žádá základní tvar, zkrať čitatele i jmenovatele."
-    },
-    {
-      "id": "prevody-na-vetsi-i-mensi",
-      "difficulty": "easy",
-      "prompt": "Převody na větší i menší jednotku. Odpověz pouze číslem v určené jednotce.",
-      "steps": [
-        {"prompt": "Převeď 0,6 m na decimetry.", "hint": "Z metrů na decimetry násob deseti.", "answer": {"format": "integer", "value": "6"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "6"}}, "solution": "0,6 × 10 = 6; 0,6 m = 6 dm."},
-        {"prompt": "Převeď 450 cm na metry.", "hint": "Sto centimetrů tvoří metr.", "answer": {"format": "decimal", "value": "4.5"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "4.5"}}, "solution": "450 : 100 = 4,5; 450 cm = 4,5 m."},
-        {"prompt": "Převeď 7 dm na milimetry.", "hint": "Decimetr má 10 cm a každý centimetr 10 mm.", "answer": {"format": "integer", "value": "700"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "700"}}, "solution": "7 × 10 × 10 = 700; 7 dm = 700 mm."},
-        {"prompt": "Převeď 1250 m na kilometry.", "hint": "Na kilometry děl tisícem.", "answer": {"format": "decimal", "value": "1.25"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1.25"}}, "solution": "1250 : 1000 = 1,25; 1250 m = 1,25 km."}
-      ],
-      "explanation": "Při přechodu na větší jednotku může vzniknout desetinné číslo. Délka zůstává stejná."
-    },
-    {
-      "id": "zlomky-jednotek",
-      "difficulty": "easy",
-      "prompt": "Čtyři části známých jednotek délky. Napiš pouze číslo v jednotce z otázky.",
-      "steps": [
-        {"prompt": "Kolik centimetrů je 1/4 metru?", "hint": "Metr má 100 cm. Najdi čtvrtinu.", "answer": {"format": "integer", "value": "25"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "25"}}, "solution": "100 : 4 = 25 cm."},
-        {"prompt": "Kolik centimetrů jsou 3/5 metru?", "hint": "Sto centimetrů rozděl na pět částí a vezmi tři.", "answer": {"format": "integer", "value": "60"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "60"}}, "solution": "100 : 5 × 3 = 60 cm."},
-        {"prompt": "Kolik metrů je 1/2 kilometru?", "hint": "Vypočítej polovinu z 1000 m.", "answer": {"format": "integer", "value": "500"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "500"}}, "solution": "1000 : 2 = 500 m."},
-        {"prompt": "Kolik milimetrů jsou 3/4 decimetru?", "hint": "Decimetr má 100 mm.", "answer": {"format": "integer", "value": "75"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "75"}}, "solution": "100 : 4 × 3 = 75 mm."}
-      ],
-      "explanation": "Nejdřív zapiš celý metr, decimetr nebo kilometr v požadované jednotce. Pak vypočítej jeho část."
-    },
-    {
-      "id": "desetinne-zlomky",
-      "difficulty": "easy",
-      "prompt": "Čtyři přesné hodnoty zlomků a smíšeného čísla. Uznáváme přesně rovnocenné zápisy.",
-      "steps": [
-        {"prompt": "Jakou hodnotu má 1/8?", "hint": "Jedna děleno osmi vyjde přesně.", "answer": {"format": "decimal", "value": "0.125"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "0.125"}}, "solution": "1 : 8 = 0,125."},
-        {"prompt": "Jakou hodnotu má 3/4?", "hint": "Tři děl čtyřmi.", "answer": {"format": "decimal", "value": "0.75"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "0.75"}}, "solution": "3 : 4 = 0,75."},
-        {"prompt": "Jakou hodnotu má smíšené číslo 1 1/2?", "hint": "K jedné celé přidej polovinu.", "answer": {"format": "decimal", "value": "1.5"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1.5"}}, "solution": "1 + 0,5 = 1,5."},
-        {"prompt": "Jakou hodnotu má 7/4?", "hint": "Sedm čtvrtin je jedna celá a tři čtvrtiny.", "answer": {"format": "decimal", "value": "1.75"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1.75"}}, "solution": "7 : 4 = 1,75 = 1 3/4."}
-      ],
-      "explanation": "Desetinná čárka a tečka jsou dvě možnosti zápisu. Nezaokrouhluj: všechny tyto hodnoty lze napsat přesně."
-    },
-    {
-      "id": "paska-na-lavicku",
-      "difficulty": "medium",
-      "prompt": "Lavička je dlouhá 1,8 m. Na její ozdobení zbývá páska dlouhá 65 cm. Kolik centimetrů pásky ještě potřebuješ, aby pokryla celou délku lavičky?",
-      "steps": [
-        {"prompt": "Napiš pouze počet chybějících centimetrů.", "hint": "Nejprve převeď lavičku na centimetry a odečti dostupnou pásku.", "answer": {"format": "integer", "value": "115"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "115"}}, "solution": "1,8 m = 180 cm. Chybí 180 − 65 = 115 cm."}
-      ],
-      "explanation": "Porovnáváme délky ve stejné jednotce. Výsledkem je rozdíl mezi potřebnou a dostupnou délkou."
-    },
-    {
-      "id": "skok-pres-caru",
-      "difficulty": "medium",
-      "prompt": "Jeden skok měří 85 cm a druhý 920 mm. O kolik centimetrů je druhý skok delší?",
-      "steps": [
-        {"prompt": "Napiš pouze rozdíl v centimetrech.", "hint": "Milimetry převeď na centimetry. Potom odečti kratší skok.", "answer": {"format": "integer", "value": "7"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "7"}}, "solution": "920 mm = 92 cm. Rozdíl je 92 − 85 = 7 cm."}
-      ],
-      "explanation": "Po převodu vidíš, že 920 mm je více než 85 cm. Neodečítej čísla v různých jednotkách."
-    },
-    {
-      "id": "stejne-zalozky",
-      "difficulty": "medium",
-      "prompt": "Z papírového proužku dlouhého 90 cm chceš nastříhat stejné záložky dlouhé 15 cm. Kolik záložek vznikne?",
-      "steps": [
-        {"prompt": "Napiš počet záložek.", "hint": "Celkovou délku vyděl délkou jedné záložky.", "answer": {"format": "integer", "value": "6"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "6"}}, "solution": "90 : 15 = 6 záložek. Kontrola: 6 × 15 cm = 90 cm."}
-      ],
-      "explanation": "Dělení říká, kolik stejně dlouhých částí se vejde do celé délky."
-    },
-    {
-      "id": "sedm-stuzek",
-      "difficulty": "medium",
-      "prompt": "Na sedm balíčků potřebuješ sedm stužek, každou dlouhou 8 cm. Kolik centimetrů stužky potřebuješ dohromady?",
-      "steps": [
-        {"prompt": "Napiš pouze celkový počet centimetrů.", "hint": "Stejná délka se opakuje sedmkrát.", "answer": {"format": "integer", "value": "56"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "56"}}, "solution": "7 × 8 = 56 cm."}
-      ],
-      "explanation": "Opakované sčítání stejných délek můžeme zapsat násobením."
-    },
-    {
-      "id": "trasa-v-kilometrech",
-      "difficulty": "medium",
-      "prompt": "Naučná stezka měří 1750 m. Jak zapíšeš její délku v kilometrech?",
-      "steps": [
-        {"prompt": "Napiš pouze počet kilometrů.", "hint": "Metry rozděl do skupin po tisíci.", "answer": {"format": "decimal", "value": "1.75"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1.75"}}, "solution": "1750 : 1000 = 1,75; stezka měří 1,75 km."}
-      ],
-      "explanation": "Jeden celý kilometr a dalších 750 m jsou 1,75 km. Převod nevyžaduje zaokrouhlení."
-    },
-    {
-      "id": "stavebnice-cast",
-      "difficulty": "medium",
-      "prompt": "Ve stavebnici je 40 dílků. Pět osmin použiješ na věž. Kolik dílků zůstane mimo věž?",
-      "steps": [
-        {"prompt": "Napiš počet zbývajících dílků.", "hint": "Spočítej použitých 5/8 a odečti je od čtyřiceti.", "answer": {"format": "integer", "value": "15"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "15"}}, "solution": "Použiješ 40 : 8 × 5 = 25 dílků. Zůstane 40 − 25 = 15."}
-      ],
-      "explanation": "Otázka se ptá na zbytek, ne na použitou část. Proto po výpočtu zlomku ještě odčítáme."
-    },
-    {
-      "id": "sada-samolepek",
-      "difficulty": "medium",
-      "prompt": "Z 24 samolepek má 18 obrázek zvířete. Jakou část sady tvoří samolepky bez zvířete?",
-      "steps": [
-        {"prompt": "Napiš hodnotu části bez zvířete jako zlomek nebo desetinné číslo.", "hint": "Nejprve zjisti počet ostatních samolepek. Pak jej porovnej s celým počtem.", "answer": {"format": "fraction", "numerator": "1", "denominator": "4"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1/4"}}, "solution": "Bez zvířete je 24 − 18 = 6 samolepek. Jejich část je 6/24 = 1/4."}
-      ],
-      "explanation": "Čitatelem je počet vybraných samolepek bez zvířete, jmenovatelem počet všech samolepek."
-    },
-    {
-      "id": "mereni-pravitkem",
-      "difficulty": "medium",
-      "prompt": "Tužka měří 135 mm. Jakou délku v centimetrech ukáže pravítko?",
-      "steps": [
-        {"prompt": "Napiš pouze počet centimetrů.", "hint": "Deset milimetrů tvoří jeden centimetr.", "answer": {"format": "decimal", "value": "13.5"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "13.5"}}, "solution": "135 : 10 = 13,5; tužka měří 13,5 cm."}
-      ],
-      "explanation": "Pět milimetrů navíc tvoří polovinu centimetru. Výsledek je přesně 13,5 cm."
-    },
-    {
-      "id": "prodlouzeni-cesty",
-      "difficulty": "medium",
-      "prompt": "Cesta v parku měří 240 m. Prodlouží se o čtvrtinu své původní délky. Kolik metrů bude měřit potom?",
-      "steps": [
-        {"prompt": "Napiš pouze novou délku v metrech.", "hint": "K původním 240 m přidej jejich čtvrtinu.", "answer": {"format": "integer", "value": "300"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "300"}}, "solution": "Čtvrtina původní délky je 240 : 4 = 60 m. Nová délka je 240 + 60 = 300 m."}
-      ],
-      "explanation": "Prodloužit o čtvrtinu neznamená ponechat jen čtvrtinu. Přidáváme vypočtenou část k původnímu celku."
-    },
-    {
-      "id": "cteni-ze-zbytku",
-      "difficulty": "medium",
-      "prompt": "Příběh má 24 stran. V pondělí přečteš polovinu. V úterý přečteš třetinu ze zbývajících stran. Kolik stran přečteš v úterý?",
-      "steps": [
-        {"prompt": "Napiš počet úterních stran.", "hint": "Nejprve zjisti pondělní zbytek. Třetinu počítej až z něj.", "answer": {"format": "integer", "value": "4"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "4"}}, "solution": "V pondělí přečteš 24 : 2 = 12 stran. Zbývá 12 stran a třetina z nich je 12 : 3 = 4."}
-      ],
-      "explanation": "Celkem pro druhý zlomek je tentokrát zbytek po pondělí, ne původních 24 stran."
-    },
-    {
-      "id": "cesta-k-rybniku",
-      "difficulty": "hard",
-      "prompt": "Cesta k rybníku měří 3 km. Nejdřív ujdeš 2/5 celé cesty a po odpočinku dalších 600 m. V každém kroku napiš pouze číslo v metrech.",
-      "steps": [
-        {"prompt": "Kolik metrů ujdeš před odpočinkem?", "hint": "Tři kilometry převeď na metry a vypočítej dvě pětiny.", "answer": {"format": "integer", "value": "1200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1200"}}, "solution": "3 km = 3000 m. Potom 3000 : 5 × 2 = 1200 m."},
-        {"prompt": "Kolik metrů zbývá bezprostředně při odpočinku?", "hint": "Od celé cesty odečti první úsek.", "answer": {"format": "integer", "value": "1800"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1800"}}, "solution": "3000 − 1200 = 1800 m."},
-        {"prompt": "Kolik metrů zbývá po dalších 600 m?", "hint": "Od zbytku při odpočinku odečti 600 m.", "answer": {"format": "integer", "value": "1200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "1200"}}, "solution": "1800 − 600 = 1200 m."}
-      ],
-      "explanation": "Rozlišuj, v které chvíli zbytek měříme. Další chůze zbývající cestu zkracuje."
-    },
-    {
-      "id": "knizky-na-policce",
-      "difficulty": "hard",
-      "prompt": "Polička má délku 6 dm. Na knihy využiješ 3/5 její délky. Každá kniha je silná 2 cm. Odpovídej čísly v požadovaných jednotkách.",
-      "steps": [
-        {"prompt": "Kolik centimetrů měří celá polička?", "hint": "Každý decimetr má deset centimetrů.", "answer": {"format": "integer", "value": "60"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "60"}}, "solution": "6 × 10 = 60 cm."},
-        {"prompt": "Kolik centimetrů vyhradíš knihám?", "hint": "Vypočítej tři pětiny z 60 cm.", "answer": {"format": "integer", "value": "36"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "36"}}, "solution": "60 : 5 × 3 = 36 cm."},
-        {"prompt": "Kolik knih se do vyhrazené části vejde?", "hint": "Vyhrazenou délku vyděl tloušťkou jedné knihy.", "answer": {"format": "integer", "value": "18"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "18"}}, "solution": "36 : 2 = 18 knih."}
-      ],
-      "explanation": "Poslední výsledek je počet knih, ne délka. Kontrola: 18 knih po 2 cm zabere 36 cm."
-    },
-    {
-      "id": "draha-auticka",
-      "difficulty": "hard",
-      "prompt": "Dráhu autíčka tvoří díl dlouhý 1,2 m a díl dlouhý 80 cm. Autíčko projede 3/4 celé dráhy. Napiš pouze čísla v jednotkách jednotlivých otázek.",
-      "steps": [
-        {"prompt": "Kolik centimetrů měří celá dráha?", "hint": "První díl převeď na centimetry. Pak oba díly sečti.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "1,2 m = 120 cm. Celkem 120 + 80 = 200 cm."},
-        {"prompt": "Kolik centimetrů autíčko projede?", "hint": "Vezmi tři čtvrtiny z celé délky.", "answer": {"format": "integer", "value": "150"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "150"}}, "solution": "200 : 4 × 3 = 150 cm."},
-        {"prompt": "Kolik milimetrů dráhy zbývá?", "hint": "Zbytek v centimetrech převeď na milimetry.", "answer": {"format": "integer", "value": "500"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "500"}}, "solution": "200 − 150 = 50 cm. Potom 50 × 10 = 500 mm."}
-      ],
-      "explanation": "V každém kroku zkontroluj jednotku. Zbývajících 50 cm a 500 mm je tatáž délka."
-    },
-    {
-      "id": "dva-kabely",
-      "difficulty": "hard",
-      "prompt": "Z kabelu dlouhého 2,5 m použiješ 4/5. K použitému kusu beze ztrát připojíš další kabel dlouhý 350 mm. Odpověz pouze čísly v jednotkách z otázek.",
-      "steps": [
-        {"prompt": "Kolik centimetrů měří použitá část prvního kabelu?", "hint": "Převeď 2,5 m na 250 cm a vypočítej čtyři pětiny.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "250 : 5 × 4 = 200 cm."},
-        {"prompt": "Kolik centimetrů měří oba spojené kusy?", "hint": "Milimetry druhého kabelu převeď na centimetry a přičti je.", "answer": {"format": "integer", "value": "235"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "235"}}, "solution": "350 mm = 35 cm. Potom 200 + 35 = 235 cm."},
-        {"prompt": "Kolik metrů měří oba spojené kusy?", "hint": "Centimetry děl stem.", "answer": {"format": "decimal", "value": "2.35"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "2.35"}}, "solution": "235 : 100 = 2,35 m."}
-      ],
-      "explanation": "Před sčítáním převádíme obě délky na centimetry. Závěrečný převod na metry mění zápis, ne délku."
-    },
-    {
-      "id": "prodlouzena-zahradni-cesta",
-      "difficulty": "hard",
-      "prompt": "Šest dlaždic dlouhých 25 cm položíš těsně za sebe. Vzniklou cestu potom prodloužíš o třetinu její původní délky. Odpověz pouze čísly v centimetrech.",
+      "id": "prodlouzena-zahradni-cesta", "difficulty": "hard", "type": "number",
+      "prompt": "Šest dlaždic po 25 cm položíš za sebe. Cestu prodloužíš o třetinu původní délky. Odpovídej čísly v centimetrech.",
       "steps": [
         {"prompt": "Kolik centimetrů měří původní cesta?", "hint": "Délka jedné dlaždice se opakuje šestkrát.", "answer": {"format": "integer", "value": "150"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "150"}}, "solution": "6 × 25 = 150 cm."},
-        {"prompt": "O kolik centimetrů cestu prodloužíš?", "hint": "Najdi třetinu původní délky.", "answer": {"format": "integer", "value": "50"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "50"}}, "solution": "150 : 3 = 50 cm."},
-        {"prompt": "Kolik centimetrů měří prodloužená cesta?", "hint": "Prodloužení přidej k původní délce.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "150 + 50 = 200 cm."}
-      ],
-      "explanation": "Třetina je přidaná délka. Nová cesta je proto delší než původních 150 cm."
+        {"prompt": "O kolik centimetrů ji prodloužíš?", "hint": "Najdi třetinu původní délky.", "answer": {"format": "integer", "value": "50"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "50"}}, "solution": "150 : 3 = 50 cm."},
+        {"prompt": "Kolik centimetrů měří nová cesta?", "hint": "Prodloužení přičti k původní délce.", "answer": {"format": "integer", "value": "200"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "200"}}, "solution": "150 + 50 = 200 cm."}
+      ], "explanation": "Prodloužení o třetinu neznamená ponechat pouze třetinu."
     },
     {
-      "id": "stuha-pro-dva-darky",
-      "difficulty": "hard",
-      "prompt": "Máš 3 m stuhy. Na první dárek použiješ polovinu celé stuhy, na druhý dalších 30 cm. Zbytek rozdělíš na osm stejných kousků. Napiš pouze čísla v centimetrech.",
+      "id": "kraceni-a-hodnota", "difficulty": "hard", "type": "number",
+      "prompt": "Tři ze šesti stejných dílů jsou modré. Nejprve zapiš jejich část zkráceným zlomkem, potom zjisti počet modrých korálků ze 20 při stejném podílu.",
       "steps": [
-        {"prompt": "Kolik centimetrů použiješ na oba dárky dohromady?", "hint": "Polovinu z 300 cm zvětši o dalších 30 cm.", "answer": {"format": "integer", "value": "180"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "180"}}, "solution": "3 m = 300 cm. Na oba dárky použiješ 300 : 2 + 30 = 180 cm."},
-        {"prompt": "Kolik centimetrů zbývá po obou dárcích?", "hint": "Od původní délky odečti všechnu použitou stuhu.", "answer": {"format": "integer", "value": "120"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "120"}}, "solution": "300 − 180 = 120 cm."},
-        {"prompt": "Kolik centimetrů měří jeden z osmi stejných kousků?", "hint": "Zbylých 120 cm rozděl na osm částí.", "answer": {"format": "integer", "value": "15"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "15"}}, "solution": "120 : 8 = 15 cm. Kontrola: 180 + 8 × 15 = 300 cm."}
-      ],
-      "explanation": "Nejdřív sečti obě použití. Teprve potom zbytek rozděl na stejné kousky."
+        {"prompt": "Zkrať 3/6. Napiš zlomek bez mezer. Za 3/6 získáš polovinu bodů.", "hint": "Obě čísla vyděl třemi.", "answer": {"format": "fraction", "numerator": "1", "denominator": "2"}, "assessment": {"input": "number", "exact": {"type": "string", "value": "1/2"}, "partial": {"credit": 0.5, "match": {"type": "string", "value": "3/6"}}}, "solution": "3/6 = 1/2. Zkrácený zápis 1/2 získá plné body, 3/6 polovinu."},
+        {"prompt": "Kolik modrých korálků bude z 20?", "hint": "Použij podíl z předchozího kroku.", "answer": {"format": "integer", "value": "10"}, "assessment": {"input": "number", "exact": {"type": "number", "value": "10"}}, "solution": "Polovina z 20 je 20 : 2 = 10."}
+      ], "explanation": "Dvě odpovědi na sebe navazují. Každá má 15 bodů a hodnotí se nezávisle."
     }
   ]
 }

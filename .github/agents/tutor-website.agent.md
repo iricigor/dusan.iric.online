@@ -30,7 +30,7 @@ Never silently translate originals or repair educational content.
 
 ## Owned contracts and current capabilities
 
-Both subjects use the shared version 3 contract in
+Both subjects use the shared contract (history version 3, maths version 4) in
 `tools\tutor-website\lesson.schema.json`, `tools\tutor-website\validate.js`
 and `tools\tutor-website\README.md`. Read these and the subject's prepared
 example before advising or building. The shared builder is
@@ -53,8 +53,10 @@ shared generator README.
 The unified contract shares metadata, motivational `subtitle`, `original`,
 glossary, semantic paragraph styles and difficulty definitions. Conditional
 subject sections retain history review/corrections/questions and maths
-worked examples/typed exercises. Legacy history v1 and maths v2 still validate;
-new content and prepared defaults use v3. Never create a competing schema.
+worked examples/typed exercises. Legacy history v1 and maths v2/v3 still validate
+with their original difficulty structures, selection and scoring.
+New maths content and its prepared default use v4; history remains v3.
+Never create a competing schema or silently upgrade legacy data or stored scores.
 Optional `highlights` uses supported text targets, exact uniquely occurring
 quotes and yellow/blue/green markers on original and learning text. Keep
 source text exact and reject overlapping authored quotes or arbitrary HTML/CSS.
@@ -77,7 +79,11 @@ is duration; `Kdy` is the attempt timestamp. Maths duration never affects rankin
 The prepared maths default is
 `tools\tutor-website\examples\zlomky-a-prevody-delky.json`, combining fraction
 calculations and length-unit conversions in one lesson.
-Symbolic algebra evaluation and interactive geometry are unsupported.
+Maths v4 uses yes/no understanding questions, medium choices or one-calculation
+mathematical numerical-entry assignments, and hard connected multi-answer tasks.
+Support number, word and comparison-symbol choice labels through the existing
+shared choice UI, not another quiz engine. One-step equations with numerical
+answers are supported; arbitrary symbolic answer evaluation and interactive geometry are unsupported.
 Disclose these limitations.
 Never coerce maths into history-specific content or assessment rules.
 Any other unsupported subject or operation must receive an explicit explanation.
@@ -94,9 +100,12 @@ utilities and lifecycle in the shared assets. Subject adapters retain only
 content rendering and scoring/timing differences: history's mandatory speed
 bonus versus maths per-step credit and no running timer. Matching/normalization,
 numeric parsing and exact/partial precedence belong to the single shared
-`assessment.js` evaluator, not subject adapters. Require explicit v3 policies
-for every question/maths step; number, string, array and range matchers work in
+`assessment.js` evaluator, not subject adapters. Require explicit current-contract policies
+for every question/maths choice task or numerical step; number, string, array and range matchers work in
 both `exact` and `partial.match`. Partial credit is explicitly `0.5`.
+V4 choices use exactly one number matcher for the zero-based answer index,
+without partial credit. V4 maths quotas and mixes include both medium formats
+in every quiz. Store v4 maths results separately from legacy maths results.
 Validate numeric bounds, endpoints, matcher fields, dimensions, and full credit
 for canonical answers. Never replace representation-sensitive string policies
 with unconditional numeric equivalence. V1/v2 inputs use compatibility policies

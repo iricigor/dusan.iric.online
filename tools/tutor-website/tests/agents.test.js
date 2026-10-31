@@ -84,7 +84,7 @@ test('subjects author JSON only and website owns shared page behavior and techni
         assert.ok(body.includes('name/nickname'), `${name}: common name requirement`);
     }
     const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
-    assert.ok(maths.includes('version 3'));
+    assert.ok(maths.includes('version 4'));
     assert.ok(maths.includes('separate practice tab'));
     const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
     for (const text of ['actual generated HTML', 'correct/partial/incorrect answers',
@@ -129,7 +129,8 @@ test('website owns numerical task quotas while subjects retain educational diffi
         assert.ok(history.includes(rule), rule);
     }
     const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
-    for (const rule of ['four independent', 'one answer field', 'three connected', 'own expected answer']) {
+    for (const rule of ['yes/no understanding', 'exactly one calculation', 'multiple steps', 'own expected answer',
+        'comparison', 'not', 'word problems', 'no fourth']) {
         assert.ok(maths.includes(rule), rule);
     }
 });

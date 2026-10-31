@@ -9,32 +9,59 @@ function checkAnswer(expected, raw, assessment) {
     return evaluate(assessment || legacyMathsPolicy(expected), raw);
 }
 
+const PROGRESSIVE_MODES = { easy: [1, 2, 1], medium: [2, 2, 2], hard: [3, 4, 3] };
+const PROGRESSIVE_MINIMUM = Object.fromEntries(['easy', 'medium', 'hard'].map((level, index) =>
+    [level, Math.max(...Object.values(PROGRESSIVE_MODES).map(mix => mix[index]))]));
+const PROGRESSIVE_MEDIUM_MINIMUM = { choice: PROGRESSIVE_MINIMUM.medium / 2, number: PROGRESSIVE_MINIMUM.medium / 2 };
+
+const isProgressive = exercise => Object.hasOwn(exercise, 'type');
+
 function selectExercises(exercises, mode, random = Math.random) {
-    if (!Object.hasOwn(MODES, mode)) throw new Error(`Unknown maths quiz mode: ${mode}`);
+    const progressive = exercises.some(isProgressive);
+    if (progressive && !exercises.every(isProgressive)) throw new Error('Cannot mix legacy and progressive maths tasks');
+    const modes = progressive ? PROGRESSIVE_MODES : MODES;
+    if (!Object.hasOwn(modes, mode)) throw new Error(`Unknown maths quiz mode: ${mode}`);
     if (new Set(exercises.map(exercise => exercise.id)).size !== exercises.length) throw new Error('Duplicate maths task ids');
     const selected = [];
     ['easy', 'medium', 'hard'].forEach((level, index) => {
         const pool = exercises.filter(exercise => exercise.difficulty === level);
-        if (pool.length < MODES[mode][index]) throw new Error(`Not enough ${level} maths tasks`);
-        selected.push(...shuffle(pool, random).slice(0, MODES[mode][index]));
+        const count = modes[mode][index];
+        if (pool.length < count) throw new Error(`Not enough ${level} maths tasks`);
+        if (progressive && level === 'medium') {
+            const medium = ['choice', 'number'].flatMap(type => {
+                const typed = pool.filter(exercise => exercise.type === type);
+                if (typed.length < count / 2) throw new Error(`Not enough medium ${type} maths tasks`);
+                return shuffle(typed, random).slice(0, count / 2);
+            });
+            selected.push(...shuffle(medium, random));
+        } else selected.push(...shuffle(pool, random).slice(0, count));
     });
     return selected;
 }
 
 function maximumPoints(exercises) {
-    return exercises.reduce((sum, exercise) => sum + POINTS[exercise.difficulty] + (exercise.difficulty === 'easy' ? 1 : 0), 0);
+    return exercises.reduce((sum, exercise) => sum + POINTS[exercise.difficulty] + (!isProgressive(exercise) && exercise.difficulty === 'easy' ? 1 : 0), 0);
 }
 
 function scoreExercise(exercise, answers) {
+    if (exercise.options) {
+        const index = answers[0];
+        const result = Number.isInteger(index) && index >= 0 && index < exercise.options.length
+            ? evaluate(exercise.assessment, String(index))
+            : { fraction: 0, correct: false, valid: false, message: 'Vyber jednu z nabízených odpovědí.' };
+        const base = result.fraction * POINTS[exercise.difficulty];
+        return { steps: [result], base, accuracy: 0, total: base };
+    }
     const steps = exercise.steps.map((step, index) => checkAnswer(step.answer, answers[index] || '', step.assessment));
     const base = steps.reduce((sum, step) => sum + step.fraction, 0) * POINTS[exercise.difficulty] / steps.length;
-    const accuracy = exercise.difficulty === 'easy' && steps.every(step => step.correct) ? 1 : 0;
+    const accuracy = !isProgressive(exercise) && exercise.difficulty === 'easy' && steps.every(step => step.correct) ? 1 : 0;
     return { steps, base, accuracy, total: base + accuracy };
 }
 
-function validRecords(records) {
-    return Array.isArray(records) && records.every(row => row && Object.hasOwn(MODES, row.mode) &&
-        row.maximum === MODES[row.mode].reduce((sum, count, index) => sum + count * [11, 20, 30][index], 0) &&
+function validRecords(records, version = 3) {
+    const modes = version === 4 ? PROGRESSIVE_MODES : MODES;
+    return Array.isArray(records) && records.every(row => row && Object.hasOwn(modes, row.mode) &&
+        row.maximum === modes[row.mode].reduce((sum, count, index) => sum + count * [version === 4 ? 10 : 11, 20, 30][index], 0) &&
         Number.isFinite(row.total) && row.total >= 0 && row.total <= row.maximum &&
         Number.isInteger(row.total * 4) && row.grade === grade(row.total, row.maximum));
 }
@@ -93,7 +120,9 @@ const mathsSubject = {
             node('p', 'Začni lehkými příklady a postupuj k těžším. Nejprve počítej bez pomoci. Nápovědu nebo řešení si otevři, až je potřebuješ.'));
         const exercises = node('div');
         exercises.id = 'exercises';
-        const levels = { easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' };
+        const levels = lesson.version === 4
+            ? { easy: 'Porozumění: ano/ne', medium: 'Výběr nebo jeden výpočet', hard: 'Navazující výpočty' }
+            : { easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' };
         const ordered = ['easy', 'medium', 'hard'].flatMap(level => lesson.exercises.filter(exercise => exercise.difficulty === level));
         ordered.forEach((exercise, index) => {
             const key = `exercises.${lesson.exercises.indexOf(exercise)}`;
@@ -102,7 +131,13 @@ const mathsSubject = {
             article.dataset.learningCard = 'true';
             article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'),
                 paragraph(exercise.prompt, 'p', { target: `${key}.prompt` }));
-            exercise.steps.forEach((step, stepIndex) => {
+            if (exercise.options) {
+                article.append(paragraph(`Možnosti: ${exercise.options.join(' · ')}`),
+                    hint('Nápověda', exercise.hint, 'h3', { explanation: `${key}.hint` }),
+                    disclose('Řešení', paragraph(`Správná odpověď: ${exercise.options[exercise.answer]}`),
+                        paragraph(exercise.solution, 'p', { target: `${key}.solution` })));
+            }
+            (exercise.steps || []).forEach((step, stepIndex) => {
                 const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
                 article.append(hint(`${label}: ${step.prompt}`, step.hint, 'h3', {
                     prompt: `${key}.steps.${stepIndex}.prompt`, explanation: `${key}.steps.${stepIndex}.hint`, prefix: label.length + 2
@@ -116,7 +151,13 @@ const mathsSubject = {
     },
     feedback({ node }, container, { question: exercise, values, score }, number) {
         const points = value => String(value).replace('.', ',');
-        exercise.steps.forEach((step, index) => {
+        if (exercise.options) {
+            const result = score.steps[0];
+            container.append(node('p', `${result.message} Tvoje odpověď: ${exercise.options[values[0]] ?? '(bez odpovědi)'}`,
+                result.correct ? 'correct' : 'incorrect'),
+                node('p', `Správná odpověď: ${exercise.options[exercise.answer]}. ${exercise.solution}`));
+        }
+        (exercise.steps || []).forEach((step, index) => {
             const label = exercise.difficulty === 'easy' ? `${number}${'abcd'[index]}` : `${number}.${index + 1}`;
             const result = score.steps[index];
             container.append(node('h3', `${label}: ${step.prompt}`),
@@ -137,7 +178,30 @@ const mathsSubject = {
     }
 };
 
-if (typeof document !== 'undefined') initializeTutor(JSON.parse(document.getElementById('lesson-data').textContent), mathsSubject);
+function subjectForLesson(lesson) {
+    if (lesson.version !== 4) return mathsSubject;
+    return {
+        ...mathsSubject,
+        storagePrefix: 'maths-tutor:v4',
+        difficultyLabels: { easy: 'Porozumění: ano/ne', medium: 'Výběr nebo jeden výpočet', hard: 'Navazující výpočty' },
+        answerHelp: 'U otázek s možnostmi vyber jednu odpověď. Do číselných polí napiš jen číslo, bez jednotky nebo výrazu jako x = 180. Uznáváme přesně rovnocenná čísla: 7/4 = 1 3/4 = 1,75 a 0.5 = 1/2, pokud zadání nevyžaduje určitý zápis. Prázdná nebo neplatná odpověď získá 0 bodů. Po odeslání už odpovědi nezměníš.',
+        modeCounts: Object.fromEntries(Object.entries(PROGRESSIVE_MODES).map(([mode, mix]) => [mode, mix.reduce((sum, count) => sum + count, 0)])),
+        validRecord: row => validRecords([row], 4),
+        rules: [
+            'Lehká otázka ano/ne: 10 bodů. Střední výběr nebo jeden výpočet: 20 bodů. Těžká úloha: 30 bodů rozdělených rovnoměrně mezi její 2 až 4 odpovědi.',
+            'V každém kvízu je výběr odpovědi i jeden samostatný výpočet. Obtížnosti jdou od lehké k těžké. Za správnost není další bonus.',
+            'Každá číselná odpověď má vlastní body. Pokud zadání nabízí částečné uznání, získáš polovinu bodů za daný krok. Výběr odpovědi nemá částečné body.',
+            'Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Maximum lehkého kvízu je 80, středního 120 a těžkého 200 bodů.',
+            mathsSubject.rules[3]
+        ]
+    };
+}
+
+if (typeof document !== 'undefined') {
+    const lesson = JSON.parse(document.getElementById('lesson-data').textContent);
+    initializeTutor(lesson, subjectForLesson(lesson));
+}
 if (typeof module !== 'undefined') module.exports = {
-    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords
+    formatAnswer, checkAnswer, selectExercises, scoreExercise, maximumPoints, grade, validRecords,
+    PROGRESSIVE_MODES, PROGRESSIVE_MINIMUM, PROGRESSIVE_MEDIUM_MINIMUM, subjectForLesson
 };

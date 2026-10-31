@@ -68,7 +68,7 @@ wait for explicit confirmation to start implementation.
 - Subject tutors own educational accuracy, explanations, difficulty definitions,
   exercises, solutions and the educational meaning of accepted answers. They
   author JSON only, never custom HTML, CSS, JavaScript or numerical checkers.
-- `tutor-website` owns the single version 3 schema, validator, builder, task-count
+- `tutor-website` owns the single shared schema (history v3, maths v4), validator, builder, task-count
   requirements, assessment implementation, shared page and technical review.
   Read `.github\agents\tutor-website.agent.md` for the named handoff fields.
   Ask for `capabilities` before authoring, then read the identified contract.

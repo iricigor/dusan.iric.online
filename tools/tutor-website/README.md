@@ -77,6 +77,8 @@ See [Shared page behavior and ownership](docs/page-behavior.md#selective-gems-in
 
 ## Shared v3 content contract and maths section
 
+The same schema now also defines progressive maths v4; history remains v3.
+
 See [Shared content contract](docs/content-contract.md#shared-v3-content-contract-and-maths-section).
 
 ### Shared full/partial answer policies

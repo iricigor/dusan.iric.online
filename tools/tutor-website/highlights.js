@@ -24,7 +24,8 @@ const tutorHighlights = (() => {
         (lesson.exercises || []).forEach((exercise, index) => {
             const key = `exercises.${index}`;
             ['prompt', 'explanation'].forEach(field => add(`${key}.${field}`, exercise[field]));
-            exercise.steps.forEach((step, stepIndex) => ['prompt', 'hint', 'solution'].forEach(field =>
+            if (exercise.options) ['hint', 'solution'].forEach(field => add(`${key}.${field}`, exercise[field]));
+            (exercise.steps || []).forEach((step, stepIndex) => ['prompt', 'hint', 'solution'].forEach(field =>
                 add(`${key}.steps.${stepIndex}.${field}`, step[field])));
         });
         return result;

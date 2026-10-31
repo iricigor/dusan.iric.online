@@ -3,6 +3,10 @@
 function initializeTutorQuiz(lesson, subject, context) {
     const { $, node, button, points, focusContent, closeQuizTools } = context;
     subject.rules.forEach(rule => $('scoring').append(node('li', rule)));
+    if (subject.modeCounts) document.querySelectorAll('[data-mode]').forEach(control => {
+        const count = subject.modeCounts[control.dataset.mode];
+        control.querySelector('.mode-count').textContent = `${count} ${count < 5 ? 'úlohy' : 'úloh'}`;
+    });
     $('answer-help').textContent = subject.answerHelp || '';
     $('answer-help').hidden = !subject.answerHelp;
     $('quiz-export').addEventListener('click', () => {
@@ -130,7 +134,8 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('quiz-progress').value = quiz.answers.length;
         $('question').replaceChildren(node('span', question.prompt, 'question-enter'));
         $('question-icon').textContent = question.icon || (subject.speedBonus ? '🏰' : '📐');
-        $('difficulty').textContent = { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' }[question.difficulty];
+        $('difficulty').textContent = (subject.difficultyLabels ||
+            { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' })[question.difficulty];
         $('difficulty').dataset.level = question.difficulty;
         $('answers').replaceChildren();
         $('feedback').hidden = true;

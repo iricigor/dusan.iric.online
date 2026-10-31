@@ -10,7 +10,8 @@ test('both subjects record answering only, excluding feedback and time outside t
     for (const subject of ['history', 'maths']) {
         const runtime = page(subject);
         runtime.start('easy');
-        for (let index = 0; index < 3; index++) {
+        const count = subject === 'maths' ? 4 : 3;
+        for (let index = 0; index < count; index++) {
             runtime.advance(1000);
             runtime.confirm(false, 20000);
             runtime.tab('learning');
@@ -27,14 +28,18 @@ test('both subjects record answering only, excluding feedback and time outside t
                     runtime.get('answers').dispatch('submit');
                 }
                 assert.doesNotMatch(runtime.get('feedback').textContent, /bonus \+/);
-            } else runtime.get('answers').dispatch('submit');
+            } else {
+                const task = mathsLesson.exercises.find(task => task.prompt === runtime.get('question').textContent);
+                if (task.options) runtime.get('answers').children[task.answer].dispatch('click');
+                else runtime.get('answers').dispatch('submit');
+            }
             runtime.advance(60000);
             runtime.get('next').dispatch('click');
         }
         const record = runtime.records()[0];
-        assert.equal(record.answerDurationMs, 10500, subject);
+        assert.equal(record.answerDurationMs, count * 3500, subject);
         assert.equal(runtime.intervals.size, 0);
-        assert.match(runtime.get('answer-duration').textContent, /Doba odpovídání: 11 s/);
+        assert.match(runtime.get('answer-duration').textContent, subject === 'maths' ? /Doba odpovídání: 14 s/ : /Doba odpovídání: 11 s/);
         assert.equal(runtime.get('leaderboard').open, true);
         assert.match(runtime.get('leaderboard-rank').textContent, /1\. místo z 1 pokusů/);
         assert.match(runtime.get('leaderboard-content').textContent, /KdyDoba odpovídání/);
@@ -59,7 +64,11 @@ test('unfinished quizzes guard unload and tab activation, preserving canceled at
     for (const subject of ['history', 'maths']) {
         const runtime = page(subject);
         const answer = () => {
-            if (subject === 'maths') runtime.get('answers').dispatch('submit');
+            if (subject === 'maths') {
+                const task = mathsLesson.exercises.find(task => task.prompt === runtime.get('question').textContent);
+                if (task.options) runtime.get('answers').children[task.answer].dispatch('click');
+                else runtime.get('answers').dispatch('submit');
+            }
             else {
                 const question = lesson.questions.find(q => q.prompt === runtime.get('question').textContent);
                 if (question.options) runtime.get('answers').children[question.answer].dispatch('click');
@@ -141,13 +150,14 @@ test('unfinished quizzes guard unload and tab activation, preserving canceled at
         assert.equal(runtime.confirmations.length, promptCount);
         runtime.start('easy');
         assert.equal(runtime.intervals.size, subject === 'history' ? 1 : 0);
-        for (let index = 0; index < 3; index++) {
+        const count = subject === 'maths' ? 4 : 3;
+        for (let index = 0; index < count; index++) {
             runtime.advance(1000);
             answer();
             assert.equal(runtime.unloadProtected(), true, 'final feedback is still unfinished');
             runtime.get('next').dispatch('click');
         }
-        assert.equal(runtime.records()[0].answerDurationMs, 3000, 'new attempt has no abandoned duration');
+        assert.equal(runtime.records()[0].answerDurationMs, count * 1000, 'new attempt has no abandoned duration');
         assert.equal(runtime.unloadProtected(), false);
         runtime.tab('learning');
         runtime.key('learning', 'End');
