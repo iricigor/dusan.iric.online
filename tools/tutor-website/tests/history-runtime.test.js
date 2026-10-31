@@ -19,6 +19,7 @@ class Element {
         this.hidden = false;
         this.value = '';
         this.text = '';
+        this.attributes = {};
     }
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
@@ -26,14 +27,15 @@ class Element {
     append(...children) { this.children.push(...children); }
     prepend(...children) { this.children.unshift(...children); }
     replaceChildren(...children) { this.text = ''; this.children = children; }
-    setAttribute() {}
+    setAttribute(name, value) { this.attributes[name] = value; }
+    getAttribute(name) { return this.attributes[name]; }
     removeAttribute() {}
     focus() {}
     getBoundingClientRect() { return { top: 350, bottom: 400 }; }
     scrollIntoView() {}
     hidePopover() { this.open = false; }
     addEventListener(event, listener) { this.listeners[event] = listener; }
-    dispatch(event) { this.listeners[event]?.({ preventDefault() {} }); }
+    dispatch(event, properties = {}) { this.listeners[event]?.({ preventDefault() {}, ...properties }); }
     querySelectorAll(selector) {
         return this.children.flatMap(child => [
             ...(selector.split(', ').includes(child.tag) ? [child] : []),
@@ -67,11 +69,25 @@ function page(subject = 'history', stored = []) {
     const storageKey = `${subject}-tutor:v${subject === 'history' ? 1 : 2}:${source.id}`;
     const storage = new Map([[storageKey, JSON.stringify(stored)]]);
     const documentListeners = {};
+    const windowListeners = new Map();
+    const confirmations = [];
+    let confirmResult = false;
+    let confirmDuration = 0;
     const warnings = [];
     const context = {
         Math: Object.assign(Object.create(Math), { random: () => .999999 }),
         innerHeight: 900,
-        window: { addEventListener() {} },
+        window: {
+            addEventListener: (event, listener) => { windowListeners.set(event, listener); },
+            removeEventListener: (event, listener) => {
+                if (windowListeners.get(event) === listener) windowListeners.delete(event);
+            },
+            confirm: message => {
+                confirmations.push(message);
+                now += confirmDuration;
+                return confirmResult;
+            }
+        },
         matchMedia: () => ({ matches: false, addEventListener() {} }),
         document: {
             documentElement: { dataset: {} },
@@ -98,10 +114,21 @@ function page(subject = 'history', stored = []) {
     vm.runInNewContext(fs.readFileSync(path.join(shared, 'assessment.js'), 'utf8') + '\n' +
         fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
         fs.readFileSync(path.join(shared, `${subject}.js`), 'utf8'), context);
+    tabs.find(control => control.dataset.tab === 'quiz').dispatch('click');
     return {
         get: id => context.document.getElementById(id),
         start: mode => modes.find(control => control.dataset.mode === mode).dispatch('click'),
         tab: name => tabs.find(control => control.dataset.tab === name).dispatch('click'),
+        key: (name, key) => tabs.find(control => control.dataset.tab === name).dispatch('keydown', { key }),
+        selectedTab: () => tabs.find(control => control.getAttribute('aria-selected') === 'true').dataset.tab,
+        confirm: (result, duration = 0) => { confirmResult = result; confirmDuration = duration; },
+        confirmations,
+        unloadProtected: () => windowListeners.has('beforeunload'),
+        unload: () => {
+            const event = { defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
+            windowListeners.get('beforeunload')?.(event);
+            return event;
+        },
         visible: visible => {
             context.document.hidden = !visible;
             documentListeners.visibilitychange();
@@ -199,9 +226,8 @@ test('both subjects record answering only, excluding feedback and time outside t
         runtime.start('easy');
         for (let index = 0; index < 3; index++) {
             runtime.advance(1000);
+            runtime.confirm(false, 20000);
             runtime.tab('learning');
-            runtime.advance(20000);
-            runtime.tab('quiz');
             runtime.advance(2000);
             runtime.visible(false);
             runtime.advance(30000);
@@ -240,5 +266,101 @@ test('both subjects record answering only, excluding feedback and time outside t
             assert.equal(corrupt.warnings.length, 1);
             assert.equal(corrupt.records()[0].answerDurationMs, invalid);
         }
+    }
+});
+
+test('unfinished quizzes guard unload and tab activation, preserving canceled attempts and discarding confirmed ones', () => {
+    for (const subject of ['history', 'maths']) {
+        const runtime = page(subject);
+        const answer = () => {
+            if (subject === 'maths') runtime.get('answers').dispatch('submit');
+            else {
+                const question = lesson.questions.find(q => q.prompt === runtime.get('question').textContent);
+                if (question.options) runtime.get('answers').children[question.answer].dispatch('click');
+                else {
+                    runtime.get('answer-input').value = question.acceptedAnswers[0];
+                    runtime.get('answers').dispatch('submit');
+                }
+            }
+        };
+        assert.equal(runtime.unloadProtected(), false, subject);
+        runtime.tab('learning');
+        runtime.key('learning', 'End');
+        assert.equal(runtime.selectedTab(), 'quiz');
+        assert.equal(runtime.confirmations.length, 0);
+        runtime.start('easy');
+        assert.equal(runtime.unloadProtected(), true);
+        const unload = runtime.unload();
+        assert.equal(unload.defaultPrevented, true);
+        assert.equal(unload.returnValue, '');
+        const question = runtime.get('question').textContent;
+        const controls = [...runtime.get('answers').children];
+        const input = controls.find(control => control.tag === 'input');
+        if (input) input.value = 'rozpracovaná odpověď';
+        const timers = [...runtime.intervals.keys()];
+        runtime.advance(1000);
+        runtime.tab('quiz');
+        assert.equal(runtime.confirmations.length, 0, 'same tab does not warn');
+        for (const key of ['ArrowLeft', 'ArrowRight', 'Home']) {
+            runtime.key('quiz', key);
+            assert.equal(runtime.selectedTab(), 'quiz');
+        }
+        runtime.tab('learning');
+        assert.equal(runtime.selectedTab(), 'quiz');
+        assert.equal(runtime.get('question').textContent, question);
+        assert.deepEqual(runtime.get('answers').children, controls);
+        if (input) assert.equal(input.value, 'rozpracovaná odpověď');
+        assert.deepEqual([...runtime.intervals.keys()], timers, 'cancel does not restart timers');
+        assert.equal(runtime.get('quiz-progress').value, 0);
+        assert.equal(runtime.unloadProtected(), true, 'canceling unload keeps the guard');
+        answer();
+        const score = runtime.get('score').textContent;
+        runtime.tab('original');
+        assert.equal(runtime.get('score').textContent, score);
+        assert.equal(runtime.get('quiz-progress').value, 1);
+        assert.equal(runtime.intervals.size, 0);
+        runtime.get('next').dispatch('click');
+        runtime.confirm(true);
+        runtime.key('quiz', 'Home');
+        assert.equal(runtime.selectedTab(), 'original');
+        assert.equal(runtime.unloadProtected(), false);
+        assert.equal(runtime.unload().defaultPrevented, false);
+        assert.equal(runtime.intervals.size, 0);
+        assert.equal(runtime.get('game').hidden, true);
+        assert.equal(runtime.get('setup').hidden, false);
+        assert.equal(runtime.get('score').textContent, 'Skóre: 0 b');
+        assert.equal(runtime.get('quiz-progress').value, 0);
+        assert.equal(runtime.get('answers').children.length, 0);
+        assert.equal(runtime.records().length, 0, 'abandonment does not save a result');
+        runtime.get('answers').dispatch('submit');
+        runtime.get('next').dispatch('click');
+        const promptCount = runtime.confirmations.length;
+        runtime.tab('quiz');
+        assert.equal(runtime.confirmations.length, promptCount);
+        runtime.start('easy');
+        assert.equal(runtime.intervals.size, subject === 'history' ? 1 : 0);
+        for (let index = 0; index < 3; index++) {
+            runtime.advance(1000);
+            answer();
+            assert.equal(runtime.unloadProtected(), true, 'final feedback is still unfinished');
+            runtime.get('next').dispatch('click');
+        }
+        assert.equal(runtime.records()[0].answerDurationMs, 3000, 'new attempt has no abandoned duration');
+        assert.equal(runtime.unloadProtected(), false);
+        runtime.tab('learning');
+        runtime.key('learning', 'End');
+        assert.equal(runtime.confirmations.length, promptCount, 'finished attempt does not warn');
+        runtime.get('restart').dispatch('click');
+        runtime.tab('original');
+        assert.equal(runtime.unloadProtected(), false);
+        assert.equal(runtime.confirmations.length, promptCount, 'setup after restart does not warn');
+        runtime.tab('quiz');
+        runtime.start('easy');
+        runtime.tab('learning');
+        assert.equal(runtime.selectedTab(), 'learning', 'pointer confirmation also abandons');
+        assert.equal(runtime.records().length, 1, 'previously completed results survive abandonment');
+        assert.equal(runtime.unloadProtected(), false);
+        assert.equal(runtime.intervals.size, 0);
+        assert.ok(runtime.confirmations.every(message => /ukončíš.*odpovědi, body a postup se ztratí/.test(message)));
     }
 });

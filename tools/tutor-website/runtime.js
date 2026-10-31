@@ -283,7 +283,21 @@ function initializeTutor(lesson, subject) {
         }
     });
     const activateTab = tab => {
-        if (tab === requestedTab) return;
+        if (tab === requestedTab) return true;
+        if (quiz && !quiz.finished) {
+            pauseAnswerClock();
+            let confirmed;
+            try {
+                confirmed = window.confirm('Přepnutím záložky ukončíš rozpracovaný kvíz. Jeho odpovědi, body a postup se ztratí. Chceš přesto přepnout?');
+            } finally {
+                resumeAnswerClock();
+            }
+            if (!confirmed) {
+                requestedTab.focus({ preventScroll: true });
+                return false;
+            }
+            abandonQuiz();
+        }
         requestedTab = tab;
         tabTransition?.skipTransition();
         tabEntrance?.cancel();
@@ -316,6 +330,7 @@ function initializeTutor(lesson, subject) {
                     { duration: 300, easing: 'ease-out' });
             }
         }
+        return true;
     };
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => activateTab(tab));
@@ -329,8 +344,7 @@ function initializeTutor(lesson, subject) {
             }[event.key];
             if (target === undefined) return;
             event.preventDefault();
-            activateTab(tabs[target]);
-            tabs[target].focus();
+            if (activateTab(tabs[target])) tabs[target].focus();
         });
     });
     const systemTheme = matchMedia('(prefers-color-scheme: dark)');
@@ -374,6 +388,29 @@ function initializeTutor(lesson, subject) {
     let currentRunId = null;
     let quiz = null;
     let timer = null;
+    const warnBeforeUnload = event => {
+        if (!quiz || quiz.finished) return;
+        event.preventDefault();
+        event.returnValue = '';
+    };
+    function abandonQuiz() {
+        pauseAnswerClock();
+        clearInterval(timer);
+        timer = null;
+        quiz = null;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
+        $('game').hidden = true;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('answers').replaceChildren();
+        $('feedback').replaceChildren();
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        $('score').textContent = 'Skóre: 0 b';
+        $('quiz-progress').value = 0;
+        $('leaderboard').hidden = false;
+        $('leaderboard').open = false;
+    }
     const warnStorage = message => {
         $('storage-warning').hidden = false;
         $('storage-warning').textContent = message;
@@ -446,6 +483,7 @@ function initializeTutor(lesson, subject) {
     }
     function finish() {
         quiz.finished = true;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
         clearInterval(timer);
         $('game').hidden = true;
         $('results').hidden = false;
@@ -581,6 +619,7 @@ function initializeTutor(lesson, subject) {
             index: 0, answers: [], locked: false, finished: false,
             answerDurationMs: 0, questionElapsedMs: 0, answerStarted: null
         };
+        window.addEventListener('beforeunload', warnBeforeUnload);
         $('quiz-tools').open = false;
         $('setup').hidden = true;
         $('results').hidden = true;
