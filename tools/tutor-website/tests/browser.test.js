@@ -59,7 +59,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     assert.deepEqual(network, []);
 });
 
-test('compact marker palette fits narrow screens across text fonts', {
+test('compact learning controls fit narrow screens across text fonts', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
 }, async t => {
     const { directory, client, evaluate } = await openBrowser(t);
@@ -83,13 +83,26 @@ test('compact marker palette fits narrow screens across text fonts', {
                     const buttons = [...document.querySelectorAll('[data-highlight-action]')].map(button => ({
                         ...button.getBoundingClientRect().toJSON(), font: getComputedStyle(button).font
                     }));
-                    return { panel, buttons, viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth };
+                    const cards = document.getElementById('learning').hidden ? [] :
+                        [...document.querySelectorAll('[data-learning-card]')];
+                    const footers = cards.flatMap(card => {
+                        const bounds = card.getBoundingClientRect();
+                        const controls = [...card.querySelector('.learning-card-footer').children].map(control =>
+                            control.getBoundingClientRect().toJSON());
+                        const fits = controls.every(control => control.height >= 44 &&
+                            Math.abs((control.top + control.bottom) / 2 - bounds.bottom) <= 2 &&
+                            control.left >= bounds.left && control.right <= bounds.right) &&
+                            (controls.length === 1 || controls[0].right + 4 <= controls[1].left);
+                        return fits ? [] : [{ id: card.id, bounds: bounds.toJSON(), controls }];
+                    });
+                    return { panel, buttons, footers, viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth };
                 })()`);
                 assert.equal(layout.panel.height < 65 && layout.panel.left >= 0 && layout.panel.right <= layout.viewport &&
                     layout.scrollWidth <= layout.viewport && layout.buttons.length === 4 && layout.buttons.every(button =>
                         button.height >= 44 && button.width >= 44 && Math.abs(button.top - layout.buttons[0].top) < 1 &&
                         button.left >= layout.panel.left && button.right <= layout.panel.right),
                 true, `${font}/${theme}/${tab}: ${JSON.stringify(layout)}`);
+                assert.deepEqual(layout.footers, [], `${font}/${theme}/${tab}: footer controls stay inside each card`);
                 await evaluate('document.getElementById("highlight-tools").open = false');
             }
         }
