@@ -5,6 +5,7 @@ const path = require('node:path');
 const { renderPage } = require('./page.js');
 const { validateLesson } = require('./validate.js');
 const { MODES } = require('./runtime.js');
+const { colors } = require('./highlights.js');
 
 const PUBLICATION_ORIGIN = 'https://dusan.iric.online/';
 
@@ -34,6 +35,8 @@ function capabilities(subject) {
             [mode, Object.fromEntries(levels.map((level, index) => [level, mix[index]]))])),
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
         answerDuration: 'active-answering-only-excludes-feedback-and-hidden-quiz',
+        inlineHighlighting: { colors: [...colors], tabs: ['original', 'learning'], childStorage: 'tab-session-including-reloads' },
+        optionalTimeline: subject === 'history',
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
             ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported.'] : [])

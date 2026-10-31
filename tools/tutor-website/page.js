@@ -7,7 +7,7 @@ const { createQrSvg } = require('./qr.js');
 function readRuntimeSource(subject) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     return [
-        'assessment.js', 'runtime.js',
+        'assessment.js', 'highlights.js', 'learning.js', 'runtime.js',
         path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
         path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js'),
         `${subject}.js`

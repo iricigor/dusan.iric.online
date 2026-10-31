@@ -20,19 +20,37 @@ class Element {
         this.value = '';
         this.text = '';
         this.attributes = {};
+        this.classList = {
+            contains: name => (this.className || '').split(' ').includes(name),
+            add: name => { this.className = `${this.className || ''} ${name}`; }
+        };
+        this.style.setProperty = (name, value) => { this.style[name] = value; };
     }
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
     get firstElementChild() { return this.children[0]; }
-    append(...children) { this.children.push(...children); }
+    append(...children) {
+        children.forEach(child => {
+            if (child.parent) child.parent.children = child.parent.children.filter(item => item !== child);
+            child.parent = this;
+            this.children.push(child);
+        });
+    }
     prepend(...children) { this.children.unshift(...children); }
     replaceChildren(...children) { this.text = ''; this.children = children; }
     setAttribute(name, value) { this.attributes[name] = value; }
     getAttribute(name) { return this.attributes[name]; }
     removeAttribute() {}
     focus() {}
-    getBoundingClientRect() { return { top: 350, bottom: 400 }; }
+    getBoundingClientRect() { return { top: 350, bottom: 400, height: 50, left: 0, right: 200, width: 200 }; }
     scrollIntoView() {}
+    normalize() {}
+    checkVisibility() { return false; }
+    before(child) {
+        if (child.parent) child.parent.children = child.parent.children.filter(item => item !== child);
+        child.parent = this.parent;
+        this.parent.children.splice(this.parent.children.indexOf(this), 0, child);
+    }
     hidePopover() { this.open = false; }
     showModal() { this.open = true; }
     close() { this.open = false; }
@@ -40,14 +58,20 @@ class Element {
     dispatch(event, properties = {}) { this.listeners[event]?.({ preventDefault() {}, ...properties }); }
     querySelectorAll(selector) {
         return this.children.flatMap(child => [
-            ...(selector.split(', ').includes(child.tag) ? [child] : []),
+            ...(selector.split(', ').includes(child.tag) ||
+                (selector === '[data-learning-card]' && child.dataset.learningCard) ||
+                (selector.startsWith('.') && child.classList.contains(selector.slice(1))) ? [child] : []),
             ...child.querySelectorAll(selector)
         ]);
     }
+    querySelector(selector) { return this.querySelectorAll(selector)[0]; }
 }
 
 function page(subject = 'history', stored = []) {
-    const source = subject === 'history' ? lesson : mathsLesson;
+    const source = structuredClone(subject === 'history' ? lesson : mathsLesson);
+    // This clock/quiz fixture exercises legacy lessons without optional presentation metadata.
+    delete source.highlights;
+    delete source.timeline;
     const shared = path.join(__dirname, '..', '..');
     const template = fs.readFileSync(path.join(shared, 'template.html'), 'utf8')
         .replace('@@TIMING@@', subject === 'history' ? '<div id="bonus"><div id="bonus-bar"></div></div>' : '');

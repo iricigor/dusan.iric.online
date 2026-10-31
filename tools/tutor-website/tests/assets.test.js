@@ -13,7 +13,7 @@ const shared = path.join(__dirname, '..');
 
 test('standalone and VM loaders assemble every shared controller once in the same order', () => {
     const files = [
-        'assessment.js', 'runtime.js',
+        'assessment.js', 'highlights.js', 'learning.js', 'runtime.js',
         path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
         path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js')
     ];
@@ -27,7 +27,7 @@ test('standalone and VM loaders assemble every shared controller once in the sam
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(`<script>\n${source}`) || html.includes(`<script>${source}`));
         for (const name of ['initializeTutor', 'initializeTutorLearning', 'initializeTutorNavigation',
-            'initializeTutorResults', 'initializeTutorQuiz']) {
+            'initializeTutorResults', 'initializeTutorQuiz', 'initializeLearning']) {
             assert.equal((source.match(new RegExp(`function ${name}\\(`, 'g')) || []).length, 1, name);
         }
         const other = subject === 'history' ? 'maths' : 'history';

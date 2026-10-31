@@ -86,6 +86,10 @@ wait for explicit confirmation to start implementation.
   material, glossary forms and meaningful optional paragraph styles/icons.
   Preserve canonical original text exactly; generated teaching notes belong
   outside it. The website owns the supported fields and their rendering.
+- Optional authored highlighting selects exact existing passages using the
+  website contract; never change source wording to add markers. Colors do not
+  imply fixed educational categories. History timelines are optional: supply
+  reviewed dates only when useful, or intentionally omit the timeline.
 - Save draft JSON and output HTML in the caller's session artifact directory,
   outside the repository. Use absolute paths in handoffs and user-facing results.
   Do not overwrite an existing artifact without permission for that exact file.

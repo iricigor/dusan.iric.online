@@ -15,6 +15,9 @@ the exported quiz utilities and composes the controllers in `runtime`:
 `learning.js` owns content/glossary/disclosures, `navigation.js` owns tabs/theme
 and leave confirmation, `quiz.js` owns names/submission/progression/answer timing,
 and `results.js` owns ranking/storage and warnings for both subjects.
+The shared root-level `highlights.js` manages authored and child-added markers;
+root-level `learning.js` manages completion and the optional historical timeline.
+The extracted learning controller wires both into content and navigation.
 `history.js` and `maths.js` are adapters for content, answer formats,
 sampling and assessment rules, not independent quiz applications.
 `page.js` embeds the common assets and only the selected subject adapter.
@@ -98,6 +101,9 @@ theme-aware accents establish hierarchy without a UI library. The active tab
 joins the content panel; all three tabs share a 12rem desktop width and shrink
 equally on smaller screens. Tab/tabpanel semantics, a single tab stop and
 Left/Right/Home/End navigation support keyboard users.
+On screens up to 550px, helper controls have no gaps between them, leaving more
+width for the tabs. Learning-tab labels use minimal horizontal padding while
+helper controls retain their 44px targets.
 Tab switches crossfade the outgoing/incoming main panel with a subtle vertical
 slide over 300ms using native View Transitions where available. Other browsers
 receive an entrance-only fade/slide without delaying activation. Rapid selections
@@ -119,13 +125,146 @@ In Učit se, two icon-only `Rozbalit vše` / `Sbalit vše` controls sit at the r
 of the tab bar, outside tablist semantics, with Czech tooltips, accessible labels
 and 44px targets. They affect only learning
 hints, steps, answers and explanations, never the glossary or quiz disclosures.
-Individual disclosures remain independently operable. Hints share a small
-`Nápověda 💡` button floated inside the top-right of its prompt paragraph,
-with text wrapping around it. The button exposes its expanded state and controls
-an explanation below the entire paragraph. Native step/result/solution reveals
+Individual disclosures remain independently operable. Hints use a centered,
+bottom-aligned `💡 Nápověda` pill and a tinted inset drawer
+with a left accent. Single-hint cards share a bottom-border footer with the
+completion checkbox; both controls slightly overlap the card edge. Drawers
+expand above this footer, after the main content;
+multi-step exercises retain a separate hint beside each step's content.
+Opening and closing smoothly animate the drawer height; reduced motion disables
+the animation. The button exposes its expanded state and controls
+the explanation. Native step/result/solution reveals
 retain descriptive labels in compact, borderless numbered lists; touch targets
 remain 44px on coarse pointers. All hints, steps, results and solutions start
 collapsed in both subjects; the main lesson text stays visible.
+
+### Learning progress and optional history timeline
+
+The sticky header shows a segmented learning-only progress bar and a live
+`3/12 Prozkoumáno` counter. Each history chunk, maths worked example and whole
+maths exercise has a native, reversible `Prozkoumáno` checkbox on its bottom-right
+border; the maths practice
+introduction is not counted. Scrolling, hints and timeline navigation never
+mark a card explored automatically. Completion stays in memory while switching
+tabs; reloading the page resets it. It does not affect quiz results.
+Explored cards use subdued text without dimming their controls or markers;
+unchecking restores the normal text color. Header segments are keyboard-accessible
+buttons that navigate to their cards below the sticky header. The active card
+has an outlined segment, independent of completion. On narrow screens the segment strip
+scrolls horizontally to retain 44px targets and keep the active segment visible.
+Completed segments grow more strongly colored as overall lesson completion
+increases, reaching the full subject color at 100%; unchecked segments stay neutral.
+The live counter retains the progressbar's accessible value and total.
+
+History lessons may optionally supply `timeline`:
+
+```json
+{
+  "timeline": [
+    {
+      "chunk": 1,
+      "year": 1740,
+      "label": "Marie Terezie",
+      "lifespan": { "birth": 1717, "death": 1780 }
+    }
+  ]
+}
+```
+
+`chunk` is the zero-based learning-chunk index, not original-text section.
+An event's optional lifespan must have ordered birth/death years containing
+its event year. Years are integers from -9999 to 9999, excluding zero.
+Authors supply dates explicitly from reviewed content; the generator never
+guesses years or lifespans from prose. Multiple events can share a year or
+target a card, and date-free cards remain fully trackable.
+Timeline nodes are chronological; cards retain their educational order.
+The right-side track displays each year once above event labels with compact text
+and tight spacing, with one vertical line and one dot per year that has events.
+Birth/death-only years have no dot, and lifespan brackets are not drawn;
+event buttons retain 44px targets. Optional lifespan dates remain in the year
+list, accessible event names and tooltips. Accessible names also include the event year. Nodes scroll
+to and highlight their card below the sticky header; scrolling updates the
+active node without changing completion. The rail scrolls itself up or down
+when active years would otherwise be out of view, without moving the lesson page.
+This also works in the compact rail and the expanded mobile timeline; the mobile
+timeline never opens automatically. The glossary control retains its
+own right-edge space. Collapsing the desktop timeline narrows the right-hand
+rail to years and gives the released width to lesson text. The “Časová osa” title
+stays visible in both widths and is pinned above the scrolling desktop years;
+automatic scrolling keeps selected years below it. Single-event
+year buttons still navigate; years with multiple events expand the choices.
+Compact year boxes have tighter visible padding while retaining 44px click targets.
+On screens up to 760px, the timeline becomes an initially
+collapsed disclosure above the cards. Without `timeline`, or with an empty
+array, there is no rail or reserved column. Legacy lessons need no migration;
+maths intentionally omits the historical timeline.
+
+### Authored and child-added inline highlighting
+
+Optional `highlights` metadata is shared by history and maths, including legacy
+lesson versions. It decorates existing text without changing words, whitespace,
+order or source paragraphs:
+
+```json
+{
+  "highlights": [
+    { "target": "original.0.text", "quote": "části z celku", "color": "yellow" },
+    { "target": "examples.0.prompt", "quote": "Tři čtvrtiny", "color": "green" }
+  ]
+}
+```
+
+Each exact, nonblank `quote` must occur once in its `target`; authored ranges
+within the same target must not overlap. Colors are `yellow`, `blue` and `green`,
+not fixed semantic categories. All metadata is inert text, not HTML/CSS.
+Unsupported targets, missing/ambiguous quotes and invalid colors fail validation.
+
+| Supported target | Source text |
+|---|---|
+| `original.<index>.text` | Whole original section, including its canonical paragraph separators |
+| `chunks.<index>.sentences` / `.explanation` | History summary sentences joined by one space, or its hint |
+| `chunks.<index>.paragraphs.<index>.text` | Optional history learning paragraph |
+| `examples.<index>.prompt` / `.hint` / `.answer` | Maths worked-example text |
+| `examples.<index>.steps.<index>.calculation` / `.explanation` | Maths worked steps |
+| `examples.<index>.paragraphs.<index>.text` | Optional maths teaching paragraph |
+| `exercises.<index>.prompt` / `.explanation` | Maths practice text |
+| `exercises.<index>.steps.<index>.prompt` / `.hint` / `.solution` | Maths practice steps |
+
+All indices refer to the source JSON, even if practice cards are displayed in
+difficulty order. Headings, generated numbering/answer labels, glossary panels
+and quiz content are not highlighting targets.
+
+Children select text on either text tab, then use the crayon control or `Alt+H`
+to choose a named marker color or remove highlighting. The compact palette shows
+only `Žlutě`, `Modře`, `Zeleně` and `Odstranit` in one row, including on mobile.
+Help and successful-save announcements remain available to assistive technology;
+storage failures still show visible warnings. Selections may cross
+paragraphs/cards; only supported, visible source text on the active tab changes.
+The latest child action wins on overlapping ranges, splitting earlier ranges
+as needed. Removal also masks authored highlights without editing lesson JSON.
+Markers wrap text inside existing glossary/correction buttons, preserving their
+listeners and accessible behavior. No new paragraph styling is introduced.
+Both authored and child-added markers use translucent, rough-edged strokes
+embedded as SVG backgrounds, without external assets. Strokes repeat on wrapped
+lines, keep the theme's readable text color, and let the underlying paper show
+through. Small inline padding and margins separate the stroke from nearby text
+without inserting characters or changing copied text. The palette retains solid
+color swatches for clear controls.
+
+Child edits use `tutor-highlights:v1:<subject>:<lesson-id>` in `sessionStorage`,
+separate from quizzes and authored metadata. They survive reloads in this tab,
+not browser closure or cross-device use. Stored ranges use UTF-16 offsets and
+exact target-text snapshots; they never split surrogate pairs. Invalid/outdated
+records are left untouched and a Czech warning explains that new edits will
+not survive reload. Write failures also show an explicit warning while keeping
+the current page usable. Marker palettes use dark foreground text on light
+backgrounds for readable contrast in both themes, with color-name buttons.
+
+Both reusable example JSONs demonstrate highlighting; history also demonstrates
+the optional timeline with reviewed monarch accession events and lifespans.
+Its teaching paragraphs and glossary explain the monarchs' lives, fathers and
+reigns without changing the preserved original. Generated site pages embed their own assets and are not
+retroactively changed or published by updating these sources.
 
 The subject badge and lesson title share one row, retaining distinct badge
 and heading typography. Long titles wrap within their column on narrow screens.
@@ -183,7 +322,8 @@ migration. Original section text is unchanged. Emoji are decorative and hidden
 from assistive technology; meaningful headings and difficulty labels remain text.
 Icons use safe text nodes, never HTML, CSS, classes or asset URLs.
 
-The learning view keeps its full reading width. A compact right-edge
+Without timeline metadata the learning view keeps its full reading width.
+A compact right-edge
 `🔖 Slovníček` tab, aligned with the right edge of the learning content panel
 rather than the browser edge on wide screens, opens an initially closed slide-out drawer over the lesson
 on desktop and mobile, without reserving a column or shifting the text.

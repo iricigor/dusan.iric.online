@@ -1,7 +1,7 @@
 'use strict';
 
 function initializeTutorNavigation(context, quiz) {
-    const { $, closeGlossary, closeQuizTools } = context;
+    const { $, closeGlossary, closeQuizTools, highlighting, learning, finishLearningAnimations } = context;
     const { pauseAnswerClock, resumeAnswerClock, abandonQuiz } = quiz;
     const tabs = [...document.querySelectorAll('[data-tab]')];
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -13,6 +13,7 @@ function initializeTutorNavigation(context, quiz) {
         if (event.matches) {
             tabTransition?.skipTransition();
             tabEntrance?.cancel();
+            finishLearningAnimations();
         }
     });
     const activateTab = tab => {
@@ -36,6 +37,8 @@ function initializeTutorNavigation(context, quiz) {
             $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
             $('learning-controls').hidden = tab.dataset.tab !== 'learning';
             $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
+            highlighting.setTab(tab.dataset.tab);
+            learning.setTab(tab.dataset.tab);
             if ($('quiz-tools').hidden) $('quiz-tools').open = false;
             pauseAnswerClock();
             tabs.forEach(other => {

@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const { setTimeout: delay } = require('node:timers/promises');
 
-async function checkResponsive({ client, evaluate, capture, subject }) {
+async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
     for (const width of [320, 400, 401, 550, 551, 1024, 1600]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
         for (const theme of ['light', 'dark']) {
@@ -51,6 +51,21 @@ async function checkResponsive({ client, evaluate, capture, subject }) {
                 })()`));
                 assert.equal(await evaluate(`document.getElementById('learning-controls').hidden`), tab !== 'learning');
                 assert.equal(await evaluate(`document.getElementById('quiz-tools').hidden`), tab !== 'quiz');
+                if (tab !== 'quiz') {
+                    assert.equal(await evaluate(`(() => {
+                        const tools = document.getElementById('highlight-tools');
+                        tools.open = true;
+                        const panel = tools.querySelector('.highlight-panel').getBoundingClientRect();
+                        const buttons = [...tools.querySelectorAll('[data-highlight-action]')].map(button => button.getBoundingClientRect());
+                        const fits = buttons.length === 4 && buttons.every(button =>
+                            Math.abs(button.top - buttons[0].top) < 1 && button.height >= 44 &&
+                            button.left >= panel.left && button.right <= panel.right) &&
+                            panel.height < 65 && panel.left >= 0 && panel.right <= innerWidth &&
+                            document.documentElement.scrollWidth <= innerWidth;
+                        tools.open = false;
+                        return fits;
+                    })()`), true, `${subject}/${tab}/${width}/${theme}: marker palette has just four controls in one row`);
+                }
                 assert.equal(await evaluate(`(() => {
                     const mark = document.querySelector('.lesson-header-mark').getBoundingClientRect();
                     const heading = document.querySelector('.heading').getBoundingClientRect();
@@ -96,19 +111,48 @@ async function checkResponsive({ client, evaluate, capture, subject }) {
                 if (tab === 'learning') {
                     assert.equal(await evaluate(`(() => {
                         const hint = document.querySelector('#learning-content .hint');
-                        const trigger = hint.querySelector('.hint-toggle');
-                        const prompt = hint.querySelector('.hint-prompt');
+                        const trigger = hint.closest('.card').querySelector('.hint-toggle');
+                        const prompt = hint.closest('.card').querySelector('.hint-prompt');
                         const a = prompt.getBoundingClientRect(), b = trigger.getBoundingClientRect();
-                        const firstText = [...prompt.childNodes].find(item => item.nodeType === Node.TEXT_NODE && item.textContent.trim());
-                        const range = document.createRange();
-                        range.setStart(firstText, 0);
-                        range.setEnd(firstText, Math.min(5, firstText.textContent.length));
-                        const text = range.getBoundingClientRect();
-                        return Math.abs(a.right - b.right) <= 1 && Math.abs(a.top - b.top) <= 1 &&
-                            getComputedStyle(trigger).float === 'right' &&
-                            text.right <= b.left && text.top < b.bottom &&
+                        const card = hint.closest('.card').getBoundingClientRect();
+                        return b.top >= a.bottom && b.left >= card.left && b.right <= card.right &&
+                            getComputedStyle(trigger).float === 'none' &&
                             hint.querySelector('.hint-content').hidden && b.height >= 44;
-                    })()`), true, `${subject}/${width}/${theme}: hint floats within top-right paragraph text`);
+                    })()`), true, `${subject}/${width}/${theme}: hint pill is below the main text and stays inside the card`);
+                    assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('[data-learning-card]')).flatMap(card => {
+                        const edge = card.getBoundingClientRect().bottom;
+                        const footer = card.querySelector('.learning-card-footer');
+                        const controls = [...footer.children].map(control => control.getBoundingClientRect());
+                        const fits = controls.every(control => control.height >= 44 &&
+                            Math.abs((control.top + control.bottom) / 2 - edge) <= 2 &&
+                            control.left >= card.getBoundingClientRect().left &&
+                            control.right <= card.getBoundingClientRect().right) &&
+                            (controls.length === 1 || controls[0].right + 4 <= controls[1].left);
+                        return fits ? [] : [{ id: card.id, edge, controls: controls.map(control => ({
+                            left: control.left, right: control.right, top: control.top, bottom: control.bottom, height: control.height
+                        })) }];
+                    })`), [], `${subject}/${width}/${theme}: footer controls straddle the bottom border without overlapping`);
+                    if (subject === 'history' && width > 760) {
+                        assert.equal(await evaluate(`(() => {
+                            const details = document.getElementById('timeline-details');
+                            const rail = document.querySelector('.learning-timeline');
+                            const text = document.getElementById('learning-content');
+                            const fullRail = rail.getBoundingClientRect().width;
+                            const fullText = text.getBoundingClientRect().width;
+                            details.open = false;
+                            const compactRail = rail.getBoundingClientRect().width;
+                            const compactText = text.getBoundingClientRect().width;
+                            const fits = compactRail < fullRail && compactText > fullText &&
+                                rail.querySelector('.timeline-title').checkVisibility() &&
+                                document.getElementById('timeline-track').innerText.trim().split(/\\s+/).every(word => /^\\d+$/.test(word)) &&
+                                [...rail.querySelectorAll('.timeline-year-link')].every(button => {
+                                    const bounds = button.getBoundingClientRect();
+                                    return bounds.width >= 44 && bounds.height >= 44;
+                                }) && document.documentElement.scrollWidth <= innerWidth;
+                            details.open = true;
+                            return fits;
+                        })()`), true, `${subject}/${width}/${theme}: compact timeline retains its title and gives width back to text`);
+                    }
                     assert.equal(await evaluate(`(() => {
                         const controls = document.getElementById('learning-controls');
                         const tabs = document.querySelector('[role="tablist"]').getBoundingClientRect();
@@ -300,7 +344,7 @@ async function checkResponsive({ client, evaluate, capture, subject }) {
                 const content = document.getElementById('learning-content').getBoundingClientRect();
                 const panel = document.getElementById('learning').getBoundingClientRect();
                 return {
-                    fullWidth: Math.abs(content.width - panel.width) <= 1,
+                    fullWidth: ${subject === 'history' && lesson.timeline?.length ? 'innerWidth <= 760 ? Math.abs(content.width - panel.width) <= 1 : content.width < panel.width' : 'Math.abs(content.width - panel.width) <= 1'},
                     closed: !document.getElementById('glossary-drawer').matches(':popover-open'),
                     labelled: [...document.querySelectorAll('[data-tab]')].every(tab =>
                         tab.getAttribute('aria-controls') === tab.dataset.tab)

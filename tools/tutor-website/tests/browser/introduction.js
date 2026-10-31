@@ -83,8 +83,8 @@ async function checkIntroduction({ client, evaluate, capture, subject, lesson })
     assert.equal(await evaluate(`(async () => {
         await window.switchTutorTab('learning');
         return document.querySelectorAll('#learning-content .callout-label').length;
-    })()`), subject === 'maths' ? lesson.examples.reduce((sum, example) => sum + (example.paragraphs?.length || 0), 0)
-        : lesson.chunks.reduce((sum, chunk) => sum + (chunk.paragraphs?.length || 0), 0));
+    })()`), (subject === 'maths' ? lesson.examples : lesson.chunks).reduce((sum, section) =>
+        sum + (section.paragraphs || []).filter(paragraph => paragraph.style !== 'plain').length, 0));
     assert.equal(await evaluate('document.getElementById("storage-warning").hidden'), true, `${subject}: isolated result namespace`);
     assert.equal(await evaluate(`(() => {
         const details = [...document.querySelectorAll('#learning-content details')];
@@ -125,18 +125,18 @@ async function checkIntroduction({ client, evaluate, capture, subject, lesson })
     await delay(25);
     assert.deepEqual(await evaluate(`(() => {
         const hint = document.querySelector('#learning-content .hint');
-        const trigger = hint.querySelector('.hint-toggle');
+        const trigger = hint.closest('.card').querySelector('.hint-toggle');
         const content = hint.querySelector('.hint-content');
         return { open: trigger.getAttribute('aria-expanded') === 'true' && !content.hidden,
             label: trigger.textContent,
             icon: trigger.querySelector('[aria-hidden="true"]').textContent,
             content: !!content.textContent,
-            below: content.getBoundingClientRect().top >= hint.querySelector('.hint-prompt').getBoundingClientRect().bottom,
+            below: content.getBoundingClientRect().top >= hint.closest('.card').querySelector('.hint-prompt').getBoundingClientRect().bottom,
             connected: trigger.getAttribute('aria-controls') === content.id,
             collapseEnabled: !document.getElementById('collapse-learning').disabled,
             focused: document.activeElement === trigger };
-    })()`), { open: true, label: 'Nápověda 💡', icon: '💡', content: true, below: true, connected: true, collapseEnabled: true, focused: true },
-    `${subject}: compact hint opens with keyboard and updates controls`);
+    })()`), { open: true, label: '💡 Nápověda', icon: '💡', content: true, below: true, connected: true, collapseEnabled: true, focused: true },
+    `${subject}: bottom hint pill opens with keyboard and updates controls`);
     await evaluate(`document.getElementById('collapse-learning').click()`);
     if (subject === 'history') {
         assert.deepEqual(await evaluate(`(() => {

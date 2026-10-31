@@ -3,6 +3,7 @@
 const { schemaErrors } = require('./schema.js');
 const schema = require('./lesson.schema.json');
 const { parseNumber, parseInput, compare, evaluate } = require('./assessment.js');
+const { authored } = require('./highlights.js');
 
 function validateAssessment(policy, location, errors) {
     const check = (matcher, at) => {
@@ -66,6 +67,18 @@ function validateLesson(subject, lesson) {
     };
     const poolKey = subject === 'maths' ? 'exercises' : 'questions';
     const pool = lesson[poolKey];
+    errors.push(...authored(lesson).errors);
+    (lesson.timeline || []).forEach((event, index) => {
+        const at = `$.timeline[${index}]`;
+        if (event.chunk >= lesson.chunks.length) errors.push(`${at}.chunk: must refer to an existing learning chunk`);
+        if (event.year === 0 || event.lifespan?.birth === 0 || event.lifespan?.death === 0) {
+            errors.push(`${at}: historical years must not be zero`);
+        }
+        if (event.lifespan && (event.lifespan.birth >= event.lifespan.death ||
+            event.year < event.lifespan.birth || event.year > event.lifespan.death)) {
+            errors.push(`${at}.lifespan: birth and death must be ordered and contain the event year`);
+        }
+    });
     lesson.original.forEach((section, index) => {
         if (section.paragraphs && section.paragraphs.map(block => block.text).join('\n\n') !== section.text) {
             errors.push(`$.original[${index}].paragraphs: text joined by blank lines must exactly preserve the original section text`);

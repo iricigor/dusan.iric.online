@@ -55,6 +55,14 @@ See [Shared page behavior and ownership](docs/page-behavior.md#what-stays-separa
 
 See [Shared page behavior and ownership](docs/page-behavior.md#motivation-semantic-paragraphs-and-motion).
 
+### Learning progress and optional history timeline
+
+See [Shared page behavior and ownership](docs/page-behavior.md#learning-progress-and-optional-history-timeline).
+
+### Authored and child-added inline highlighting
+
+See [Shared page behavior and ownership](docs/page-behavior.md#authored-and-child-added-inline-highlighting).
+
 ### Icons, glossary and standalone branding
 
 See [Shared page behavior and ownership](docs/page-behavior.md#icons-glossary-and-standalone-branding).

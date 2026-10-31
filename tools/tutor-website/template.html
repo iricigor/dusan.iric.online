@@ -28,6 +28,19 @@
             <button id="tab-learning" type="button" role="tab" data-tab="learning" aria-controls="learning" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v16m0-16C9 3 5 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 1Z"/></svg><span>Učit se</span></button>
             <button id="tab-quiz" type="button" role="tab" data-tab="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10c3 0 5 11 3 12-1 1-4-3-4-3H8s-3 4-4 3C2 18 4 7 7 7ZM6 11h6m-3-3v6"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="14" r="1"/></svg><span>Hrát si</span></button>
         </nav>
+        <details id="highlight-tools" class="highlight-tools">
+            <summary aria-label="Zvýraznění textu" aria-keyshortcuts="Alt+H" title="Zvýraznění textu (Alt+H)">🖍️</summary>
+            <div class="highlight-panel">
+                <p id="highlight-help" class="visually-hidden">Vyber text a zvol barvu. Klávesová zkratka: Alt+H. Změny zůstávají jen v této kartě prohlížeče, i po obnovení stránky. Neodesílají se online.</p>
+                <div role="group" aria-label="Barva zvýraznění" aria-describedby="highlight-help">
+                    <button type="button" data-highlight-action="yellow">Žlutě</button>
+                    <button type="button" data-highlight-action="blue">Modře</button>
+                    <button type="button" data-highlight-action="green">Zeleně</button>
+                    <button type="button" data-highlight-action="remove">Odstranit</button>
+                </div>
+                <p id="highlight-status" class="visually-hidden" role="status" aria-live="polite"></p>
+            </div>
+        </details>
         <div id="learning-controls" class="learning-controls" role="group" aria-label="Nápovědy a řešení" hidden>
             <button id="expand-learning" type="button" aria-controls="learning-content" aria-label="Rozbalit vše" title="Rozbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9V3m-4 4 4-4 4 4M12 15v6m-4-4 4 4 4-4"/></svg></button>
             <button id="collapse-learning" type="button" aria-controls="learning-content" aria-label="Sbalit vše" title="Sbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6m-4-4 4 4 4-4M12 21v-6m-4 4 4-4 4 4"/></svg></button>
@@ -41,10 +54,15 @@
             </div>
         </details>
         </div>
+        <div id="learning-progress" class="learning-progress" hidden>
+            <div id="learning-segments" role="navigation" aria-label="Přejít na kartu lekce"></div>
+            <span id="learning-counter" role="progressbar" aria-label="Prozkoumané karty" aria-valuemin="0" aria-valuenow="0" aria-live="polite" aria-atomic="true"></span>
+        </div>
     </header>
     <main>
         <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
         <p id="storage-warning" role="alert" hidden></p>
+        <p id="highlight-warning" role="alert" hidden></p>
         <section id="original" role="tabpanel" aria-labelledby="tab-original" tabindex="0">
             <div id="original-content"></div>
             @@SHARE@@

@@ -6,7 +6,25 @@
   "id": "defenestrace-a-bila-hora",
   "topic": "Od defenestrace k Bílé hoře",
   "audience": "Pro desetileté děti, které se učí česky",
-  "review": "Původní text obsahuje všech sedm dodaných oddílů beze změny slov, včetně zajímavostí a závěrečné citace. Rozšířená výuka připravuje všech 30 různých otázek: od vlády Habsburků přes povstání a Bílou horu po pobělohorské změny a třicetiletou válku. Při rozšíření jsme porovnali přehledy Matyášovy vlády, bitvy na Bílé hoře, staroměstské exekuce, Obnoveného zřízení zemského a třicetileté války. Vysvětlujeme dědičnost trůnu, náboženská omezení a následky války. Opravujeme zjednodušení, že válka neměla vítězů: mír přinesl některým státům výhody. Oprava latinského původu slova defenestrace a doplnění roku 1618 vycházejí z dříve uvedených zdrojů. Přesné počty vojáků, brněnská pověst a původ závěrečné citace nebyly nově ověřeny a nejsou předmětem kvízu. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
+  "highlights": [
+    {"target": "original.2.text", "quote": "8. listopadu 1620", "color": "yellow"},
+    {"target": "original.3.text", "quote": "Odtud pochází výraz defenestrace – vyhození z okna.", "color": "blue"},
+    {"target": "chunks.1.sentences", "quote": "1618", "color": "green"},
+    {"target": "chunks.3.explanation", "quote": "latinu a němčinu", "color": "blue"}
+  ],
+  "timeline": [
+    {"chunk": 0, "year": 1575, "label": "Rudolf II. korunován českým králem", "lifespan": {"birth": 1552, "death": 1612}},
+    {"chunk": 0, "year": 1576, "label": "Rudolf II. přebírá vládu po otci"},
+    {"chunk": 0, "year": 1611, "label": "Matyáš se stává českým králem", "lifespan": {"birth": 1557, "death": 1619}},
+    {"chunk": 0, "year": 1617, "label": "Ferdinand II. korunován českým králem", "lifespan": {"birth": 1578, "death": 1637}},
+    {"chunk": 1, "year": 1618, "label": "Pražská defenestrace"},
+    {"chunk": 2, "year": 1619, "label": "Fridrich V. Falcký zvolen českým králem", "lifespan": {"birth": 1596, "death": 1632}},
+    {"chunk": 2, "year": 1620, "label": "Bitva na Bílé hoře"},
+    {"chunk": 2, "year": 1620, "label": "Ferdinand II. obnovuje vládu v českých zemích"},
+    {"chunk": 4, "year": 1621, "label": "Staroměstská exekuce"},
+    {"chunk": 6, "year": 1648, "label": "Vestfálský mír"}
+  ],
+  "review": "Původní text obsahuje všech sedm dodaných oddílů beze změny slov, včetně zajímavostí a závěrečné citace. Rozšířená výuka připravuje všech 30 různých otázek: od vlády Habsburků přes povstání a Bílou horu po pobělohorské změny a třicetiletou válku. Při rozšíření jsme porovnali přehledy Matyášovy vlády, bitvy na Bílé hoře, staroměstské exekuce, Obnoveného zřízení zemského a třicetileté války. Vysvětlujeme dědičnost trůnu, náboženská omezení a následky války. Opravujeme zjednodušení, že válka neměla vítězů: mír přinesl některým státům výhody. Oprava latinského původu slova defenestrace a doplnění roku 1618 vycházejí z dříve uvedených zdrojů. Přesné počty vojáků, brněnská pověst a původ závěrečné citace nebyly nově ověřeny a nejsou předmětem kvízu. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem. Nově jsme v českých životopisných přehledech ověřili roky narození a úmrtí, otce a nástupy Rudolfa II., Matyáše, Ferdinanda II. a Fridricha V. Falckého. Údaje doplňujeme jen do výuky, slovníčku a časové osy. Rozlišujeme Rudolfovu korunovaci roku 1575 a převzetí vlády roku 1576. Přehledy různě vymezují konec Matyášovy české vlády; proto uvádíme jeho českou korunovaci roku 1611 a samostatně císařskou vládu v letech 1612–1619. Ferdinandova korunovace roku 1617 předcházela Matyášově smrti; vysvětlujeme také stavovské sesazení roku 1619 a obnovení vlády po Bílé hoře roku 1620.",
   "sources": [
     {
       "title": "Defenestrace — původ slova z latiny",
@@ -21,8 +39,20 @@
       "url": "https://cs.wikipedia.org/wiki/Bitva_na_B%C3%ADl%C3%A9_ho%C5%99e"
     },
     {
+      "title": "Rudolf II. — život, otec, korunovace a převzetí vlády",
+      "url": "https://cs.wikipedia.org/wiki/Rudolf_II."
+    },
+    {
       "title": "Matyáš Habsburský — Rudolfův bratr a následník",
       "url": "https://cs.wikipedia.org/wiki/Maty%C3%A1%C5%A1_Habsbursk%C3%BD"
+    },
+    {
+      "title": "Ferdinand II. Štýrský — život, otec a česká vláda",
+      "url": "https://cs.wikipedia.org/wiki/Ferdinand_II._%C5%A0t%C3%BDrsk%C3%BD"
+    },
+    {
+      "title": "Fridrich V. Falcký — život, otec a volba českým králem",
+      "url": "https://cs.wikipedia.org/wiki/Fridrich_Falck%C3%BD"
     },
     {
       "title": "Staroměstská exekuce — rok 1621 a Jan Mydlář",
@@ -99,6 +129,21 @@
   ],
   "glossary": [
     {
+      "term": "Rudolf II.",
+      "forms": ["Rudolfovi II.", "Rudolfa II.", "Rudolf II. Habsburský"],
+      "definition": "Rudolf II. Habsburský žil v letech 1552–1612. Byl českým králem a císařem Svaté říše římské. Jeho otcem byl císař Maxmilián II. Habsburský. Českým králem byl korunován roku 1575. Po otcově smrti roku 1576 převzal vládu a český trůn držel do roku 1611."
+    },
+    {
+      "term": "Matyáš",
+      "forms": ["Matyáše", "Matyášovi", "Matyáš Habsburský"],
+      "definition": "Matyáš Habsburský žil v letech 1557–1619. Byl Rudolfův mladší bratr. Jejich otcem byl císař Maxmilián II. Habsburský. Českým králem se stal roku 1611. V letech 1612–1619 byl také císařem Svaté říše římské. Sídlil ve Vídni a v Praze ho zastupovali úředníci."
+    },
+    {
+      "term": "Ferdinand II.",
+      "forms": ["Ferdinand", "Ferdinand II. Štýrský", "Ferdinanda II."],
+      "definition": "Ferdinand II. Štýrský žil v letech 1578–1637. Byl Habsburk a jeho otcem byl arcivévoda Karel II. Štýrský. Českým králem byl korunován roku 1617, ještě za Matyášova života. Roku 1619 ho povstalé stavy sesadily. Po Bílé hoře roku 1620 obnovil vládu v českých zemích a vládl do roku 1637. Prosazoval katolickou víru."
+    },
+    {
       "term": "defenestrace",
       "forms": ["defenestrací"],
       "definition": "Vyhození člověka nebo věci z okna. Slovo pochází z latiny. Pražská událost roku 1618 pomohla odstartovat povstání."
@@ -121,8 +166,8 @@
     },
     {
       "term": "Fridrich Falcký",
-      "forms": ["Fridricha Falckého"],
-      "definition": "Panovník, kterého si české stavy zvolily za krále."
+      "forms": ["Fridricha Falckého", "Fridrich V. Falcký", "Fridricha V. Falckého"],
+      "definition": "Fridrich V. Falcký žil v letech 1596–1632. Pocházel z rodu Wittelsbachů. Jeho otcem byl Fridrich IV. Falcký, vládce Falce. České stavy ho zvolily králem roku 1619. V českých zemích vládl v letech 1619–1620. Po porážce na Bílé hoře odešel z Prahy. Kvůli krátké vládě se mu říká zimní král."
     },
     {
       "term": "Bílá hora",
@@ -170,12 +215,15 @@
       "heading": "Panovníci před povstáním",
       "icon": "👑",
       "sentences": [
-        "Po Rudolfovi II. převzal český trůn jeho bratr Matyáš.",
-        "Matyáš sídlil ve Vídni a v Praze ho zastupovali úředníci.",
-        "Pozdějším českým králem se stal Ferdinand II. z rodu Habsburků.",
-        "Ferdinand prosazoval katolickou víru, a tím prohluboval spory s nekatolickými stavy."
+        "Před povstáním vládli v českých zemích Habsburkové.",
+        "Seznam se se třemi panovníky z tohoto rodu."
       ],
-      "explanation": "Rudolf a Matyáš byli bratři. Ferdinand patřil do stejného panovnického rodu. Část stavů se bála omezení své víry i svého rozhodování."
+      "paragraphs": [
+        {"style": "plain", "text": "Rudolf II. byl český král. Po něm převzal vládu jeho mladší bratr Matyáš."},
+        {"style": "plain", "text": "Matyáš sídlil ve Vídni. V Praze za něj rozhodovali úředníci."},
+        {"style": "plain", "text": "Ferdinand II. se stal českým králem ještě za Matyášova života. Prosazoval katolickou víru, což se nelíbilo části české šlechty."}
+      ],
+      "explanation": "Část šlechty měla jinou víru než král. Chtěla si ji ponechat."
     },
     {
       "heading": "Proč začalo povstání?",
@@ -194,7 +242,9 @@
     {
       "heading": "Volba krále a důležitá bitva",
       "sentences": [
-        "České stavy si zvolily za krále Fridricha Falckého.",
+        "Fridrich V. Falcký (1596–1632) byl panovník z rodu Wittelsbachů.",
+        "Jeho otcem byl Fridrich IV. Falcký, vládce Falce.",
+        "České stavy si ho zvolily za krále roku 1619. V českých zemích vládl v letech 1619–1620.",
         "Důležitá bitva se odehrála 8. listopadu 1620 na Bílé hoře u Prahy.",
         "Zvítězila císařská a ligistická vojska, ne stavovská armáda.",
         "Fridrich po porážce opustil Prahu.",

@@ -6,6 +6,13 @@
   "id": "zlomky-a-prevody-delky",
   "topic": "Zlomky a převody jednotek délky",
   "audience": "Pro děti kolem 10 let.",
+  "highlights": [
+    {"target": "original.0.text", "quote": "části z celku", "color": "yellow"},
+    {"target": "original.0.text", "quote": "převody jednotek délky", "color": "blue"},
+    {"target": "examples.0.prompt", "quote": "Tři čtvrtiny", "color": "green"},
+    {"target": "examples.0.steps.0.calculation", "quote": "20 : 4 = 5", "color": "yellow"},
+    {"target": "exercises.0.steps.0.prompt", "quote": "1/2", "color": "blue"}
+  ],
   "original": [
     {"heading": "Zadání", "icon": "📐", "style": "example", "text": "Výpočet části z celku pomocí zlomků a převody jednotek délky."}
   ],

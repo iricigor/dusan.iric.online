@@ -68,18 +68,23 @@ const mathsSubject = {
     renderLearning({ $, node, paragraph, paragraphs, disclose, hint, heading }, lesson) {
         const examples = node('div');
         examples.id = 'examples';
-        lesson.examples.forEach(example => {
+        lesson.examples.forEach((example, index) => {
+            const key = `examples.${index}`;
             const article = node('article', undefined, 'card');
+            article.id = `learning-example-${index}`;
+            article.dataset.learningCard = 'true';
             article.append(heading(example.heading, example.icon, '📐'),
-                hint(example.prompt, example.hint), ...paragraphs(example.paragraphs));
+                hint(example.prompt, example.hint, 'p', { prompt: `${key}.prompt`, explanation: `${key}.hint` }),
+                ...paragraphs(example.paragraphs, `${key}.paragraphs`));
             const steps = node('ol');
-            example.steps.forEach(step => {
+            example.steps.forEach((step, stepIndex) => {
                 const item = node('li');
-                const detail = disclose('Odkrýt krok', paragraph(step.calculation), paragraph(step.explanation));
+                const detail = disclose('Odkrýt krok', paragraph(step.calculation, 'p', { target: `${key}.steps.${stepIndex}.calculation` }),
+                    paragraph(step.explanation, 'p', { target: `${key}.steps.${stepIndex}.explanation` }));
                 item.append(detail);
                 steps.append(item);
             });
-            const answer = disclose('Výsledek', paragraph(example.answer));
+            const answer = disclose('Výsledek', paragraph(example.answer, 'p', { target: `${key}.answer` }));
             article.append(steps, answer);
             examples.append(article);
         });
@@ -91,14 +96,20 @@ const mathsSubject = {
         const levels = { easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' };
         const ordered = ['easy', 'medium', 'hard'].flatMap(level => lesson.exercises.filter(exercise => exercise.difficulty === level));
         ordered.forEach((exercise, index) => {
+            const key = `exercises.${lesson.exercises.indexOf(exercise)}`;
             const article = node('article', undefined, 'card');
-            article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'), paragraph(exercise.prompt));
+            article.id = `learning-exercise-${exercise.id}`;
+            article.dataset.learningCard = 'true';
+            article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'),
+                paragraph(exercise.prompt, 'p', { target: `${key}.prompt` }));
             exercise.steps.forEach((step, stepIndex) => {
                 const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
-                article.append(hint(`${label}: ${step.prompt}`, step.hint, 'h3'),
-                    disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`), paragraph(step.solution)));
+                article.append(hint(`${label}: ${step.prompt}`, step.hint, 'h3', {
+                    prompt: `${key}.steps.${stepIndex}.prompt`, explanation: `${key}.steps.${stepIndex}.hint`, prefix: label.length + 2
+                }), disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`),
+                    paragraph(step.solution, 'p', { target: `${key}.steps.${stepIndex}.solution` })));
             });
-            article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation)));
+            article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation, 'p', { target: `${key}.explanation` })));
             exercises.append(article);
         });
         $('learning-content').append(examples, intro, exercises);
