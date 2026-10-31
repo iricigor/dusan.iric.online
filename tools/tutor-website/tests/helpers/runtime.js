@@ -82,6 +82,9 @@ function page(subject = 'history', stored = []) {
     const modes = ['easy', 'medium', 'hard'].map(mode => {
         const element = new Element('button');
         element.dataset.mode = mode;
+        const count = new Element('span');
+        count.className = 'mode-count';
+        element.append(count);
         return element;
     });
     const tabs = ['original', 'learning', 'quiz'].map(tab => {
@@ -92,7 +95,7 @@ function page(subject = 'history', stored = []) {
     let now = 0;
     let serial = 0;
     const intervals = new Map();
-    const storageKey = `${subject}-tutor:v${subject === 'history' ? 1 : 2}:${source.id}`;
+    const storageKey = `${subject}-tutor:v${subject === 'history' ? 1 : source.version === 4 ? 4 : 2}:${source.id}`;
     const storage = new Map([[storageKey, JSON.stringify(stored)]]);
     const documentListeners = {};
     const windowListeners = new Map();

@@ -22,7 +22,8 @@ medium or hard; they consume these counts rather than maintaining local quotas.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
 `examplePath` identifies prepared, reusable default lesson JSON for both subjects.
 The structural test fixture is not teaching material. Both subjects use
-**`tools\tutor-website\lesson.schema.json`, version 3**, and `validate.js`.
+**`tools\tutor-website\lesson.schema.json`** and `validate.js`;
+capabilities selects history v3 or progressive maths v4.
 Common fields and definitions have one source; conditional subject sections
 preserve their different teaching and assessment needs.
 
@@ -34,23 +35,26 @@ preserve their different teaching and assessment needs.
 Legacy history v1 and maths v2 JSON remain accepted without rewriting source
 material. Compatibility is limited to lesson data and grading, not old tool
 paths or APIs: use the shared builder and schema for both subjects.
-New content and prepared defaults use v3 with
+Legacy maths v3 is also preserved. New history content uses v3 and maths uses v4 with
 `subject`, `language: "cs-CZ"` and a nonblank motivational `subtitle`.
 The schema can enforce presence, not whether wording is genuinely encouraging;
 that review belongs to `tutor-common` and the subject tutor.
 
-Maths assessment retains the established scoring rules; no author-supplied scoring
-configuration is needed. Symbolic algebra and interactive geometry remain
-unsupported.
+Maths v4 defines the new three-level progression and separate scores; legacy
+maths retains its established rules. No author-supplied scoring configuration
+is needed. One-step equations with numerical answers are supported; arbitrary
+symbolic answer evaluation and interactive geometry remain unsupported.
 
 ### Website-owned task counts
 
 `authoringRequirements` is guidance for new lesson authors, not an additional
 structural validator rule. `minimumTasks` is 30 for either subject, counting
 history questions or whole maths exercises (`taskUnit`), never maths answer
-fields. `minimumByDifficulty` is easy 2, medium 5, hard 3, derived from the
-largest selections in the shared runtime's `MODES`. The balanced
-`recommendedByDifficulty` is 6/15/9.
+fields. History `minimumByDifficulty` remains 2/5/3 and its recommendation 6/15/9.
+Maths v4 minimums are 3/4/3, with at least two medium `choice` and two medium
+`number` tasks (`minimumMediumByType`). Recommendations are 9/12/9, including
+six medium choices and six medium numerical tasks (`recommendedMediumByType`).
+These quotas come from maths' runtime selections, not the tutor profiles.
 For substantial history material, `preferredTaskRange` is 50–100; maths uses
 30–100. Material must support useful distinct tasks: never pad to reach a count.
 `minimumTasksEnforcedByValidator: false` distinguishes the new-authoring total
@@ -58,9 +62,11 @@ from structural validation; the validator still enforces sufficient tasks for ev
 It continues accepting supported smaller legacy banks (at least 10 whole
 tasks with the required difficulty mix), including unchanged v1/v2 data.
 
-`quizModes` supplies named easy/medium/hard selection counts for each mode:
-easy 1/1/1, medium 1/2/2, hard 2/5/3. These come from the runtime, not a
-separate subject-profile configuration. Selection remains random without
+`quizModes` supplies named easy/medium/hard selection counts for each mode.
+History and legacy maths retain 1/1/1, 1/2/2, 2/5/3; maths v4 uses
+1/2/1, 2/2/2, 3/4/3. Half the selected medium tasks are choices and half
+numerical entries in every v4 run. These come from the runtime, not authored
+lesson configuration. Selection remains random without
 replacement within each level and presents easy → medium → hard.
 History's hard-mode year guarantee and subject scoring/timing are unchanged.
 
@@ -78,14 +84,17 @@ These sources are prepared once, not synthesized on each default request.
 History reuses the existing reviewed example. The maths default combines both
 requested topics in **one** lesson: fraction calculations (including a fraction
 of a whole) and length conversions across mm/cm/dm/m/km. It has four worked
-examples and 30 tasks (6 easy/15 medium/9 hard), using integer, fraction and decimal
-answers. Conversion answers are numbers in the unit specified by each question.
+examples and 30 v4 tasks (9 yes/no, 6 medium choices, 6 medium numerical tasks,
+9 hard tasks), using integer, fraction and decimal entries and numeric,
+textual and symbolic choices. Medium entries demonstrate `30 × 60` and
+`x + 20 = 200`, as well as one-operation fraction/length calculations.
+Conversion answers are numbers in the unit specified by each question.
 Several word problems
 combine the two topics. All fixed-unit steps expect a number without a unit
 suffix: converting 2 km to metres accepts and displays `2000`, not `2000 m`.
 Worked calculations still show units. Comma and dot are accepted by value
 matchers; equivalent numeric values are accepted when the declared policy
-permits them. The fraction-simplification step deliberately gives `1/2` full
+permits them. The connected hard fraction-simplification step deliberately gives `1/2` full
 credit and `3/6` half credit.
 Both topics stay together in this single default.
 

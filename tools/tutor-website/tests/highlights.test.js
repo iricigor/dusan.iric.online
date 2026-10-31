@@ -7,6 +7,7 @@ const { validateLesson } = require('../validate.js');
 const { renderLesson, capabilities } = require('../build.js');
 const history = require('../examples/defenestrace.json');
 const maths = require('../examples/zlomky-a-prevody-delky.json');
+const { mathsLesson } = require('./fixture.js');
 
 test('history example explains monarchs and records verified accession events without rewriting source', () => {
     for (const [name, year, chunk, birth, death, father] of [
@@ -42,12 +43,12 @@ test('the opening history card is a short overview with biographies available in
 });
 
 test('authored highlights are optional for both subjects and all supported versions', () => {
-    for (const [subject, source, versions] of [['history', history, [1, 3]], ['maths', maths, [2, 3]]]) {
+    for (const [subject, source, versions] of [['history', history, [1, 3]], ['maths', mathsLesson(), [2, 3]], ['maths', maths, [4]]]) {
         for (const version of versions) {
             const lesson = structuredClone(source);
             lesson.version = version;
             if (version === 1) delete lesson.subject;
-            if (version !== 3) {
+            if (version < 3) {
                 if (subject === 'history') lesson.questions.forEach(question => { delete question.assessment; });
                 else lesson.exercises.forEach(exercise => exercise.steps.forEach(step => { delete step.assessment; }));
             }
@@ -84,11 +85,14 @@ test('authored targets cover source sections and learning text without exposing 
     for (const target of ['examples.0.prompt', 'examples.0.hint', 'examples.0.answer',
         'examples.0.steps.0.calculation', 'examples.0.steps.0.explanation',
         'examples.0.paragraphs.0.text', 'exercises.0.prompt', 'exercises.0.explanation',
-        'exercises.0.steps.0.prompt', 'exercises.0.steps.0.hint', 'exercises.0.steps.0.solution']) {
+        'exercises.0.hint', 'exercises.0.solution',
+        'exercises.15.steps.0.prompt', 'exercises.15.steps.0.hint', 'exercises.15.steps.0.solution']) {
         assert.equal(typeof learning.get(target), 'string', target);
     }
     assert.equal(original.has('questions.0.prompt'), false);
     assert.equal(original.has('glossary.0.definition'), false);
+    assert.equal(learning.has('exercises.0.options'), false);
+    assert.equal(learning.has('exercises.0.assessment'), false);
     assert.deepEqual(authored(history).errors, []);
     assert.deepEqual(authored(maths).errors, []);
 });

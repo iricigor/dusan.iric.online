@@ -14,7 +14,7 @@ Only participate when explicitly selected or requested.
 
 Use the common capability/default/build/review flow and the handoff in
 `.github\agents\tutor-website.agent.md` with `subject: maths`.
-Read the returned version 3 schema and contract documentation before authoring;
+Read the returned version 4 maths schema and contract documentation before authoring;
 do not invent a competing contract or coerce maths into history data.
 For a default/example request or no supplied topic/material, use
 `capabilities.examplePath` unchanged. It is one combined lesson on
@@ -24,8 +24,9 @@ two separate defaults.
 Clarify topic and prerequisites as needed. Follow common image/transcription
 rules and independently verify all calculations, solutions and units. Explain
 corrections and uncertainty in the user's language.
-Support any topic expressible through the website's calculation/word-problem
-formats. Symbolic algebra evaluation, interactive geometry and other unsupported
+Support any topic expressible through the website's choice/numerical formats,
+including one-step equations with numerical answers (for example `x + 20 = 200`).
+Arbitrary symbolic answer evaluation, interactive geometry and other unsupported
 formats require disclosed limitations and agreement before adapting exercises.
 
 Teach a simple worked example, a more complex example, a familiar everyday word
@@ -42,22 +43,26 @@ The website's `authoringRequirements` defines bank size and difficulty quotas;
 `quizModes` defines selection counts. Count whole exercises, not answer fields.
 Author varied tasks with these educational structures:
 
-- **Easy:** a group of four independent short calculations (1a–1d), directly
-  applying familiar taught operations. Each calculation should be solvable
-  without interpreting a long story or relying on a previous answer.
-- **Medium:** a familiar everyday word problem with one answer field. The
-  learner identifies the relevant quantities and operation, applies the
-  taught method and interprets the result in context.
-- **Hard:** a word problem combining three connected simple calculations with
-  three separately labelled answer fields. Explain how steps connect; the
-  difficulty comes from planning the sequence, not untaught arithmetic.
+- **Easy:** a yes/no understanding question (`type: "trueFalse"`, options
+  `["Ano", "Ne"]`). Explain why the correct answer is right, including for "Ne".
+- **Medium:** either `type: "choice"` with offered numbers, words or comparison
+  symbols (`=`, `<`, `>`, `<>`), or `type: "number"` with one numerical answer
+  requiring exactly one calculation. Numerical-entry assignments must use
+  mathematical notation, such as `30 × 60 = ?` or `x + 20 = 200. x = ?`, not
+  word problems. Make offered choices unambiguous; ask for the most precise
+  comparison when both a directional sign and `<>` are offered.
+- **Hard:** connected calculations across multiple steps with multiple
+  separately labelled numerical answers. Word problems are allowed.
+  Explain how steps connect; difficulty comes from planning, not untaught arithmetic.
   Check each step against its own expected answer, even if an earlier entry
-  was wrong.
+  was wrong. There is no fourth or hardest level.
 
 Provide a worked solution for every exercise and step. Teach every tested
 concept and choose sensible quantities/results for ten-year-old learners.
-Use only website-supported integer, fraction, decimal or length formats and
-explicit `assessment` policies. The website owns parsing/matcher syntax;
+Use only website-supported numerical formats for entry and explicit
+`assessment` policies for each choice task or numerical step.
+Choices are plain-text labels, checked by their selected zero-based index;
+do not parse comparison symbols as numbers. The website owns parsing/matcher syntax;
 you decide which values or representations deserve full or partial credit.
 
 Use value matchers when equivalent forms are legitimate, and literal matchers
@@ -67,9 +72,9 @@ every equivalent form. Prefer integer results where suitable and decimal
 format for non-integer numerical results, not integer-only fields.
 If the question fixes the target unit, expect only the number in that unit:
 integer `2000` with `input: "number"`, not length `2000 m`.
-Keep units in worked calculations. Require a length answer only when the prompt
-explicitly requests the unit as part of the answer; declare that unit using
-the website contract. Never introduce an approximate checker, floating-point
+Keep units in worked calculations. Progressive v4 entries are numbers only;
+legacy v2/v3 length-answer lessons remain supported without reinterpretation.
+Never introduce an approximate checker, floating-point
 tolerance, spelling normalization or executable expression for maths answers.
 
 ## Draft handoff and educational review

@@ -5,6 +5,7 @@ const path = require('node:path');
 const { renderPage } = require('./page.js');
 const { validateLesson } = require('./validate.js');
 const { MODES } = require('./runtime.js');
+const { PROGRESSIVE_MODES, PROGRESSIVE_MEDIUM_MINIMUM } = require('./maths.js');
 const { colors } = require('./highlights.js');
 
 const PUBLICATION_ORIGIN = 'https://dusan.iric.online/';
@@ -12,8 +13,9 @@ const PUBLICATION_ORIGIN = 'https://dusan.iric.online/';
 function capabilities(subject) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     const levels = ['easy', 'medium', 'hard'];
+    const modes = subject === 'maths' ? PROGRESSIVE_MODES : MODES;
     return {
-        subject, version: 3, language: 'cs-CZ', standalone: true,
+        subject, version: subject === 'maths' ? 4 : 3, language: 'cs-CZ', standalone: true,
         tabs: ['original', 'learning', 'quiz'], playerNameRequired: true,
         schemaPath: path.join(__dirname, 'lesson.schema.json'),
         validatorPath: path.join(__dirname, 'validate.js'),
@@ -26,12 +28,13 @@ function capabilities(subject) {
             taskUnit: subject === 'history' ? 'question' : 'whole-exercise',
             minimumTasks: 30,
             minimumByDifficulty: Object.fromEntries(levels.map((level, index) =>
-                [level, Math.max(...Object.values(MODES).map(mix => mix[index]))])),
-            recommendedByDifficulty: { easy: 6, medium: 15, hard: 9 },
+                [level, Math.max(...Object.values(modes).map(mix => mix[index]))])),
+            recommendedByDifficulty: subject === 'maths' ? { easy: 9, medium: 12, hard: 9 } : { easy: 6, medium: 15, hard: 9 },
+            ...(subject === 'maths' ? { minimumMediumByType: { ...PROGRESSIVE_MEDIUM_MINIMUM }, recommendedMediumByType: { choice: 6, number: 6 } } : {}),
             preferredTaskRange: { min: subject === 'history' ? 50 : 30, max: 100 },
             minimumTasksEnforcedByValidator: false
         },
-        quizModes: Object.fromEntries(Object.entries(MODES).map(([mode, mix]) =>
+        quizModes: Object.fromEntries(Object.entries(modes).map(([mode, mix]) =>
             [mode, Object.fromEntries(levels.map((level, index) => [level, mix[index]]))])),
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
         answerDuration: 'active-answering-only-excludes-feedback-and-hidden-quiz',
@@ -39,7 +42,7 @@ function capabilities(subject) {
         optionalTimeline: subject === 'history',
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
-            ...(subject === 'maths' ? ['Symbolic algebra and interactive geometry are unsupported.'] : [])
+            ...(subject === 'maths' ? ['Arbitrary symbolic answer evaluation and interactive geometry are unsupported; one-step equations with numerical answers are supported.'] : [])
         ]
     };
 }

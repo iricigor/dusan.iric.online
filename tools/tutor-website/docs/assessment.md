@@ -71,14 +71,16 @@ For `input: "length"`, declare `unit` alongside `exact`; number/range matchers
 use that unit after exact conversion of the supplied length. String matchers
 still compare the original unit-bearing representation. Bare numbers and
 unsupported units are invalid. Maths input/dimensions must agree with the typed
-canonical answer. History choice policies use `input: "number"` to match the
+canonical answer. History and progressive maths choice policies use `input: "number"` to match the
 selected zero-based option index; text/year policies use the same engine.
 History `acceptedAnswers` lists full-credit canonical forms, not partial ones.
 
 A partial match earns half of the question/step's normal points. It earns no
-history speed bonus and does not satisfy maths' all-fully-correct accuracy
-bonus. An easy calculation can earn **1.25** points, so maths records now accept
-quarter points; maxima and grade thresholds stay unchanged. Feedback and
+history speed bonus and does not satisfy legacy maths' all-fully-correct accuracy
+bonus. Legacy easy calculations can earn **1.25** points. V4 maths has no
+accuracy bonus; choices are all-or-nothing, numerical steps can earn half
+credit. Hard tasks divide 30 points equally across 2–4 independent answers,
+so quarter-point scores remain supported. Feedback and
 results show partial status, the canonical correct answer, explanation and
 actual awarded points; the learner still explicitly continues.
 
@@ -89,7 +91,10 @@ to change policy. Compatibility helpers in the same shared evaluator preserve
 legacy history spelling normalization, digit-only marked years and automatic
 half credit strictly less than ten years away. They preserve legacy maths
 integer-only, fraction-only and decimal notation restrictions and exact unit
-conversion, with no new partial credit. Stored results are not rewritten.
+conversion, with no new partial credit. V3 maths keeps its original 4/1/3
+answer structures, explicit policies, mixes, scores and storage namespace.
+V4 is an explicit opt-in to the progressive structures, never an automatic
+upgrade. Stored results are not rewritten.
 Legacy pages get the common motivational subtitle if none was supplied.
 
 ### Typed answers and exact comparison
@@ -129,7 +134,7 @@ The runtime compares exact rational values using bounded BigInt arithmetic, not
 floating-point epsilon, spelling normalization, approximate-year credit, or
 `eval`. Integer, fraction and decimal expected formats describe the canonical
 answer. The declared policy decides credit, not this display format.
-V3 number input accepts whole numbers, decimals with comma or point,
+V3/v4 number input accepts whole numbers, decimals with comma or point,
 fractions and mixed numbers; number matchers compare values exactly:
 **7/4 = 1 3/4 = 1.75**, **0.5 = 1/2**, **3 = 3.0 = 6/2**.
 Value matchers need not enumerate infinitely many equivalent fractions.
@@ -138,8 +143,11 @@ Trim surrounding whitespace; reject mixed separators, expressions,
 trailing text, ambiguous grouping, empty or malformed answers. Length answers
 require an explicit supported unit and exact conversion: 1 km = 1000 m,
 1 m = 10 dm = 100 cm = 1000 mm. Equivalent supported units are valid; missing
-units, wrong dimensions or unknown units are invalid. Algebra/interactive
-geometry and other answer formats are unsupported, not silently misgraded.
+units, wrong dimensions or unknown units are invalid. V4 maths entries are
+numbers only; unit-bearing length input remains available to legacy maths.
+One-step equations use a numerical canonical answer, not symbolic input.
+Arbitrary symbolic evaluation/interactive geometry and other answer formats
+are unsupported, not silently misgraded.
 User input permits at most 12 integer digits and 12 fractional digits, with
 optional minus but no plus, exponent, thousands grouping or redundant leading
 zeros. Fraction numerators and denominators are signed integers of at most
@@ -166,7 +174,11 @@ the exact score, not the rounded display percentage.
 
 Maths results store run id, entered name/nickname, mode, score, attainable
 maximum, grade, local date/time and active `answerDurationMs` under
-`maths-tutor:v2:<lesson-id>` in `sessionStorage`. Older named results without
+`maths-tutor:v4:<lesson-id>` for progressive v4, or
+`maths-tutor:v2:<lesson-id>` for legacy v2/v3 in `sessionStorage`.
+These namespaces never merge or reinterpret scores even with the same lesson id.
+V4 maximums are 80/120/200; legacy maximums remain 61/111/212.
+Older named legacy results without
 answer duration remain readable. Duration never affects maths ranking. Old anonymous
 v1 results remain untouched under their old key and are not migrated to a
 fabricated player name. Results remain per-subject, per-lesson and session-local,

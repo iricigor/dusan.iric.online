@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Shared Czech tutor lesson v3 (with legacy history v1 and maths v2 support)",
+  "title": "Shared Czech tutor lessons: history v3 and progressive maths v4 (legacy v1/v2/v3 support)",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "id", "topic", "audience", "original", "glossary"],
   "properties": {
-    "version": { "enum": [1, 2, 3] },
+    "version": { "enum": [1, 2, 3, 4] },
     "subject": { "enum": ["history", "maths"] },
     "language": { "const": "cs-CZ" },
     "id": { "$ref": "#/$defs/id" },
@@ -124,7 +124,7 @@
         }
       }
     },
-    "exercises": { "type": "array", "minItems": 10, "maxItems": 100, "items": { "$ref": "#/$defs/mathsExercise" } }
+    "exercises": { "type": "array", "minItems": 10, "maxItems": 100 }
   },
   "allOf": [
     {
@@ -133,7 +133,17 @@
         "required": ["subject", "language", "subtitle"],
         "properties": {
           "questions": { "items": { "required": ["assessment"] } },
-          "exercises": { "items": { "properties": { "steps": { "items": { "required": ["assessment"] } } } } }
+          "exercises": { "items": { "$ref": "#/$defs/mathsExercise", "properties": { "steps": { "items": { "required": ["assessment"] } } } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "version": { "const": 4 } } },
+      "then": {
+        "required": ["subject", "language", "subtitle"],
+        "properties": {
+          "subject": { "const": "maths" },
+          "exercises": { "items": { "$ref": "#/$defs/progressiveMathsExercise" } }
         }
       }
     },
@@ -148,7 +158,7 @@
       "if": { "properties": { "version": { "const": 2 } } },
       "then": { "required": ["subject", "language"], "properties": {
         "subject": { "const": "maths" },
-        "exercises": { "items": { "properties": { "steps": { "items": { "not": { "required": ["assessment"] } } } } } }
+        "exercises": { "items": { "$ref": "#/$defs/mathsExercise", "properties": { "steps": { "items": { "not": { "required": ["assessment"] } } } } } }
       } }
     },
     {
@@ -285,6 +295,77 @@
         }
       ]
     },
+    "mathsStep": {
+      "type": "object", "additionalProperties": false, "required": ["prompt", "hint", "answer", "solution"],
+      "properties": {
+        "prompt": { "$ref": "#/$defs/text" },
+        "hint": { "$ref": "#/$defs/text" },
+        "solution": { "$ref": "#/$defs/text" },
+        "answer": { "$ref": "#/$defs/mathsAnswer" },
+        "assessment": { "$ref": "#/$defs/assessment" }
+      }
+    },
+    "progressiveMathsExercise": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "difficulty", "type", "prompt", "explanation"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "icon": { "$ref": "#/$defs/icon" },
+        "difficulty": { "$ref": "#/$defs/difficulty" },
+        "type": { "enum": ["trueFalse", "choice", "number"] },
+        "prompt": { "$ref": "#/$defs/text" },
+        "hint": { "$ref": "#/$defs/text" },
+        "solution": { "$ref": "#/$defs/text" },
+        "explanation": { "$ref": "#/$defs/text" },
+        "options": { "type": "array", "minItems": 2, "maxItems": 6, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "answer": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "assessment": { "$ref": "#/$defs/assessment" },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mathsStep", "required": ["assessment"],
+            "properties": {
+              "answer": { "properties": { "format": { "enum": ["integer", "fraction", "decimal"] } } },
+              "assessment": { "properties": { "input": { "const": "number" } } }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "difficulty": { "const": "easy" } } },
+          "then": { "properties": { "type": { "const": "trueFalse" }, "options": { "const": ["Ano", "Ne"] } } }
+        },
+        {
+          "if": { "properties": { "difficulty": { "const": "medium" } } },
+          "then": { "properties": { "type": { "enum": ["choice", "number"] }, "steps": { "minItems": 1, "maxItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "difficulty": { "const": "hard" } } },
+          "then": { "properties": { "type": { "const": "number" }, "steps": { "minItems": 2, "maxItems": 4 } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "number" } } },
+          "then": {
+            "required": ["steps"],
+            "not": { "anyOf": [
+              { "required": ["options"] }, { "required": ["answer"] }, { "required": ["assessment"] },
+              { "required": ["hint"] }, { "required": ["solution"] }
+            ] }
+          },
+          "else": {
+            "required": ["options", "answer", "assessment", "hint", "solution"],
+            "properties": {
+              "assessment": {
+                "properties": { "input": { "const": "number" }, "exact": { "$ref": "#/$defs/numberMatcher" } },
+                "not": { "required": ["partial"] }
+              }
+            },
+            "not": { "required": ["steps"] }
+          }
+        }
+      ]
+    },
     "mathsExercise": {
       "type": "object", "additionalProperties": false,
       "required": ["id", "difficulty", "prompt", "steps", "explanation"],
@@ -296,16 +377,7 @@
         "explanation": { "$ref": "#/$defs/text" },
         "steps": {
           "type": "array",
-          "items": {
-            "type": "object", "additionalProperties": false, "required": ["prompt", "hint", "answer", "solution"],
-            "properties": {
-              "prompt": { "$ref": "#/$defs/text" },
-              "hint": { "$ref": "#/$defs/text" },
-              "solution": { "$ref": "#/$defs/text" },
-              "answer": { "$ref": "#/$defs/mathsAnswer" },
-              "assessment": { "$ref": "#/$defs/assessment" }
-            }
-          }
+          "items": { "$ref": "#/$defs/mathsStep" }
         }
       },
       "allOf": [

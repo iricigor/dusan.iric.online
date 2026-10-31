@@ -7,7 +7,7 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { setTimeout: delay } = require('node:timers/promises');
 const { renderLesson } = require('../build.js');
-const { mathsAssessmentLesson } = require('./fixture.js');
+const { mathsAssessmentLesson, mathsLesson } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
 const defaultMaths = require('../examples/zlomky-a-prevody-delky.json');
 const { browserPath, openBrowser } = require('./helpers/browser.js');
@@ -30,12 +30,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     for (const [subject, lesson] of [
         ['maths', { ...mathsAssessmentLesson(), id: 'shared-lesson-id' }],
         ['history', { ...history, id: 'shared-lesson-id' }],
-        ['maths', defaultMaths]
+        ['maths', { ...defaultMaths, id: 'shared-lesson-id' }]
     ]) {
         if (subject === 'maths' && lesson.id === 'shared-lesson-id') {
             lesson.glossary[0].icon = '<img src=x onerror=alert(1)>';
         }
         const file = path.join(directory, `${subject}-${lesson.id}.html`);
+        const legacyResults = lesson.version === 4
+            ? await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`) : null;
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
         for (let attempt = 0; attempt < 100; attempt++) {
@@ -54,6 +56,11 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         if (subject === 'maths') await checkMathsQuiz(scenario);
         else await checkHistoryQuiz(scenario);
         await checkPersistence(scenario);
+        if (lesson.version === 4) {
+            assert.ok(legacyResults, 'the same-id legacy results exist before the progressive page');
+            assert.equal(await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`), legacyResults,
+                'progressive quizzes and storage failures do not alter same-id legacy results');
+        }
     }
     assert.deepEqual(exceptions, []);
     assert.deepEqual(network, []);
@@ -763,7 +770,7 @@ test('legacy offline pages download complete lessons without upgrading their con
     delete legacyHistory.language;
     delete legacyHistory.subtitle;
     legacyHistory.questions.forEach(question => { delete question.assessment; });
-    const legacyMaths = structuredClone(defaultMaths);
+    const legacyMaths = mathsLesson();
     legacyMaths.version = 2;
     delete legacyMaths.subtitle;
     legacyMaths.exercises.forEach(exercise => exercise.steps.forEach(step => { delete step.assessment; }));

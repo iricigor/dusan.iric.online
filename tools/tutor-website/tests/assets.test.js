@@ -66,7 +66,7 @@ test('Gems CSS assembles identically and JavaScript still matches its canonical 
 });
 
 test('the discoverable documentation index preserves old anchors and resolves local document links', () => {
-    const index = fs.readFileSync(capabilities('history').contractPath, 'utf8');
+    const index = fs.readFileSync(capabilities('history').contractPath, 'utf8').replace(/\r\n/g, '\n');
     assert.equal(capabilities('history').contractPath, path.join(shared, 'README.md'));
     for (const title of ['Discover, author, hand off', 'Website-owned task counts', 'Prepared defaults',
         'Build handoff', 'History authoring and quiz rules', 'Existing lesson data',

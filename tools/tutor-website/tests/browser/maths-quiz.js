@@ -2,8 +2,10 @@
 
 const assert = require('node:assert/strict');
 const defaultMaths = require('../../examples/zlomky-a-prevody-delky.json');
+const { checkProgressiveMaths } = require('./progressive-maths.js');
 
 async function checkMathsQuiz({ client, evaluate, lesson }) {
+    if (lesson.version === 4) return checkProgressiveMaths({ client, evaluate, lesson });
     assert.deepEqual(await evaluate(`(async () => {
         await window.switchTutorTab('learning');
         const details = document.querySelector('#exercises details');

@@ -35,10 +35,10 @@ history-tutor tool directory, legacy CLI implementation, or subject schema alias
 |---|---|---|
 | `tutor-common` | Shared teaching and workflow policy, including motivation, explicit answer credit, increasing difficulty, source handling, defaults and approval boundaries | Read/search guidance only; it does not execute builds or browser checks |
 | `tutor-website` helper and capabilities | Bank size, numerical difficulty quotas, quiz-mode counts, generation and technical review of actual drafts | Subject tutors consume requirements and retain educational review; fixture tests alone do not prove draft behavior |
-| `tutor-website` schema and validator | One v3 contract, shared metadata/original/glossary/styles; conditional subject sections | One authoritative definition avoids drift without requiring fictional dates/sources in maths or numeric steps in history |
+| `tutor-website` schema and validator | One schema for history v3, progressive maths v4 and legacy lessons; shared metadata/original/glossary/styles | One authoritative definition avoids drift without requiring fictional dates/sources in maths or numeric steps in history |
 | Template, CSS, runtime, assessment and utilities | Shared, entirely in this directory | Color, animation, callouts, navigation, names, numeric/unit parsing, string normalization, exact/partial matching, feedback/progression, grades, results and storage warnings must behave consistently |
 | `history.js` | Separate content/scoring adapter in this directory | Factual chunks, mandatory speed bonus, base-only grades and duration tie-breaking are history rules; declared aliases and year ranges use the shared evaluator |
-| `maths.js` | Separate content/scoring adapter in this directory | Worked steps, independent per-step points, accuracy points and no timing are maths rules; parsing and declared representation/value policies use the shared evaluator |
+| `maths.js` | Separate content/scoring adapter in this directory | V4 understanding/choice/numerical tasks, independent step points and no timing; legacy accuracy points remain version-gated. Parsing and declared policies use the shared evaluator |
 | Subject agent profiles and prepared JSON | Separate educational content and easy/medium/hard teaching definitions | Historical verification, first-mention biographies and mathematical solution authoring need different expertise; numerical bank quotas belong to website capabilities |
 | Legacy lesson data/grading | Supported in the shared schema and evaluator | Existing saved JSON can be rebuilt without preserving obsolete commands or schema paths |
 | Published HTML and `gems` | Unchanged, independent snapshots/workflow | Tooling changes do not approve publication or changes to Gemini |
@@ -63,7 +63,7 @@ pages or displays suggestions on double-click.
 
 ### Motivation, semantic paragraphs and motion
 
-The factual `topic` remains the page title. Required v3 `subtitle` is a short
+The factual `topic` remains the page title. Required v3/v4 `subtitle` is a short
 Czech invitation to learn, e.g. “Objevuj nové souvislosti, krok za krokem!”
 Legacy lessons without it receive a shared encouraging subtitle on the page,
 without mutating their JSON. Never pressure a learner to be fast or perfect.
@@ -228,6 +228,7 @@ Unsupported targets, missing/ambiguous quotes and invalid colors fail validation
 | `examples.<index>.steps.<index>.calculation` / `.explanation` | Maths worked steps |
 | `examples.<index>.paragraphs.<index>.text` | Optional maths teaching paragraph |
 | `exercises.<index>.prompt` / `.explanation` | Maths practice text |
+| `exercises.<index>.hint` / `.solution` | V4 maths choice practice hint and solution |
 | `exercises.<index>.steps.<index>.prompt` / `.hint` / `.solution` | Maths practice steps |
 
 All indices refer to the source JSON, even if practice cards are displayed in
@@ -427,8 +428,10 @@ the package archive nor existing published lessons is changed by this integratio
 | Gems quiz engine, schema, DOM and HTML-string rendering | Not imported; existing contracts, safe text nodes, sampling and assessment adapters remain authoritative |
 | Placeholder-name rejection and automatic feedback progression | Not imported; valid names/nicknames are not rejected for matching an example, and the learner explicitly continues after feedback |
 
-Stored quiz-result namespaces, score maxima, grade thresholds and speed-bonus rules
-are unchanged by v3. Answer-only duration is additive for both subjects.
+Stored legacy quiz-result namespaces, score maxima, grade thresholds and speed-bonus rules
+are unchanged. Progressive maths v4 opts into its own namespace, 80/120/200
+maxima and three-level structures; it does not merge or migrate old results.
+Answer-only duration is additive for both subjects.
 New lessons declare their acceptance policies explicitly;
 legacy lesson grading and stored result values are not rewritten.
 

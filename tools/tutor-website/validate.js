@@ -4,6 +4,7 @@ const { schemaErrors } = require('./schema.js');
 const schema = require('./lesson.schema.json');
 const { parseNumber, parseInput, compare, evaluate } = require('./assessment.js');
 const { authored } = require('./highlights.js');
+const { PROGRESSIVE_MINIMUM, PROGRESSIVE_MEDIUM_MINIMUM } = require('./maths.js');
 
 function validateAssessment(policy, location, errors) {
     const check = (matcher, at) => {
@@ -35,7 +36,7 @@ function validateLesson(subject, lesson) {
         errors.push(`$.subject: expected ${subject}`);
     }
     if (errors.length) throw new Error(`${label}:\n${errors.join('\n')}`);
-    if (lesson.version === 3) {
+    if (lesson.version >= 3) {
         const check = (policy, canonical, at) => {
             const before = errors.length;
             validateAssessment(policy, `${at}.assessment`, errors);
@@ -49,16 +50,24 @@ function validateLesson(subject, lesson) {
             if (question.year && question.assessment.input !== 'number') errors.push(`${at}.assessment.input: year answers require number input`);
             check(question.assessment, question.type === 'text' ? question.acceptedAnswers : [String(question.answer)], at);
         });
-        else lesson.exercises.forEach((exercise, index) => exercise.steps.forEach((step, stepIndex) => {
-            const at = `$.exercises[${index}].steps[${stepIndex}]`;
-            const answer = step.answer;
-            if (answer.format === 'length' ? step.assessment.input !== 'length' || step.assessment.unit !== answer.unit : step.assessment.input !== 'number') {
-                errors.push(`${at}.assessment: input/unit must match the expected maths answer dimension`);
+        else lesson.exercises.forEach((exercise, index) => {
+            if (exercise.options) {
+                const at = `$.exercises[${index}]`;
+                if (exercise.answer >= exercise.options.length) errors.push(`${at}.answer: must refer to an offered option`);
+                check(exercise.assessment, [String(exercise.answer)], at);
+                return;
             }
-            const canonical = answer.format === 'fraction' ? `${answer.numerator}/${answer.denominator}` :
-                answer.format === 'length' ? `${answer.value} ${answer.unit}` : answer.value;
-            check(step.assessment, [canonical], at);
-        }));
+            exercise.steps.forEach((step, stepIndex) => {
+                const at = `$.exercises[${index}].steps[${stepIndex}]`;
+                const answer = step.answer;
+                if (answer.format === 'length' ? step.assessment.input !== 'length' || step.assessment.unit !== answer.unit : step.assessment.input !== 'number') {
+                    errors.push(`${at}.assessment: input/unit must match the expected maths answer dimension`);
+                }
+                const canonical = answer.format === 'fraction' ? `${answer.numerator}/${answer.denominator}` :
+                    answer.format === 'length' ? `${answer.value} ${answer.unit}` : answer.value;
+                check(step.assessment, [canonical], at);
+            });
+        });
         if (errors.length) throw new Error(`${label}:\n${errors.join('\n')}`);
     }
     const normalize = text => text.trim().normalize('NFC').toLocaleLowerCase('cs');
@@ -94,12 +103,23 @@ function validateLesson(subject, lesson) {
             forms.set(form, entry.term);
         }
     });
-    for (const [level, minimum] of Object.entries({ easy: 2, medium: 5, hard: 3 })) {
+    const minimums = lesson.version === 4 ? PROGRESSIVE_MINIMUM : { easy: 2, medium: 5, hard: 3 };
+    for (const [level, minimum] of Object.entries(minimums)) {
         if (pool.filter(task => task.difficulty === level).length < minimum) {
             errors.push(`$.${poolKey}: needs at least ${minimum} ${level} tasks for all quiz modes`);
         }
     }
     if (subject === 'maths') {
+        if (lesson.version === 4) {
+            for (const [type, minimum] of Object.entries(PROGRESSIVE_MEDIUM_MINIMUM)) {
+                if (pool.filter(task => task.difficulty === 'medium' && task.type === type).length < minimum) {
+                    errors.push(`$.exercises: needs at least ${minimum} medium ${type} tasks for all quiz modes`);
+                }
+            }
+            pool.forEach(exercise => {
+                if (exercise.options) unique(exercise.options, `$.exercises options for ${exercise.id}`);
+            });
+        }
         const progression = ['simple', 'complex', 'everyday', 'challenge'];
         lesson.examples.forEach((example, index) => {
             if (example.kind !== progression[index]) errors.push(`$.examples[${index}].kind: expected ${progression[index]} in teaching progression`);

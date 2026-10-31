@@ -8,7 +8,7 @@ const { pathToFileURL } = require('node:url');
 const { renderLesson } = require('../../build.js');
 
 async function checkPersistence({ client, evaluate, capture, subject, lesson, file }) {
-    const storageKey = `${subject}-tutor:v${subject === 'maths' ? 2 : 1}:${lesson.id}`;
+    const storageKey = `${subject}-tutor:v${subject === 'maths' ? lesson.version === 4 ? 4 : 2 : 1}:${lesson.id}`;
     const savedCount = subject === 'maths' ? 6 : 3;
     await client.send('Page.navigate', { url: pathToFileURL(file).href + '?reload' });
     for (let attempt = 0; attempt < 100; attempt++) {
@@ -34,14 +34,18 @@ async function checkPersistence({ client, evaluate, capture, subject, lesson, fi
         $('player').value = 'Žofka';
         document.querySelector('[data-mode="easy"]').click();
         if ($('name-error').textContent) throw new Error('Unicode nickname rejected');
-        for (let index = 0; index < 3; index++) {
+        for (let index = 0; index < ${lesson.version === 4 ? 4 : 3}; index++) {
             if (${JSON.stringify(subject)} === 'history') {
                 const question = lesson.questions.find(item => item.prompt === $('question').textContent);
                 if (question.type === 'text') {
                     $('answer-input').value = question.acceptedAnswers[0];
                     $('answers').requestSubmit();
                 } else $('answers').querySelectorAll('button')[question.answer].click();
-            } else $('answers').requestSubmit();
+            } else {
+                const task = lesson.exercises.find(item => item.prompt === $('question').textContent);
+                if (task.options) $('answers').querySelectorAll('button')[task.answer].click();
+                else $('answers').requestSubmit();
+            }
             $('next').click();
         }
     })()`;
