@@ -59,6 +59,43 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     assert.deepEqual(network, []);
 });
 
+test('compact marker palette fits narrow screens across text fonts', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
+}, async t => {
+    const { directory, client, evaluate } = await openBrowser(t);
+    const file = path.join(directory, 'marker-palette.html');
+    fs.writeFileSync(file, renderLesson('maths', defaultMaths));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    for (let attempt = 0; attempt < 100; attempt++) {
+        if (await evaluate('typeof window.switchTutorTab === "function"')) break;
+        await delay(20);
+    }
+    await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
+    for (const font of ['system-ui', 'Arial', 'Verdana']) {
+        await evaluate(`document.body.style.fontFamily = '${font}'`);
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
+            for (const tab of ['original', 'learning']) {
+                await evaluate(`window.switchTutorTab('${tab}')`);
+                const layout = await evaluate(`(() => {
+                    document.getElementById('highlight-tools').open = true;
+                    const panel = document.querySelector('.highlight-panel').getBoundingClientRect().toJSON();
+                    const buttons = [...document.querySelectorAll('[data-highlight-action]')].map(button => ({
+                        ...button.getBoundingClientRect().toJSON(), font: getComputedStyle(button).font
+                    }));
+                    return { panel, buttons, viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth };
+                })()`);
+                assert.equal(layout.panel.height < 65 && layout.panel.left >= 0 && layout.panel.right <= layout.viewport &&
+                    layout.scrollWidth <= layout.viewport && layout.buttons.length === 4 && layout.buttons.every(button =>
+                        button.height >= 44 && button.width >= 44 && Math.abs(button.top - layout.buttons[0].top) < 1 &&
+                        button.left >= layout.panel.left && button.right <= layout.panel.right),
+                true, `${font}/${theme}/${tab}: ${JSON.stringify(layout)}`);
+                await evaluate('document.getElementById("highlight-tools").open = false');
+            }
+        }
+    }
+});
+
 test('prepared history timeline keeps compact years readable and expands lesson text', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
 }, async t => {

@@ -162,7 +162,7 @@ summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height:
 .highlight-tools > summary::-webkit-details-marker { display: none; }
 .highlight-panel { position: fixed; right: max(1rem, calc((100% - 1120px) / 2 + 1rem)); width: max-content; max-width: calc(100vw - 2rem); padding: .4rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); color: var(--text); box-shadow: var(--shadow); z-index: 4; }
 .highlight-panel [role="group"] { display: flex; flex-wrap: nowrap; gap: .25rem; }
-.highlight-panel button { padding: .4rem .55rem; font-size: .85rem; white-space: nowrap; }
+.highlight-panel button { flex: 0 0 auto; min-width: 44px; padding: .4rem .35rem; font-size: .85rem; white-space: nowrap; }
 .highlight-panel button:disabled { opacity: .5; }
 mark[data-highlight-color], button[data-highlight-action]:not([data-highlight-action="remove"]) { color: #17212b; border-radius: .15em; background: var(--marker); }
 [data-highlight-color="yellow"], [data-highlight-action="yellow"] { --marker: #ffe589; }
