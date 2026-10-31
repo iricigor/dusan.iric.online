@@ -46,7 +46,8 @@ jobs:
           STATIC_WEB_APP_URL: ${{ steps.deploy.outputs.static_web_app_url }}
         run: |
           files="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" | jq -s 'add')"
-          file_count="$(jq '[.[] | select(.filename | startswith("site/")) | select(.status != "removed")] | length' <<< "$files")"
+          preview_files="$(jq '[.[] | select(.filename | startswith("site/")) | select(.filename != "site/i/index.html") | select(.status != "removed")]' <<< "$files")"
+          file_count="$(jq 'length' <<< "$preview_files")"
           comments="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" | jq -s 'add')"
           comment_id="$(jq -r '.[] | select(.body | contains("<!-- single-file-preview -->")) | .id' <<< "$comments" | tail -n 1)"
 
@@ -56,7 +57,7 @@ jobs:
               exit 1
             fi
 
-            file_path="$(jq -r '[.[] | select(.filename | startswith("site/")) | select(.status != "removed")][0].filename | ltrimstr("site/")' <<< "$files")"
+            file_path="$(jq -r '.[0].filename | ltrimstr("site/")' <<< "$preview_files")"
             encoded_path="$(python3 -c 'from urllib.parse import quote; import sys; print(quote(sys.argv[1], safe="/"))' "$file_path")"
             preview_url="${STATIC_WEB_APP_URL%/}/${encoded_path}"
             body="<!-- single-file-preview -->"$'\n'"[Open the changed file preview](${preview_url})"
