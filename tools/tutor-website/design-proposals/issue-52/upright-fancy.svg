@@ -6,7 +6,9 @@
   </defs>
   <rect width="32" height="32" rx="7" fill="url(#tile)"/>
   <rect x="1" y="1" width="30" height="30" rx="6" fill="none" stroke="#1e3c72" stroke-opacity="0.1" stroke-width="0.5"/>
-  <path fill="url(#ink)" fill-rule="evenodd" d="M9 10h5c6.5 0 10 3.5 10 10s-3.5 10-10 10H9zm5 5v10c3.5 0 5-1.5 5-5s-1.5-5-5-5z"/>
-  <path d="M9.7 29V10.7H14c5 0 8 2.5 8.8 6" clip-path="url(#letter)" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="0.4"/>
-  <path d="M15 7.5 5 12v5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g id="mark" transform="matrix(1.319149 0 0 1.319149 -2.468086 -8.074469)">
+    <path fill="url(#ink)" fill-rule="evenodd" d="M9 10h5c6.5 0 10 3.5 10 10s-3.5 10-10 10H9zm5 5v10c3.5 0 5-1.5 5-5s-1.5-5-5-5z"/>
+    <path d="M9.7 29V10.7H14c5 0 8 2.5 8.8 6" clip-path="url(#letter)" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="0.4"/>
+    <path d="M15 7.5 5 12v5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>
