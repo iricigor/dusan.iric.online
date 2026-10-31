@@ -28,5 +28,9 @@ before generating a page or changing agents.
   and share its link with the user.
 - Stop and wait for explicit confirmation to start working on that issue.
   Agreement on scope or creation of the issue is not authorization to implement.
+- After receiving that confirmation, before starting code changes, create a
+  draft pull request with a title starting with `WIP: `. Include `Closes #<issue>`
+  in its description to mark that merging the pull request will close the agreed
+  issue.
 - If a webpage-only request needs agent or tooling changes, explain the
   limitation and follow this approval path instead of silently expanding scope.
