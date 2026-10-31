@@ -90,9 +90,11 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     const target = await (await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, { method: 'PUT' })).json();
     const exceptions = [];
     const network = [];
+    let onDialog;
     client = await connect(target.webSocketDebuggerUrl, event => {
         if (event.method === 'Runtime.exceptionThrown') exceptions.push(event.params.exceptionDetails);
         if (event.method === 'Network.requestWillBeSent' && /^https?:/.test(event.params.request.url)) network.push(event.params.request.url);
+        if (event.method === 'Page.javascriptDialogOpening') onDialog?.(event.params);
     });
     await client.send('Runtime.enable');
     await client.send('Page.enable');
@@ -118,10 +120,31 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     const downloads = path.join(directory, 'downloads');
     fs.mkdirSync(downloads);
     await client.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads });
-    const evaluate = async expression => {
-        const response = await client.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+    const evaluate = async (expression, userGesture = false) => {
+        const response = await client.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true, userGesture });
         assert.equal(response.exceptionDetails, undefined, JSON.stringify(response.exceptionDetails));
         return response.result.value;
+    };
+    const handleDialog = async (action, accept, type) => {
+        let timeout;
+        const opened = new Promise((resolve, reject) => {
+            onDialog = resolve;
+            timeout = setTimeout(() => reject(new Error(`Expected ${type} dialog`)), 10000);
+        });
+        const pendingAction = action();
+        // Attach immediately so a failed action does not become an unhandled rejection.
+        const completed = pendingAction.then(value => ({ value }), error => ({ error }));
+        try {
+            const dialog = await opened;
+            await client.send('Page.handleJavaScriptDialog', { accept });
+            assert.equal(dialog.type, type);
+            const result = await completed;
+            if (result.error) throw result.error;
+            return dialog;
+        } finally {
+            clearTimeout(timeout);
+            onDialog = undefined;
+        }
     };
     const capture = async name => {
         if (!process.env.TUTOR_SCREENSHOT_DIRECTORY) return;
@@ -829,6 +852,113 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.ok(counter.slice(0, 3).every(channel => channel > 220) && counter[3] > 200,
                 `${subject}/${size}: D counter remains open: ${JSON.stringify(counter)}`);
         }
+        const startGuardedQuiz = () => evaluate(`(async () => {
+            await window.switchTutorTab('quiz');
+            document.getElementById('player').value = 'Kontrola';
+            document.querySelector('[data-mode="easy"]').click();
+            document.querySelectorAll('#answers input').forEach(input => { input.value = '123'; });
+        })()`, true);
+        const quizSnapshot = () => evaluate(`(() => {
+            const $ = id => document.getElementById(id);
+            return {
+                selected: document.querySelector('[aria-selected="true"]').dataset.tab,
+                question: $('question').textContent, score: $('score').textContent,
+                progress: $('quiz-progress').value,
+                inputs: [...$('answers').querySelectorAll('input')].map(input => input.value),
+                setup: $('setup').hidden, game: $('game').hidden
+            };
+        })()`);
+        const unloadProtected = () => evaluate(`(() => {
+            const event = new Event('beforeunload', { cancelable: true });
+            window.dispatchEvent(event);
+            return event.defaultPrevented;
+        })()`);
+        assert.equal(await unloadProtected(), false, `${subject}: no unload guard before starting`);
+        await startGuardedQuiz();
+        const unfinished = await quizSnapshot();
+        assert.equal(await unloadProtected(), true);
+        await evaluate(`window.switchTutorTab('learning')`);
+        assert.equal(await evaluate(`(() => {
+            const dialog = document.getElementById('quiz-leave-dialog');
+            return dialog.matches(':modal') && document.activeElement.id === 'quiz-stay' &&
+                dialog.getAttribute('aria-labelledby') === 'quiz-leave-title' &&
+                dialog.getAttribute('aria-describedby') === 'quiz-leave-description' &&
+                document.getElementById('quiz-leave-title').textContent === 'Pokračovat v kvízu?' &&
+                document.getElementById('quiz-leave-description').textContent.includes('odpovědi, body a postup se ztratí');
+        })()`), true, `${subject}: themed modal offers continuing as the default`);
+        const previousTheme = await evaluate(`document.documentElement.dataset.theme || ''`);
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
+            for (const width of [1280, 375, 320]) {
+                await client.send('Emulation.setDeviceMetricsOverride', {
+                    width, height: 900, deviceScaleFactor: 1, mobile: false
+                });
+                assert.equal(await evaluate(`(() => {
+                    const dialog = document.getElementById('quiz-leave-dialog');
+                    const style = getComputedStyle(dialog);
+                    const card = getComputedStyle(document.getElementById('game'));
+                    const bounds = dialog.getBoundingClientRect();
+                    const buttons = [...dialog.querySelectorAll('button')];
+                    return style.backgroundColor === card.backgroundColor && style.color === card.color &&
+                        bounds.left >= 0 && bounds.right <= innerWidth && bounds.top >= 0 && bounds.bottom <= innerHeight &&
+                        dialog.scrollWidth <= dialog.clientWidth &&
+                        getComputedStyle(dialog, '::backdrop').backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+                        buttons.every(button => button.getBoundingClientRect().height >= 44);
+                })()`), true, `${subject}: modal theme, backdrop, touch targets and fit at ${theme}/${width}px`);
+                if (theme === 'light' && width === 375) await capture(`${subject}-quiz-exit-warning`);
+            }
+        }
+        await client.send('Emulation.clearDeviceMetricsOverride');
+        await evaluate(`${previousTheme ? `document.documentElement.dataset.theme = ${JSON.stringify(previousTheme)}` :
+            'delete document.documentElement.dataset.theme'}`);
+        const pressKey = async (key, code, windowsVirtualKeyCode) => {
+            await client.send('Input.dispatchKeyEvent', {
+                type: 'keyDown', key, code, windowsVirtualKeyCode,
+                ...(key === 'Enter' ? { text: '\r' } : {})
+            });
+            await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key, code, windowsVirtualKeyCode });
+        };
+        await pressKey('Tab', 'Tab', 9);
+        assert.equal(await evaluate(`document.activeElement.id`), 'quiz-leave');
+        await pressKey('Tab', 'Tab', 9);
+        assert.equal(await evaluate(`document.activeElement === document.body ||
+            document.getElementById('quiz-leave-dialog').contains(document.activeElement)`), true,
+            `${subject}: modal prevents keyboard focus reaching the underlying page`);
+        await evaluate(`document.getElementById('quiz-stay').focus()`);
+        await pressKey('Escape', 'Escape', 27);
+        assert.deepEqual(await quizSnapshot(), unfinished, `${subject}: canceled pointer tab switch preserves quiz`);
+        assert.equal(await evaluate(`document.activeElement.dataset.tab`), 'quiz');
+        await evaluate(`document.querySelector('[data-tab="quiz"]').dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))`);
+        assert.equal(await evaluate(`document.activeElement.id`), 'quiz-stay');
+        await pressKey('Enter', 'Enter', 13);
+        assert.equal(await evaluate(`document.getElementById('quiz-leave-dialog').open`), false);
+        assert.deepEqual(await quizSnapshot(), unfinished, `${subject}: canceled keyboard switch preserves quiz`);
+        assert.equal(await evaluate(`document.activeElement.dataset.tab`), 'quiz');
+        await handleDialog(() => client.send('Page.reload'), false, 'beforeunload');
+        assert.deepEqual(await quizSnapshot(), unfinished, `${subject}: canceled reload preserves quiz`);
+        await evaluate(`window.switchTutorTab('learning')`);
+        await evaluate(`document.getElementById('quiz-stay').click()`);
+        assert.deepEqual(await quizSnapshot(), unfinished, `${subject}: explicit continue button preserves quiz`);
+        await evaluate(`window.switchTutorTab('learning')`);
+        await evaluate(`(async () => {
+            document.getElementById('quiz-leave').click();
+            await window.waitForTutorTab();
+        })()`);
+        assert.equal(await evaluate(`document.activeElement.dataset.tab`), 'learning');
+        assert.equal(await unloadProtected(), false, `${subject}: abandonment removes unload guard`);
+        assert.equal(await evaluate(`document.getElementById('setup').hidden`), false);
+        assert.equal(await evaluate(`document.getElementById('game').hidden`), true);
+        assert.equal(await evaluate(`document.querySelectorAll('#answers input, #answers button').length`), 0);
+        await startGuardedQuiz();
+        await handleDialog(() => client.send('Page.reload'), true, 'beforeunload');
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(lesson.topic)} &&
+                document.querySelector('[aria-selected="true"]')?.dataset.tab === 'original'`)) break;
+            await delay(50);
+        }
+        assert.equal(await unloadProtected(), false, `${subject}: accepted reload discards unfinished attempt`);
+        assert.equal(await evaluate(`document.getElementById('game').hidden`), true);
         assert.deepEqual(await evaluate(`(async () => {
             const $ = id => document.getElementById(id);
             await window.switchTutorTab('original');

@@ -205,7 +205,7 @@ Only fully correct answers strictly before **15000 ms** earn the mandatory
 double-points speed bonus. Late answers remain available; incorrect and partial
 answers never earn a bonus. Grades use base points only, with 80/60/40/20 percent
 boundaries. The leaderboard sorts total points first, then shorter active answering duration.
-The speed deadline continues while another lesson tab/browser page is shown;
+The speed deadline continues while a confirmation or another browser page is shown;
 it is separate from the answer-duration measurement described below.
 Maths never starts the shared controller's bonus timer and has no countdown,
 running duration display, speed indicator or bonus.
@@ -420,10 +420,35 @@ stays inside it rather than emphasized in the main completion summary.
 
 Both subjects save `answerDurationMs`: the sum of active question-answering
 intervals, stopped on submission and restarted when the next question is shown.
-Feedback reading (including the final feedback), other lesson tabs and hidden
+Feedback reading (including the final feedback), lesson-tab confirmation dialogs and hidden
 browser pages are excluded. No duration ticks or countdown is shown during maths.
 Results label duration **Doba odpovídání** and the attempt timestamp **Kdy**,
 including a local date and time for new attempts.
+
+While a quiz is active and unfinished, switching to another lesson tab opens a
+modal dialog styled with the page's light/dark theme. Its Czech heading asks
+“Pokračovat v kvízu?” and explains that switching discards that attempt's answers,
+points and progress. The emphasized **Pokračovat v kvízu** button has initial
+focus, so Enter stays in the quiz by default; Escape also cancels. Leaving
+requires explicitly choosing **Ukončit kvíz a přepnout**. Canceling
+keeps the selected tab, answers and progress intact and resumes answer-duration
+measurement without restarting the history bonus deadline. Confirming stops the
+quiz and its timer, returns quiz setup for the next visit and does not save the
+abandoned attempt. Previously completed session results remain available.
+Pointer activation and keyboard arrows/Home/End use the same confirmation;
+selecting the already selected tab does not warn. No warning appears before
+starting or after showing the completed results, including after restart.
+
+The runtime registers `beforeunload` only for an unfinished quiz and removes it
+on completion or abandonment. Browser navigation away, reload and tab/window
+closure request the browser's native confirmation where supported; canceling
+leaves the current quiz intact, while leaving loses the unfinished attempt.
+Browsers control the wording, require prior user interaction, and may suppress
+the prompt (especially on mobile or when a browser process is terminated).
+Custom Czech text cannot be guaranteed for these browser prompts. This is an
+accidental-loss guard, not autosave or a guarantee against every way of leaving.
+Existing published HTML receives this behavior only when separately approved
+for regeneration and publication.
 
 History retains its points-first, shorter-duration tie-break, using precise
 answer duration for new results and the original total duration for legacy

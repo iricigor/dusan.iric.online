@@ -274,6 +274,7 @@ function initializeTutor(lesson, subject) {
     const tabs = [...document.querySelectorAll('[data-tab]')];
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let requestedTab = tabs[0];
+    let pendingTab = null;
     let tabTransition;
     let tabEntrance;
     reducedMotion.addEventListener('change', event => {
@@ -283,7 +284,17 @@ function initializeTutor(lesson, subject) {
         }
     });
     const activateTab = tab => {
-        if (tab === requestedTab) return;
+        if (tab === requestedTab) return true;
+        if (quiz && !quiz.finished) {
+            if ($('quiz-leave-dialog').open) return false;
+            pauseAnswerClock();
+            closeGlossary(false);
+            closeQuizTools();
+            pendingTab = tab;
+            $('quiz-leave-dialog').showModal();
+            $('quiz-stay').focus({ preventScroll: true });
+            return false;
+        }
         requestedTab = tab;
         tabTransition?.skipTransition();
         tabEntrance?.cancel();
@@ -316,7 +327,28 @@ function initializeTutor(lesson, subject) {
                     { duration: 300, easing: 'ease-out' });
             }
         }
+        return true;
     };
+    const stayInQuiz = () => {
+        if (!pendingTab) return;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        resumeAnswerClock();
+        requestedTab.focus({ preventScroll: true });
+    };
+    $('quiz-stay').addEventListener('click', stayInQuiz);
+    $('quiz-leave-dialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        stayInQuiz();
+    });
+    $('quiz-leave').addEventListener('click', () => {
+        if (!pendingTab) return;
+        const tab = pendingTab;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        abandonQuiz();
+        if (activateTab(tab)) tab.focus({ preventScroll: true });
+    });
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => activateTab(tab));
         tab.addEventListener('keydown', event => {
@@ -329,8 +361,7 @@ function initializeTutor(lesson, subject) {
             }[event.key];
             if (target === undefined) return;
             event.preventDefault();
-            activateTab(tabs[target]);
-            tabs[target].focus();
+            if (activateTab(tabs[target])) tabs[target].focus();
         });
     });
     const systemTheme = matchMedia('(prefers-color-scheme: dark)');
@@ -374,6 +405,29 @@ function initializeTutor(lesson, subject) {
     let currentRunId = null;
     let quiz = null;
     let timer = null;
+    const warnBeforeUnload = event => {
+        if (!quiz || quiz.finished) return;
+        event.preventDefault();
+        event.returnValue = '';
+    };
+    function abandonQuiz() {
+        pauseAnswerClock();
+        clearInterval(timer);
+        timer = null;
+        quiz = null;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
+        $('game').hidden = true;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('answers').replaceChildren();
+        $('feedback').replaceChildren();
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        $('score').textContent = 'Skóre: 0 b';
+        $('quiz-progress').value = 0;
+        $('leaderboard').hidden = false;
+        $('leaderboard').open = false;
+    }
     const warnStorage = message => {
         $('storage-warning').hidden = false;
         $('storage-warning').textContent = message;
@@ -401,7 +455,8 @@ function initializeTutor(lesson, subject) {
         }
     }
     function resumeAnswerClock() {
-        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden && quiz.answerStarted === null) {
+        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden &&
+            !$('quiz-leave-dialog').open && quiz.answerStarted === null) {
             quiz.answerStarted = performance.now();
         }
     }
@@ -446,6 +501,7 @@ function initializeTutor(lesson, subject) {
     }
     function finish() {
         quiz.finished = true;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
         clearInterval(timer);
         $('game').hidden = true;
         $('results').hidden = false;
@@ -483,7 +539,7 @@ function initializeTutor(lesson, subject) {
         focusContent($('results-title'));
     }
     function submit(values) {
-        if (!quiz || quiz.locked || quiz.finished) return;
+        if (!quiz || quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
         if (!subject.acceptSubmission(values)) {
             $('feedback').textContent = 'Nejdřív napiš odpověď.';
             $('feedback').hidden = false;
@@ -566,6 +622,7 @@ function initializeTutor(lesson, subject) {
         }
     });
     document.querySelectorAll('[data-mode]').forEach(control => control.addEventListener('click', () => {
+        if ($('quiz-leave-dialog').open) return;
         if (quiz && !quiz.finished && $('setup').hidden) return;
         const name = $('player').value.trim();
         if ((name.match(/\p{L}/gu) || []).length < 3 || name.length > 60) {
@@ -581,6 +638,7 @@ function initializeTutor(lesson, subject) {
             index: 0, answers: [], locked: false, finished: false,
             answerDurationMs: 0, questionElapsedMs: 0, answerStarted: null
         };
+        window.addEventListener('beforeunload', warnBeforeUnload);
         $('quiz-tools').open = false;
         $('setup').hidden = true;
         $('results').hidden = true;
@@ -590,7 +648,7 @@ function initializeTutor(lesson, subject) {
         showQuestion();
     }));
     $('next').addEventListener('click', () => {
-        if (!quiz || !quiz.locked || quiz.finished) return;
+        if (!quiz || !quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
         quiz.index++;
         if (quiz.index === quiz.questions.length) finish();
         else showQuestion();

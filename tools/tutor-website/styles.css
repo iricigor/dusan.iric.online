@@ -186,6 +186,13 @@ th, td { text-align: left; border-bottom: 1px solid var(--border); padding: .5re
 tr.current { background: var(--bg); font-weight: bold; outline: 2px solid var(--primary); outline-offset: -2px; }
 #definition { position: fixed; inset: auto; margin: 0; width: min(24rem, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; box-shadow: 0 8px 32px #0003; overflow-wrap: anywhere; }
 #definition h2 { margin-top: 0; }
+#quiz-leave-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; background: var(--card); color: var(--text); font: inherit; border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 8px 32px #0003; }
+#quiz-leave-dialog::backdrop { background: #0008; }
+#quiz-leave-dialog h2 { margin-top: 0; }
+.quiz-leave-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.quiz-leave-actions button { flex: 1 1 12rem; }
+#quiz-stay { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 16%, var(--card)); color: var(--primary); font-weight: bold; }
+#quiz-stay:hover { background: color-mix(in srgb, var(--primary) 24%, var(--card)); }
 a { color: var(--primary); }
 #original { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; column-gap: 1rem; }
 #original-content { display: contents; }
