@@ -425,8 +425,12 @@ browser pages are excluded. No duration ticks or countdown is shown during maths
 Results label duration **Doba odpovídání** and the attempt timestamp **Kdy**,
 including a local date and time for new attempts.
 
-While a quiz is active and unfinished, switching to another lesson tab asks in
-Czech whether to discard that attempt's answers, points and progress. Canceling
+While a quiz is active and unfinished, switching to another lesson tab opens a
+modal dialog styled with the page's light/dark theme. Its Czech heading asks
+“Pokračovat v kvízu?” and explains that switching discards that attempt's answers,
+points and progress. The emphasized **Pokračovat v kvízu** button has initial
+focus, so Enter stays in the quiz by default; Escape also cancels. Leaving
+requires explicitly choosing **Ukončit kvíz a přepnout**. Canceling
 keeps the selected tab, answers and progress intact and resumes answer-duration
 measurement without restarting the history bonus deadline. Confirming stops the
 quiz and its timer, returns quiz setup for the next visit and does not save the

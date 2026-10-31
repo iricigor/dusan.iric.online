@@ -274,6 +274,7 @@ function initializeTutor(lesson, subject) {
     const tabs = [...document.querySelectorAll('[data-tab]')];
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let requestedTab = tabs[0];
+    let pendingTab = null;
     let tabTransition;
     let tabEntrance;
     reducedMotion.addEventListener('change', event => {
@@ -285,18 +286,14 @@ function initializeTutor(lesson, subject) {
     const activateTab = tab => {
         if (tab === requestedTab) return true;
         if (quiz && !quiz.finished) {
+            if ($('quiz-leave-dialog').open) return false;
             pauseAnswerClock();
-            let confirmed;
-            try {
-                confirmed = window.confirm('Přepnutím záložky ukončíš rozpracovaný kvíz. Jeho odpovědi, body a postup se ztratí. Chceš přesto přepnout?');
-            } finally {
-                resumeAnswerClock();
-            }
-            if (!confirmed) {
-                requestedTab.focus({ preventScroll: true });
-                return false;
-            }
-            abandonQuiz();
+            closeGlossary(false);
+            closeQuizTools();
+            pendingTab = tab;
+            $('quiz-leave-dialog').showModal();
+            $('quiz-stay').focus({ preventScroll: true });
+            return false;
         }
         requestedTab = tab;
         tabTransition?.skipTransition();
@@ -332,6 +329,26 @@ function initializeTutor(lesson, subject) {
         }
         return true;
     };
+    const stayInQuiz = () => {
+        if (!pendingTab) return;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        resumeAnswerClock();
+        requestedTab.focus({ preventScroll: true });
+    };
+    $('quiz-stay').addEventListener('click', stayInQuiz);
+    $('quiz-leave-dialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        stayInQuiz();
+    });
+    $('quiz-leave').addEventListener('click', () => {
+        if (!pendingTab) return;
+        const tab = pendingTab;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        abandonQuiz();
+        if (activateTab(tab)) tab.focus({ preventScroll: true });
+    });
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => activateTab(tab));
         tab.addEventListener('keydown', event => {
@@ -438,7 +455,8 @@ function initializeTutor(lesson, subject) {
         }
     }
     function resumeAnswerClock() {
-        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden && quiz.answerStarted === null) {
+        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden &&
+            !$('quiz-leave-dialog').open && quiz.answerStarted === null) {
             quiz.answerStarted = performance.now();
         }
     }
@@ -521,7 +539,7 @@ function initializeTutor(lesson, subject) {
         focusContent($('results-title'));
     }
     function submit(values) {
-        if (!quiz || quiz.locked || quiz.finished) return;
+        if (!quiz || quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
         if (!subject.acceptSubmission(values)) {
             $('feedback').textContent = 'Nejdřív napiš odpověď.';
             $('feedback').hidden = false;
@@ -604,6 +622,7 @@ function initializeTutor(lesson, subject) {
         }
     });
     document.querySelectorAll('[data-mode]').forEach(control => control.addEventListener('click', () => {
+        if ($('quiz-leave-dialog').open) return;
         if (quiz && !quiz.finished && $('setup').hidden) return;
         const name = $('player').value.trim();
         if ((name.match(/\p{L}/gu) || []).length < 3 || name.length > 60) {
@@ -629,7 +648,7 @@ function initializeTutor(lesson, subject) {
         showQuestion();
     }));
     $('next').addEventListener('click', () => {
-        if (!quiz || !quiz.locked || quiz.finished) return;
+        if (!quiz || !quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
         quiz.index++;
         if (quiz.index === quiz.questions.length) finish();
         else showQuestion();

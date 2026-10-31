@@ -111,6 +111,14 @@
         <p id="definition-text"></p>
         <button id="definition-close" type="button">Zavřít</button>
     </div>
+    <dialog id="quiz-leave-dialog" aria-labelledby="quiz-leave-title" aria-describedby="quiz-leave-description">
+        <h2 id="quiz-leave-title">Pokračovat v kvízu?</h2>
+        <p id="quiz-leave-description">Kvíz ještě není hotový. Zůstaň a pokračuj tam, kde jsi skončil. Pokud přepneš záložku, tento pokus se ukončí a jeho odpovědi, body a postup se ztratí.</p>
+        <div class="quiz-leave-actions">
+            <button id="quiz-stay" type="button" autofocus>Pokračovat v kvízu</button>
+            <button id="quiz-leave" type="button">Ukončit kvíz a přepnout</button>
+        </div>
+    </dialog>
     <script id="lesson-data" type="application/json">@@DATA@@</script>
     <script>@@APP@@</script>
 </body>

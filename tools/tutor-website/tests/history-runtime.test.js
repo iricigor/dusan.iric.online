@@ -34,6 +34,8 @@ class Element {
     getBoundingClientRect() { return { top: 350, bottom: 400 }; }
     scrollIntoView() {}
     hidePopover() { this.open = false; }
+    showModal() { this.open = true; }
+    close() { this.open = false; }
     addEventListener(event, listener) { this.listeners[event] = listener; }
     dispatch(event, properties = {}) { this.listeners[event]?.({ preventDefault() {}, ...properties }); }
     querySelectorAll(selector) {
@@ -82,11 +84,6 @@ function page(subject = 'history', stored = []) {
             removeEventListener: (event, listener) => {
                 if (windowListeners.get(event) === listener) windowListeners.delete(event);
             },
-            confirm: message => {
-                confirmations.push(message);
-                now += confirmDuration;
-                return confirmResult;
-            }
         },
         matchMedia: () => ({ matches: false, addEventListener() {} }),
         document: {
@@ -115,11 +112,20 @@ function page(subject = 'history', stored = []) {
         fs.readFileSync(path.join(shared, 'runtime.js'), 'utf8') + '\n' +
         fs.readFileSync(path.join(shared, `${subject}.js`), 'utf8'), context);
     tabs.find(control => control.dataset.tab === 'quiz').dispatch('click');
+    const navigate = (name, event, properties) => {
+        tabs.find(control => control.dataset.tab === name).dispatch(event, properties);
+        if (elements.get('quiz-leave-dialog').open) {
+            confirmations.push('quiz-leave-dialog');
+            now += confirmDuration;
+            elements.get(confirmResult ? 'quiz-leave' : 'quiz-stay').dispatch('click');
+        }
+    };
     return {
         get: id => context.document.getElementById(id),
         start: mode => modes.find(control => control.dataset.mode === mode).dispatch('click'),
-        tab: name => tabs.find(control => control.dataset.tab === name).dispatch('click'),
-        key: (name, key) => tabs.find(control => control.dataset.tab === name).dispatch('keydown', { key }),
+        tab: name => navigate(name, 'click'),
+        openTab: name => tabs.find(control => control.dataset.tab === name).dispatch('click'),
+        key: (name, key) => navigate(name, 'keydown', { key }),
         selectedTab: () => tabs.find(control => control.getAttribute('aria-selected') === 'true').dataset.tab,
         confirm: (result, duration = 0) => { confirmResult = result; confirmDuration = duration; },
         confirmations,
@@ -298,6 +304,18 @@ test('unfinished quizzes guard unload and tab activation, preserving canceled at
         const input = controls.find(control => control.tag === 'input');
         if (input) input.value = 'rozpracovaná odpověď';
         const timers = [...runtime.intervals.keys()];
+        runtime.openTab('learning');
+        assert.equal(runtime.get('quiz-leave-dialog').open, true);
+        runtime.advance(1000);
+        runtime.visible(false);
+        runtime.advance(1000);
+        runtime.visible(true);
+        runtime.get('answers').dispatch('submit');
+        assert.equal(runtime.get('quiz-progress').value, 0, 'a modal cannot submit an answer');
+        runtime.get('quiz-leave-dialog').dispatch('cancel');
+        assert.equal(runtime.get('quiz-leave-dialog').open, false, 'Escape keeps the attempt');
+        assert.equal(runtime.selectedTab(), 'quiz');
+        assert.deepEqual([...runtime.intervals.keys()], timers);
         runtime.advance(1000);
         runtime.tab('quiz');
         assert.equal(runtime.confirmations.length, 0, 'same tab does not warn');
@@ -315,6 +333,10 @@ test('unfinished quizzes guard unload and tab activation, preserving canceled at
         assert.equal(runtime.unloadProtected(), true, 'canceling unload keeps the guard');
         answer();
         const score = runtime.get('score').textContent;
+        runtime.openTab('learning');
+        runtime.get('next').dispatch('click');
+        assert.equal(runtime.get('question').textContent, question, 'a modal cannot advance feedback');
+        runtime.get('quiz-stay').dispatch('click');
         runtime.tab('original');
         assert.equal(runtime.get('score').textContent, score);
         assert.equal(runtime.get('quiz-progress').value, 1);
@@ -361,6 +383,6 @@ test('unfinished quizzes guard unload and tab activation, preserving canceled at
         assert.equal(runtime.records().length, 1, 'previously completed results survive abandonment');
         assert.equal(runtime.unloadProtected(), false);
         assert.equal(runtime.intervals.size, 0);
-        assert.ok(runtime.confirmations.every(message => /ukončíš.*odpovědi, body a postup se ztratí/.test(message)));
+        assert.ok(runtime.confirmations.every(dialog => dialog === 'quiz-leave-dialog'));
     }
 });
