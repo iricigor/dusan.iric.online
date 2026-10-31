@@ -67,7 +67,7 @@ function initializeTutorLearning(lesson, subject) {
             setOpen(trigger.getAttribute('aria-expanded') !== 'true');
             syncLearningControls();
         }, 'hint-toggle');
-        trigger.append(iconNode('💡'), document.createTextNode(' '), node('span', 'Zobrazit podrobnosti a nápovědu'));
+        trigger.append(iconNode('💡'), document.createTextNode(' '), node('span', 'Nápověda'));
         trigger.setAttribute('aria-controls', content.id);
         block.append(prompt, trigger, drawer);
         setOpen(false, false);

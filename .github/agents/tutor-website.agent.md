@@ -127,9 +127,11 @@ focus restoration and reduced motion. Definitions open on click instead of
 filling the drawer. In Učit se, two icon-only Rozbalit vše / Sbalit vše controls
 at the right of the tab bar affect only learning disclosures. Keep them outside
 tablist semantics, with Czech tooltips, accessible labels and 44px targets.
-Hints use a centered bottom pill, 💡 Zobrazit podrobnosti a nápovědu, opening
-an animated tinted inset drawer with a left accent. Single-hint cards place it
-after the main content; multi-step exercises retain separate step hints.
+Hints use a bottom pill, 💡 Nápověda, opening
+an animated tinted inset drawer with a left accent. Single-hint cards share a
+bottom-border footer with the native Prozkoumáno checkbox, slightly overlapping
+the card edge; the drawer expands above it, after the main content.
+Multi-step exercises retain separate step hints.
 Keep expanded state accessible and disable motion when requested. Native numbered step/result/solution reveals
 are compact and borderless, retaining touch access. All learning hints, steps,
 results and solutions start collapsed in both subjects; keep the main lesson

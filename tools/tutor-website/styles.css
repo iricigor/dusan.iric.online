@@ -76,7 +76,7 @@ nav button[aria-selected="true"] { position: relative; background: var(--card); 
 button:disabled { cursor: default; }
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
 main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; padding: 1rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--card); view-transition-name: lesson-panel; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; overflow-wrap: anywhere; box-shadow: var(--shadow); }
+.card { --card-padding: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: var(--card-padding); margin-bottom: 1rem; overflow-wrap: anywhere; box-shadow: var(--shadow); }
 .card > h2:first-child { margin-top: 0; color: var(--primary); }
 .card-icon { display: inline-block; flex-shrink: 0; margin-right: .55em; font-size: 1.15em; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
 .callout { --callout: var(--primary); border-left: 5px solid var(--callout); border-radius: .5rem; padding: .8rem 1rem; background: color-mix(in srgb, var(--callout) 9%, var(--card)); }
@@ -135,17 +135,22 @@ summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height:
 .learning-segment { flex: 1; min-width: 0; border-radius: .2rem; background: var(--border); }
 .learning-segment[data-explored="true"] { background: var(--subject-accent); }
 #learning-counter { flex-shrink: 0; color: var(--text); }
-.learning-card-footer { display: flex; justify-content: flex-end; margin-top: .5rem; }
-.explored-control { font-size: .85rem; color: var(--primary); }
-.explored-control[aria-pressed="true"] { background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
+#learning-content .card[data-learning-card] { margin-bottom: 2rem; }
+.learning-card-footer { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .5rem; min-height: 44px; margin: .75rem -.5rem calc(-1 * var(--card-padding) - 22px); }
+.learning-card-footer .hint-toggle { grid-column: 2; margin: 0; padding: .35rem .6rem; font-size: .85rem; white-space: nowrap; }
+.explored-control { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: .6rem; background: var(--card); color: var(--primary); font-size: .85rem; white-space: nowrap; cursor: pointer; user-select: none; }
+.explored-control input { width: 20px; height: 20px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.explored-control:has(:checked) { background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
 #learning.has-timeline { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 1rem; }
 #learning-content { min-width: 0; }
 .learning-timeline { position: sticky; top: var(--learning-offset, 12rem); max-height: calc(100dvh - var(--learning-offset, 12rem) - 1rem); overflow: auto; align-self: start; padding-right: 2rem; }
 .learning-timeline details { border: 0; margin: 0; padding: .25rem; }
 .learning-timeline details[open] { background: transparent; }
+.learning-timeline summary { min-height: 44px; }
 .timeline-track { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); margin: .5rem 0; gap: 0; }
 .timeline-year { grid-column: 2; border-left: 2px solid var(--border); padding: .3rem 0 .6rem .6rem; min-height: 3rem; min-width: 0; }
 .timeline-date { display: block; color: var(--muted); font-size: .75rem; }
+.timeline-year-link { display: none; }
 .timeline-node { position: relative; display: block; width: 100%; margin: .2rem 0; padding: .4rem; font-size: .85rem; text-align: left; overflow-wrap: anywhere; background: transparent; border-color: transparent; }
 .timeline-node::before { content: ""; position: absolute; left: -.95rem; top: 1rem; width: .5rem; height: .5rem; border-radius: 50%; background: var(--muted); }
 .timeline-node[aria-current] { background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary); border-color: var(--primary); }
@@ -155,10 +160,9 @@ summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height:
 .highlight-tools { position: relative; flex-shrink: 0; align-self: center; border: 0; padding: 0; margin: 0; background: transparent; }
 .highlight-tools > summary { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; list-style: none; border-radius: .5rem; }
 .highlight-tools > summary::-webkit-details-marker { display: none; }
-.highlight-panel { position: fixed; right: max(1rem, calc((100% - 1120px) / 2 + 1rem)); width: min(22rem, calc(100vw - 2rem)); padding: 1rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); color: var(--text); box-shadow: var(--shadow); z-index: 4; }
-.highlight-panel [role="group"] { display: flex; flex-wrap: wrap; gap: .4rem; }
-.highlight-panel button { font-size: .9rem; }
-.highlight-panel p { line-height: 1.5; }
+.highlight-panel { position: fixed; right: max(1rem, calc((100% - 1120px) / 2 + 1rem)); width: max-content; max-width: calc(100vw - 2rem); padding: .4rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); color: var(--text); box-shadow: var(--shadow); z-index: 4; }
+.highlight-panel [role="group"] { display: flex; flex-wrap: nowrap; gap: .25rem; }
+.highlight-panel button { padding: .4rem .55rem; font-size: .85rem; white-space: nowrap; }
 .highlight-panel button:disabled { opacity: .5; }
 mark[data-highlight-color], button[data-highlight-action]:not([data-highlight-action="remove"]) { color: #17212b; border-radius: .15em; background: var(--marker); }
 [data-highlight-color="yellow"], [data-highlight-action="yellow"] { --marker: #ffe589; }
@@ -262,10 +266,22 @@ a { color: var(--primary); }
 .question-enter { display: block; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
 @media (pointer: coarse) { #learning-content summary { min-height: 44px; } }
+@media (min-width: 761px) {
+    #learning.has-timeline:has(#timeline-details:not([open])) { grid-template-columns: minmax(0, 1fr) 6.5rem; }
+    #timeline-details:not([open]) .timeline-title { display: none; }
+    #timeline-details:not([open]) + .timeline-track { grid-template-columns: minmax(0, 1fr); }
+    #timeline-details:not([open]) + .timeline-track .timeline-year { grid-column: 1; border-left: 0; padding: .2rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-node,
+    #timeline-details:not([open]) + .timeline-track .timeline-lifespan,
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has(.timeline-year-link) > span.timeline-date { display: none; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link { display: block; width: 100%; min-width: 44px; padding: .25rem; font-size: .85rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has([aria-current]) .timeline-year-link { background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary); border-color: var(--primary); }
+}
 @media (max-width: 760px) {
     #learning.has-timeline { display: flex; flex-direction: column; gap: .5rem; }
     .learning-timeline { order: -1; position: static; width: 100%; padding-right: 0; max-height: none; overflow: visible; }
-    .learning-timeline details[open] .timeline-track { max-height: 18rem; overflow: auto; }
+    .learning-timeline .timeline-track { max-height: 18rem; overflow: auto; }
+    #timeline-details:not([open]) + .timeline-track { display: none; }
     #original { grid-template-columns: minmax(0, 1fr); }
     .lesson-share { grid-column: 1; grid-row: 2; }
 }
@@ -278,7 +294,10 @@ a { color: var(--primary); }
     .lesson-footer-mark { width: 64px; height: 64px; }
     .lesson-heading { gap: .5rem; }
     .lesson-heading .badge { padding: .1rem .4rem; font-size: .8rem; }
-    .card { padding: 1rem; }
+    .card { --card-padding: 1rem; }
+    .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(.25rem - var(--card-padding)); }
+    .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .4rem; }
+    .explored-control { grid-column: 2; padding-inline: .4rem; }
     nav { gap: .2rem; }
     nav button { flex: 1; gap: .25rem; padding: .5rem .3rem; font-size: .85rem; }
     .tab-bar:has(.learning-controls:not([hidden])) nav button { flex-direction: column; gap: .1rem; font-size: .75rem; }

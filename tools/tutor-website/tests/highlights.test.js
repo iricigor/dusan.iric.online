@@ -8,6 +8,29 @@ const { renderLesson, capabilities } = require('../build.js');
 const history = require('../examples/defenestrace.json');
 const maths = require('../examples/zlomky-a-prevody-delky.json');
 
+test('history example explains monarchs and records verified accession events without rewriting source', () => {
+    for (const [name, year, chunk, birth, death, father] of [
+        ['Rudolf II.', 1575, 0, 1552, 1612, 'Maxmilián II.'],
+        ['Matyáš', 1611, 0, 1557, 1619, 'Maxmilián II.'],
+        ['Ferdinand II.', 1617, 0, 1578, 1637, 'Karel II.'],
+        ['Fridrich V.', 1619, 2, 1596, 1632, 'Fridrich IV.']
+    ]) {
+        const event = history.timeline.find(event => event.year === year && event.label.includes(name));
+        assert.ok(event, name);
+        assert.equal(event.chunk, chunk);
+        assert.deepEqual(event.lifespan, { birth, death });
+        const content = [...history.chunks[chunk].sentences,
+            ...(history.chunks[chunk].paragraphs || []).map(paragraph => paragraph.text)].join(' ');
+        assert.ok(content.includes(`${birth}–${death}`), name);
+        assert.ok(content.includes(father), name);
+        const glossary = history.glossary.find(entry => [entry.term, ...entry.forms].some(form => form.includes(name)));
+        assert.ok(glossary.definition.includes(`${birth}–${death}`), name);
+        assert.ok(glossary.definition.includes(father), name);
+    }
+    assert.ok(history.timeline.every(event => !event.label.startsWith(String(event.year))));
+    assert.ok(history.timeline.some(event => event.year === 1620 && event.label.includes('obnovuje vládu')));
+});
+
 test('authored highlights are optional for both subjects and all supported versions', () => {
     for (const [subject, source, versions] of [['history', history, [1, 3]], ['maths', maths, [2, 3]]]) {
         for (const version of versions) {

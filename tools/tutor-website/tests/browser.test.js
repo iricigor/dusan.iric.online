@@ -59,6 +59,48 @@ test('real offline pages share navigation, named quizzes, persistence and storag
     assert.deepEqual(network, []);
 });
 
+test('prepared history timeline keeps compact years readable and expands lesson text', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    const file = path.join(directory, 'history-timeline.html');
+    fs.writeFileSync(file, renderLesson('history', history));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    for (let attempt = 0; attempt < 100; attempt++) {
+        if (await evaluate('typeof window.switchTutorTab === "function"')) break;
+        await delay(20);
+    }
+    await evaluate('window.switchTutorTab("learning")');
+    for (const width of [1024, 1600]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme = '${theme}'; document.getElementById('timeline-details').open = true`);
+            await capture(`history-timeline-${width}-${theme}-expanded`);
+            const layout = await evaluate(`(() => {
+                const details = document.getElementById('timeline-details');
+                const rail = document.querySelector('.learning-timeline');
+                const text = document.getElementById('learning-content');
+                const fullRail = rail.getBoundingClientRect().width;
+                const fullText = text.getBoundingClientRect().width;
+                details.open = false;
+                const compactRail = rail.getBoundingClientRect().width;
+                const compactText = text.getBoundingClientRect().width;
+                return { fullRail, compactRail, fullText, compactText, text: rail.innerText,
+                    targets: [...rail.querySelectorAll('.timeline-year-link')].map(button => ({
+                        width: button.getBoundingClientRect().width, height: button.getBoundingClientRect().height
+                    })), overflow: document.documentElement.scrollWidth > innerWidth };
+            })()`);
+            await capture(`history-timeline-${width}-${theme}-compact`);
+            assert.equal(layout.compactRail < layout.fullRail && layout.compactText > layout.fullText &&
+                layout.text.trim().split(/\s+/).every(word => /^\d+$/.test(word)) &&
+                layout.targets.every(target => target.width >= 44 && target.height >= 44) && !layout.overflow,
+            true, `${width}/${theme}: ${JSON.stringify(layout)}`);
+        }
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('learning progress, optional timelines and authored/child highlights preserve source and tab storage', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
@@ -168,11 +210,19 @@ test('learning progress, optional timelines and authored/child highlights preser
         await tab('learning');
         const total = subject === 'history' ? 12 : 34;
         assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `0/${total} Prozkoumáno`);
+        assert.equal(await evaluate(`Array.from(document.querySelectorAll('.explored-control')).every(label =>
+            label.textContent === 'Prozkoumáno' && label.querySelector('input[type="checkbox"]')?.checked === false)`), true);
         await evaluate('Array.from(document.querySelectorAll(".explored-control")).slice(0, 3).forEach(button => button.click())');
         assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `3/${total} Prozkoumáno`);
         assert.equal(await evaluate('document.querySelectorAll(".learning-segment[data-explored=true]").length'), 3);
+        assert.equal(await evaluate('document.querySelectorAll(".explored-control input:checked").length'), 3);
         await evaluate('document.querySelector(".explored-control").click(); window.scrollTo(0, document.body.scrollHeight)');
         assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `2/${total} Prozkoumáno`);
+        await evaluate('document.querySelector(".explored-control input").focus()');
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
+        assert.equal(await evaluate('document.querySelector(".explored-control input").checked'), true, 'completion checkbox is keyboard-operable');
+        await evaluate('document.querySelector(".explored-control").click(); window.scrollTo(0, document.body.scrollHeight)');
         assert.equal(await evaluate('document.getElementById("learning-progress").getBoundingClientRect().top >= 0'), true);
         assert.deepEqual(await marked(learningTarget), [[learningText.slice(0, 8), 'green']]);
         await select(learningTarget, 0, 12);
@@ -213,6 +263,9 @@ test('learning progress, optional timelines and authored/child highlights preser
         await tab('learning');
         assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `2/${total} Prozkoumáno`);
         if (subject === 'history') {
+            assert.equal(await evaluate(`Array.from(document.querySelectorAll('.timeline-node')).every(button =>
+                !/^\\d/.test(button.textContent) && /^\\d/.test(button.getAttribute('aria-label')))`), true,
+            'timeline labels omit repeated years but retain them in accessible names');
             assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".timeline-year")).map(row => Number(row.dataset.year))'),
                 [1717, 1740, 1780, 1781]);
             assert.equal(await evaluate('document.querySelector(".timeline-lifespan").getAttribute("aria-label")'), 'Marie Terezie: 1717–1780');
@@ -231,6 +284,19 @@ test('learning progress, optional timelines and authored/child highlights preser
                     document.getElementById('page-header').getBoundingClientRect().bottom &&
                     document.querySelector('.timeline-node[aria-controls="learning-chunk-2"]').hasAttribute('aria-current');
             })()`), true, 'reduced-motion timeline navigation focuses an unobscured card');
+            await client.send('Emulation.setEmulatedMedia', { features: [] });
+            await evaluate('document.getElementById("timeline-details").open = false');
+            await evaluate('document.querySelector(".timeline-year-link").click()');
+            assert.equal(await evaluate(`document.getElementById('timeline-details').open &&
+                document.activeElement.classList.contains('timeline-node')`), true,
+            'a compact year with multiple events expands the choices and focuses the first');
+            await evaluate('document.getElementById("timeline-details").open = false');
+            await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+            await evaluate('document.querySelector(".timeline-year[data-year=\\"1781\\"] .timeline-year-link").click()');
+            assert.equal(await evaluate(`!document.getElementById('timeline-details').open &&
+                document.activeElement.id === 'learning-chunk-2'`), true,
+            'a compact year with one event navigates without expanding the rail');
+            await evaluate('document.getElementById("timeline-details").open = true');
             await client.send('Emulation.setEmulatedMedia', { features: [] });
         } else {
             assert.equal(await evaluate('document.querySelector(".learning-timeline") === null'), true, 'maths has no timeline or reserved rail');
@@ -259,7 +325,10 @@ test('learning progress, optional timelines and authored/child highlights preser
         await select(learningTarget, 0, 4);
         assert.equal(await evaluate(`(() => {
             const panel = document.querySelector('.highlight-panel').getBoundingClientRect();
+            const buttons = [...document.querySelectorAll('[data-highlight-action]')].map(button => button.getBoundingClientRect());
             return panel.left >= 0 && panel.right <= innerWidth && panel.top >= 0 && panel.bottom <= innerHeight &&
+                panel.height < 65 && buttons.length === 4 && buttons.every(button =>
+                    Math.abs(button.top - buttons[0].top) < 1 && button.height >= 44 && button.right <= panel.right) &&
                 document.documentElement.scrollWidth <= innerWidth;
         })()`), true, 'marker palette fits a 320px screen');
         await apply('green');

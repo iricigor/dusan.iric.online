@@ -18,30 +18,32 @@ function initializeLearning(lesson, document) {
             const complete = explored.has(card.id);
             card.dataset.explored = String(complete);
             segments[index].dataset.explored = String(complete);
-            controls[index].setAttribute('aria-pressed', String(complete));
-            controls[index].textContent = complete ? '✓ Prozkoumáno' : '○ Označit jako prozkoumané';
+            controls[index].checked = complete;
         });
         $('learning-counter').textContent = `${explored.size}/${cards.length} Prozkoumáno`;
         $('learning-segments').setAttribute('aria-valuenow', String(explored.size));
     };
     $('learning-segments').setAttribute('aria-valuemax', String(cards.length));
     cards.forEach(card => {
+        const footer = node('div', undefined, 'learning-card-footer');
         const hints = [...card.children].filter(child => child.classList.contains('hint'));
         if (hints.length === 1) {
             const prompt = hints[0].querySelector('.hint-prompt');
             hints[0].before(prompt);
             card.append(hints[0]);
+            footer.append(hints[0].querySelector('.hint-toggle'));
         }
-        const control = node('button', undefined, 'explored-control');
-        control.type = 'button';
+        const control = node('input');
+        control.type = 'checkbox';
         control.setAttribute('aria-label', `Prozkoumáno: ${card.querySelector('h2').textContent}`);
-        control.addEventListener('click', () => {
-            if (explored.has(card.id)) explored.delete(card.id);
-            else explored.add(card.id);
+        control.addEventListener('change', () => {
+            if (control.checked) explored.add(card.id);
+            else explored.delete(card.id);
             sync();
         });
-        const footer = node('div', undefined, 'learning-card-footer');
-        footer.append(control);
+        const label = node('label', undefined, 'explored-control');
+        label.append(control, node('span', 'Prozkoumáno'));
+        footer.append(label);
         card.append(footer);
         controls.push(control);
         const segment = node('span', undefined, 'learning-segment');
@@ -59,10 +61,17 @@ function initializeLearning(lesson, document) {
     if (lesson.timeline?.length) {
         $('learning').classList.add('has-timeline');
         const aside = node('aside', undefined, 'learning-timeline');
+        aside.setAttribute('aria-label', 'Časová osa');
         const details = node('details');
         details.id = 'timeline-details';
-        details.append(node('summary', 'Časová osa'));
+        const summary = node('summary');
+        summary.setAttribute('aria-label', 'Časová osa');
+        summary.setAttribute('aria-controls', 'timeline-track');
+        summary.setAttribute('title', 'Rozbalit nebo sbalit časovou osu');
+        summary.append(node('span', 'Časová osa', 'timeline-title'));
+        details.append(summary);
         const track = node('nav', undefined, 'timeline-track');
+        track.id = 'timeline-track';
         track.setAttribute('aria-label', 'Časová osa');
         const years = [...new Set(lesson.timeline.flatMap(event =>
             [event.year, ...(event.lifespan ? [event.lifespan.birth, event.lifespan.death] : [])]))].sort((a, b) => a - b);
@@ -77,8 +86,10 @@ function initializeLearning(lesson, document) {
         });
         lesson.timeline.forEach((event, index) => {
             const card = $(`learning-chunk-${event.chunk}`);
-            const control = node('button', `${event.year}: ${event.label}`, 'timeline-node');
+            const control = node('button', event.label, 'timeline-node');
             control.type = 'button';
+            control.setAttribute('aria-label', `${event.year}: ${event.label}`);
+            control.setAttribute('title', `${event.year}: ${event.label}`);
             control.setAttribute('aria-controls', card.id);
             control.addEventListener('click', () => {
                 const top = offset();
@@ -98,8 +109,24 @@ function initializeLearning(lesson, document) {
                 track.append(bracket);
             }
         });
-        details.append(track);
-        aside.append(details);
+        rows.forEach((row, year) => {
+            const entries = timelineNodes.filter(({ control }) => control.parentElement === row);
+            if (!entries.length) return;
+            const yearControl = node('button', String(year), 'timeline-date timeline-year-link');
+            yearControl.type = 'button';
+            const label = `${year}: ${entries.map(({ control }) => control.textContent).join('; ')}`;
+            yearControl.setAttribute('aria-label', label);
+            yearControl.setAttribute('title', label);
+            yearControl.addEventListener('click', () => {
+                if (entries.length === 1) entries[0].control.click();
+                else {
+                    details.open = true;
+                    entries[0].control.focus({ preventScroll: true });
+                }
+            });
+            row.append(yearControl);
+        });
+        aside.append(details, track);
         $('learning').append(aside);
         const mobile = matchMedia('(max-width: 760px)');
         details.open = !mobile.matches;

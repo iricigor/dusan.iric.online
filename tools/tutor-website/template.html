@@ -31,15 +31,14 @@
         <details id="highlight-tools" class="highlight-tools">
             <summary aria-label="Zvýraznění textu" aria-keyshortcuts="Alt+H" title="Zvýraznění textu (Alt+H)">🖍️</summary>
             <div class="highlight-panel">
-                <p>Vyber text a zvol barvu. Klávesová zkratka: Alt+H.</p>
-                <div role="group" aria-label="Barva zvýraznění">
+                <p id="highlight-help" class="visually-hidden">Vyber text a zvol barvu. Klávesová zkratka: Alt+H. Změny zůstávají jen v této kartě prohlížeče, i po obnovení stránky. Neodesílají se online.</p>
+                <div role="group" aria-label="Barva zvýraznění" aria-describedby="highlight-help">
                     <button type="button" data-highlight-action="yellow">Žlutě</button>
                     <button type="button" data-highlight-action="blue">Modře</button>
                     <button type="button" data-highlight-action="green">Zeleně</button>
                     <button type="button" data-highlight-action="remove">Odstranit</button>
                 </div>
-                <p>Změny zůstávají jen v této kartě prohlížeče, i po obnovení stránky. Neodesílají se online.</p>
-                <p id="highlight-status" role="status" aria-live="polite"></p>
+                <p id="highlight-status" class="visually-hidden" role="status" aria-live="polite"></p>
             </div>
         </details>
         <div id="learning-controls" class="learning-controls" role="group" aria-label="Nápovědy a řešení" hidden>

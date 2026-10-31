@@ -123,8 +123,10 @@ of the tab bar, outside tablist semantics, with Czech tooltips, accessible label
 and 44px targets. They affect only learning
 hints, steps, answers and explanations, never the glossary or quiz disclosures.
 Individual disclosures remain independently operable. Hints use a centered,
-bottom-aligned `💡 Zobrazit podrobnosti a nápovědu` pill and a tinted inset drawer
-with a left accent. Single-hint cards place the pill after their main content;
+bottom-aligned `💡 Nápověda` pill and a tinted inset drawer
+with a left accent. Single-hint cards share a bottom-border footer with the
+completion checkbox; both controls slightly overlap the card edge. Drawers
+expand above this footer, after the main content;
 multi-step exercises retain a separate hint beside each step's content.
 Opening and closing smoothly animate the drawer height; reduced motion disables
 the animation. The button exposes its expanded state and controls
@@ -137,7 +139,8 @@ collapsed in both subjects; the main lesson text stays visible.
 
 The sticky header shows a segmented learning-only progress bar and a live
 `3/12 Prozkoumáno` counter. Each history chunk, maths worked example and whole
-maths exercise has an explicit, reversible checkmark; the maths practice
+maths exercise has a native, reversible `Prozkoumáno` checkbox on its bottom-right
+border; the maths practice
 introduction is not counted. Scrolling, hints and timeline navigation never
 mark a card explored automatically. Completion stays in memory while switching
 tabs; reloading the page resets it. It does not affect quiz results.
@@ -164,10 +167,14 @@ Authors supply dates explicitly from reviewed content; the generator never
 guesses years or lifespans from prose. Multiple events can share a year or
 target a card, and date-free cards remain fully trackable.
 Timeline nodes are chronological; cards retain their educational order.
-The right-side track displays year ticks and birth/death brackets. Nodes scroll
+The right-side track displays each year once above event labels and birth/death
+brackets. Accessible event names and tooltips still include the year. Nodes scroll
 to and highlight their card below the sticky header; scrolling updates the
 active node without changing completion. The glossary control retains its
-own right-edge space. On screens up to 760px, the timeline becomes an initially
+own right-edge space. Collapsing the desktop timeline narrows the right-hand
+rail to years only and gives the released width to lesson text. Single-event
+year buttons still navigate; years with multiple events expand the choices.
+On screens up to 760px, the timeline becomes an initially
 collapsed disclosure above the cards. Without `timeline`, or with an empty
 array, there is no rail or reserved column. Legacy lessons need no migration;
 maths intentionally omits the historical timeline.
@@ -208,7 +215,10 @@ difficulty order. Headings, generated numbering/answer labels, glossary panels
 and quiz content are not highlighting targets.
 
 Children select text on either text tab, then use the crayon control or `Alt+H`
-to choose a named marker color or remove highlighting. Selections may cross
+to choose a named marker color or remove highlighting. The compact palette shows
+only `Žlutě`, `Modře`, `Zeleně` and `Odstranit` in one row, including on mobile.
+Help and successful-save announcements remain available to assistive technology;
+storage failures still show visible warnings. Selections may cross
 paragraphs/cards; only supported, visible source text on the active tab changes.
 The latest child action wins on overlapping ranges, splitting earlier ranges
 as needed. Removal also masks authored highlights without editing lesson JSON.
@@ -225,7 +235,9 @@ the current page usable. Marker palettes use dark foreground text on light
 backgrounds for readable contrast in both themes, with color-name buttons.
 
 Both reusable example JSONs demonstrate highlighting; history also demonstrates
-the optional timeline. Generated site pages embed their own assets and are not
+the optional timeline with reviewed monarch accession events and lifespans.
+Its teaching paragraphs and glossary explain the monarchs' lives, fathers and
+reigns without changing the preserved original. Generated site pages embed their own assets and are not
 retroactively changed or published by updating these sources.
 
 The subject badge and lesson title share one row, retaining distinct badge
