@@ -46,6 +46,18 @@ thresholds are defined once in `runtime.js`. Every quiz selects randomly
 without replacement within a level, then presents easy → medium → hard.
 There is no final cross-level shuffle. The history year guarantee remains.
 
+### Native name autocomplete
+
+Future generated history and maths pages share the quiz name/nickname input
+`id="player"`, `name="player-name"` and `autocomplete="on"`. This allows native
+browser-saved form-history suggestions without a custom dropdown or
+application-managed name storage. The label, name validation, 60-character
+limit and quiz behavior are unchanged; existing published pages are not updated.
+
+Suggestions depend on the browser, saved form history and browser settings.
+These HTML attributes do not guarantee that the browser saves names on these
+pages or displays suggestions on double-click.
+
 ### Motivation, semantic paragraphs and motion
 
 The factual `topic` remains the page title. Required v3 `subtitle` is a short

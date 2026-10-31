@@ -130,6 +130,22 @@ test('both subjects embed approved decorative header and fancy footer marks offl
     }
 });
 
+test('both subjects enable native name autocomplete while preserving the shared name field', () => {
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const html = renderLesson(subject, lesson);
+        const inputs = [...html.matchAll(/<input\b[^>]*\bid="player"[^>]*>/g)];
+        assert.equal(inputs.length, 1);
+        const input = inputs[0][0];
+        assert.match(input, /\bname="player-name"/);
+        assert.match(input, /\bautocomplete="on"/);
+        assert.match(input, /\btype="text"/);
+        assert.match(input, /\bmaxlength="60"/);
+        assert.match(input, /\baria-describedby="name-help name-error"/);
+        assert.match(html, /<label for="player"[^>]*>/);
+        assert.doesNotMatch(input, /\bautocomplete="off"/);
+    }
+});
+
 test('both subjects embed the same shell and quiz controller, with no practice tab', () => {
     const sharedRuntime = fs.readFileSync(path.join(__dirname, '..', 'runtime.js'), 'utf8');
     const sharedStyles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
