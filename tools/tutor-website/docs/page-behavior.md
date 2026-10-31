@@ -186,6 +186,7 @@ timeline never opens automatically. The glossary control retains its
 own right-edge space. Collapsing the desktop timeline narrows the right-hand
 rail to years only and gives the released width to lesson text. Single-event
 year buttons still navigate; years with multiple events expand the choices.
+Compact year boxes have tighter visible padding while retaining 44px click targets.
 On screens up to 760px, the timeline becomes an initially
 collapsed disclosure above the cards. Without `timeline`, or with an empty
 array, there is no rail or reserved column. Legacy lessons need no migration;

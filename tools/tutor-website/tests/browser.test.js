@@ -137,14 +137,25 @@ test('prepared history timeline keeps compact years readable and expands lesson 
                 const compactText = text.getBoundingClientRect().width;
                 return { fullRail, compactRail, fullText, compactText, text: rail.innerText,
                     targets: [...rail.querySelectorAll('.timeline-year-link')].map(button => ({
-                        width: button.getBoundingClientRect().width, height: button.getBoundingClientRect().height
+                        width: button.getBoundingClientRect().width, height: button.getBoundingClientRect().height,
+                        boxWidth: parseFloat(getComputedStyle(button, '::before').width),
+                        boxHeight: parseFloat(getComputedStyle(button, '::before').height)
                     })), overflow: document.documentElement.scrollWidth > innerWidth };
             })()`);
             await capture(`history-timeline-${width}-${theme}-compact`);
             assert.equal(layout.compactRail < layout.fullRail && layout.compactText > layout.fullText &&
                 layout.text.trim().split(/\s+/).every(word => /^\d+$/.test(word)) &&
-                layout.targets.every(target => target.width >= 44 && target.height >= 44) && !layout.overflow,
+                layout.targets.every(target => target.width >= 44 && target.height >= 44 &&
+                    target.boxHeight >= 26 && target.boxHeight <= 32 && target.boxWidth <= target.width - 6) && !layout.overflow,
             true, `${width}/${theme}: ${JSON.stringify(layout)}`);
+            const edge = await evaluate(`(() => {
+                const button = document.querySelector('.timeline-year-link');
+                const bounds = button.getBoundingClientRect();
+                return { x: bounds.left + 2, y: bounds.top + bounds.height / 2, target: button.parentElement.querySelector('.timeline-node').getAttribute('aria-controls') };
+            })()`);
+            await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: edge.x, y: edge.y, button: 'left', clickCount: 1 });
+            await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: edge.x, y: edge.y, button: 'left', clickCount: 1 });
+            assert.equal(await evaluate('document.activeElement.id'), edge.target, 'the transparent edge retains the full year click target');
         }
     }
     assert.deepEqual(exceptions, []);

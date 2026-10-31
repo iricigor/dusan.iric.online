@@ -278,8 +278,10 @@ a { color: var(--primary); }
     #timeline-details:not([open]) + .timeline-track .timeline-node,
     #timeline-details:not([open]) + .timeline-track .timeline-lifespan,
     #timeline-details:not([open]) + .timeline-track .timeline-year:has(.timeline-year-link) > span.timeline-date { display: none; }
-    #timeline-details:not([open]) + .timeline-track .timeline-year-link { display: block; width: 100%; min-width: 44px; margin: 0; padding: .15rem .25rem; font-size: .8rem; }
-    #timeline-details:not([open]) + .timeline-track .timeline-year:has([aria-current]) .timeline-year-link { background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary); border-color: var(--primary); }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link { display: block; position: relative; z-index: 0; width: 100%; min-width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; font-size: .8rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link::before { content: ""; position: absolute; z-index: -1; inset: 6px 4px; border: 1px solid var(--year-border, var(--border)); border-radius: .4rem; background: var(--year-background, var(--card)); pointer-events: none; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link:hover { --year-background: color-mix(in srgb, var(--primary) 8%, var(--card)); --year-border: var(--primary); }
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has([aria-current]) .timeline-year-link { --year-background: color-mix(in srgb, var(--primary) 12%, var(--card)); --year-border: var(--primary); color: var(--primary); }
 }
 @media (max-width: 760px) {
     #learning.has-timeline { display: flex; flex-direction: column; gap: .5rem; }
