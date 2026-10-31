@@ -12,6 +12,7 @@ function renderPage(lesson, subject, publicationUrl) {
     const replacements = {
         TITLE: escapeHtml(lesson.topic),
         FAVICON: encodeURIComponent(fs.readFileSync(path.join(__dirname, 'favicon.svg'), 'utf8')).replace(/'/g, '%27'),
+        WEBPAGE_LOGO: encodeURIComponent(fs.readFileSync(path.join(__dirname, 'design-proposals', 'issue-52', 'rounded-fancy.svg'), 'utf8')).replace(/'/g, '%27'),
         SUBJECT: subject === 'history' ? 'Dějepis' : 'Matematika',
         SUBJECT_ID: subject,
         TIMING: subject === 'history' ? '<div id="bonus" aria-hidden="true"><div id="bonus-bar"></div></div>' : '',
@@ -24,7 +25,7 @@ function renderPage(lesson, subject, publicationUrl) {
             fs.readFileSync(path.join(__dirname, `${subject}.js`), 'utf8')
     };
     return fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8')
-        .replace(/@@(TITLE|FAVICON|SUBJECT|SUBJECT_ID|TIMING|SHARE|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
+        .replace(/@@(TITLE|FAVICON|WEBPAGE_LOGO|SUBJECT|SUBJECT_ID|TIMING|SHARE|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
 }
 
 module.exports = { renderPage };

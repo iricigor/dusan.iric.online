@@ -287,7 +287,7 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.ok(!html.includes(hostile));
     assert.match(html, /&lt;\/script&gt;/);
     assert.equal((html.match(/<script(?:\s|>)/g) || []).length, 2);
-    assert.doesNotMatch(html, /<(?:script|img)[^>]+src=|<link[^>]+href="(?!data:)|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
+    assert.doesNotMatch(html, /<script[^>]+src=|<img[^>]+src="(?!data:image\/svg\+xml,)|<link[^>]+href="(?!data:)|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
     assert.match(html, /speedBonus: false/);
     assert.doesNotMatch(html, /zatím nejsou dostupné|@@(?:DATA|STYLES|APP)@@/);
     assert.match(html, /data-mode="hard"/);
@@ -309,6 +309,27 @@ test('both subjects embed the selected full-height Rounded satin simple favicon'
         for (const color of ['#1e3c72', '#000', '#f1f5f9']) assert.ok(svg.includes(color));
         assert.doesNotMatch(svg, /<(?:script|image|text|linearGradient|radialGradient|filter)|href=/);
         assert.equal((html.match(/<link /g) || []).length, 1);
+    }
+});
+
+test('both subjects embed approved decorative header and fancy footer marks offline', () => {
+    const simple = fs.readFileSync(path.join(__dirname, '..', 'favicon.svg'), 'utf8');
+    const fancy = fs.readFileSync(path.join(__dirname, '..', 'design-proposals', 'issue-52', 'rounded-fancy.svg'), 'utf8');
+    for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
+        const html = renderLesson(subject, lesson);
+        const images = [...html.matchAll(/<img class="([^"]+)" src="data:image\/svg\+xml,([^"]+)" alt="" width="(\d+)" height="(\d+)">/g)];
+        assert.equal(images.length, 2);
+        assert.equal((html.match(/<img\b/g) || []).length, 2);
+        assert.deepEqual(images.map(([, name, , width, height]) => [name, width, height]), [
+            ['lesson-header-mark', '64', '64'], ['lesson-footer-mark', '96', '96']
+        ]);
+        assert.deepEqual(images.map(([, , svg]) => decodeURIComponent(svg)), [simple, fancy]);
+        assert.match(html, /class="lesson-title-group">[\s\S]*?id="topic"[\s\S]*?id="subtitle"[\s\S]*?<\/div>\s*<\/div>\s*<button id="theme"/);
+        assert.match(html, /<\/main>\s*<footer class="lesson-footer">\s*<img class="lesson-footer-mark"/);
+        assert.doesNotMatch(html, /@@[A-Z_]+@@/);
+        for (const [, , svg] of images) {
+            assert.doesNotMatch(decodeURIComponent(svg), /<(?:script|image|text|foreignObject)\b|\bhref=/);
+        }
     }
 });
 

@@ -207,7 +207,14 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         assert.equal(await evaluate('document.getElementById("subtitle").textContent'), lesson.subtitle);
         assert.equal(await evaluate('document.querySelector("#original-content .card-icon").textContent'), lesson.original[0].icon || '📄');
         assert.equal(await evaluate('document.querySelector("#glossary .card-icon").textContent'), lesson.glossary[0].icon || '📖');
-        assert.equal(await evaluate('document.querySelectorAll("img, .card-icon svg").length'), 0, 'lesson icon markup remains plain text');
+        assert.equal(await evaluate('document.querySelectorAll(".card-icon img, .card-icon svg").length'), 0, 'lesson icon markup remains plain text');
+        assert.equal(await evaluate(`(async () => {
+            const images = [...document.querySelectorAll('img')];
+            await Promise.all(images.map(image => image.decode()));
+            return images.length === 2 && images.every(image =>
+                image.alt === '' && image.src.startsWith('data:image/svg+xml,') &&
+                image.naturalWidth > 0 && !image.closest('a, button'));
+        })()`), true, `${subject}: both decorative identity marks decode offline`);
         assert.equal(await evaluate('document.getElementById("audience")'), null);
         assert.equal(await evaluate(`document.getElementById('setup').textContent.includes('Na server nic neposíláme')`), false);
         assert.equal(await evaluate(`(() => {
@@ -298,7 +305,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             await capture('history-original-fun');
             await evaluate(`window.switchTutorTab('learning')`);
         }
-        for (const width of [320, 1024, 1600]) {
+        for (const width of [320, 550, 551, 1024, 1600]) {
             await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
             for (const theme of ['light', 'dark']) {
                 await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
@@ -345,6 +352,27 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     })()`));
                     assert.equal(await evaluate(`document.getElementById('learning-controls').hidden`), tab !== 'learning');
                     assert.equal(await evaluate(`document.getElementById('quiz-tools').hidden`), tab !== 'quiz');
+                    assert.equal(await evaluate(`(() => {
+                        const mark = document.querySelector('.lesson-header-mark').getBoundingClientRect();
+                        const text = document.querySelector('.lesson-title-group').getBoundingClientRect();
+                        const title = document.getElementById('topic').getBoundingClientRect();
+                        const subtitle = document.getElementById('subtitle').getBoundingClientRect();
+                        const theme = document.getElementById('theme').getBoundingClientRect();
+                        const tabs = document.querySelector('.tab-bar').getBoundingClientRect();
+                        const main = document.querySelector('main').getBoundingClientRect();
+                        const footer = document.querySelector('.lesson-footer').getBoundingClientRect();
+                        const logo = document.querySelector('.lesson-footer-mark').getBoundingClientRect();
+                        return mark.width === ${width <= 550 ? 48 : 64} && mark.height === mark.width &&
+                            mark.right <= text.left && text.right <= theme.left &&
+                            Math.abs((mark.top + mark.bottom - text.top - text.bottom) / 2) < 1 &&
+                            title.top >= text.top && subtitle.bottom <= text.bottom &&
+                            tabs.top >= Math.max(mark.bottom, text.bottom, theme.bottom) &&
+                            footer.top >= main.bottom && logo.width === ${width <= 550 ? 64 : 96} &&
+                            logo.height === logo.width &&
+                            Math.abs((logo.left + logo.right) / 2 - (footer.left + footer.right) / 2) < 1 &&
+                            logo.top >= footer.top && logo.bottom <= footer.bottom &&
+                            document.querySelector('.lesson-footer').checkVisibility();
+                    })()`), true, `${subject}/${tab}/${width}/${theme}: approved marks, title/subtitle alignment and footer placement`);
                     assert.equal(await evaluate(`(() => {
                         const badge = document.querySelector('.lesson-heading .badge');
                         const title = document.getElementById('topic');

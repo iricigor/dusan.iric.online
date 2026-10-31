@@ -39,7 +39,10 @@ there are no subject-specific CLI or schema aliases.
 Both subjects use `tools\tutor-website\assessment.js`, `tools\tutor-website\template.html` and
 `tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
 The favicon source is `tools\tutor-website\favicon.svg`, embedded into each new
-standalone page as a data URL. Do not retrofit published pages.
+standalone page as a data URL for the browser tab and simple header mark.
+The matching fancy footer logo is
+`tools\tutor-website\design-proposals\issue-52\rounded-fancy.svg`, also embedded.
+Do not retrofit published pages.
 History and maths content/assessment adapters live alongside them in
 `history.js` and `maths.js`. Both prepared lesson sources live in
 `tools\tutor-website\examples`. Keep common presentation and lifecycle changes in the
@@ -142,7 +145,14 @@ diagonal cap stroke slightly overlapping the upper-left edge, with a hanging
 left tassel. Keep the mark full-height (31 of 32 SVG units), with only 0.5-unit
 top/bottom anti-clipping clearance. Use the shared `tools\tutor-website\favicon.svg`
 for new pages; do not add fancy gradients/details to the favicon or retrofit
-already published pages. The fancy webpage logo remains unintegrated.
+already published pages. Center the simple header mark vertically beside the
+combined subject badge/title and motivational subtitle block, with the theme
+switch to the right and tabs below. Use a 64px square header mark on desktop,
+48px on narrow screens up to 550px. Center the matching approved Rounded satin
+fancy logo below the active lesson content in the shared footer: 96px square
+on desktop, 64px on narrow screens. Both marks are decorative images with empty
+alt text, not navigation controls. Keep their designs unchanged and embedded
+for offline use across history and maths.
 The subdued quiz cog sits at the right of the tab bar, outside tablist semantics,
 in the same action area as learning controls; show it only in Hrát si. Keep its
 44px target and keyboard access. It toggles tools for a local UTF-8 JSON export of the
@@ -218,7 +228,10 @@ For `build`:
    Verify both subjects' answer-only duration in results, excluding feedback
    reading, hidden browser pages and other lesson tabs, plus popover
    dismissal/focus, collapsed setup rules/leaderboard, expanded completion
-   leaderboard and favicon. For a single-subject draft, inspect its behavior
+   leaderboard, browser-tab favicon and both header/footer identity marks.
+   Check the header mark's alignment against the complete title/subtitle block,
+   approved desktop/mobile sizes and unobstructed navigation in both themes.
+   For a single-subject draft, inspect its behavior
    directly; the shared tests cover the other subject.
    Use the existing browser tooling. A skipped fixture browser test is not
    proof that the actual draft was checked; disclose unavailable browser
