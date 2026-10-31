@@ -2,7 +2,8 @@
 
 Requires Node.js 22+. No npm packages, Python, AI keys, runtime network, or
 external page assets. `tutor-website` remains internal-only; subject tutors own
-educational content, Czech-language review, local review and publication approval.
+educational content, Czech-language review, rendered educational review and
+publication approval. The website helper owns technical review of generated pages.
 Never change `gems` for this workflow.
 
 ## Discover, author, hand off
@@ -19,6 +20,9 @@ node --test tools\tutor-website\tests\*.test.js
 `capabilities` returns absolute schema, validator, documentation and builder
 paths, version, timing policy, generation/assessment status, shared tabs,
 the name requirement, passive answer-duration policy and limitations.
+It also returns `authoringRequirements` and `quizModes`, the website-owned
+task counts described below. Subject tutors define what makes a task easy,
+medium or hard; they consume these counts rather than maintaining local quotas.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
 `examplePath` identifies prepared, reusable default lesson JSON for both subjects.
 The structural test fixture is not teaching material. Both subjects use
@@ -42,6 +46,27 @@ that review belongs to `tutor-common` and the subject tutor.
 Maths assessment retains the established scoring rules; no author-supplied scoring
 configuration is needed. Symbolic algebra and interactive geometry remain
 unsupported.
+
+### Website-owned task counts
+
+`authoringRequirements` is guidance for new lesson authors, not an additional
+structural validator rule. `minimumTasks` is 30 for either subject, counting
+history questions or whole maths exercises (`taskUnit`), never maths answer
+fields. `minimumByDifficulty` is easy 2, medium 5, hard 3, derived from the
+largest selections in the shared runtime's `MODES`. The balanced
+`recommendedByDifficulty` is 6/15/9.
+For substantial history material, `preferredTaskRange` is 50–100; maths uses
+30–100. Material must support useful distinct tasks: never pad to reach a count.
+`minimumTasksEnforcedByValidator: false` distinguishes the new-authoring total
+from structural validation; the validator still enforces sufficient tasks for every mode.
+It continues accepting supported smaller legacy banks (at least 10 whole
+tasks with the required difficulty mix), including unchanged v1/v2 data.
+
+`quizModes` supplies named easy/medium/hard selection counts for each mode:
+easy 1/1/1, medium 1/2/2, hard 2/5/3. These come from the runtime, not a
+separate subject-profile configuration. Selection remains random without
+replacement within each level and presents easy → medium → hard.
+History's hard-mode year guarantee and subject scoring/timing are unchanged.
 
 ### Prepared defaults
 
@@ -125,14 +150,30 @@ failed verification; ask before substituting foreign-language references.
 Mark corrections with an exact, uniquely occurring quote, its zero-based original
 section, explanation and listed source URL. Describe sourced additions in
 `review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
+At each person's first mention in authored teaching content, explain their
+title/role, birth–death dates, father and, where relevant, reign dates and
+territory. Verify the biography against consulted references and disclose
+unknown/disputed/unverified details instead of guessing. For first mentions
+in original source text, use separate glossary definitions with matching name
+forms, never insert explanations into the preserved original.
 Review and source information remain in the embedded lesson metadata, not a
 visible Ověření a doplnění card. Exact-quote factual correction popovers remain.
-Author at least 30 distinct questions per new lesson, including at least 2 easy,
-5 medium and 3 hard; prefer 50-100 for substantial material. The prepared bank
-contains 6 easy, 15 medium and 9 hard questions, with teaching extended through
-the post-battle changes and the Thirty Years' War. Request more material if 30
-useful questions cannot be supported; never pad with paraphrased duplicates.
+Use the website-owned task counts returned by capabilities. History's
+educational difficulty definitions remain in the history tutor profile.
+The prepared bank contains 6 easy, 15 medium and 9 hard questions, with teaching
+extended through the post-battle changes and the Thirty Years' War. Request
+more material if the required useful questions cannot be supported; never pad
+with paraphrased duplicates.
 Legacy structural validation still accepts smaller existing banks.
+
+For year questions with partial-credit intervals, describe error relative to
+the correct answer, not absolute accepted endpoints in prompts or pre-answer
+hints. For example, use “Napiš přesný rok. Odhad s odchylkou nejvýše 2 roky
+získá polovinu bodů.” rather than an accepted-year range that reveals its
+midpoint. Match the declared policy, including asymmetric or exclusive bounds:
+use directional/strict-error wording when necessary. Exact answers and bounds
+remain explicit in assessment JSON and may be discussed after submission.
+This wording rule does not change assessment policies or preserved source text.
 
 | Quiz mode | Easy: true/false | Medium: four options | Hard: short answer |
 |---|---|---|---|
@@ -192,12 +233,13 @@ history-tutor tool directory, legacy CLI implementation, or subject schema alias
 
 | Owner/surface | Shared or separate | Reason |
 |---|---|---|
-| `tutor-common` | Shared teaching policy, including motivational subtitles, valid answer variants and increasing difficulty | These are learner-facing teaching rules, not rendering choices |
+| `tutor-common` | Shared teaching and workflow policy, including motivation, explicit answer credit, increasing difficulty, source handling, defaults and approval boundaries | Read/search guidance only; it does not execute builds or browser checks |
+| `tutor-website` helper and capabilities | Bank size, numerical difficulty quotas, quiz-mode counts, generation and technical review of actual drafts | Subject tutors consume requirements and retain educational review; fixture tests alone do not prove draft behavior |
 | `tutor-website` schema and validator | One v3 contract, shared metadata/original/glossary/styles; conditional subject sections | One authoritative definition avoids drift without requiring fictional dates/sources in maths or numeric steps in history |
 | Template, CSS, runtime, assessment and utilities | Shared, entirely in this directory | Color, animation, callouts, navigation, names, numeric/unit parsing, string normalization, exact/partial matching, feedback/progression, grades, results and storage warnings must behave consistently |
 | `history.js` | Separate content/scoring adapter in this directory | Factual chunks, mandatory speed bonus, base-only grades and duration tie-breaking are history rules; declared aliases and year ranges use the shared evaluator |
 | `maths.js` | Separate content/scoring adapter in this directory | Worked steps, independent per-step points, accuracy points and no timing are maths rules; parsing and declared representation/value policies use the shared evaluator |
-| Subject agent profiles and prepared JSON | Separate educational content | Historical source verification and mathematical solution authoring need different expertise and lesson data |
+| Subject agent profiles and prepared JSON | Separate educational content and easy/medium/hard teaching definitions | Historical verification, first-mention biographies and mathematical solution authoring need different expertise; numerical bank quotas belong to website capabilities |
 | Legacy lesson data/grading | Supported in the shared schema and evaluator | Existing saved JSON can be rebuilt without preserving obsolete commands or schema paths |
 | Published HTML and `gems` | Unchanged, independent snapshots/workflow | Tooling changes do not approve publication or changes to Gemini |
 
@@ -439,10 +481,10 @@ Each also has `heading`, `prompt`, `hint`, optional styled `paragraphs`, `steps`
 The child can reveal hints, each worked step, and the result independently.
 Calculations are displayed as text; no symbolic algebra is evaluated.
 
-Author `exercises` as a pool of **30–100** unique whole tasks, not individual
-steps, with at least **2 easy, 5 medium, 3 hard**. The prepared default uses
-6/15/9. The validator retains its 10-task lower bound for legacy compatibility;
-that is not the new-authoring minimum. IDs and prompts must be unique ignoring case and surrounding space.
+Author `exercises` using capabilities' website-owned task counts, counting whole
+tasks rather than individual steps. Educational difficulty and connected-step
+design belong to the maths tutor profile. IDs and prompts must be unique
+ignoring case and surrounding space.
 Each task contains `id`, `difficulty`, `prompt`, `steps`, and `explanation`.
 Each step has `prompt`, `hint`, typed canonical `answer`, `assessment`, and
 `solution` (worked explanation). History questions also require `assessment`.
@@ -698,14 +740,25 @@ PR download comments remain exclusive to the pre-merge PR validation runs.
 
 ## Local review and publication
 
-Open the returned file locally. Check the three shared tabs, name validation,
+The website helper opens the actual generated file locally for technical review.
+Check the three shared tabs, name validation,
 original text, glossary, progressively reduced step/hint reveals,
 all content, narrow layout, light/dark themes and offline operation. For both
 subjects, play all quiz modes through feedback/results and storage warnings.
 The browser test uses installed Edge/Chrome (or `TUTOR_BROWSER_PATH`) and Node's
 built-in WebSocket/CDP, with no browser/package downloads. It skips explicitly
 when no supported local browser exists; report that limitation and review
-manually rather than pretending the browser check passed.
+manually rather than pretending the browser check passed. The test fixtures
+do not replace inspection of the actual draft. Verify within-level random
+selection without repeats, increasing difficulty, correct/partial/incorrect
+answers, explicit continuation, subject timing/duration behavior and
+popover dismissal/focus. Return technical results and explicit failures or
+unexercised checks to the caller. Return language and educational problems
+to the subject tutor rather than silently changing the lesson.
+
+The subject tutor reviews the actual rendered educational content, Czech
+language, original preservation, explanations, difficulty and worked solutions.
+The common helper provides guidance only, not build/browser coordination.
 
 Drafts remain in session artifacts. Give the user the absolute HTML path and
 request review/explicit approval. Only after approval may the calling subject

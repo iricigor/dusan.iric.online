@@ -11,7 +11,7 @@ const { validateLesson } = require('../validate.js');
 const { mathsLesson, valueAssessment } = require('./fixture.js');
 const history = require('../examples/defenestrace.json');
 const { formatAnswer } = require('../maths.js');
-const { questionBank } = require('../runtime.js');
+const { questionBank, MODES } = require('../runtime.js');
 
 test('question bank export counts complete tasks and includes canonical answers without learner data', () => {
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
@@ -81,6 +81,49 @@ test('prepared defaults copy unchanged into guarded builds instead of using stru
         const html = fs.readFileSync(outputPath, 'utf8');
         assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
         assert.equal(fs.readFileSync(examplePath, 'utf8'), source);
+    }
+});
+
+test('capabilities own new-authoring counts and expose the runtime quiz mixes without shared mutations', () => {
+    const quizModes = {
+        easy: { easy: 1, medium: 1, hard: 1 },
+        medium: { easy: 1, medium: 2, hard: 2 },
+        hard: { easy: 2, medium: 5, hard: 3 }
+    };
+    for (const subject of ['history', 'maths']) {
+        const result = capabilities(subject);
+        assert.deepEqual(result.authoringRequirements, {
+            taskUnit: subject === 'history' ? 'question' : 'whole-exercise',
+            minimumTasks: 30,
+            minimumByDifficulty: { easy: 2, medium: 5, hard: 3 },
+            recommendedByDifficulty: { easy: 6, medium: 15, hard: 9 },
+            preferredTaskRange: { min: subject === 'history' ? 50 : 30, max: 100 },
+            minimumTasksEnforcedByValidator: false
+        });
+        assert.deepEqual(result.quizModes, quizModes);
+        for (const [mode, mix] of Object.entries(MODES)) {
+            assert.deepEqual(Object.values(result.quizModes[mode]), mix);
+        }
+        const lesson = JSON.parse(fs.readFileSync(result.examplePath, 'utf8'));
+        const poolKey = subject === 'history' ? 'questions' : 'exercises';
+        lesson[poolKey] = Object.entries(result.authoringRequirements.minimumByDifficulty)
+            .flatMap(([level, count]) => lesson[poolKey].filter(task => task.difficulty === level).slice(0, count));
+        assert.equal(lesson[poolKey].length, 10);
+        assert.equal(validateLesson(subject, lesson), lesson);
+        const legacy = structuredClone(lesson);
+        legacy.version = subject === 'history' ? 1 : 2;
+        delete legacy.subtitle;
+        if (subject === 'history') {
+            delete legacy.subject;
+            delete legacy.language;
+            legacy.questions.forEach(question => { delete question.assessment; });
+        } else legacy.exercises.forEach(exercise => exercise.steps.forEach(step => { delete step.assessment; }));
+        assert.equal(validateLesson(subject, legacy), legacy);
+        result.quizModes.easy.easy = 100;
+        result.authoringRequirements.minimumByDifficulty.easy = 100;
+        assert.deepEqual(capabilities(subject).quizModes, quizModes);
+        assert.equal(capabilities(subject).authoringRequirements.minimumByDifficulty.easy, 2);
+        assert.equal(MODES.easy[0], 1);
     }
 });
 

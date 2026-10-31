@@ -72,9 +72,9 @@ test('agent file references resolve and website owns the single shared contract'
     }
 });
 
-test('agents require JSON-only authorship and the common page and name-required quiz flow', () => {
+test('subjects author JSON only and website owns shared page behavior and technical review', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
-    for (const text of ['JSON only', 'Původní text, Učit se, Hrát si', 'name or nickname', 'comma or a dot']) {
+    for (const text of ['JSON only', 'technical page checks', 'rendered educational content']) {
         assert.ok(common.includes(text), `Missing shared rule: ${text}`);
     }
     for (const name of ['tutor-history', 'tutor-maths', 'tutor-website']) {
@@ -86,25 +86,62 @@ test('agents require JSON-only authorship and the common page and name-required 
     const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
     assert.ok(maths.includes('version 3'));
     assert.ok(maths.includes('separate practice tab'));
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    for (const text of ['actual generated HTML', 'correct/partial/incorrect answers',
+        'storage warnings', 'both themes', 'offline use', 'easy-to-hard ordering',
+        'technical review findings', 'Return language or', 'unexercised behavior']) {
+        assert.ok(website.includes(text), `Missing technical review rule: ${text}`);
+    }
 });
 
-test('common guidance owns motivation, answer variants and easy-to-hard progression', () => {
+test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
-    for (const rule of ['`subtitle`', '`acceptedAnswers`', 'easy to medium to hard', '`paragraphs`', '7/4, 1 3/4', '`assessment`', '`partial.credit`', '`0.5`', 'target unit', '`2000`, not `2000 m`']) {
+    for (const rule of ['`subtitle`', 'easy to medium to hard', 'full-credit',
+        'partial-credit', 'confirmed', 'transcription', 'read/search guidance helper',
+        'do not execute builds/browser', 'permission for that exact file',
+        'approval', 'default', 'errors', 'outside the repository']) {
         assert.ok(common.includes(rule), rule);
+    }
+    for (const technicalRule of ['15000', '1615', '1625', 'partial.credit', '2000 m', '80/60/40/20']) {
+        assert.ok(!common.includes(technicalRule), `Common must reference website rules: ${technicalRule}`);
     }
     const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
     assert.ok(maths.includes('If the question fixes the target unit'));
     assert.ok(maths.includes('not length `2000 m`'));
 });
 
-test('tutors require at least 30 whole tasks without changing legacy validation or quiz lengths', () => {
+test('website owns numerical task quotas while subjects retain educational difficulty definitions', () => {
     for (const name of ['tutor-common', 'tutor-history', 'tutor-maths']) {
         const body = profiles.find(profile => profile.name === name).body;
-        assert.ok(body.includes('at least 30'), name);
+        assert.ok(body.includes('authoringRequirements'), name);
+        assert.ok(body.includes('quizModes'), name);
+        assert.doesNotMatch(body, /at least \d+|50[-–]100|6\/15\/9|1\/2\/2/);
     }
-    assert.ok(profiles.find(profile => profile.name === 'tutor-common').body.includes('not 30 individual maths steps'));
-    assert.ok(profiles.find(profile => profile.name === 'tutor-common').body.includes('legacy validation'));
+    const website = profiles.find(profile => profile.name === 'tutor-website').body;
+    assert.ok(website.includes('bank-size requirements'));
+    assert.ok(website.includes('supported legacy banks valid'));
+    for (const name of ['tutor-history', 'tutor-maths']) {
+        const body = profiles.find(profile => profile.name === name).body;
+        for (const level of ['Easy', 'Medium', 'Hard']) assert.ok(body.includes(`**${level}:**`), name);
+    }
+    const history = profiles.find(profile => profile.name === 'tutor-history').body;
+    for (const rule of ['true/false', 'four-option', 'short-answer', 'year questions']) {
+        assert.ok(history.includes(rule), rule);
+    }
+    const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
+    for (const rule of ['four independent', 'one answer field', 'three connected', 'own expected answer']) {
+        assert.ok(maths.includes(rule), rule);
+    }
+});
+
+test('history owns accurate year-tolerance wording and verified first-mention biographies', () => {
+    const history = profiles.find(profile => profile.name === 'tutor-history').body;
+    for (const rule of ['never the accepted absolute year endpoints', 'asymmetric or exclusive',
+        'after submission', 'Do not change scoring', 'title or role', 'birth–death dates',
+        'father', 'dates and territory of their reign', 'first mention',
+        'cannot be verified', 'glossary entry', 'do not insert']) {
+        assert.ok(history.includes(rule), rule);
+    }
 });
 
 test('both tutors reuse discoverable prepared JSON for default or empty requests', () => {
