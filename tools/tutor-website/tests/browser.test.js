@@ -435,6 +435,183 @@ test('learning progress, optional timelines and authored/child highlights preser
     assert.deepEqual(network, []);
 });
 
+test('learning navigation, completion tones and timeline scrolling stay coordinated', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
+}, async t => {
+    const { directory, client, evaluate, exceptions, network } = await openBrowser(t);
+    const frame = () => evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
+    const presentation = () => evaluate(`(() => {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 1;
+        const context = canvas.getContext('2d');
+        const rgb = color => {
+            context.clearRect(0, 0, 1, 1);
+            context.fillStyle = color;
+            context.fillRect(0, 0, 1, 1);
+            return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
+        };
+        const card = document.querySelector('[data-learning-card]');
+        const segment = document.querySelector('.learning-segment');
+        const bar = document.getElementById('learning-segments');
+        return { color: rgb(getComputedStyle(segment, '::before').backgroundColor),
+            accent: rgb(getComputedStyle(bar).getPropertyValue('--subject-accent')),
+            text: rgb(getComputedStyle(card.querySelector('.hint-prompt')).color),
+            background: rgb(getComputedStyle(card).backgroundColor),
+            opacity: getComputedStyle(card).opacity,
+            intensity: parseFloat(bar.style.getPropertyValue('--completion-intensity')) };
+    })()`);
+    const distance = (a, b) => a.reduce((sum, value, index) => sum + (value - b[index]) ** 2, 0);
+    const luminance = rgb => rgb.map(value => {
+        value /= 255;
+        return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4;
+    }).reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
+    for (const [subject, lesson] of [['history', history], ['maths', defaultMaths]]) {
+        const file = path.join(directory, `${subject}-navigation.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate('typeof window.switchTutorTab === "function"')) break;
+            await delay(20);
+        }
+        await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+        await client.send('Emulation.setDeviceMetricsOverride', { width: 1024, height: 620, deviceScaleFactor: 1, mobile: false });
+        await evaluate('window.switchTutorTab("learning")');
+        await frame();
+        const total = await evaluate('document.querySelectorAll("[data-learning-card]").length');
+        assert.equal(await evaluate(`(() => {
+            const bar = document.getElementById('learning-segments');
+            const counter = document.getElementById('learning-counter');
+            return bar.getAttribute('role') === 'navigation' && counter.getAttribute('role') === 'progressbar' &&
+                Number(counter.getAttribute('aria-valuemax')) === ${total} &&
+                [...bar.children].every(button => button.tagName === 'BUTTON' &&
+                    button.getAttribute('aria-label').length > 0 && button.getAttribute('aria-controls') &&
+                    !button.closest('[role="progressbar"]') && button.getBoundingClientRect().width >= 44 &&
+                    button.getBoundingClientRect().height >= 44);
+        })()`), true, `${subject}: segments are accessible navigation with separate progress semantics`);
+        await evaluate('document.querySelector(".learning-segment:last-child").focus()');
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r' });
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+        await frame();
+        assert.deepEqual(await evaluate(`(() => {
+            const segment = document.querySelector('.learning-segment:last-child');
+            const card = document.getElementById(segment.getAttribute('aria-controls'));
+            return { focused: document.activeElement === card, current: segment.getAttribute('aria-current'),
+                unobscured: card.getBoundingClientRect().top >= document.getElementById('page-header').getBoundingClientRect().bottom,
+                completed: document.querySelectorAll('.explored-control input:checked').length };
+        })()`), { focused: true, current: 'step', unobscured: true, completed: 0 },
+        `${subject}: keyboard segment navigation focuses an unobscured card without completing it`);
+        if (subject === 'history') {
+            assert.equal(await evaluate(`(() => {
+                const rail = document.querySelector('.learning-timeline');
+                const row = document.querySelector('.timeline-year[data-year="1648"]').getBoundingClientRect();
+                const bounds = rail.getBoundingClientRect();
+                return rail.scrollTop > 0 && row.top >= bounds.top && row.bottom <= bounds.top + rail.clientHeight + 1 &&
+                    document.querySelector('.timeline-year[data-year="1552"]').getBoundingClientRect().height <= 28;
+            })()`), true, 'tight timeline spacing keeps the last selected year visible');
+            const scroll = await evaluate('window.scrollY');
+            await evaluate('document.querySelector(".learning-timeline").scrollTop = 0; window.dispatchEvent(new Event("resize"))');
+            await frame();
+            assert.equal(await evaluate('window.scrollY'), scroll, 'revealing a timeline year never scrolls the lesson page');
+            assert.equal(await evaluate('document.querySelector(".learning-timeline").scrollTop > 0'), true);
+            await evaluate('document.getElementById("timeline-details").open = false');
+            await frame();
+            assert.equal(await evaluate(`(() => {
+                const rail = document.querySelector('.learning-timeline');
+                const row = document.querySelector('.timeline-year[data-year="1648"]').getBoundingClientRect();
+                return row.top >= rail.getBoundingClientRect().top &&
+                    row.bottom <= rail.getBoundingClientRect().top + rail.clientHeight + 1 && row.height <= 48;
+            })()`), true, 'compact timeline also reveals the active year with tight spacing');
+            const down = await evaluate('document.querySelector(".learning-timeline").scrollTop');
+            await evaluate('document.querySelector(".learning-segment").click()');
+            await frame();
+            assert.equal(await evaluate(`(() => {
+                const rail = document.querySelector('.learning-timeline');
+                const row = document.querySelector('.timeline-year[data-year="1575"]').getBoundingClientRect();
+                return rail.scrollTop < ${down} && row.top >= rail.getBoundingClientRect().top &&
+                    row.bottom <= rail.getBoundingClientRect().top + rail.clientHeight + 1;
+            })()`), true, 'timeline scrolls upward when returning to an earlier card');
+            await evaluate('document.getElementById("timeline-details").open = true');
+            await frame();
+            await evaluate('document.querySelector(".learning-segment:last-child").click()');
+            await frame();
+            await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
+            await frame();
+            await evaluate('document.querySelector(".timeline-year[data-year=\\"1617\\"] .timeline-node").click()');
+            for (let attempt = 0; attempt < 80; attempt++) {
+                await frame();
+                if (await evaluate('Math.abs(document.getElementById("learning-chunk-0").getBoundingClientRect().top - document.getElementById("page-header").getBoundingClientRect().height - 16) < 2')) break;
+            }
+            await evaluate('window.dispatchEvent(new Event("resize"))');
+            await frame();
+            const selectedYear = await evaluate(`(() => {
+                const rail = document.querySelector('.learning-timeline');
+                const row = document.querySelector('.timeline-year[data-year="1617"]').getBoundingClientRect();
+                const card = document.getElementById('learning-chunk-0').getBoundingClientRect();
+                return { aligned: Math.abs(card.top - document.getElementById('page-header').getBoundingClientRect().height - 16) < 2,
+                    top: row.top, bottom: row.bottom, viewTop: rail.getBoundingClientRect().top,
+                    viewBottom: rail.getBoundingClientRect().top + rail.clientHeight };
+            })()`);
+            assert.ok(selectedYear.aligned && selectedYear.top >= selectedYear.viewTop &&
+                selectedYear.bottom <= selectedYear.viewBottom + 1,
+            `a specifically selected year survives smooth navigation and visibility updates: ${JSON.stringify(selectedYear)}`);
+            await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+            await frame();
+        }
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme = '${theme}';
+                document.querySelectorAll('.explored-control input:checked').forEach(input => input.click());
+                document.querySelector('.learning-segment').click();`);
+            await frame();
+            const unread = await presentation();
+            await evaluate('document.querySelector(".explored-control").click()');
+            const low = await presentation();
+            assert.notDeepEqual(low.text, unread.text, `${subject}/${theme}: explored text becomes subdued`);
+            assert.equal(low.opacity, '1', 'card controls and marker colors are not faded');
+            const a = luminance(low.text), b = luminance(low.background);
+            assert.ok((Math.max(a, b) + .05) / (Math.min(a, b) + .05) >= 4.5,
+                `${subject}/${theme}: subdued text retains readable contrast`);
+            assert.ok(Math.abs(low.intensity - (30 + 70 / total)) < .001);
+            await evaluate(`Array.from(document.querySelectorAll('.explored-control')).slice(1, ${Math.ceil(total / 2)}).forEach(label => label.click())`);
+            const middle = await presentation();
+            await evaluate('document.querySelectorAll(".explored-control input:not(:checked)").forEach(input => input.click())');
+            const full = await presentation();
+            assert.ok(distance(low.color, full.accent) > distance(middle.color, full.accent),
+                `${subject}/${theme}: completed boxes strengthen as overall completion grows`);
+            assert.deepEqual(full.color, full.accent, `${subject}/${theme}: full completion uses the full subject color`);
+            assert.equal(full.intensity, 100);
+            assert.equal(await evaluate('Number(document.getElementById("learning-counter").getAttribute("aria-valuenow"))'), total);
+            await evaluate('document.querySelector(".explored-control").click()');
+            const restored = await presentation();
+            assert.deepEqual(restored.text, unread.text, 'unchecking restores the original text presentation');
+            assert.deepEqual(restored.color, unread.color, 'unchecked boxes return to neutral');
+        }
+        await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
+        await frame();
+        await evaluate('document.querySelector(".learning-segment:last-child").click()');
+        await frame();
+        assert.equal(await evaluate(`(() => {
+            const bar = document.getElementById('learning-segments');
+            const button = bar.lastElementChild.getBoundingClientRect();
+            const bounds = bar.getBoundingClientRect();
+            return bar.scrollLeft > 0 && button.left >= bounds.left - 1 &&
+                button.right <= bounds.left + bar.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth;
+        })()`), true, `${subject}: the active segment stays visible in the narrow scrollable strip`);
+        if (subject === 'history') {
+            assert.equal(await evaluate('document.getElementById("timeline-details").open'), false, 'mobile navigation does not open the timeline');
+            await evaluate('document.getElementById("timeline-details").open = true');
+            await frame();
+            assert.equal(await evaluate(`(() => {
+                const track = document.getElementById('timeline-track');
+                const row = document.querySelector('.timeline-year[data-year="1648"]').getBoundingClientRect();
+                const top = track.getBoundingClientRect().top;
+                return track.scrollTop > 0 && row.top >= top && row.bottom <= top + track.clientHeight + 1;
+            })()`), true, 'expanded mobile timeline scrolls its own track to the active year');
+        }
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('legacy offline pages download complete lessons without upgrading their contracts', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000

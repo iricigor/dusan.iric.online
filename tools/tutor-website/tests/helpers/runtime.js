@@ -42,7 +42,7 @@ class Element {
     getAttribute(name) { return this.attributes[name]; }
     removeAttribute() {}
     focus() {}
-    getBoundingClientRect() { return { top: 350, bottom: 400 }; }
+    getBoundingClientRect() { return { top: 350, bottom: 400, height: 50, left: 0, right: 200, width: 200 }; }
     scrollIntoView() {}
     normalize() {}
     checkVisibility() { return false; }

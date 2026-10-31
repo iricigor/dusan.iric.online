@@ -144,6 +144,14 @@ border; the maths practice
 introduction is not counted. Scrolling, hints and timeline navigation never
 mark a card explored automatically. Completion stays in memory while switching
 tabs; reloading the page resets it. It does not affect quiz results.
+Explored cards use subdued text without dimming their controls or markers;
+unchecking restores the normal text color. Header segments are keyboard-accessible
+buttons that navigate to their cards below the sticky header. The active card
+has an outlined segment, independent of completion. On narrow screens the segment strip
+scrolls horizontally to retain 44px targets and keep the active segment visible.
+Completed segments grow more strongly colored as overall lesson completion
+increases, reaching the full subject color at 100%; unchecked segments stay neutral.
+The live counter retains the progressbar's accessible value and total.
 
 History lessons may optionally supply `timeline`:
 
@@ -168,9 +176,13 @@ guesses years or lifespans from prose. Multiple events can share a year or
 target a card, and date-free cards remain fully trackable.
 Timeline nodes are chronological; cards retain their educational order.
 The right-side track displays each year once above event labels and birth/death
-brackets. Accessible event names and tooltips still include the year. Nodes scroll
+brackets with compact text and tight spacing; event buttons retain 44px targets.
+Accessible event names and tooltips still include the year. Nodes scroll
 to and highlight their card below the sticky header; scrolling updates the
-active node without changing completion. The glossary control retains its
+active node without changing completion. The rail scrolls itself up or down
+when active years would otherwise be out of view, without moving the lesson page.
+This also works in the compact rail and the expanded mobile timeline; the mobile
+timeline never opens automatically. The glossary control retains its
 own right-edge space. Collapsing the desktop timeline narrows the right-hand
 rail to years only and gives the released width to lesson text. Single-event
 year buttons still navigate; years with multiple events expand the choices.
