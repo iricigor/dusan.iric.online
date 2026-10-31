@@ -101,6 +101,9 @@ theme-aware accents establish hierarchy without a UI library. The active tab
 joins the content panel; all three tabs share a 12rem desktop width and shrink
 equally on smaller screens. Tab/tabpanel semantics, a single tab stop and
 Left/Right/Home/End navigation support keyboard users.
+On screens up to 550px, helper controls have no gaps between them, leaving more
+width for the tabs. Learning-tab labels use minimal horizontal padding while
+helper controls retain their 44px targets.
 Tab switches crossfade the outgoing/incoming main panel with a subtle vertical
 slide over 300ms using native View Transitions where available. Other browsers
 receive an entrance-only fade/slide without delaying activation. Rapid selections

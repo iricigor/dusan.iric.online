@@ -104,6 +104,23 @@ test('compact learning controls fit narrow screens across text fonts', {
                 true, `${font}/${theme}/${tab}: ${JSON.stringify(layout)}`);
                 assert.deepEqual(layout.footers, [], `${font}/${theme}/${tab}: footer controls stay inside each card`);
                 await evaluate('document.getElementById("highlight-tools").open = false');
+                if (tab === 'learning') {
+                    const header = await evaluate(`(() => {
+                        const tabs = [...document.querySelectorAll('[role="tab"]')].map(button => ({
+                            ...button.getBoundingClientRect().toJSON(),
+                            label: button.querySelector('span').getBoundingClientRect().toJSON()
+                        }));
+                        const tools = ['#highlight-tools > summary', '#expand-learning', '#collapse-learning']
+                            .map(selector => document.querySelector(selector).getBoundingClientRect().toJSON());
+                        return { tabs, tools };
+                    })()`);
+                    assert.ok(header.tabs.every(button => button.width >= 44 && button.height >= 44 &&
+                        button.label.left >= button.left && button.label.right <= button.right),
+                    `${font}/${theme}: wider mobile tabs keep their labels inside: ${JSON.stringify(header)}`);
+                    assert.ok(header.tools.every((button, index) => button.width >= 44 && button.height >= 44 &&
+                        (!index || Math.abs(button.left - header.tools[index - 1].right) <= 1)),
+                    'mobile helpers are adjacent without reducing their click areas');
+                }
             }
         }
     }

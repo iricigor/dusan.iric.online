@@ -310,9 +310,13 @@ a { color: var(--primary); }
     .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
     .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .2rem; }
     .explored-control { grid-column: 2; padding-inline: .2rem; }
+    .tab-bar { gap: 0; }
+    .tab-bar nav { gap: 0; }
+    .learning-controls { gap: 0; }
     nav { gap: .2rem; }
     nav button { flex: 1; gap: .25rem; padding: .5rem .3rem; font-size: .85rem; }
-    .tab-bar:has(.learning-controls:not([hidden])) nav button { flex-direction: column; gap: .1rem; font-size: .75rem; }
+    .tab-bar:has(.learning-controls:not([hidden])) nav button { flex-direction: column; justify-content: flex-start; gap: .1rem; min-width: 44px; padding-inline: 0; font-size: .75rem; }
+    .tab-bar:has(.learning-controls:not([hidden])) nav button:first-child { min-width: min-content; }
     .tab-icon { width: 1rem; height: 1rem; }
     .player-row { gap: .5rem; }
 }
