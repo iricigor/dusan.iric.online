@@ -133,6 +133,138 @@ test('compact learning controls fit narrow screens across text fonts', {
     }
 });
 
+test('important source glow and learning-only term flips preserve source, focus and reduced motion', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 120000
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    for (const [subject, source] of [['history', history], ['maths', defaultMaths]]) {
+        const lesson = structuredClone(source);
+        lesson.original[0].style = 'important';
+        lesson.original.push({
+            heading: 'Zdroj beze změn',
+            text: '  První řádek.\t\nDruhý řádek.  \n\n Další odstavec. ',
+            paragraphs: [
+                { style: 'important', text: '  První řádek.\t\nDruhý řádek.  ' },
+                { style: 'plain', text: ' Další odstavec. ' }
+            ]
+        });
+        if (subject === 'history') {
+            const section = lesson.original[lesson.corrections[0].section];
+            section.paragraphs = [{ style: 'important', text: section.text }];
+        }
+        const file = path.join(directory, `${subject}-presentation.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(lesson.topic)} &&
+                document.querySelectorAll('#original-content > article').length === ${lesson.original.length}`)) break;
+            await delay(20);
+        }
+        assert.deepEqual(await evaluate(`(() => {
+            const cards = [...document.querySelectorAll('#original-content > article')];
+            const important = document.querySelector('.original-text .callout-important');
+            return {
+                texts: cards.map(card => card.querySelector('.original-text').textContent),
+                sectionLabel: cards[0].querySelector('.callout-label').textContent,
+                paragraphLabel: getComputedStyle(important, '::before').content,
+                role: important.getAttribute('role'), name: important.getAttribute('aria-label'),
+                sourceContainsLabel: important.textContent.includes('Důležité'),
+                plainAnimation: getComputedStyle(cards.at(-1).querySelector('p:last-child')).animationName
+            };
+        })()`), {
+            texts: lesson.original.map(section => section.text),
+            sectionLabel: '⭐Důležité: ', paragraphLabel: '"⭐ Důležité"',
+            role: 'note', name: 'Důležité', sourceContainsLabel: false, plainAnimation: 'none'
+        });
+        for (const width of [320, 1280]) {
+            await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+            for (const theme of ['light', 'dark']) {
+                await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
+                assert.equal(await evaluate(`(async () => {
+                    await window.switchTutorTab('learning');
+                    await window.switchTutorTab('original');
+                    const cards = [...document.querySelectorAll('#original .callout-important')];
+                    return cards.every(card => {
+                        const animation = card.getAnimations().find(item => item.animationName === 'important-glow');
+                        return animation?.effect.getTiming().duration === 800 &&
+                            animation.effect.getTiming().iterations === 1 &&
+                            getComputedStyle(card).transform === 'none';
+                    }) && document.documentElement.scrollWidth <= innerWidth;
+                })()`), true, `${subject}/${width}/${theme}: one stationary glow replays on original-tab entry`);
+                await capture(`${subject}-important-${width}-${theme}`);
+                assert.equal(await evaluate(`(async () => {
+                    await window.switchTutorTab('learning');
+                    const trigger = document.querySelector('#learning-content .term');
+                    trigger.scrollIntoView({ block: 'center' });
+                    trigger.click();
+                    const panel = document.getElementById('definition');
+                    const flip = panel.getAnimations().find(item => item.animationName === 'definition-flip');
+                    const animated = flip?.effect.getTiming().duration === 300 &&
+                        flip.effect.getTiming().iterations === 1 &&
+                        flip.effect.getKeyframes()[0].transform.includes('rotateY');
+                    document.getAnimations().forEach(animation => animation.finish());
+                    const bounds = panel.getBoundingClientRect();
+                    return animated && getComputedStyle(panel).transform === 'none' &&
+                        bounds.left >= 0 && bounds.right <= innerWidth && bounds.top >= 0 && bounds.bottom <= innerHeight &&
+                        trigger.checkVisibility() && trigger.getAttribute('aria-expanded') === 'true' &&
+                        document.activeElement === document.getElementById('definition-close');
+                })()`), true, `${subject}/${width}/${theme}: flip settles upright in the viewport`);
+                assert.equal(await evaluate(`(() => {
+                    const trigger = [...document.querySelectorAll('#learning-content .term')][1];
+                    trigger.click();
+                    const panel = document.getElementById('definition');
+                    return panel.getAnimations().some(item => item.animationName === 'definition-flip' &&
+                        item.currentTime < 100) && !!document.getElementById('definition-text').textContent;
+                })()`), true, 'changing learning terms replays the flip');
+                await capture(`${subject}-term-flip-${width}-${theme}`);
+                await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+                await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+                await delay(30);
+                assert.equal(await evaluate(`!document.getElementById('definition').matches(':popover-open') &&
+                    document.activeElement === [...document.querySelectorAll('#learning-content .term')][1] &&
+                    document.activeElement.getAttribute('aria-expanded') === 'false'`), true, 'Escape restores the triggering term');
+            }
+        }
+        assert.equal(await evaluate(`(() => {
+            document.getElementById('glossary-toggle').click();
+            document.querySelector('#glossary button').click();
+            const panel = document.getElementById('definition');
+            const unchanged = !panel.classList.contains('definition-flip') &&
+                getComputedStyle(panel).animationName === 'reveal';
+            document.getElementById('definition-close').click();
+            return unchanged && document.activeElement === document.querySelector('#glossary button');
+        })()`), true, `${subject}: glossary-drawer popups do not flip`);
+        if (subject === 'history') {
+            assert.equal(await evaluate(`(async () => {
+                await window.switchTutorTab('original');
+                document.querySelector('#original-content .correction').click();
+                const panel = document.getElementById('definition');
+                const unchanged = !panel.classList.contains('definition-flip') &&
+                    getComputedStyle(panel).animationName === 'reveal';
+                document.getElementById('definition-close').click();
+                return unchanged && document.activeElement.classList.contains('correction');
+            })()`), true, 'source correction popups retain their existing entrance and focus');
+        }
+        await client.send('Emulation.setEmulatedMedia', {
+            features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
+        });
+        assert.equal(await evaluate(`(async () => {
+            await window.switchTutorTab('original');
+            const still = [...document.querySelectorAll('#original .callout-important')]
+                .every(card => getComputedStyle(card).animationName === 'none');
+            await window.switchTutorTab('learning');
+            document.querySelector('#learning-content .term').click();
+            const panel = document.getElementById('definition');
+            return still && panel.matches(':popover-open') && getComputedStyle(panel).animationName === 'none' &&
+                getComputedStyle(panel).transform === 'none' && panel.getAnimations().length === 0;
+        })()`), true, `${subject}: reduced motion disables both effects without hiding explanations`);
+        await client.send('Emulation.setEmulatedMedia', { features: [] });
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('prepared history timeline keeps compact years readable and expands lesson text', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
 }, async t => {

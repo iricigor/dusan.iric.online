@@ -125,3 +125,34 @@ test('styled original paragraphs preserve exact source text and correction bound
     lesson.corrections[0].quote = `${parts[0]}\n\n${parts[1]}`;
     assert.throws(() => validateLesson('history', lesson), /must stay within one styled original paragraph/);
 });
+
+test('important is optional original-only presentation and preserves source validation', () => {
+    for (const [subject, source, learningKey] of [['history', history, 'chunks'], ['maths', mathsLesson(), 'examples']]) {
+        const lesson = structuredClone(source);
+        const section = lesson.original[0];
+        section.style = 'important';
+        section.paragraphs = [{ style: 'important', text: section.text }];
+        const before = JSON.stringify(lesson);
+        assert.equal(validateLesson(subject, lesson), lesson);
+        const html = renderLesson(subject, lesson);
+        assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
+        assert.equal(JSON.stringify(lesson), before);
+        section.paragraphs[0].text += ' ';
+        assert.throws(() => validateLesson(subject, lesson), /must exactly preserve/);
+        section.paragraphs[0].text = section.text;
+        lesson[learningKey][0].paragraphs = [{ style: 'important', text: 'Text' }];
+        assert.throws(() => validateLesson(subject, lesson), /paragraphs/);
+        delete lesson[learningKey][0].paragraphs;
+        section.paragraphs[0].animation = 'bounce';
+        assert.throws(() => validateLesson(subject, lesson), /unknown property animation/);
+    }
+    const lesson = structuredClone(history);
+    const section = lesson.original[lesson.corrections[0].section];
+    section.paragraphs = [{ style: 'important', text: section.text }];
+    assert.equal(validateLesson('history', lesson), lesson);
+    const parts = section.text.split('\n');
+    section.text = parts.join('\n\n');
+    section.paragraphs = parts.map(text => ({ style: 'important', text }));
+    lesson.corrections[0].quote = `${parts[0]}\n\n${parts[1]}`;
+    assert.throws(() => validateLesson('history', lesson), /must stay within one styled original paragraph/);
+});

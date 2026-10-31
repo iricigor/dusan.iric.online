@@ -93,7 +93,8 @@ function initializeTutorLearning(lesson, subject) {
         if (!definitionTrigger || !$('definition').matches(':popover-open')) return;
         const anchor = definitionTrigger.getBoundingClientRect();
         const panel = $('definition');
-        const bounds = panel.getBoundingClientRect();
+        // Layout dimensions stay stable while the popup's flip transforms its painted bounds.
+        const bounds = { width: panel.offsetWidth, height: panel.offsetHeight };
         const gap = 12;
         const top = anchor.bottom + gap + bounds.height <= innerHeight
             ? anchor.bottom + gap : anchor.top - gap - bounds.height;
@@ -118,6 +119,13 @@ function initializeTutorLearning(lesson, subject) {
         trigger.setAttribute('aria-expanded', 'true');
         $('definition-title').replaceChildren(iconNode(icon), node('span', title));
         $('definition-text').textContent = text;
+        const panel = $('definition');
+        panel.classList.remove('definition-flip');
+        if (trigger.classList.contains('term') && trigger.closest('#learning-content')) {
+            // Replay the entrance when another term replaces an already-open popup.
+            void panel.offsetWidth;
+            panel.classList.add('definition-flip');
+        }
         $('definition').showPopover();
         positionDefinition();
         $('definition-close').focus({ preventScroll: true });
@@ -210,12 +218,18 @@ function initializeTutorLearning(lesson, subject) {
         return element;
     };
     const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor',
-        comment: 'Komentář', fun: 'Zajímavost', quote: 'Citace' };
+        comment: 'Komentář', fun: 'Zajímavost', quote: 'Citace', important: 'Důležité' };
     const styleParagraph = (element, style = 'plain', labelled = true) => {
         if (style !== 'plain') {
             element.className = `${element.className || ''} callout callout-${style}`.trim();
-            if (labelled) element.prepend(node('strong', `${styles[style]}: `, 'callout-label'));
-            else element.setAttribute('aria-label', styles[style]);
+            if (labelled) {
+                const label = node('strong', `${styles[style]}: `, 'callout-label');
+                if (style === 'important') label.prepend(iconNode('⭐'));
+                element.prepend(label);
+            } else {
+                element.setAttribute('aria-label', styles[style]);
+                if (style === 'important') element.setAttribute('role', 'note');
+            }
         }
         return element;
     };

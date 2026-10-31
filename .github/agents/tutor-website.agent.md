@@ -151,7 +151,14 @@ sparkles, not purple. The subject badge and title share one row while retaining
 their distinct typography; allow the title to wrap within its column on mobile.
 Motivational subtitles use the subject accent, not purple. Original styled
 paragraphs must reconstruct the canonical source text exactly; never insert
-labels or explanations into that text. Keep history review and source information
+labels or explanations into that text. Original sections/paragraphs additionally allow
+`important` (Důležité), with an external star/label and a brief CSS border glow
+when Původní text opens; no new grouping or child-editable styles. Learning
+term popups use a short CSS flip-card entrance, replayed for another term.
+Do not flip source paragraphs, original corrections or glossary-drawer popups.
+Disable both new effects for reduced motion and preserve positioning, focus,
+Escape, existing exact source mappings and correction boundaries.
+Keep history review and source information
 in lesson metadata, not a visible Ověření a doplnění card; retain separate factual
 correction popovers. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
