@@ -117,9 +117,22 @@ The calling agent sends this JSON object (use actual absolute session paths):
   "artifactDirectory": "C:\\session-artifacts",
   "inputPath": "C:\\session-artifacts\\lesson.json",
   "outputPath": "C:\\session-artifacts\\lesson.html",
+  "publicationPath": "maths/zlomky.html",
   "overwriteApproved": false
 }
 ```
+
+`publicationPath` is optional and, when supplied, must be a relative `.html`
+path under the deployed `site` root (for example, `history/defenestrace.html`,
+not `site/history/defenestrace.html`). The default is
+`<subject>/<lesson.id>.html`, so history lessons use `history/` and maths lessons
+use `maths/`. This explicit override supports existing and future publication
+folders without guessing from a local draft filename. The generator resolves the
+path against `https://dusan.iric.online/`, URL-encodes each path segment, and
+returns the resulting `publicationUrl`; the embedded QR code and visible link use
+that same canonical URL, never the draft or preview path. The QR image is
+generated into the standalone HTML and works offline; opening its destination
+still requires connectivity.
 
 For agent discovery the request is `{ "operation": "capabilities", "subject":
 "maths" }`; the CLI spelling above is equivalent. Read the returned contract
@@ -132,8 +145,8 @@ before writing. Diagnostics include JSON locations where applicable. Existing
 HTML is protected; set `overwriteApproved: true` only with explicit permission
 to replace that exact file. Multiple-hard-link outputs are refused.
 
-A successful build returns actual absolute input/output paths plus generation
-and assessment status and limitations. This confirms generation, not educational
+A successful build returns actual absolute input/output paths, the canonical
+`publicationUrl`, generation and assessment status, and limitations. This confirms generation, not educational
 or language approval. Return stderr/exit failures to the caller; do not silently
 repair educational content, report a failed build as success, or change schemas
 for a routine lesson request.
