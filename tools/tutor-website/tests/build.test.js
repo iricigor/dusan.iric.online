@@ -296,15 +296,18 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), lesson);
 });
 
-test('both subjects embed a standalone blue D and black cap on a pale favicon tile', () => {
+test('both subjects embed the selected full-height Rounded satin simple favicon', () => {
+    const selected = fs.readFileSync(path.join(__dirname, '..', 'design-proposals', 'issue-52', 'rounded-simple.svg'), 'utf8');
+    assert.equal(fs.readFileSync(path.join(__dirname, '..', 'favicon.svg'), 'utf8'), selected);
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
         const icon = html.match(/<link rel="icon" type="image\/svg\+xml" sizes="any" href="data:image\/svg\+xml,([^"]+)">/);
         assert.ok(icon);
         const svg = decodeURIComponent(icon[1]);
+        assert.equal(svg, selected);
         assert.match(svg, /viewBox="0 0 32 32"/);
-        for (const color of ['#1e3c72', '#000000', '#f1f5f9']) assert.ok(svg.includes(color));
-        assert.doesNotMatch(svg, /<(?:script|image|text)|href=/);
+        for (const color of ['#1e3c72', '#000', '#f1f5f9']) assert.ok(svg.includes(color));
+        assert.doesNotMatch(svg, /<(?:script|image|text|linearGradient|radialGradient|filter)|href=/);
         assert.equal((html.match(/<link /g) || []).length, 1);
     }
 });

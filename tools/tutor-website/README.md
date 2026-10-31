@@ -381,10 +381,16 @@ touch and keyboard. Escape, outside click, the close button or changing views
 dismiss it; explicit close/Escape returns focus to the trigger.
 The runtime requires a modern browser with the native Popover API.
 
-`favicon.svg` contains a pale rounded tile and a dominant blue vector D, with
-a smaller black cap tilted over its upper-left edge. `page.js` embeds it as a data URL in every
-new standalone page: no font, network request or external asset is required.
-Existing published HTML and the independent Gems workflow remain unchanged.
+`favicon.svg` uses the selected **03 / Rounded satin** simple design from
+`design-proposals\issue-52`: a pale rounded tile, narrow bold blue vector D
+with an open counter, and a short black diagonal cap stroke slightly overlapping
+its upper-left edge with a hanging left tassel. The mark spans 31 of 32 SVG
+units vertically, leaving only 0.5-unit top/bottom anti-clipping clearance
+(a quarter pixel at 16px). It contains no gradients or fine logo details.
+`page.js` embeds it as a data URL in every new standalone page: no font,
+network request or external asset is required. Do not regenerate or retrofit
+already published HTML. The fancy webpage logo is not integrated, and the
+independent Gems workflow remains unchanged.
 
 ### Completion, local ranking and answer duration
 

@@ -1,10 +1,14 @@
 # Lesson favicon proposals
 
 Three asset-only proposals for [issue #52](https://github.com/iricigor/dusan.iric.online/issues/52).
-These are review assets, not a selected replacement. The live `favicon.svg`,
-generator, tutor agents, published lessons and independent Gems workflow are
-unchanged. Fancy versions are proposals for possible later webpage use, not
-integrated logos.
+**03 / Rounded satin (simple)** was selected for integration in
+[issue #57](https://github.com/iricigor/dusan.iric.online/issues/57) and is now
+the shared `tools\tutor-website\favicon.svg` source for newly generated pages.
+Options 01 and 02 remain comparison assets. The generator's embedding logic,
+already published lessons and independent Gems workflow are unchanged.
+Fancy versions remain proposals for possible later webpage use, not
+integrated logos. Related tutor-agent guidance describes the selected simple
+favicon only.
 
 | Preview | 01 / Reference enamel | 02 / Upright letterpress | 03 / Rounded satin |
 | --- | --- | --- | --- |
