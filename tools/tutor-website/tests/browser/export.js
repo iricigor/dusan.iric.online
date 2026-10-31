@@ -27,13 +27,15 @@ async function checkExport({ client, evaluate, capture, downloads, subject, less
             const panel = content.getBoundingClientRect();
             const download = document.getElementById('quiz-export');
             const description = document.getElementById(download.getAttribute('aria-describedby'));
+            const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
             const valid = initiallyClosed && tools.open && cog.getAttribute('aria-label') === 'Nástroje kvízu' &&
                 !!cog.querySelector('svg[aria-hidden="true"]') &&
                 tools.parentElement.className === 'tab-bar' && !tools.closest('[role="tablist"]') &&
                 !document.getElementById('setup').contains(tools) && Number(restingOpacity) <= .7 &&
                 trigger.left >= tabs.right && trigger.width >= 44 && trigger.height >= 44 &&
                 panel.left >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight &&
-                panel.width <= 180 && panel.height <= 80 &&
+                panel.width <= Math.min(14 * rootFontSize, innerWidth - 2 * rootFontSize) &&
+                panel.height <= 80 &&
                 download.getBoundingClientRect().height >= 44 && download.textContent === 'Stáhnout lekci (JSON)' &&
                 download.title.includes('Celá lekce') &&
                 description.classList.contains('visually-hidden') && description.textContent.includes('správných odpovědí') &&
