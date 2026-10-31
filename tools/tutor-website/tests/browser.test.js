@@ -21,6 +21,78 @@ const { checkMathsQuiz } = require('./browser/maths-quiz.js');
 const { checkHistoryQuiz } = require('./browser/history-quiz.js');
 const { checkPersistence } = require('./browser/persistence.js');
 
+test('glossary links only the first occurrence of each entry per teaching paragraph', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const { directory, client, evaluate, exceptions, network } = await openBrowser(t);
+    const text = 'Propellers, propeller and PROPELLER. Steam, steam. propellerhead.';
+    const nextText = 'Steam, steam. propeller, propellers and PROPELLER.';
+    for (const [subject, source] of [['history', history], ['maths', defaultMaths]]) {
+        const lesson = structuredClone(source);
+        lesson.glossary.push(
+            { term: 'propeller', forms: ['propellers'], definition: 'Moves a boat through water.' },
+            { term: 'steam', forms: [], definition: 'Water in its gaseous state.' }
+        );
+        const card = subject === 'history' ? lesson.chunks[0] : lesson.examples[0];
+        const key = subject === 'history' ? 'chunks.0' : 'examples.0';
+        const promptTarget = `${key}.${subject === 'history' ? 'sentences' : 'prompt'}`;
+        const hintTarget = `${key}.${subject === 'history' ? 'explanation' : 'hint'}`;
+        if (subject === 'history') {
+            card.sentences = ['Propellers, propeller and PROPELLER.', 'Steam, steam. propellerhead.'];
+            card.explanation = nextText;
+        } else {
+            card.prompt = text;
+            card.hint = nextText;
+        }
+        card.paragraphs = [{ style: 'plain', text }, { style: 'quote', text: nextText }];
+        lesson.highlights = [
+            { target: promptTarget, quote: 'Propellers', color: 'green' },
+            { target: promptTarget, quote: 'propeller and PROPELLER', color: 'yellow' }
+        ];
+        const file = path.join(directory, `${subject}-glossary-first-occurrence.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`!!document.querySelector('[data-highlight-target="${promptTarget}"]')`)) break;
+            await delay(20);
+        }
+        await evaluate(`window.switchTutorTab('learning')`);
+        for (const [target, expectedText, links] of [
+            [promptTarget, text, ['Propellers', 'Steam']],
+            [hintTarget, nextText, ['Steam', 'propeller']],
+            [`${key}.paragraphs.0.text`, text, ['Propellers', 'Steam']],
+            [`${key}.paragraphs.1.text`, nextText, ['Steam', 'propeller']]
+        ]) {
+            assert.deepEqual(await evaluate(`(() => {
+                const paragraph = document.querySelector('[data-highlight-target="${target}"]');
+                return { text: paragraph.textContent,
+                    links: [...paragraph.querySelectorAll('.term')].map(button => button.textContent) };
+            })()`), { text: expectedText, links }, `${subject}/${target}: aliases share a link and paragraphs reset`);
+        }
+        assert.deepEqual(await evaluate(`(() => {
+            const paragraph = document.querySelector('[data-highlight-target="${promptTarget}"]');
+            const trigger = paragraph.querySelector('.term');
+            trigger.click();
+            const result = {
+                linkedHighlight: trigger.querySelector('mark').textContent,
+                plainHighlight: paragraph.querySelector('mark[data-highlight-color="yellow"]').textContent,
+                open: document.getElementById('definition').matches(':popover-open'),
+                title: document.getElementById('definition-title').textContent,
+                definition: document.getElementById('definition-text').textContent
+            };
+            document.getElementById('definition-close').click();
+            return { ...result, focusRestored: document.activeElement === trigger };
+        })()`), {
+            linkedHighlight: 'Propellers', plainHighlight: 'propeller and PROPELLER',
+            open: true, title: '\u{1F4D6}propeller', definition: 'Moves a boat through water.',
+            focusRestored: true
+        }, `${subject}: highlighting and popover behavior are preserved`);
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('real offline pages share navigation, named quizzes, persistence and storage failures across subjects', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 180000
