@@ -175,16 +175,19 @@ Authors supply dates explicitly from reviewed content; the generator never
 guesses years or lifespans from prose. Multiple events can share a year or
 target a card, and date-free cards remain fully trackable.
 Timeline nodes are chronological; cards retain their educational order.
-The right-side track displays each year once above event labels and birth/death
-brackets with compact text and tight spacing; event buttons retain 44px targets.
-Accessible event names and tooltips still include the year. Nodes scroll
+The right-side track displays each year once above event labels with compact text
+and tight spacing, without side lines, lifespan brackets or event dots;
+event buttons retain 44px targets. Optional lifespan dates remain in the year
+list, accessible event names and tooltips. Accessible names also include the event year. Nodes scroll
 to and highlight their card below the sticky header; scrolling updates the
 active node without changing completion. The rail scrolls itself up or down
 when active years would otherwise be out of view, without moving the lesson page.
 This also works in the compact rail and the expanded mobile timeline; the mobile
 timeline never opens automatically. The glossary control retains its
 own right-edge space. Collapsing the desktop timeline narrows the right-hand
-rail to years only and gives the released width to lesson text. Single-event
+rail to years and gives the released width to lesson text. The “Časová osa” title
+stays visible in both widths and is pinned above the scrolling desktop years;
+automatic scrolling keeps selected years below it. Single-event
 year buttons still navigate; years with multiple events expand the choices.
 Compact year boxes have tighter visible padding while retaining 44px click targets.
 On screens up to 760px, the timeline becomes an initially

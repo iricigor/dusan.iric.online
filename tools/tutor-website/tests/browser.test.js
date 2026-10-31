@@ -135,7 +135,8 @@ test('prepared history timeline keeps compact years readable and expands lesson 
                 details.open = false;
                 const compactRail = rail.getBoundingClientRect().width;
                 const compactText = text.getBoundingClientRect().width;
-                return { fullRail, compactRail, fullText, compactText, text: rail.innerText,
+                return { fullRail, compactRail, fullText, compactText, text: document.getElementById('timeline-track').innerText,
+                    title: rail.querySelector('.timeline-title').checkVisibility(),
                     targets: [...rail.querySelectorAll('.timeline-year-link')].map(button => ({
                         width: button.getBoundingClientRect().width, height: button.getBoundingClientRect().height,
                         boxWidth: parseFloat(getComputedStyle(button, '::before').width),
@@ -144,7 +145,7 @@ test('prepared history timeline keeps compact years readable and expands lesson 
             })()`);
             await capture(`history-timeline-${width}-${theme}-compact`);
             assert.equal(layout.compactRail < layout.fullRail && layout.compactText > layout.fullText &&
-                layout.text.trim().split(/\s+/).every(word => /^\d+$/.test(word)) &&
+                layout.title && layout.text.trim().split(/\s+/).every(word => /^\d+$/.test(word)) &&
                 layout.targets.every(target => target.width >= 44 && target.height >= 44 &&
                     target.boxHeight >= 26 && target.boxHeight <= 32 && target.boxWidth <= target.width - 6) && !layout.overflow,
             true, `${width}/${theme}: ${JSON.stringify(layout)}`);
@@ -329,8 +330,9 @@ test('learning progress, optional timelines and authored/child highlights preser
             'timeline labels omit repeated years but retain them in accessible names');
             assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".timeline-year")).map(row => Number(row.dataset.year))'),
                 [1717, 1740, 1780, 1781]);
-            assert.equal(await evaluate('document.querySelector(".timeline-lifespan").getAttribute("aria-label")'), 'Marie Terezie: 1717–1780');
-            assert.equal(await evaluate('document.querySelector(".timeline-lifespan").style.gridRow'), '1 / 4');
+            assert.equal(await evaluate('document.querySelector(".timeline-lifespan")'), null, 'lifespan brackets are not rendered');
+            assert.equal(await evaluate('document.querySelector(".timeline-node").getAttribute("aria-label")'),
+                '1740: Marie Terezie; život: 1717–1780', 'lifespan information remains accessible');
             assert.equal(await evaluate(`(() => {
                 const rail = document.querySelector('.learning-timeline').getBoundingClientRect();
                 const cards = document.getElementById('learning-content').getBoundingClientRect();
@@ -516,9 +518,14 @@ test('learning navigation, completion tones and timeline scrolling stay coordina
                 const rail = document.querySelector('.learning-timeline');
                 const row = document.querySelector('.timeline-year[data-year="1648"]').getBoundingClientRect();
                 const bounds = rail.getBoundingClientRect();
-                return rail.scrollTop > 0 && row.top >= bounds.top && row.bottom <= bounds.top + rail.clientHeight + 1 &&
-                    document.querySelector('.timeline-year[data-year="1552"]').getBoundingClientRect().height <= 28;
-            })()`), true, 'tight timeline spacing keeps the last selected year visible');
+                const title = rail.querySelector('details').getBoundingClientRect();
+                return rail.scrollTop > 0 && row.top >= title.bottom && row.bottom <= bounds.top + rail.clientHeight + 1 &&
+                    Math.abs(title.top - bounds.top) < 1 && rail.querySelector('.timeline-title').checkVisibility() &&
+                    document.querySelector('.timeline-year[data-year="1552"]').getBoundingClientRect().height <= 28 &&
+                    !rail.querySelector('.timeline-lifespan') &&
+                    [...rail.querySelectorAll('.timeline-year')].every(year => getComputedStyle(year).borderLeftWidth === '0px') &&
+                    [...rail.querySelectorAll('.timeline-node')].every(button => getComputedStyle(button, '::before').content === 'none');
+            })()`), true, 'the clean timeline pins its title above visible selected years');
             const scroll = await evaluate('window.scrollY');
             await evaluate('document.querySelector(".learning-timeline").scrollTop = 0; window.dispatchEvent(new Event("resize"))');
             await frame();
@@ -529,16 +536,18 @@ test('learning navigation, completion tones and timeline scrolling stay coordina
             assert.equal(await evaluate(`(() => {
                 const rail = document.querySelector('.learning-timeline');
                 const row = document.querySelector('.timeline-year[data-year="1648"]').getBoundingClientRect();
-                return row.top >= rail.getBoundingClientRect().top &&
+                const title = rail.querySelector('details').getBoundingClientRect();
+                return row.top >= title.bottom && rail.querySelector('.timeline-title').checkVisibility() &&
+                    Math.abs(title.top - rail.getBoundingClientRect().top) < 1 &&
                     row.bottom <= rail.getBoundingClientRect().top + rail.clientHeight + 1 && row.height <= 48;
-            })()`), true, 'compact timeline also reveals the active year with tight spacing');
+            })()`), true, 'compact timeline retains its pinned title and reveals the active year below it');
             const down = await evaluate('document.querySelector(".learning-timeline").scrollTop');
             await evaluate('document.querySelector(".learning-segment").click()');
             await frame();
             assert.equal(await evaluate(`(() => {
                 const rail = document.querySelector('.learning-timeline');
                 const row = document.querySelector('.timeline-year[data-year="1575"]').getBoundingClientRect();
-                return rail.scrollTop < ${down} && row.top >= rail.getBoundingClientRect().top &&
+                return rail.scrollTop < ${down} && row.top >= rail.querySelector('details').getBoundingClientRect().bottom &&
                     row.bottom <= rail.getBoundingClientRect().top + rail.clientHeight + 1;
             })()`), true, 'timeline scrolls upward when returning to an earlier card');
             await evaluate('document.getElementById("timeline-details").open = true');
@@ -559,7 +568,7 @@ test('learning navigation, completion tones and timeline scrolling stay coordina
                 const row = document.querySelector('.timeline-year[data-year="1617"]').getBoundingClientRect();
                 const card = document.getElementById('learning-chunk-0').getBoundingClientRect();
                 return { aligned: Math.abs(card.top - document.getElementById('page-header').getBoundingClientRect().height - 16) < 2,
-                    top: row.top, bottom: row.bottom, viewTop: rail.getBoundingClientRect().top,
+                    top: row.top, bottom: row.bottom, viewTop: rail.querySelector('details').getBoundingClientRect().bottom,
                     viewBottom: rail.getBoundingClientRect().top + rail.clientHeight };
             })()`);
             assert.ok(selectedYear.aligned && selectedYear.top >= selectedYear.viewTop &&

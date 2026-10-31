@@ -215,15 +215,15 @@
       "heading": "Panovníci před povstáním",
       "icon": "👑",
       "sentences": [
-        "Před stavovským povstáním drželi český trůn panovníci z rodu Habsburků.",
-        "Korunovace je slavnostní uvedení panovníka do královského úřadu."
+        "Před povstáním vládli v českých zemích Habsburkové.",
+        "Seznam se se třemi panovníky z tohoto rodu."
       ],
       "paragraphs": [
-        {"style": "plain", "text": "Rudolf II. Habsburský (1552–1612) byl český král a císař Svaté říše římské. Jeho otcem byl císař Maxmilián II. Habsburský. Českým králem byl korunován roku 1575. Po otcově smrti roku 1576 převzal vládu a český trůn držel do roku 1611."},
-        {"style": "plain", "text": "Matyáš Habsburský (1557–1619) byl Rudolfův mladší bratr. Jejich otcem byl císař Maxmilián II. Habsburský. Českým králem se stal roku 1611. V letech 1612–1619 byl také císařem Svaté říše římské. Sídlil ve Vídni a v Praze ho zastupovali úředníci."},
-        {"style": "plain", "text": "Ferdinand II. Štýrský (1578–1637) byl Habsburk. Jeho otcem byl arcivévoda Karel II. Štýrský. Českým králem byl korunován roku 1617, ještě za Matyášova života. Roku 1619 ho povstalé stavy sesadily. Po Bílé hoře roku 1620 obnovil vládu v českých zemích a vládl do roku 1637. Prosazoval katolickou víru."}
+        {"style": "plain", "text": "Rudolf II. byl český král. Po něm převzal vládu jeho mladší bratr Matyáš."},
+        {"style": "plain", "text": "Matyáš sídlil ve Vídni. V Praze za něj rozhodovali úředníci."},
+        {"style": "plain", "text": "Ferdinand II. se stal českým králem ještě za Matyášova života. Prosazoval katolickou víru, což se nelíbilo části české šlechty."}
       ],
-      "explanation": "Rudolf a Matyáš byli bratři. Ferdinand patřil do stejného panovnického rodu. Část stavů se bála omezení své víry i svého rozhodování."
+      "explanation": "Část šlechty měla jinou víru než král. Chtěla si ji ponechat."
     },
     {
       "heading": "Proč začalo povstání?",

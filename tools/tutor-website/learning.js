@@ -102,31 +102,24 @@ function initializeLearning(lesson, document) {
             track.append(row);
             rows.set(year, row);
         });
-        lesson.timeline.forEach((event, index) => {
+        lesson.timeline.forEach(event => {
             const card = $(`learning-chunk-${event.chunk}`);
             const control = node('button', event.label, 'timeline-node');
             control.type = 'button';
-            control.setAttribute('aria-label', `${event.year}: ${event.label}`);
-            control.setAttribute('title', `${event.year}: ${event.label}`);
+            const label = `${event.year}: ${event.label}${event.lifespan ? `; život: ${event.lifespan.birth}–${event.lifespan.death}` : ''}`;
+            control.setAttribute('aria-label', label);
+            control.setAttribute('title', label);
             control.setAttribute('aria-controls', card.id);
             control.addEventListener('click', () => focusCard(card, control.parentElement));
             rows.get(event.year).append(control);
             timelineNodes.push({ card, control });
-            if (event.lifespan) {
-                const bracket = node('span', undefined, 'timeline-lifespan');
-                bracket.style.gridRow = `${years.indexOf(event.lifespan.birth) + 1} / ${years.indexOf(event.lifespan.death) + 2}`;
-                bracket.style.marginLeft = `${index % 4 * 4}px`;
-                bracket.setAttribute('role', 'img');
-                bracket.setAttribute('aria-label', `${event.label}: ${event.lifespan.birth}–${event.lifespan.death}`);
-                track.append(bracket);
-            }
         });
         rows.forEach((row, year) => {
             const entries = timelineNodes.filter(({ control }) => control.parentElement === row);
             if (!entries.length) return;
             const yearControl = node('button', String(year), 'timeline-date timeline-year-link');
             yearControl.type = 'button';
-            const label = `${year}: ${entries.map(({ control }) => control.textContent).join('; ')}`;
+            const label = entries.map(({ control }) => control.getAttribute('aria-label')).join('; ');
             yearControl.setAttribute('aria-label', label);
             yearControl.setAttribute('title', label);
             yearControl.addEventListener('click', () => {
@@ -178,12 +171,13 @@ function initializeLearning(lesson, document) {
             [...new Set(timelineNodes.filter(entry => entry.card.id === id).map(entry => entry.control.parentElement))];
         if (!rows.length) return;
         const scroller = timeline.mobile.matches ? timeline.track : timeline.aside;
-        const viewTop = scroller.getBoundingClientRect().top + scroller.clientTop;
-        const viewBottom = viewTop + scroller.clientHeight;
+        const scrollerTop = scroller.getBoundingClientRect().top + scroller.clientTop;
+        const viewTop = scrollerTop + (timeline.mobile.matches ? 0 : $('timeline-details').getBoundingClientRect().height);
+        const viewBottom = scrollerTop + scroller.clientHeight;
         const bounds = rows.map(row => row.getBoundingClientRect());
         let top = Math.min(...bounds.map(row => row.top));
         let bottom = Math.max(...bounds.map(row => row.bottom));
-        if (bottom - top > scroller.clientHeight) {
+        if (bottom - top > viewBottom - viewTop) {
             top = bounds[0].top;
             bottom = bounds[0].bottom;
         }

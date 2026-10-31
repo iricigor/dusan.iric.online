@@ -21,14 +21,24 @@ test('history example explains monarchs and records verified accession events wi
         assert.deepEqual(event.lifespan, { birth, death });
         const content = [...history.chunks[chunk].sentences,
             ...(history.chunks[chunk].paragraphs || []).map(paragraph => paragraph.text)].join(' ');
-        assert.ok(content.includes(`${birth}–${death}`), name);
-        assert.ok(content.includes(father), name);
+        assert.ok(content.includes(name), name);
         const glossary = history.glossary.find(entry => [entry.term, ...entry.forms].some(form => form.includes(name)));
         assert.ok(glossary.definition.includes(`${birth}–${death}`), name);
         assert.ok(glossary.definition.includes(father), name);
     }
     assert.ok(history.timeline.every(event => !event.label.startsWith(String(event.year))));
     assert.ok(history.timeline.some(event => event.year === 1620 && event.label.includes('obnovuje vládu')));
+});
+
+test('the opening history card is a short overview with biographies available in the glossary', () => {
+    const chunk = history.chunks[0];
+    const text = [...chunk.sentences, ...chunk.paragraphs.map(paragraph => paragraph.text)].join(' ');
+    assert.equal(chunk.paragraphs.length, 3);
+    assert.ok(text.split(/\s+/).length <= 75, 'keep the visible overview short for ten-year-olds');
+    assert.doesNotMatch(text, /\d{4}|Maxmilián|Karel II\./, 'dates and family-tree detail stay in the glossary and timeline');
+    assert.ok(text.includes('mladší bratr Matyáš'));
+    assert.ok(text.includes('Vídni') && text.includes('úředníci'));
+    assert.ok(text.includes('katolickou víru') && text.includes('české šlechty'));
 });
 
 test('authored highlights are optional for both subjects and all supported versions', () => {

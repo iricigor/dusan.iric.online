@@ -143,14 +143,15 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                             const compactRail = rail.getBoundingClientRect().width;
                             const compactText = text.getBoundingClientRect().width;
                             const fits = compactRail < fullRail && compactText > fullText &&
-                                rail.innerText.trim().split(/\\s+/).every(word => /^\\d+$/.test(word)) &&
+                                rail.querySelector('.timeline-title').checkVisibility() &&
+                                document.getElementById('timeline-track').innerText.trim().split(/\\s+/).every(word => /^\\d+$/.test(word)) &&
                                 [...rail.querySelectorAll('.timeline-year-link')].every(button => {
                                     const bounds = button.getBoundingClientRect();
                                     return bounds.width >= 44 && bounds.height >= 44;
                                 }) && document.documentElement.scrollWidth <= innerWidth;
                             details.open = true;
                             return fits;
-                        })()`), true, `${subject}/${width}/${theme}: compact timeline shows only years and gives width back to text`);
+                        })()`), true, `${subject}/${width}/${theme}: compact timeline retains its title and gives width back to text`);
                     }
                     assert.equal(await evaluate(`(() => {
                         const controls = document.getElementById('learning-controls');
