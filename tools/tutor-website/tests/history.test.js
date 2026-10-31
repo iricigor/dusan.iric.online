@@ -34,6 +34,28 @@ test('all modes have exact counts, unique questions and hard always includes a y
     assert.deepEqual(lesson.questions.map(q => q.id), originalOrder);
 });
 
+test('default partial-year prompts describe actual tolerance without exposing accepted years', () => {
+    const questions = lesson.questions.filter(question => question.year && question.assessment.partial);
+    assert.equal(questions.length, 2);
+    for (const question of questions) {
+        const exact = Number(question.assessment.exact.value);
+        const range = question.assessment.partial.match;
+        const tolerance = exact - Number(range.min);
+        assert.equal(Number(range.max) - exact, tolerance);
+        assert.equal(range.includeMin, true);
+        assert.equal(range.includeMax, true);
+        assert.match(question.prompt, new RegExp(`odchylkou nejvýše ${tolerance} (let|roky)`));
+        assert.doesNotMatch(question.prompt, /\b\d{4}\b/);
+        assert.equal(scoreAnswer(question, String(exact), 20000).fraction, 1);
+        for (const year of [range.min, range.max]) {
+            assert.equal(scoreAnswer(question, year, 20000).fraction, .5);
+        }
+        for (const year of [Number(range.min) - 1, Number(range.max) + 1]) {
+            assert.equal(scoreAnswer(question, String(year), 20000).fraction, 0);
+        }
+    }
+});
+
 test('text normalization supports Czech spelling tolerance and accepted alternatives', () => {
     assert.equal(normalizeAnswer('  BÍLÝ  KŮŇ '), normalizeAnswer('bili kun'));
     const question = {

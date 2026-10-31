@@ -43,9 +43,13 @@ test('published legacy lesson remains valid independently of the expanded prepar
     assert.equal(publishedLesson.version, 1);
     assert.equal(publishedLesson.questions.length, 10);
     assert.equal(lesson.questions.length, 30);
+    const legacyYearPrompts = {
+        'h-defenestrace': 'Ve kterém roce začalo stavovské povstání pražskou defenestrací? Napiš rok.',
+        'h-bitva': 'Ve kterém roce se odehrála bitva na Bílé hoře? Napiš rok.'
+    };
     publishedLesson.questions.forEach(question => {
         const { assessment, icon, ...current } = lesson.questions.find(item => item.id === question.id);
-        assert.deepEqual(question, current);
+        assert.deepEqual(question, { ...current, prompt: legacyYearPrompts[question.id] ?? current.prompt });
     });
     publishedLesson.original.forEach(section => assert.ok(lesson.original.some(current => current.text.includes(section.text))));
     assert.match(publishedLesson.review, /úryvky/);

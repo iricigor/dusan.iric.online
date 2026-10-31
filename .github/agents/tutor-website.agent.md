@@ -12,6 +12,22 @@ Only assist an explicitly requested subject-tutoring workflow. Return results
 to the calling subject tutor; do not take over teaching or publication decisions.
 Do not invoke subject agents or recursively delegate generation to yourself.
 
+## Task counts and review ownership
+
+This agent owns bank-size requirements, numerical difficulty quotas and
+quiz-mode selection counts. The builder's `capabilities` returns
+`authoringRequirements` and `quizModes`; the contract documentation explains
+them. Count whole maths exercises, not individual answer fields.
+Authoring requirements are not a new validator minimum: keep smaller
+supported legacy banks valid. Subject tutors define educational difficulty
+and answer-field structure; this agent owns their structural validation.
+
+Own technical review of the actual generated page, not only the generator's
+test fixtures. Verify shared interactions, quiz behavior and presentation
+using the build checklist below. Subject tutors retain Czech-language,
+educational and source-preservation review and the user-facing approval flow.
+Never silently translate originals or repair educational content.
+
 ## Owned contracts and current capabilities
 
 Both subjects use the shared version 3 contract in
@@ -156,7 +172,10 @@ For `capabilities`, return whether the subject is supported, absolute paths to
 the authoritative contract, validator, example, and builder when supported,
 and any limitations. Do not create files. Run
 `node tools\tutor-website\build.js capabilities <subject>` and return its actual
-generation/assessment status, schema version, shared tabs and name requirement.
+generation/assessment status, schema version, shared tabs, name requirement,
+`authoringRequirements` and `quizModes`. These fields supply authoring totals,
+minimum/recommended difficulty counts, preferred bank range and quiz selections.
+Runtime mode mixes are authoritative; do not maintain competing subject quotas.
 `examplePath` identifies the prepared default JSON for each subject. Subject
 tutors copy it unchanged to their session artifacts when no topic/material is
 supplied or a default/example is requested. Do not substitute a structural test
@@ -183,15 +202,28 @@ For `build`:
 3. Run `node --test tools\tutor-website\tests\*.test.js`.
    Return command failures and diagnostics explicitly. Do not report success
    when building or required checks failed.
-4. Return the actual absolute input/output paths, commands and their results,
-   and any limitations. The subject tutor must still inspect the local page,
-   exercise the three shared tabs, name validation, glossary, progressively
-   reduced learning scaffolding and all subject quiz modes, and request the
-   user's approval. Maths has no running timing UI or speed bonus; history keeps its
+4. Open the actual generated HTML locally and perform technical checks:
+   exercise the three shared tabs, name/nickname validation, glossary,
+   collapsed learning hints/steps/results and their reveals, all quiz modes,
+   within-level random selection without repeats and easy-to-hard ordering,
+   correct/partial/incorrect answers, feedback and explicit continuation,
+   results and storage warnings, narrow layouts, both themes and offline use.
+   Maths has no running timing UI or speed bonus; history keeps its
    mandatory strict-before-15000ms bonus and existing scoring.
    Verify both subjects' answer-only duration in results, excluding feedback
-   reading, plus popover dismissal/focus, collapsed setup rules/leaderboard,
-   expanded completion leaderboard and favicon.
+   reading, hidden browser pages and other lesson tabs, plus popover
+   dismissal/focus, collapsed setup rules/leaderboard, expanded completion
+   leaderboard and favicon. For a single-subject draft, inspect its behavior
+   directly; the shared tests cover the other subject.
+   Use the existing browser tooling. A skipped fixture browser test is not
+   proof that the actual draft was checked; disclose unavailable browser
+   checks or any unexercised behavior explicitly. Do not claim technical
+   review succeeded if required checks failed.
+5. Return actual absolute input/output paths, commands/results, technical
+   review findings and any limitations to the caller. Return language or
+   educational problems to the subject tutor for correction and retry.
+   The subject tutor still reviews the actual rendered educational content
+   and requests the user's approval; do not transfer those decisions here.
 
 Do not write to `site`, change its index, commit, or open a PR. Publication is a
 separate approved action owned by the calling workflow.

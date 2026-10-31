@@ -4,9 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { renderPage } = require('./page.js');
 const { validateLesson } = require('./validate.js');
+const { MODES } = require('./runtime.js');
 
 function capabilities(subject) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    const levels = ['easy', 'medium', 'hard'];
     return {
         subject, version: 3, language: 'cs-CZ', standalone: true,
         tabs: ['original', 'learning', 'quiz'], playerNameRequired: true,
@@ -17,6 +19,17 @@ function capabilities(subject) {
         examplePath: path.join(__dirname, 'examples', subject === 'history' ? 'defenestrace.json' : 'zlomky-a-prevody-delky.json'),
         generation: 'lesson-and-quiz',
         assessment: 'available',
+        authoringRequirements: {
+            taskUnit: subject === 'history' ? 'question' : 'whole-exercise',
+            minimumTasks: 30,
+            minimumByDifficulty: Object.fromEntries(levels.map((level, index) =>
+                [level, Math.max(...Object.values(MODES).map(mix => mix[index]))])),
+            recommendedByDifficulty: { easy: 6, medium: 15, hard: 9 },
+            preferredTaskRange: { min: subject === 'history' ? 50 : 30, max: 100 },
+            minimumTasksEnforcedByValidator: false
+        },
+        quizModes: Object.fromEntries(Object.entries(MODES).map(([mode, mix]) =>
+            [mode, Object.fromEntries(levels.map((level, index) => [level, mix[index]]))])),
         timing: subject === 'history' ? 'mandatory-speed-bonus-before-15000ms' : 'none',
         answerDuration: 'active-answering-only-excludes-feedback-and-hidden-quiz',
         limitations: [

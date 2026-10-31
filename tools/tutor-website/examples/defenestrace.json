@@ -439,7 +439,7 @@
       },
       "difficulty": "hard",
       "type": "text",
-      "prompt": "Ve kterém roce začalo stavovské povstání pražskou defenestrací? Napiš rok.",
+      "prompt": "Ve kterém roce začalo stavovské povstání pražskou defenestrací? Napiš přesný rok. Odhad s odchylkou nejvýše 9 let získá polovinu bodů.",
       "acceptedAnswers": ["1618"],
       "year": true,
       "explanation": "Tato pražská defenestrace se odehrála roku 1618."
@@ -453,7 +453,7 @@
       },
       "difficulty": "hard",
       "type": "text",
-      "prompt": "Ve kterém roce se odehrála bitva na Bílé hoře? Napiš rok.",
+      "prompt": "Ve kterém roce se odehrála bitva na Bílé hoře? Napiš přesný rok. Odhad s odchylkou nejvýše 5 let získá polovinu bodů.",
       "acceptedAnswers": ["1620"],
       "year": true,
       "explanation": "Bitva se odehrála 8. listopadu 1620."
