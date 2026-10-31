@@ -21,6 +21,8 @@ function renderPage(lesson, subject, publicationUrl) {
         DATA: JSON.stringify(lesson).replace(/[<>&\u2028\u2029]/g,
             char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`),
         APP: fs.readFileSync(path.join(__dirname, 'assessment.js'), 'utf8') + '\n' +
+            fs.readFileSync(path.join(__dirname, 'highlights.js'), 'utf8') + '\n' +
+            fs.readFileSync(path.join(__dirname, 'learning.js'), 'utf8') + '\n' +
             fs.readFileSync(path.join(__dirname, 'runtime.js'), 'utf8') + '\n' +
             fs.readFileSync(path.join(__dirname, `${subject}.js`), 'utf8')
     };

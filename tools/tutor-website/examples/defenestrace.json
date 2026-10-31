@@ -6,6 +6,18 @@
   "id": "defenestrace-a-bila-hora",
   "topic": "Od defenestrace k Bílé hoře",
   "audience": "Pro desetileté děti, které se učí česky",
+  "highlights": [
+    {"target": "original.2.text", "quote": "8. listopadu 1620", "color": "yellow"},
+    {"target": "original.3.text", "quote": "Odtud pochází výraz defenestrace – vyhození z okna.", "color": "blue"},
+    {"target": "chunks.1.sentences", "quote": "1618", "color": "green"},
+    {"target": "chunks.3.explanation", "quote": "latinu a němčinu", "color": "blue"}
+  ],
+  "timeline": [
+    {"chunk": 1, "year": 1618, "label": "Pražská defenestrace"},
+    {"chunk": 2, "year": 1620, "label": "Bitva na Bílé hoře"},
+    {"chunk": 4, "year": 1621, "label": "Staroměstská exekuce"},
+    {"chunk": 6, "year": 1648, "label": "Vestfálský mír"}
+  ],
   "review": "Původní text obsahuje všech sedm dodaných oddílů beze změny slov, včetně zajímavostí a závěrečné citace. Rozšířená výuka připravuje všech 30 různých otázek: od vlády Habsburků přes povstání a Bílou horu po pobělohorské změny a třicetiletou válku. Při rozšíření jsme porovnali přehledy Matyášovy vlády, bitvy na Bílé hoře, staroměstské exekuce, Obnoveného zřízení zemského a třicetileté války. Vysvětlujeme dědičnost trůnu, náboženská omezení a následky války. Opravujeme zjednodušení, že válka neměla vítězů: mír přinesl některým státům výhody. Oprava latinského původu slova defenestrace a doplnění roku 1618 vycházejí z dříve uvedených zdrojů. Přesné počty vojáků, brněnská pověst a původ závěrečné citace nebyly nově ověřeny a nejsou předmětem kvízu. Zdroje jsou encyklopedické přehledy; před použitím ve škole doporučujeme kontrolu učitelem.",
   "sources": [
     {

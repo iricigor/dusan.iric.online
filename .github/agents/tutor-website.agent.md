@@ -55,6 +55,19 @@ glossary, semantic paragraph styles and difficulty definitions. Conditional
 subject sections retain history review/corrections/questions and maths
 worked examples/typed exercises. Legacy history v1 and maths v2 still validate;
 new content and prepared defaults use v3. Never create a competing schema.
+Optional `highlights` uses supported text targets, exact uniquely occurring
+quotes and yellow/blue/green markers on original and learning text. Keep
+source text exact and reject overlapping authored quotes or arbitrary HTML/CSS.
+The shared `highlights.js` controller also supports child-selected markers and
+removal, preserving definition buttons and saving edits separately in
+tab-scoped sessionStorage, including reloads. Warn explicitly on storage failures.
+The shared `learning.js` controller owns explicit per-card completion and the
+learning-only segmented header progress strip. Completion is independent of
+quiz scores and resets on reload. History may optionally supply `timeline`
+events linked by zero-based chunk index, with reviewed event years and optional
+birth/death brackets. No timeline metadata means no rail or reserved space;
+keep old lesson JSON valid. Preserve card order while sorting timeline nodes.
+Use the generator README's metadata shapes, responsive behavior and limits.
 The generator supports progressively scaffolded learning/practice, exact typed
 answer evaluation, partial scoring, grades and named per-lesson browser-session
 results. Maths quizzes have no running time display or speed bonus; history retains its
@@ -114,9 +127,10 @@ focus restoration and reduced motion. Definitions open on click instead of
 filling the drawer. In Učit se, two icon-only Rozbalit vše / Sbalit vše controls
 at the right of the tab bar affect only learning disclosures. Keep them outside
 tablist semantics, with Czech tooltips, accessible labels and 44px targets.
-Hints use a compact Nápověda 💡 button floated inside the top-right of the
-prompt paragraph, with text wrapping around it and explanation below.
-Keep expanded state accessible. Native numbered step/result/solution reveals
+Hints use a centered bottom pill, 💡 Zobrazit podrobnosti a nápovědu, opening
+an animated tinted inset drawer with a left accent. Single-hint cards place it
+after the main content; multi-step exercises retain separate step hints.
+Keep expanded state accessible and disable motion when requested. Native numbered step/result/solution reveals
 are compact and borderless, retaining touch access. All learning hints, steps,
 results and solutions start collapsed in both subjects; keep the main lesson
 text visible and offer help on demand.

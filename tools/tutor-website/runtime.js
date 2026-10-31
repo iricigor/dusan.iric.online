@@ -60,28 +60,54 @@ function initializeTutor(lesson, subject) {
         element.setAttribute('aria-hidden', 'true');
         return element;
     };
+    const highlighting = tutorHighlights.initialize(lesson, document);
     const hints = [];
-    const hint = (text, explanation, tag = 'p') => {
+    const hint = (text, explanation, tag = 'p', targets = {}) => {
         const block = node('div', undefined, 'hint');
-        const prompt = paragraph(text, tag);
+        const prompt = paragraph(text, tag, { target: targets.prompt, prefix: targets.prefix });
         prompt.className = 'hint-prompt';
-        const content = paragraph(explanation);
+        const content = paragraph(explanation, 'p', { target: targets.explanation });
         content.className = 'hint-content';
         content.id = `hint-content-${hints.length + 1}`;
-        const setOpen = expanded => {
-            content.hidden = !expanded;
+        const drawer = node('div', undefined, 'hint-drawer');
+        drawer.append(content);
+        let animation;
+        const setOpen = (expanded, animate = true) => {
+            const from = drawer.getBoundingClientRect().height;
+            animation?.cancel();
             trigger.setAttribute('aria-expanded', String(expanded));
+            drawer.inert = !expanded;
+            content.hidden = false;
+            drawer.hidden = false;
+            const finish = () => {
+                content.hidden = !expanded;
+                drawer.hidden = !expanded;
+                animation = undefined;
+            };
+            if (!animate || !drawer.checkVisibility() || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                finish();
+                return;
+            }
+            const current = drawer.animate([
+                { height: `${from}px`, opacity: expanded ? .4 : 1 },
+                { height: `${expanded ? drawer.getBoundingClientRect().height : 0}px`, opacity: expanded ? 1 : 0 }
+            ], { duration: 220, easing: 'ease-out' });
+            animation = current;
+            current.finished.then(() => {
+                if (animation === current) finish();
+            }).catch(error => {
+                if (error.name !== 'AbortError') console.error('Animaci nápovědy se nepodařilo dokončit.', error);
+            });
         };
-        const trigger = button('Nápověda ', () => {
-            setOpen(content.hidden);
+        const trigger = button('', () => {
+            setOpen(trigger.getAttribute('aria-expanded') !== 'true');
             syncLearningControls();
         }, 'hint-toggle');
-        trigger.append(iconNode('💡'));
+        trigger.append(iconNode('💡'), document.createTextNode(' '), node('span', 'Zobrazit podrobnosti a nápovědu'));
         trigger.setAttribute('aria-controls', content.id);
-        setOpen(false);
-        prompt.prepend(trigger);
-        block.append(prompt, content);
-        hints.push({ content, setOpen });
+        block.append(prompt, trigger, drawer);
+        setOpen(false, false);
+        hints.push({ content, setOpen, get open() { return trigger.getAttribute('aria-expanded') === 'true'; } });
         return block;
     };
     const heading = (text, icon, fallback) => {
@@ -199,16 +225,24 @@ function initializeTutor(lesson, subject) {
     lesson.glossary.forEach(entry => [entry.term, ...entry.forms].forEach(form => forms.set(form.toLocaleLowerCase('cs'), entry)));
     const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(${[...forms.keys()].sort((a, b) => b.length - a.length).map(escapeRegex).join('|')})(?![\\p{L}\\p{N}])`, 'giu');
-    const paragraph = (text, tag = 'p') => {
+    const paragraph = (text, tag = 'p', highlight = {}) => {
         const element = node(tag);
+        const prefix = highlight.prefix || 0;
+        if (prefix) element.append(document.createTextNode(text.slice(0, prefix)));
+        text = text.slice(prefix);
+        const container = highlight.target ? node('span', undefined, 'highlight-text') : element;
         let offset = 0;
         for (const match of text.matchAll(pattern)) {
-            element.append(document.createTextNode(text.slice(offset, match.index)));
+            container.append(document.createTextNode(text.slice(offset, match.index)));
             const entry = forms.get(match[0].toLocaleLowerCase('cs'));
-            element.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
+            container.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
             offset = match.index + match[0].length;
         }
-        element.append(document.createTextNode(text.slice(offset)));
+        container.append(document.createTextNode(text.slice(offset)));
+        if (highlight.target) {
+            element.append(container);
+            highlighting.register(container, highlight.target);
+        }
         return element;
     };
     const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor',
@@ -221,8 +255,9 @@ function initializeTutor(lesson, subject) {
         }
         return element;
     };
-    const paragraphs = blocks => (blocks || []).map(block =>
-        styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p'), block.style));
+    const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
+        styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
+            { target: target ? `${target}.${index}.text` : undefined }), block.style));
     const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
@@ -232,19 +267,24 @@ function initializeTutor(lesson, subject) {
         const text = node('div', undefined, 'original-text');
         const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
             .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
+        let paragraphOffset = 0;
         (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
             if (blockIndex) text.append(document.createTextNode('\n\n'));
             const content = node(block.style === 'quote' ? 'blockquote' : 'p');
+            const source = node('span', undefined, 'highlight-text');
             let offset = 0;
             for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
                 const start = block.text.indexOf(correction.quote);
-                content.append(document.createTextNode(block.text.slice(offset, start)));
+                source.append(document.createTextNode(block.text.slice(offset, start)));
                 const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
                 mark.title = correction.explanation;
-                content.append(mark);
+                source.append(mark);
                 offset = start + correction.quote.length;
             }
-            content.append(document.createTextNode(block.text.slice(offset)));
+            source.append(document.createTextNode(block.text.slice(offset)));
+            content.append(source);
+            highlighting.register(source, `original.${index}.text`, paragraphOffset);
+            paragraphOffset += block.text.length + 2;
             text.append(styleParagraph(content, block.style, false));
         });
         styleParagraph(article, section.style);
@@ -252,10 +292,11 @@ function initializeTutor(lesson, subject) {
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);
+    const learning = initializeLearning(lesson, document);
     const learningDetails = [...$('learning-content').querySelectorAll('details')];
     const syncLearningControls = () => {
-        $('expand-learning').disabled = learningDetails.every(details => details.open) && hints.every(hint => !hint.content.hidden);
-        $('collapse-learning').disabled = learningDetails.every(details => !details.open) && hints.every(hint => hint.content.hidden);
+        $('expand-learning').disabled = learningDetails.every(details => details.open) && hints.every(hint => hint.open);
+        $('collapse-learning').disabled = learningDetails.every(details => !details.open) && hints.every(hint => !hint.open);
     };
     const setLearningOpen = open => {
         learningDetails.forEach(details => { details.open = open; });
@@ -281,6 +322,7 @@ function initializeTutor(lesson, subject) {
         if (event.matches) {
             tabTransition?.skipTransition();
             tabEntrance?.cancel();
+            hints.forEach(hint => hint.setOpen(hint.open, false));
         }
     });
     const activateTab = tab => {
@@ -304,6 +346,8 @@ function initializeTutor(lesson, subject) {
             $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
             $('learning-controls').hidden = tab.dataset.tab !== 'learning';
             $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
+            highlighting.setTab(tab.dataset.tab);
+            learning.setTab(tab.dataset.tab);
             if ($('quiz-tools').hidden) $('quiz-tools').open = false;
             pauseAnswerClock();
             tabs.forEach(other => {

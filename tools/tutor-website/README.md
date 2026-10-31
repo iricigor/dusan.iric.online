@@ -326,13 +326,111 @@ In Učit se, two icon-only `Rozbalit vše` / `Sbalit vše` controls sit at the r
 of the tab bar, outside tablist semantics, with Czech tooltips, accessible labels
 and 44px targets. They affect only learning
 hints, steps, answers and explanations, never the glossary or quiz disclosures.
-Individual disclosures remain independently operable. Hints share a small
-`Nápověda 💡` button floated inside the top-right of its prompt paragraph,
-with text wrapping around it. The button exposes its expanded state and controls
-an explanation below the entire paragraph. Native step/result/solution reveals
+Individual disclosures remain independently operable. Hints use a centered,
+bottom-aligned `💡 Zobrazit podrobnosti a nápovědu` pill and a tinted inset drawer
+with a left accent. Single-hint cards place the pill after their main content;
+multi-step exercises retain a separate hint beside each step's content.
+Opening and closing smoothly animate the drawer height; reduced motion disables
+the animation. The button exposes its expanded state and controls
+the explanation. Native step/result/solution reveals
 retain descriptive labels in compact, borderless numbered lists; touch targets
 remain 44px on coarse pointers. All hints, steps, results and solutions start
 collapsed in both subjects; the main lesson text stays visible.
+
+### Learning progress and optional history timeline
+
+The sticky header shows a segmented learning-only progress bar and a live
+`3/12 Prozkoumáno` counter. Each history chunk, maths worked example and whole
+maths exercise has an explicit, reversible checkmark; the maths practice
+introduction is not counted. Scrolling, hints and timeline navigation never
+mark a card explored automatically. Completion stays in memory while switching
+tabs; reloading the page resets it. It does not affect quiz results.
+
+History lessons may optionally supply `timeline`:
+
+```json
+{
+  "timeline": [
+    {
+      "chunk": 1,
+      "year": 1740,
+      "label": "Marie Terezie",
+      "lifespan": { "birth": 1717, "death": 1780 }
+    }
+  ]
+}
+```
+
+`chunk` is the zero-based learning-chunk index, not original-text section.
+An event's optional lifespan must have ordered birth/death years containing
+its event year. Years are integers from -9999 to 9999, excluding zero.
+Authors supply dates explicitly from reviewed content; the generator never
+guesses years or lifespans from prose. Multiple events can share a year or
+target a card, and date-free cards remain fully trackable.
+Timeline nodes are chronological; cards retain their educational order.
+The right-side track displays year ticks and birth/death brackets. Nodes scroll
+to and highlight their card below the sticky header; scrolling updates the
+active node without changing completion. The glossary control retains its
+own right-edge space. On screens up to 760px, the timeline becomes an initially
+collapsed disclosure above the cards. Without `timeline`, or with an empty
+array, there is no rail or reserved column. Legacy lessons need no migration;
+maths intentionally omits the historical timeline.
+
+### Authored and child-added inline highlighting
+
+Optional `highlights` metadata is shared by history and maths, including legacy
+lesson versions. It decorates existing text without changing words, whitespace,
+order or source paragraphs:
+
+```json
+{
+  "highlights": [
+    { "target": "original.0.text", "quote": "části z celku", "color": "yellow" },
+    { "target": "examples.0.prompt", "quote": "Tři čtvrtiny", "color": "green" }
+  ]
+}
+```
+
+Each exact, nonblank `quote` must occur once in its `target`; authored ranges
+within the same target must not overlap. Colors are `yellow`, `blue` and `green`,
+not fixed semantic categories. All metadata is inert text, not HTML/CSS.
+Unsupported targets, missing/ambiguous quotes and invalid colors fail validation.
+
+| Supported target | Source text |
+|---|---|
+| `original.<index>.text` | Whole original section, including its canonical paragraph separators |
+| `chunks.<index>.sentences` / `.explanation` | History summary sentences joined by one space, or its hint |
+| `chunks.<index>.paragraphs.<index>.text` | Optional history learning paragraph |
+| `examples.<index>.prompt` / `.hint` / `.answer` | Maths worked-example text |
+| `examples.<index>.steps.<index>.calculation` / `.explanation` | Maths worked steps |
+| `examples.<index>.paragraphs.<index>.text` | Optional maths teaching paragraph |
+| `exercises.<index>.prompt` / `.explanation` | Maths practice text |
+| `exercises.<index>.steps.<index>.prompt` / `.hint` / `.solution` | Maths practice steps |
+
+All indices refer to the source JSON, even if practice cards are displayed in
+difficulty order. Headings, generated numbering/answer labels, glossary panels
+and quiz content are not highlighting targets.
+
+Children select text on either text tab, then use the crayon control or `Alt+H`
+to choose a named marker color or remove highlighting. Selections may cross
+paragraphs/cards; only supported, visible source text on the active tab changes.
+The latest child action wins on overlapping ranges, splitting earlier ranges
+as needed. Removal also masks authored highlights without editing lesson JSON.
+Markers wrap text inside existing glossary/correction buttons, preserving their
+listeners and accessible behavior. No new paragraph styling is introduced.
+
+Child edits use `tutor-highlights:v1:<subject>:<lesson-id>` in `sessionStorage`,
+separate from quizzes and authored metadata. They survive reloads in this tab,
+not browser closure or cross-device use. Stored ranges use UTF-16 offsets and
+exact target-text snapshots; they never split surrogate pairs. Invalid/outdated
+records are left untouched and a Czech warning explains that new edits will
+not survive reload. Write failures also show an explicit warning while keeping
+the current page usable. Marker palettes use dark foreground text on light
+backgrounds for readable contrast in both themes, with color-name buttons.
+
+Both reusable example JSONs demonstrate highlighting; history also demonstrates
+the optional timeline. Generated site pages embed their own assets and are not
+retroactively changed or published by updating these sources.
 
 The subject badge and lesson title share one row, retaining distinct badge
 and heading typography. Long titles wrap within their column on narrow screens.

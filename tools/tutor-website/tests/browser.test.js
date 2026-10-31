@@ -297,12 +297,12 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                 label: trigger.textContent,
                 icon: trigger.querySelector('[aria-hidden="true"]').textContent,
                 content: !!content.textContent,
-                below: content.getBoundingClientRect().top >= hint.querySelector('.hint-prompt').getBoundingClientRect().bottom,
+                below: content.getBoundingClientRect().top >= trigger.getBoundingClientRect().bottom,
                 connected: trigger.getAttribute('aria-controls') === content.id,
                 collapseEnabled: !document.getElementById('collapse-learning').disabled,
                 focused: document.activeElement === trigger };
-        })()`), { open: true, label: 'Nápověda 💡', icon: '💡', content: true, below: true, connected: true, collapseEnabled: true, focused: true },
-        `${subject}: compact hint opens with keyboard and updates controls`);
+        })()`), { open: true, label: '💡 Zobrazit podrobnosti a nápovědu', icon: '💡', content: true, below: true, connected: true, collapseEnabled: true, focused: true },
+        `${subject}: bottom hint pill opens with keyboard and updates controls`);
         await evaluate(`document.getElementById('collapse-learning').click()`);
         if (subject === 'history') {
             assert.deepEqual(await evaluate(`(() => {
@@ -421,18 +421,13 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                         assert.equal(await evaluate(`(() => {
                             const hint = document.querySelector('#learning-content .hint');
                             const trigger = hint.querySelector('.hint-toggle');
-                            const prompt = hint.querySelector('.hint-prompt');
+                            const prompt = hint.closest('.card').querySelector('.hint-prompt');
                             const a = prompt.getBoundingClientRect(), b = trigger.getBoundingClientRect();
-                            const firstText = [...prompt.childNodes].find(item => item.nodeType === Node.TEXT_NODE && item.textContent.trim());
-                            const range = document.createRange();
-                            range.setStart(firstText, 0);
-                            range.setEnd(firstText, Math.min(5, firstText.textContent.length));
-                            const text = range.getBoundingClientRect();
-                            return Math.abs(a.right - b.right) <= 1 && Math.abs(a.top - b.top) <= 1 &&
-                                getComputedStyle(trigger).float === 'right' &&
-                                text.right <= b.left && text.top < b.bottom &&
+                            const card = hint.closest('.card').getBoundingClientRect();
+                            return b.top >= a.bottom && b.left >= card.left && b.right <= card.right &&
+                                getComputedStyle(trigger).float === 'none' &&
                                 hint.querySelector('.hint-content').hidden && b.height >= 44;
-                        })()`), true, `${subject}/${width}/${theme}: hint floats within top-right paragraph text`);
+                        })()`), true, `${subject}/${width}/${theme}: hint pill is below the main text and stays inside the card`);
                         assert.equal(await evaluate(`(() => {
                             const controls = document.getElementById('learning-controls');
                             const tabs = document.querySelector('[role="tablist"]').getBoundingClientRect();
@@ -624,7 +619,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
                     const content = document.getElementById('learning-content').getBoundingClientRect();
                     const panel = document.getElementById('learning').getBoundingClientRect();
                     return {
-                        fullWidth: Math.abs(content.width - panel.width) <= 1,
+                        fullWidth: ${subject === 'history' && lesson.timeline?.length ? 'innerWidth <= 760 ? Math.abs(content.width - panel.width) <= 1 : content.width < panel.width' : 'Math.abs(content.width - panel.width) <= 1'},
                         closed: !document.getElementById('glossary-drawer').matches(':popover-open'),
                         labelled: [...document.querySelectorAll('[data-tab]')].every(tab =>
                             tab.getAttribute('aria-controls') === tab.dataset.tab)
@@ -1360,6 +1355,297 @@ test('real offline pages share navigation, named quizzes, persistence and storag
             assert.equal(await evaluate('!document.getElementById("setup").hidden && !!document.getElementById("name-error").textContent'), true);
             await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injection.identifier });
         }
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
+test('learning progress, optional timelines and authored/child highlights preserve source and tab storage', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'tutor-presentation-'));
+    const profile = path.join(directory, 'profile');
+    const child = spawn(browserPath, ['--headless=new', '--disable-gpu', '--no-first-run',
+        '--no-default-browser-check', '--disable-background-networking', '--disable-extensions',
+        '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+    let client;
+    t.after(async () => {
+        if (client) { await client.send('Browser.close'); client.close(); }
+        else if (child.pid) child.kill();
+        for (let attempt = 0; attempt < 50 && child.exitCode === null; attempt++) await delay(100);
+        if (child.exitCode === null) child.kill();
+        fs.rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+    });
+    const portFile = path.join(profile, 'DevToolsActivePort');
+    for (let attempt = 0; attempt < 150 && !fs.existsSync(portFile); attempt++) {
+        if (child.exitCode !== null) throw new Error('Presentation browser exited before becoming ready');
+        await delay(100);
+    }
+    assert.ok(fs.existsSync(portFile), 'Presentation browser is ready');
+    const port = fs.readFileSync(portFile, 'utf8').split(/\r?\n/)[0];
+    const target = await (await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, { method: 'PUT' })).json();
+    const exceptions = [];
+    const network = [];
+    client = await connect(target.webSocketDebuggerUrl, event => {
+        if (event.method === 'Runtime.exceptionThrown') exceptions.push(event.params.exceptionDetails);
+        if (event.method === 'Network.requestWillBeSent' && /^https?:/.test(event.params.request.url)) network.push(event.params.request.url);
+    });
+    await client.send('Page.enable');
+    await client.send('Runtime.enable');
+    await client.send('Network.enable');
+    await client.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
+    const evaluate = async expression => {
+        const response = await client.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+        assert.equal(response.exceptionDetails, undefined, JSON.stringify(response.exceptionDetails));
+        return response.result.value;
+    };
+    const ready = async () => {
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`!!document.querySelector('#learning-content [data-learning-card]')`)) return;
+            await delay(30);
+        }
+        assert.fail('Learning cards did not initialize');
+    };
+    const tab = async name => {
+        await evaluate(`document.querySelector('[data-tab="${name}"]').click(); document.getAnimations().forEach(animation => animation.finish())`);
+        await delay(30);
+    };
+    const select = async (target, start, end, rootIndex = 0) => {
+        await evaluate(`(() => {
+            const root = document.querySelectorAll('[data-highlight-target="${target}"]')[${rootIndex}];
+            root.scrollIntoView({ block: 'center' });
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            let position = 0, first, last;
+            while (walker.nextNode()) {
+                const node = walker.currentNode, stop = position + node.length;
+                if (!first && ${start} >= position && ${start} < stop) first = [node, ${start} - position];
+                if (${end} > position && ${end} <= stop) { last = [node, ${end} - position]; break; }
+                position = stop;
+            }
+            const range = document.createRange();
+            range.setStart(...first); range.setEnd(...last);
+            const selection = document.getSelection();
+            selection.removeAllRanges(); selection.addRange(range);
+            document.dispatchEvent(new Event('pointerup'));
+        })()`);
+        await delay(30);
+        assert.equal(await evaluate('document.querySelector("[data-highlight-action]").disabled'), false);
+    };
+    const apply = async color => {
+        await evaluate(`document.querySelector('[data-highlight-action="${color}"]').click()`);
+        await delay(30);
+    };
+    const marked = target => evaluate(`Array.from(document.querySelectorAll('[data-highlight-target="${target}"] mark')).map(mark => [mark.textContent, mark.dataset.highlightColor])`);
+    for (const [subject, source] of [['history', history], ['maths', defaultMaths]]) {
+        const lesson = structuredClone(source);
+        lesson.id = 'presentation-shared';
+        if (subject === 'history') {
+            lesson.chunks = Array.from({ length: 12 }, (_, index) => structuredClone(source.chunks[index % source.chunks.length]));
+            lesson.timeline = [
+                { chunk: 2, year: 1781, label: 'Josef II.' },
+                { chunk: 0, year: 1740, label: 'Marie Terezie', lifespan: { birth: 1717, death: 1780 } },
+                { chunk: 1, year: 1740, label: 'Další událost' }
+            ];
+        }
+        const learningTarget = subject === 'history' ? 'chunks.0.sentences' : 'examples.0.prompt';
+        const learningText = subject === 'history' ? lesson.chunks[0].sentences.join(' ') : lesson.examples[0].prompt;
+        lesson.highlights = [
+            { target: 'original.0.text', quote: lesson.original[0].text.slice(0, 8), color: 'yellow' },
+            { target: learningTarget, quote: learningText.slice(0, 8), color: 'green' }
+        ];
+        if (subject === 'history') lesson.highlights.push({
+            target: 'original.3.text', quote: lesson.corrections[0].quote, color: 'blue'
+        });
+        const file = path.join(directory, `${subject}.html`);
+        fs.writeFileSync(file, renderLesson(subject, lesson));
+        await client.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        await ready();
+        assert.equal(await evaluate('document.getElementById("highlight-warning").hidden'), true, 'subjects have isolated highlight namespaces');
+        assert.deepEqual(await marked('original.0.text'), [[lesson.original[0].text.slice(0, 8), 'yellow']]);
+        assert.equal(await evaluate('document.getElementById("learning-progress").hidden'), true);
+        assert.equal(await evaluate('document.getElementById("highlight-tools").hidden'), false);
+        await select('original.0.text', 2, 6);
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'h', code: 'KeyH', altKey: true, modifiers: 1 });
+        assert.equal(await evaluate('document.activeElement.dataset.highlightAction'), 'yellow', 'Alt+H focuses marker controls');
+        await apply('blue');
+        assert.deepEqual(await marked('original.0.text'), [
+            [lesson.original[0].text.slice(0, 2), 'yellow'], [lesson.original[0].text.slice(2, 6), 'blue'],
+            [lesson.original[0].text.slice(6, 8), 'yellow']
+        ]);
+        await select('original.0.text', 0, 8);
+        await apply('remove');
+        assert.deepEqual(await marked('original.0.text'), [], 'removal masks authored highlights');
+        const original = await evaluate('Array.from(document.querySelectorAll(".original-text")).map(item => item.textContent)');
+        assert.deepEqual(original, lesson.original.map(section => section.text));
+        assert.equal(await evaluate('document.getElementById("highlight-status").textContent.includes("Uloženo")'), true);
+        if (subject === 'history') {
+            assert.equal(await evaluate(`(() => {
+                const button = document.querySelector('#original-content .correction');
+                const hasMark = !!button.querySelector('mark');
+                button.click();
+                return hasMark && document.getElementById('definition').matches(':popover-open');
+            })()`), true, 'authored highlights preserve correction listeners');
+            await evaluate('document.getElementById("definition-close").click()');
+            await evaluate(`(() => {
+                const roots = document.querySelectorAll('[data-highlight-target="original.6.text"]');
+                const range = document.createRange();
+                range.setStart(roots[0], 0); range.setEnd(roots[1], roots[1].childNodes.length);
+                const selection = document.getSelection();
+                selection.removeAllRanges(); selection.addRange(range);
+            })()`);
+            await delay(30);
+            await apply('green');
+            assert.equal(await evaluate(`Array.from(document.querySelectorAll('[data-highlight-target="original.6.text"]')).every(root =>
+                Array.from(root.querySelectorAll('mark')).map(mark => mark.textContent).join('') === root.textContent)`),
+            true, 'selection spanning styled original paragraphs is highlighted without changing separators');
+        }
+        await tab('learning');
+        const total = subject === 'history' ? 12 : 34;
+        assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `0/${total} Prozkoumáno`);
+        await evaluate('Array.from(document.querySelectorAll(".explored-control")).slice(0, 3).forEach(button => button.click())');
+        assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `3/${total} Prozkoumáno`);
+        assert.equal(await evaluate('document.querySelectorAll(".learning-segment[data-explored=true]").length'), 3);
+        await evaluate('document.querySelector(".explored-control").click(); window.scrollTo(0, document.body.scrollHeight)');
+        assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `2/${total} Prozkoumáno`);
+        assert.equal(await evaluate('document.getElementById("learning-progress").getBoundingClientRect().top >= 0'), true);
+        assert.deepEqual(await marked(learningTarget), [[learningText.slice(0, 8), 'green']]);
+        await select(learningTarget, 0, 12);
+        await apply('yellow');
+        assert.deepEqual(await marked(learningTarget), [[learningText.slice(0, 12), 'yellow']]);
+        assert.equal(await evaluate(`(() => {
+            const button = Array.from(document.querySelectorAll('#learning-content .term')).find(button =>
+                button.checkVisibility() && button.closest('[data-highlight-target]')?.dataset.highlightTarget !== '${learningTarget}');
+            window.markedDefinitionButton = button;
+            const range = document.createRange();
+            range.selectNodeContents(button);
+            const selection = document.getSelection();
+            selection.removeAllRanges(); selection.addRange(range);
+            return !!button;
+        })()`), true);
+        await delay(30);
+        await apply('blue');
+        assert.equal(await evaluate(`(() => {
+            const button = window.markedDefinitionButton;
+            const mark = button.querySelector('mark');
+            button.click();
+            return mark?.dataset.highlightColor === 'blue' &&
+                document.getElementById('definition').matches(':popover-open');
+        })()`), true, 'child markers preserve glossary button identity and listeners');
+        await evaluate('document.getElementById("definition-close").click()');
+        if (process.env.TUTOR_SCREENSHOT_DIRECTORY) {
+            await evaluate(`document.documentElement.dataset.theme = 'light';
+                document.getElementById('highlight-tools').open = false;
+                window.scrollTo(0, 0); document.querySelector('#learning-content .hint-toggle').click();
+                document.getAnimations().forEach(animation => animation.finish());`);
+            const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
+            fs.mkdirSync(process.env.TUTOR_SCREENSHOT_DIRECTORY, { recursive: true });
+            fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${subject}-learning-presentation.png`),
+                Buffer.from(screenshot.data, 'base64'));
+        }
+        await tab('quiz');
+        assert.equal(await evaluate('document.getElementById("highlight-tools").hidden && document.getElementById("learning-progress").hidden'), true);
+        await tab('learning');
+        assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `2/${total} Prozkoumáno`);
+        if (subject === 'history') {
+            assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".timeline-year")).map(row => Number(row.dataset.year))'),
+                [1717, 1740, 1780, 1781]);
+            assert.equal(await evaluate('document.querySelector(".timeline-lifespan").getAttribute("aria-label")'), 'Marie Terezie: 1717–1780');
+            assert.equal(await evaluate('document.querySelector(".timeline-lifespan").style.gridRow'), '1 / 4');
+            assert.equal(await evaluate(`(() => {
+                const rail = document.querySelector('.learning-timeline').getBoundingClientRect();
+                const cards = document.getElementById('learning-content').getBoundingClientRect();
+                const glossary = document.getElementById('glossary-toggle').getBoundingClientRect();
+                return rail.left >= cards.right && rail.right <= glossary.left;
+            })()`), true, 'timeline is to the right and reserves glossary space');
+            await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+            await evaluate(`document.querySelector('.timeline-node[aria-controls="learning-chunk-2"]').click()`);
+            assert.equal(await evaluate(`(() => {
+                const card = document.getElementById('learning-chunk-2');
+                return document.activeElement === card && card.getBoundingClientRect().top >=
+                    document.getElementById('page-header').getBoundingClientRect().bottom &&
+                    document.querySelector('.timeline-node[aria-controls="learning-chunk-2"]').hasAttribute('aria-current');
+            })()`), true, 'reduced-motion timeline navigation focuses an unobscured card');
+            await client.send('Emulation.setEmulatedMedia', { features: [] });
+        } else {
+            assert.equal(await evaluate('document.querySelector(".learning-timeline") === null'), true, 'maths has no timeline or reserved rail');
+        }
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
+            assert.equal(await evaluate(`(() => {
+                const rgb = value => value.match(/\\d+/g).slice(0, 3).map(Number).map(n => {
+                    n /= 255; return n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4;
+                }).reduce((sum, n, i) => sum + n * [.2126, .7152, .0722][i], 0);
+                return ['yellow', 'blue', 'green'].every(color => {
+                    const marker = document.querySelector('mark[data-highlight-color="' + color + '"]') ||
+                        document.querySelector('[data-highlight-action="' + color + '"]');
+                    const style = getComputedStyle(marker);
+                    const a = rgb(style.color), b = rgb(style.backgroundColor);
+                    return (Math.max(a, b) + .05) / (Math.min(a, b) + .05) >= 4.5;
+                });
+            })()`), true, `${subject}/${theme}: highlighted text meets 4.5:1 contrast`);
+        }
+        await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
+        await delay(30);
+        if (subject === 'history') {
+            assert.equal(await evaluate('document.getElementById("timeline-details").open'), false, 'mobile timeline starts collapsed');
+            assert.equal(await evaluate('Math.abs(document.getElementById("learning-content").getBoundingClientRect().width - document.getElementById("learning").getBoundingClientRect().width) < 1'), true);
+        }
+        await select(learningTarget, 0, 4);
+        assert.equal(await evaluate(`(() => {
+            const panel = document.querySelector('.highlight-panel').getBoundingClientRect();
+            return panel.left >= 0 && panel.right <= innerWidth && panel.top >= 0 && panel.bottom <= innerHeight &&
+                document.documentElement.scrollWidth <= innerWidth;
+        })()`), true, 'marker palette fits a 320px screen');
+        await apply('green');
+        const stored = await evaluate(`sessionStorage.getItem('tutor-highlights:v1:${subject}:${lesson.id}')`);
+        await client.send('Page.reload');
+        await ready();
+        assert.deepEqual(await marked('original.0.text'), [], 'authored removal survives reload');
+        assert.deepEqual(await marked(learningTarget), [[learningText.slice(0, 4), 'green'], [learningText.slice(4, 12), 'yellow']]);
+        assert.equal(await evaluate(`sessionStorage.getItem('tutor-highlights:v1:${subject}:${lesson.id}')`), stored);
+        await tab('learning');
+        assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `0/${total} Prozkoumáno`);
+        await select(learningTarget, 0, 2);
+        await evaluate('window.savedSetItem = Storage.prototype.setItem; Storage.prototype.setItem = function() { throw new DOMException("Full", "QuotaExceededError"); }');
+        await apply('blue');
+        assert.equal(await evaluate('!document.getElementById("highlight-warning").hidden && document.getElementById("highlight-status").textContent.includes("není uložená")'), true);
+        assert.equal(await evaluate(`sessionStorage.getItem('tutor-highlights:v1:${subject}:${lesson.id}')`), stored, 'write failure leaves stored data untouched');
+        await evaluate('Storage.prototype.setItem = window.savedSetItem');
+        await evaluate(`sessionStorage.setItem('tutor-highlights:v1:${subject}:${lesson.id}', '{"version":1,"edits":[{"target":"original.0.text","text":"outdated","ranges":[]}]}')`);
+        await client.send('Page.reload');
+        await ready();
+        assert.equal(await evaluate('!document.getElementById("highlight-warning").hidden'), true, 'outdated source is reported');
+        assert.deepEqual(await marked('original.0.text'), [[lesson.original[0].text.slice(0, 8), 'yellow']], 'outdated child edits do not change authors or source');
+        assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".original-text")).map(item => item.textContent)'), original);
+        const invalid = await evaluate(`sessionStorage.getItem('tutor-highlights:v1:${subject}:${lesson.id}')`);
+        await select('original.0.text', 0, 3);
+        await apply('blue');
+        assert.equal(await evaluate(`sessionStorage.getItem('tutor-highlights:v1:${subject}:${lesson.id}')`), invalid, 'new edits never overwrite unreadable existing records');
+        const denied = await client.send('Page.addScriptToEvaluateOnNewDocument', {
+            source: 'Storage.prototype.getItem = function() { throw new DOMException("Denied", "SecurityError"); };'
+        });
+        await client.send('Page.reload');
+        await ready();
+        assert.equal(await evaluate('!document.getElementById("highlight-warning").hidden && document.getElementById("highlight-warning").textContent.includes("nelze načíst")'), true, 'storage read denial is reported without breaking source rendering');
+        assert.deepEqual(await marked('original.0.text'), [[lesson.original[0].text.slice(0, 8), 'yellow']]);
+        await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: denied.identifier });
+        if (subject === 'history') {
+            delete lesson.timeline;
+            fs.writeFileSync(file, renderLesson(subject, lesson));
+            await client.send('Page.reload');
+            await ready();
+            await tab('learning');
+            assert.equal(await evaluate('document.querySelector(".learning-timeline") === null && !document.getElementById("learning").classList.contains("has-timeline")'), true, 'history can intentionally omit timeline');
+        }
+        const other = { ...lesson, id: 'presentation-other' };
+        const otherFile = path.join(directory, `${subject}-other.html`);
+        fs.writeFileSync(otherFile, renderLesson(subject, other));
+        await client.send('Page.navigate', { url: pathToFileURL(otherFile).href });
+        await ready();
+        assert.equal(await evaluate('document.getElementById("highlight-warning").hidden'), true, 'different lessons have independent highlight records');
+        assert.deepEqual(await marked('original.0.text'), [[lesson.original[0].text.slice(0, 8), 'yellow']]);
     }
     assert.deepEqual(exceptions, []);
     assert.deepEqual(network, []);

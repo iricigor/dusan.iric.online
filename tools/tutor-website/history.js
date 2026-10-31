@@ -64,10 +64,15 @@ const historySubject = {
     renderLearning({ $, node, paragraphs, hint, heading }, lesson) {
         const chunks = node('div');
         chunks.id = 'chunks';
-        lesson.chunks.forEach(chunk => {
+        lesson.chunks.forEach((chunk, index) => {
             const article = node('article', undefined, 'card');
+            article.id = `learning-chunk-${index}`;
+            article.dataset.learningCard = 'true';
+            article.tabIndex = -1;
             article.append(heading(chunk.heading, chunk.icon, '🏰'),
-                hint(chunk.sentences.join(' '), chunk.explanation), ...paragraphs(chunk.paragraphs));
+                hint(chunk.sentences.join(' '), chunk.explanation, 'p', {
+                    prompt: `chunks.${index}.sentences`, explanation: `chunks.${index}.explanation`
+                }), ...paragraphs(chunk.paragraphs, `chunks.${index}.paragraphs`));
             chunks.append(article);
         });
         $('learning-content').append(chunks);
