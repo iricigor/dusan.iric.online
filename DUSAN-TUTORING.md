@@ -214,6 +214,11 @@ text ho obtéká a vysvětlení se otevře pod celým odstavcem.
 Kroky a výsledky mají kompaktní číslované odkrývání bez rámečků.
 V části Učit se jsou všechny nápovědy, kroky, výsledky a řešení zpočátku sbalené
 v obou předmětech; samotný text učiva zůstává viditelný.
+Nově generované stránky zvýrazňují v části Učit se kartu pod ukazatelem myši;
+výběr se aktualizuje i při posouvání stránky pod nehybným ukazatelem.
+Pokud ukazatel není nad kartou nebo se používá dotykové ovládání, vybere se
+první karta pod pevným záhlavím jako dosud. Stejnou kartu označuje horní
+ukazatel postupu i dějepisná časová osa. Již zveřejněné stránky se nemění.
 Dějepis používá sépiové akcenty a jemný papírový podklad,
 matematika modrozelené akcenty a jemnou geometrickou mřížku.
 Síla podkladu je mezi původní velmi světlou a pozdější výraznější variantou.

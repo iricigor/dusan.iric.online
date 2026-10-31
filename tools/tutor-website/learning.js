@@ -16,6 +16,7 @@ function initializeLearning(lesson, document) {
     let timeline;
     let activeCardId;
     let selectedTimelineRow;
+    let mousePosition;
     const sync = () => {
         cards.forEach((card, index) => {
             const complete = explored.has(card.id);
@@ -147,12 +148,12 @@ function initializeLearning(lesson, document) {
         segments.forEach((segment, index) => {
             if (cards[index].id === id) segment.setAttribute('aria-current', 'step');
             else segment.removeAttribute('aria-current');
+            cards[index].dataset.timelineActive = String(cards[index].id === id);
         });
         timelineNodes.forEach(({ card, control }) => {
             const active = card.id === id;
             if (active) control.setAttribute('aria-current', 'step');
             else control.removeAttribute('aria-current');
-            card.dataset.timelineActive = String(active);
         });
         if (!changed && !preferredRow && !force) return;
         const segment = segments[cards.findIndex(card => card.id === id)];
@@ -187,8 +188,28 @@ function initializeLearning(lesson, document) {
     const onScroll = (force = false) => {
         if ($('learning').hidden || !cards.length) return;
         const top = offset();
-        setActive((cards.find(card => card.getBoundingClientRect().bottom > top) || cards.at(-1)).id, undefined, force);
+        const hovered = mousePosition && document.elementFromPoint(mousePosition.x, mousePosition.y)
+            ?.closest('[data-learning-card]');
+        const card = cards.includes(hovered) ? hovered :
+            cards.find(card => card.getBoundingClientRect().bottom > top) || cards.at(-1);
+        setActive(card.id, undefined, force);
     };
+    const clearMouse = () => {
+        mousePosition = undefined;
+        onScroll();
+    };
+    document.addEventListener('pointermove', event => {
+        if (event.pointerType !== 'mouse') return clearMouse();
+        mousePosition = { x: event.clientX, y: event.clientY };
+        onScroll();
+    }, { passive: true });
+    document.addEventListener('pointerdown', event => {
+        if (event.pointerType !== 'mouse') clearMouse();
+    }, { passive: true });
+    document.addEventListener('pointerout', event => {
+        if (event.pointerType === 'mouse' && !event.relatedTarget) clearMouse();
+    }, { passive: true });
+    window.addEventListener('blur', clearMouse);
     document.addEventListener('scroll', () => onScroll(), { passive: true });
     window.addEventListener('resize', () => onScroll(true));
     return { setTab(name) {
