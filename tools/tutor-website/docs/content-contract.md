@@ -23,6 +23,13 @@ with the actual original material; the builder never invents missing source text
 Glossary entries use `{ "term", "definition", "forms": [] }`, just like
 history; ambiguous forms and duplicate terms are rejected.
 
+Original section styles and original paragraph styles also allow `important`
+(Důležité), unlike generated learning paragraphs. It adds presentation only:
+labels remain outside source text and the existing exact blank-line reconstruction
+and correction boundaries are unchanged. See the
+[Důležité example and motion rules](page-behavior.md#motivation-semantic-paragraphs-and-motion).
+Authors cannot supply animation, HTML, CSS or grouping fields.
+
 `examples` contains exactly four objects in this order:
 
 1. `kind: "simple"` — simple worked example.

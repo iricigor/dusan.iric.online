@@ -85,6 +85,9 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .callout-example { --callout: var(--teal); }
 .callout-tip { --callout: var(--good); }
 .callout-warning { --callout: var(--warning); }
+.callout-important { --callout: var(--primary); outline: 2px solid transparent; outline-offset: 2px; }
+#original:not([hidden]) .callout-important { animation: important-glow .8s ease-out; }
+.original-text .callout-important::before { content: "⭐ Důležité"; display: block; color: var(--callout); font-weight: bold; margin-bottom: .5rem; white-space: normal; }
 .callout-comment { --callout: var(--muted); }
 .callout-fun { --callout: var(--fun); position: relative; background: var(--fun-paper); border: 1px solid color-mix(in srgb, var(--fun) 55%, var(--border)); border-left: 5px solid var(--fun); }
 .callout-fun::before, .callout-fun::after { content: ""; position: absolute; pointer-events: none; background: var(--fun); opacity: .65; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
@@ -264,6 +267,8 @@ a { color: var(--primary); }
 @keyframes pop { 50% { transform: scale(1.015); } }
 @keyframes shake { 25%, 75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
 @keyframes reveal { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes important-glow { 0%, 100% { outline-color: transparent; } 45% { outline-color: var(--callout); } }
+@keyframes definition-flip { from { opacity: .2; transform: perspective(900px) rotateY(-70deg) scale(.85); } to { opacity: 1; transform: none; } }
 @keyframes tab-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tab-leave { to { opacity: 0; transform: translateY(-4px); } }
 ::view-transition { pointer-events: none; }
@@ -273,6 +278,7 @@ a { color: var(--primary); }
 .success { animation: pop .3s ease; }
 .failure { animation: shake .3s ease; }
 .question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
+#definition.definition-flip:popover-open { animation: definition-flip .3s ease-out; }
 .question-enter { display: block; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
 @media (pointer: coarse) { #learning-content summary { min-height: 44px; } }

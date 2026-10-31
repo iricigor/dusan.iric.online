@@ -96,6 +96,40 @@ paragraph. Quotations use semantic blockquotes, and original paragraph styling
 adds no visible label inside source text. Existing sections without `paragraphs`
 remain supported. Never place generated notes inside preserved source text.
 
+Original sections and their existing `paragraphs` additionally support
+`style: "important"` (**Důležité**). This is author-defined original-only
+presentation, not a new learning paragraph style or a child-editable setting.
+A star and visible Czech label distinguish it without relying on color.
+Section labels sit outside `.original-text`; paragraph labels are generated
+CSS content outside the source text nodes, with a named `note` role for assistive
+technology. Neither label becomes part of canonical text or marker offsets.
+For example, this keeps both paragraphs and their exact blank-line separator:
+
+```json
+{
+  "heading": "Zlomky",
+  "text": "Zlomky vyjadřují část celku.\n\nJmenovatel nesmí být nula.",
+  "paragraphs": [
+    { "style": "plain", "text": "Zlomky vyjadřují část celku." },
+    { "style": "important", "text": "Jmenovatel nesmí být nula." }
+  ]
+}
+```
+
+When Původní text opens, Důležité receives one brief CSS outline glow, without
+moving text or changing paragraph layout. Other original paragraphs stay still.
+There is no new grouping, splitting, nesting or collapsing metadata; the existing
+exact `\n\n` mapping and single-paragraph correction-quote rule still apply.
+
+Term explanations opened from Učit se use a short CSS 3D flip-card entrance:
+the popup turns toward the reader and finishes upright. It does not flip or
+replace the term's paragraph. Selecting another learning term replays the flip.
+Original correction popups and glossary-drawer definitions retain their existing
+entrance. Layout dimensions position the popup independently of its animated
+transform; closing, Escape and focus restoration are unchanged. Both new effects
+are disabled for reduced motion and use the shared light/dark subject accents.
+They apply to future generated history and maths pages, not published snapshots.
+
 Shared Fluent-inspired attached icon-and-label tabs, soft elevated cards and
 theme-aware accents establish hierarchy without a UI library. The active tab
 joins the content panel; all three tabs share a 12rem desktop width and shrink
