@@ -40,6 +40,12 @@ html { scrollbar-gutter: stable; view-transition-name: none; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 1.1rem/1.7 system-ui, sans-serif; }
 header { position: sticky; top: 0; z-index: 2; background: var(--card); padding: 1rem max(1rem, calc((100% - 1120px) / 2 + 1rem)) 0; }
 .heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.lesson-identity { display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0; }
+.lesson-title-group { min-width: 0; }
+.lesson-header-mark, .lesson-footer-mark { display: block; flex-shrink: 0; object-fit: contain; }
+.lesson-header-mark { width: 64px; height: 64px; }
+.lesson-footer { display: flex; justify-content: center; padding: 0 1rem 1.5rem; }
+.lesson-footer-mark { width: 96px; height: 96px; }
 .lesson-heading { display: flex; align-items: center; gap: .75rem; min-width: 0; }
 .lesson-heading .badge { flex-shrink: 0; }
 .lesson-heading h1 { min-width: 0; overflow-wrap: anywhere; }
@@ -226,6 +232,9 @@ a { color: var(--primary); }
     body { font-size: 1rem; }
     header { padding: .5rem 1rem 0; }
     .heading { align-items: flex-start; }
+    .lesson-identity { gap: .5rem; }
+    .lesson-header-mark { width: 48px; height: 48px; }
+    .lesson-footer-mark { width: 64px; height: 64px; }
     .lesson-heading { gap: .5rem; }
     .lesson-heading .badge { padding: .1rem .4rem; font-size: .8rem; }
     .card { padding: 1rem; }
@@ -234,4 +243,9 @@ a { color: var(--primary); }
     .tab-bar:has(.learning-controls:not([hidden])) nav button { flex-direction: column; gap: .1rem; font-size: .75rem; }
     .tab-icon { width: 1rem; height: 1rem; }
     .player-row { gap: .5rem; }
+}
+@media (max-width: 400px) {
+    .heading { flex-wrap: wrap; gap: .5rem; }
+    .lesson-identity { flex-basis: 100%; order: 1; }
+    #theme { margin-left: auto; }
 }

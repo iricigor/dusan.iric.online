@@ -336,7 +336,12 @@ collapsed in both subjects; the main lesson text stays visible.
 
 The subject badge and lesson title share one row, retaining distinct badge
 and heading typography. Long titles wrap within their column on narrow screens.
-Motivational subtitles use the subject accent, not purple.
+Motivational subtitles use the subject accent, not purple. The simple identity
+mark sits to the left, vertically centered against the combined title/subtitle
+block; the theme switch stays to the right and tabs remain below.
+On screens up to 400px wide, the theme switch has its own upper-right row so
+the mark and text can use the full header width without squeezing long titles
+into an excessively tall sticky header.
 Trusted subject selectors in the one shared stylesheet provide sepia/amber
 history accents and blue/teal maths accents. Softly visible CSS-only paper grain or
 graph-paper backgrounds cover entire original/learning cards, including headings
@@ -403,10 +408,15 @@ with an open counter, and a short black diagonal cap stroke slightly overlapping
 its upper-left edge with a hanging left tassel. The mark spans 31 of 32 SVG
 units vertically, leaving only 0.5-unit top/bottom anti-clipping clearance
 (a quarter pixel at 16px). It contains no gradients or fine logo details.
-`page.js` embeds it as a data URL in every new standalone page: no font,
+`page.js` embeds it as a data URL for both the browser-tab favicon and the
+header mark in every new standalone page. The header mark is 64px square on
+desktop and 48px on narrow screens (up to 550px). The matching approved
+`design-proposals\issue-52\rounded-fancy.svg` is embedded as a centered footer
+mark below the active lesson content: 96px square on desktop and 64px on narrow
+screens. Both webpage images are decorative (`alt=""`), not navigation controls.
+Both subjects use the same shared template, stylesheet and assets: no font,
 network request or external asset is required. Do not regenerate or retrofit
-already published HTML. The fancy webpage logo is not integrated, and the
-independent Gems workflow remains unchanged.
+already published HTML. The independent Gems workflow remains unchanged.
 
 ### Completion, local ranking and answer duration
 

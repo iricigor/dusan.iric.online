@@ -4,11 +4,13 @@ Three asset-only proposals for [issue #52](https://github.com/iricigor/dusan.iri
 **03 / Rounded satin (simple)** was selected for integration in
 [issue #57](https://github.com/iricigor/dusan.iric.online/issues/57) and is now
 the shared `tools\tutor-website\favicon.svg` source for newly generated pages.
-Options 01 and 02 remain comparison assets. The generator's embedding logic,
-already published lessons and independent Gems workflow are unchanged.
-Fancy versions remain proposals for possible later webpage use, not
-integrated logos. Related tutor-agent guidance describes the selected simple
-favicon only.
+The same simple source also supplies the enlarged header mark, and the matching
+**03 / Rounded satin (fancy)** source supplies the footer logo, as approved in
+[issue #63](https://github.com/iricigor/dusan.iric.online/issues/63) and
+[issue #66](https://github.com/iricigor/dusan.iric.online/issues/66).
+Options 01 and 02 remain comparison assets. Already published lessons and the
+independent Gems workflow are unchanged. Related tutor-agent guidance describes
+both approved placements; the shared builder embeds their SVGs for offline use.
 
 | Preview | 01 / Reference enamel | 02 / Upright letterpress | 03 / Rounded satin |
 | --- | --- | --- | --- |
@@ -70,4 +72,5 @@ rasterized directly from the corresponding SVG at their named dimensions,
 not downscaled from fancy logos.
 
 The local comparison HTML and preview server remain session artifacts,
-outside the repository; this directory introduces no runtime dependency.
+outside the repository. The shared builder reads `rounded-fancy.svg` from this
+directory at generation time; generated pages have no external asset dependency.
