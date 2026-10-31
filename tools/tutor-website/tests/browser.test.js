@@ -367,7 +367,8 @@ test('learning progress, optional timelines and authored/child highlights preser
             })()`), true, `${subject}/${theme}: highlighted text meets 4.5:1 contrast`);
         }
         await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
-        await delay(30);
+        // Viewport overrides return before media-query change callbacks run.
+        await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
         if (subject === 'history') {
             assert.equal(await evaluate('document.getElementById("timeline-details").open'), false, 'mobile timeline starts collapsed');
             assert.equal(await evaluate('Math.abs(document.getElementById("learning-content").getBoundingClientRect().width - document.getElementById("learning").getBoundingClientRect().width) < 1'), true);
