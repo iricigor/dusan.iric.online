@@ -83,8 +83,8 @@ test('maths standalone output is inert, Czech and contains real assessment witho
     assert.match(html, /<html lang="cs">/);
     assert.ok(!html.includes(hostile));
     assert.match(html, /&lt;\/script&gt;/);
-    assert.equal((html.match(/<script(?:\s|>)/g) || []).length, 2);
-    assert.doesNotMatch(html, /<script[^>]+src=|<img[^>]+src="(?!data:image\/svg\+xml,)|<link[^>]+href="(?!data:)|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/);
+    assert.equal((html.match(/<script(?:\s|>)/gi) || []).length, 2);
+    assert.doesNotMatch(html, /<script[^>]+src=|<img[^>]+src="(?!data:image\/svg\+xml,)|<link[^>]+href="(?!data:)|\b(?:fetch|XMLHttpRequest|eval)\s*\(|id="bonus"/i);
     assert.match(html, /speedBonus: false/);
     assert.doesNotMatch(html, /zatím nejsou dostupné|@@(?:DATA|STYLES|APP)@@/);
     assert.match(html, /data-mode="hard"/);
@@ -104,7 +104,7 @@ test('both subjects embed the selected full-height Rounded satin simple favicon'
         assert.equal(svg, selected);
         assert.match(svg, /viewBox="0 0 32 32"/);
         for (const color of ['#1e3c72', '#000', '#f1f5f9']) assert.ok(svg.includes(color));
-        assert.doesNotMatch(svg, /<(?:script|image|text|linearGradient|radialGradient|filter)|href=/);
+        assert.doesNotMatch(svg, /<(?:script|image|text|linearGradient|radialGradient|filter)|href=/i);
         assert.equal((html.match(/<link /g) || []).length, 1);
     }
 });
@@ -125,7 +125,7 @@ test('both subjects embed approved decorative header and fancy footer marks offl
         assert.match(html, /<\/main>\s*<footer class="lesson-footer">\s*<img class="lesson-footer-mark"/);
         assert.doesNotMatch(html, /@@[A-Z_]+@@/);
         for (const [, , svg] of images) {
-            assert.doesNotMatch(decodeURIComponent(svg), /<(?:script|image|text|foreignObject)\b|\bhref=/);
+            assert.doesNotMatch(decodeURIComponent(svg), /<(?:script|image|text|foreignObject)\b|\bhref=/i);
         }
     }
 });
