@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 32 32">
+  <defs>
+    <radialGradient id="tile" cx="0.3" cy="0.2" r="1"><stop stop-color="#ffffff"/><stop offset="0.6" stop-color="#f1f5f9"/><stop offset="1" stop-color="#d9e8ed"/></radialGradient>
+    <linearGradient id="ink" x2="0.7" y2="1"><stop stop-color="#4774aa"/><stop offset="0.5" stop-color="#1e3c72"/><stop offset="1" stop-color="#18516a"/></linearGradient>
+    <clipPath id="letter"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 12h5c5.5 0 9 3 9 8.5S20.5 29 15 29h-5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1zm4 4.5v8h1c2.5 0 4-1.5 4-4s-1.5-4-4-4z"/></clipPath>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#tile)"/>
+  <rect x="0.7" y="0.7" width="30.6" height="30.6" rx="6.3" fill="none" stroke="#ffffff" stroke-opacity="0.85" stroke-width="0.5"/>
+  <g id="mark" transform="matrix(1.47619 0 0 1.47619 -4.66666 -11.30952)">
+    <path fill="url(#ink)" fill-rule="evenodd" d="M10 12h5c5.5 0 9 3 9 8.5S20.5 29 15 29h-5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1zm4 4.5v8h1c2.5 0 4-1.5 4-4s-1.5-4-4-4z"/>
+    <path d="M9.7 27.5v-14a0.8 0.8 0 0 1 .8-.8H15c4.3 0 7 2 7.7 5" clip-path="url(#letter)" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="0.4"/>
+    <path d="M17 9 5 14v5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

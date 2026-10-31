@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="tile" x2="1" y2="1"><stop stop-color="#f8fafc"/><stop offset="1" stop-color="#d8e0eb"/></linearGradient>
+    <linearGradient id="ink" x2="1" y2="0.7"><stop stop-color="#162c53"/><stop offset="0.45" stop-color="#1e3c72"/><stop offset="1" stop-color="#416baa"/></linearGradient>
+    <clipPath id="letter"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 10h5c6.5 0 10 3.5 10 10s-3.5 10-10 10H9zm5 5v10c3.5 0 5-1.5 5-5s-1.5-5-5-5z"/></clipPath>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#tile)"/>
+  <rect x="1" y="1" width="30" height="30" rx="6" fill="none" stroke="#1e3c72" stroke-opacity="0.1" stroke-width="0.5"/>
+  <g id="mark" transform="matrix(1.319149 0 0 1.319149 -2.468086 -8.074469)">
+    <path fill="url(#ink)" fill-rule="evenodd" d="M9 10h5c6.5 0 10 3.5 10 10s-3.5 10-10 10H9zm5 5v10c3.5 0 5-1.5 5-5s-1.5-5-5-5z"/>
+    <path d="M9.7 29V10.7H14c5 0 8 2.5 8.8 6" clip-path="url(#letter)" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="0.4"/>
+    <path d="M15 7.5 5 12v5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

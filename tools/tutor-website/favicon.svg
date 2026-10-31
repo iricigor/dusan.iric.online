@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="7" fill="#f1f5f9"/>
-  <path fill="#1e3c72" fill-rule="evenodd" d="M7 12h8c7 0 11 3 11 9s-4 9-11 9H7zm5 4v10h3c4 0 6-1.5 6-5s-2-5-6-5z"/>
-  <g fill="#000000" transform="translate(-4 6) rotate(-18 16 7)">
-    <path d="m9 5 7-3 7 3-7 3zM11 7l5 2 5-2v2l-5 2-5-2z"/>
-    <path d="M22 5h1v5h-1z"/>
+  <g id="mark" transform="matrix(1.47619 0 0 1.47619 -4.66666 -11.30952)">
+    <path fill="#1e3c72" fill-rule="evenodd" d="M10 12h5c5.5 0 9 3 9 8.5S20.5 29 15 29h-5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1zm4 4.5v8h1c2.5 0 4-1.5 4-4s-1.5-4-4-4z"/>
+    <path d="M17 9 5 14v5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </svg>

@@ -136,8 +136,13 @@ Keep the sun/moon control a binary accessible theme switch. Audience is lesson
 metadata, not a visible age badge. The compact nickname label/input share one
 row; input requirements belong in the tooltip/accessibility description and
 visible validation errors, not a long label or redundant setup privacy paragraph.
-The embedded favicon uses a pale tile, a dominant blue D and a smaller black cap
-tilted over the letter's upper-left edge.
+The embedded favicon uses the selected Rounded satin simple design: a pale
+rounded tile, a narrow bold blue D with an open counter, and one short black
+diagonal cap stroke slightly overlapping the upper-left edge, with a hanging
+left tassel. Keep the mark full-height (31 of 32 SVG units), with only 0.5-unit
+top/bottom anti-clipping clearance. Use the shared `tools\tutor-website\favicon.svg`
+for new pages; do not add fancy gradients/details to the favicon or retrofit
+already published pages. The fancy webpage logo remains unintegrated.
 The subdued quiz cog sits at the right of the tab bar, outside tablist semantics,
 in the same action area as learning controls; show it only in Hrát si. Keep its
 44px target and keyboard access. It toggles tools for a local UTF-8 JSON export of the
