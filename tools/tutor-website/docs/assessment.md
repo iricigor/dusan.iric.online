@@ -174,4 +174,3 @@ never transmitted. Read errors or corrupt records
 show a Czech warning and leave the original storage untouched; new runs remain
 in memory. Write failures warn that new results will not survive reload.
 A later successful save includes all in-memory results and clears that warning.
-
