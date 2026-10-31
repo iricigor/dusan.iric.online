@@ -5,9 +5,10 @@
 
 ## Deployment previews
 
-Pull requests changing `site/` receive an ephemeral deployment preview.
+Pull requests changing `site/` receive one comment linking to the ephemeral
+deployment preview. Subsequent deployments update the same comment.
 When exactly one non-deleted site file changes, excluding `site/i/index.html`,
-the deployment workflow also comments with a direct link to that file.
+the same comment also includes a direct link to that file.
 
 ## Doučování
 

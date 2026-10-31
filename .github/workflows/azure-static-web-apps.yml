@@ -33,40 +33,45 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/site"
           api_location: ""
           output_location: ""
-      - name: Comment on single-file preview
+      - name: Comment on deployment preview
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           STATIC_WEB_APP_URL: ${{ steps.deploy.outputs.static_web_app_url }}
         run: |
+          if [[ -z "$STATIC_WEB_APP_URL" ]]; then
+            echo "The deployment action did not provide a preview URL." >&2
+            exit 1
+          fi
+
           files="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" | jq -s 'add')"
           preview_files="$(jq '[.[] | select(.filename | startswith("site/")) | select(.filename != "site/i/index.html") | select(.status != "removed")]' <<< "$files")"
           file_count="$(jq 'length' <<< "$preview_files")"
           comments="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" | jq -s 'add')"
-          comment_id="$(jq -r '.[] | select(.body | contains("<!-- single-file-preview -->")) | .id' <<< "$comments" | tail -n 1)"
+          preview_comment_ids="$(jq -r '.[] | select(.user.login == "github-actions[bot]") | select((.body | contains("<!-- deployment-preview -->")) or (.body | contains("<!-- single-file-preview -->")) or (.body | startswith("Azure Static Web Apps: Your stage site is ready! Visit it here:"))) | .id' <<< "$comments")"
+          comment_id="$(tail -n 1 <<< "$preview_comment_ids")"
+          body="<!-- deployment-preview -->"$'\n'"[Open the stage site](${STATIC_WEB_APP_URL})"
 
           if [[ "$file_count" -eq 1 ]]; then
-            if [[ -z "$STATIC_WEB_APP_URL" ]]; then
-              echo "The deployment action did not provide a preview URL." >&2
-              exit 1
-            fi
-
             file_path="$(jq -r '.[0].filename | ltrimstr("site/")' <<< "$preview_files")"
             encoded_path="$(python3 -c 'from urllib.parse import quote; import sys; print(quote(sys.argv[1], safe="/"))' "$file_path")"
             preview_url="${STATIC_WEB_APP_URL%/}/${encoded_path}"
-            body="<!-- single-file-preview -->"$'\n'"[Open the changed file preview](${preview_url})"
-
-            if [[ -n "$comment_id" ]]; then
-              gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -f "body=${body}"
-            else
-              gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f "body=${body}"
-            fi
-          elif [[ -n "$comment_id" ]]; then
-            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}"
+            body+=$'\n\n'"[Open the changed file preview](${preview_url})"
           fi
+
+          if [[ -n "$comment_id" ]]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -f "body=${body}"
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f "body=${body}"
+          fi
+
+          while IFS= read -r old_comment_id; do
+            if [[ -n "$old_comment_id" && "$old_comment_id" != "$comment_id" ]]; then
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/issues/comments/${old_comment_id}"
+            fi
+          done <<< "$preview_comment_ids"
