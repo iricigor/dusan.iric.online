@@ -6,7 +6,12 @@ const { createQrSvg } = require('./qr.js');
 
 function readRuntimeSource(subject) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
-    return ['assessment.js', 'runtime.js', `${subject}.js`]
+    return [
+        'assessment.js', 'runtime.js',
+        path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
+        path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js'),
+        `${subject}.js`
+    ]
         .map(file => fs.readFileSync(path.join(__dirname, file), 'utf8')).join('\n');
 }
 
