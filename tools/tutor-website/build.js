@@ -6,6 +6,8 @@ const { renderPage } = require('./page.js');
 const { validateLesson } = require('./validate.js');
 const { MODES } = require('./runtime.js');
 
+const PUBLICATION_ORIGIN = 'https://dusan.iric.online/';
+
 function capabilities(subject) {
     if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     const levels = ['easy', 'medium', 'hard'];
@@ -39,9 +41,23 @@ function capabilities(subject) {
     };
 }
 
-function renderLesson(subject, lesson) {
+function getPublicationUrl(subject, lessonId, publicationPath = `test/${lessonId}.html`) {
+    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    if (typeof publicationPath !== 'string' || publicationPath.startsWith('/') ||
+        /[?#\\]/.test(publicationPath) || !publicationPath.endsWith('.html')) {
+        throw new Error('publicationPath must be a relative .html path under the site root');
+    }
+    const segments = publicationPath.split('/');
+    if (segments.some(segment => !segment || segment === '.' || segment === '..')) {
+        throw new Error('publicationPath must not contain empty or traversal segments');
+    }
+    const encodedPath = segments.map(segment => encodeURIComponent(segment)).join('/');
+    return new URL(encodedPath, PUBLICATION_ORIGIN).href;
+}
+
+function renderLesson(subject, lesson, publicationPath) {
     validateLesson(subject, lesson);
-    return renderPage(lesson, subject);
+    return renderPage(lesson, subject, getPublicationUrl(subject, lesson.id, publicationPath));
 }
 
 function within(file, directory) {
@@ -63,7 +79,7 @@ function canonical(file) {
 }
 
 function build(request) {
-    const keys = ['operation', 'subject', 'artifactDirectory', 'inputPath', 'outputPath', 'overwriteApproved'];
+    const keys = ['operation', 'subject', 'artifactDirectory', 'inputPath', 'outputPath', 'publicationPath', 'overwriteApproved'];
     if (!request || typeof request !== 'object' || Array.isArray(request)) throw new Error('Build handoff must be an object');
     for (const key of Object.keys(request)) if (!keys.includes(key)) throw new Error(`Unknown handoff field: ${key}`);
     if (request.operation !== 'build') throw new Error('Expected operation: build');
@@ -80,11 +96,16 @@ function build(request) {
     if (!within(input, directory) || !within(output, directory)) throw new Error('Input and output must resolve inside artifactDirectory (including links)');
     if (input === output || path.extname(output).toLowerCase() !== '.html') throw new Error('Output must be a separate .html file');
     const lesson = JSON.parse(fs.readFileSync(input, 'utf8'));
-    const html = renderLesson(request.subject, lesson);
+    validateLesson(request.subject, lesson);
+    const lessonUrl = getPublicationUrl(request.subject, lesson.id, request.publicationPath);
+    const html = renderPage(lesson, request.subject, lessonUrl);
     if (fs.existsSync(output) && fs.statSync(output).nlink > 1) throw new Error('Output has multiple hard links; choose a new artifact path');
     fs.mkdirSync(path.dirname(output), { recursive: true });
     fs.writeFileSync(output, html, { encoding: 'utf8', flag: request.overwriteApproved ? 'w' : 'wx' });
-    return { inputPath: input, outputPath: output, generation: supported.generation, assessment: supported.assessment, limitations: supported.limitations };
+    return {
+        inputPath: input, outputPath: output, publicationUrl: lessonUrl,
+        generation: supported.generation, assessment: supported.assessment, limitations: supported.limitations
+    };
 }
 
 if (require.main === module) {
@@ -101,4 +122,4 @@ if (require.main === module) {
     }
 }
 
-module.exports = { capabilities, renderLesson, build };
+module.exports = { capabilities, getPublicationUrl, renderLesson, build };
