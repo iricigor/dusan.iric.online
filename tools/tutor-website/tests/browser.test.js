@@ -21,6 +21,61 @@ const { checkMathsQuiz } = require('./browser/maths-quiz.js');
 const { checkHistoryQuiz } = require('./browser/history-quiz.js');
 const { checkPersistence } = require('./browser/persistence.js');
 
+test('topic-sized guided learning stays compact and transparent on phones', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 30000
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    const lesson = structuredClone(defaultMaths);
+    lesson.examples.push(...lesson.examples.slice(0, 2).map((example, index) => ({
+        ...structuredClone(example), prompt: `${example.prompt} (${index + 5})`
+    })));
+    const file = path.join(directory, 'mobile-guided-learning.html');
+    fs.writeFileSync(file, renderLesson('maths', lesson));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    for (let attempt = 0; attempt < 100; attempt++) {
+        if (await evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(lesson.topic)}`)) break;
+        await delay(20);
+    }
+    await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
+    for (const font of ['system-ui', 'Arial', 'Verdana']) {
+        await evaluate(`document.body.style.fontFamily = '${font}'`);
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`(() => {
+                if (document.getElementById('theme').getAttribute('aria-checked') !== '${theme === 'dark'}')
+                    document.getElementById('theme').click();
+            })()`);
+            await evaluate(`window.switchTutorTab('learning')`);
+            const result = await evaluate(`(() => {
+                const header = document.querySelector('.heading').getBoundingClientRect();
+                const badge = document.querySelector('.badge').getBoundingClientRect();
+                const title = document.getElementById('topic').getBoundingClientRect();
+                const theme = document.getElementById('theme').getBoundingClientRect();
+                const cards = [...document.querySelectorAll('[data-learning-card]')];
+                const marks = [...document.querySelectorAll('.lesson-header-mark, .lesson-footer-mark')];
+                return {
+                    compact: header.height < 180 && title.width > 200 && badge.right <= theme.left &&
+                        theme.top < badge.bottom && theme.bottom <= title.top,
+                    cards: cards.length,
+                    guidedOnly: cards.every(card => card.id.startsWith('learning-example-')),
+                    counter: document.getElementById('learning-counter').textContent,
+                    transparent: marks.every(mark => !mark.querySelector('rect, image') &&
+                        getComputedStyle(mark.querySelector('path')).fill === getComputedStyle(mark).color),
+                    overflow: document.documentElement.scrollWidth > innerWidth,
+                    geometry: { header: header.toJSON(), badge: badge.toJSON(), title: title.toJSON(), theme: theme.toJSON() }
+                };
+            })()`);
+            const { geometry, ...checks } = result;
+            assert.deepEqual(checks, {
+                compact: true, cards: 6, guidedOnly: true, counter: '0/6 Prozkoumáno', transparent: true, overflow: false
+            }, `${font}/${theme}: ${JSON.stringify(geometry)}`);
+            await capture(`guided-learning-320-${font}-${theme}`);
+        }
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('history bonus track and bar fade before the scoring deadline in the real page', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
@@ -227,9 +282,10 @@ test('compact learning controls fit narrow screens across text fonts', {
     fs.writeFileSync(file, renderLesson('maths', defaultMaths));
     await client.send('Page.navigate', { url: pathToFileURL(file).href });
     for (let attempt = 0; attempt < 100; attempt++) {
-        if (await evaluate('typeof window.switchTutorTab === "function"')) break;
+        if (await evaluate('!!document.querySelector("[data-learning-card]")')) break;
         await delay(20);
     }
+    assert.equal(await evaluate('document.querySelectorAll("[data-learning-card]").length'), defaultMaths.examples.length);
     await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
     for (const font of ['system-ui', 'Arial', 'Verdana']) {
         await evaluate(`document.body.style.fontFamily = '${font}'`);
@@ -579,7 +635,7 @@ test('learning progress, optional timelines and authored/child highlights preser
             true, 'selection spanning styled original paragraphs is highlighted without changing separators');
         }
         await tab('learning');
-        const total = subject === 'history' ? 12 : 34;
+        const total = subject === 'history' ? lesson.chunks.length : lesson.examples.length;
         assert.equal(await evaluate('document.getElementById("learning-counter").textContent'), `0/${total} Prozkoumáno`);
         assert.equal(await evaluate(`Array.from(document.querySelectorAll('.explored-control')).every(label =>
             label.textContent === 'Prozkoumáno' && label.querySelector('input[type="checkbox"]')?.checked === false)`), true);

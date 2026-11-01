@@ -29,13 +29,17 @@ including one-step equations with numerical answers (for example `x + 20 = 200`)
 Arbitrary symbolic answer evaluation, interactive geometry and other unsupported
 formats require disclosed limitations and agreement before adapting exercises.
 
-Teach a simple worked example, a more complex example, a familiar everyday word
-problem and a final challenge with its solution, in that order. Use concrete
+Use guided worked examples to teach the concepts in the provided text, choosing
+their count according to source coverage or agreement with the user. For a
+topic-only request, use `authoringRequirements.learningExamples.topicOnlyDefault`
+unless the user agrees otherwise; this does not override prepared-default reuse.
+Progress from simple guidance to more complex examples, everyday applications
+and a final challenge where appropriate. Use concrete
 quantities, meaningful hints, explained terminology, connected calculation
 steps and final answers with units where appropriate. Define glossary forms.
-Learning and practice belong together in Učit se: begin with worked guidance,
-gradually reduce it and end with independent easy-to-hard exercises. Do not
-request or create a separate practice tab.
+Učit se contains guided teaching examples, not the quiz bank or independent
+practice exercises. Keep practice questions in Hrát si; do not request or create
+a separate practice tab. Teach every tested concept through the examples.
 
 ## Difficulty and answer authoring
 
@@ -48,7 +52,7 @@ Author varied tasks with these educational structures:
 - **Medium:** either `type: "choice"` with offered numbers, words or comparison
   symbols (`=`, `<`, `>`, `<>`), or `type: "number"` with one numerical answer
   requiring exactly one calculation. Numerical-entry assignments must use
-  mathematical notation, such as `30 × 60 = ?` or `x + 20 = 200. x = ?`, not
+  mathematical notation, such as `30 × 60 = ?` or `x + 20 = 200, x = ?`, not
   word problems. Make offered choices unambiguous; ask for the most precise
   comparison when both a directional sign and `<>` are offered.
 - **Hard:** connected calculations across multiple steps with multiple
@@ -59,6 +63,9 @@ Author varied tasks with these educational structures:
 
 Provide a worked solution for every exercise and step. Teach every tested
 concept and choose sensible quantities/results for ten-year-old learners.
+Connect an equation and its follow-up with a comma or a natural Czech question,
+not a full stop followed by a disconnected fragment. Keep normal punctuation
+in explanatory prose and never rewrite preserved source text for this rule.
 Use only website-supported numerical formats for entry and explicit
 `assessment` policies for each choice task or numerical step.
 Choices are plain-text labels, checked by their selected zero-based index;

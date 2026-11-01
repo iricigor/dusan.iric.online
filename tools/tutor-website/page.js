@@ -23,7 +23,7 @@ function renderPage(lesson, subject, publicationUrl) {
     const replacements = {
         TITLE: escapeHtml(lesson.topic),
         FAVICON: encodeURIComponent(fs.readFileSync(path.join(__dirname, 'favicon.svg'), 'utf8')).replace(/'/g, '%27'),
-        WEBPAGE_LOGO: encodeURIComponent(fs.readFileSync(path.join(__dirname, 'design-proposals', 'issue-52', 'rounded-fancy.svg'), 'utf8')).replace(/'/g, '%27'),
+        WEBPAGE_LOGO: fs.readFileSync(path.join(__dirname, 'webpage-logo.svg'), 'utf8'),
         SUBJECT: subject === 'history' ? 'Dějepis' : 'Matematika',
         SUBJECT_ID: subject,
         TIMING: subject === 'history' ? '<div id="bonus" aria-hidden="true"><div id="bonus-bar"></div></div>' : '',

@@ -8,7 +8,7 @@ async function checkMathsQuiz({ client, evaluate, lesson }) {
     if (lesson.version === 4) return checkProgressiveMaths({ client, evaluate, lesson });
     assert.deepEqual(await evaluate(`(async () => {
         await window.switchTutorTab('learning');
-        const details = document.querySelector('#exercises details');
+        const details = document.querySelector('#examples details');
         details.querySelector('summary').click();
         return {
             examples: document.querySelectorAll('#examples > article').length,
@@ -17,24 +17,18 @@ async function checkMathsQuiz({ client, evaluate, lesson }) {
             modes: document.querySelectorAll('[data-mode]').length,
             timing: document.querySelectorAll('#bonus, #timer, #countdown').length
         };
-    })()`), { examples: 4, exercises: lesson.exercises.length, opened: true, modes: 3, timing: 0 });
+    })()`), { examples: lesson.examples.length, exercises: 0, opened: true, modes: 3, timing: 0 });
     assert.deepEqual(await evaluate(`(() => {
         const examples = [...document.querySelectorAll('#examples > article')];
         const openDetails = examples.map(example => example.querySelectorAll('details[open], .hint-toggle[aria-expanded="true"]').length);
-        const exercises = [...document.querySelectorAll('#exercises > article')];
         window.timerStarts = 0;
         const originalInterval = window.setInterval;
         window.setInterval = (...args) => { window.timerStarts++; return originalInterval(...args); };
         return {
-            openDetails,
-            firstBeforePractice: !!(document.getElementById('examples').compareDocumentPosition(document.getElementById('exercises')) & Node.DOCUMENT_POSITION_FOLLOWING),
-            levels: exercises.map(exercise => exercise.querySelector('.heading-text').textContent.replace(/^\\d+\\. /, ''))
+            openDetails
         };
     })()`), {
-        openDetails: [0, 0, 0, 0], firstBeforePractice: true,
-        levels: ['easy', 'medium', 'hard'].flatMap(level =>
-            lesson.exercises.filter(exercise => exercise.difficulty === level)
-                .map(() => ({ easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' }[level])))
+        openDetails: [1, 0, 0, 0]
     });
     assert.equal(await evaluate(`(() => {
         const details = document.querySelector('#examples > article:nth-child(3) details');
@@ -124,10 +118,13 @@ async function checkMathsQuiz({ client, evaluate, lesson }) {
             if (!$('feedback').textContent.includes('Body: ' + String(earned).replace('.', ','))) {
                 throw new Error('Wrong feedback points');
             }
-            exercise.steps.forEach(step => {
-                if (![...$('feedback').querySelectorAll('p')].some(paragraph =>
-                    paragraph.textContent.startsWith('Správná odpověď: ' + formatAnswer(step.answer) + '. ')) ||
-                    !$('feedback').textContent.includes(step.solution)) throw new Error('Missing worked answer');
+            exercise.steps.forEach((step, stepIndex) => {
+                if (!$('feedback').textContent.includes(step.solution)) throw new Error('Missing worked answer');
+                const corrected = ${partial} && stepIndex === 0 || ${invalid} && exercise.difficulty === 'easy' ||
+                    ${policyPartial} && step.assessment.partial?.match.type === 'string';
+                const status = $('feedback').querySelectorAll('h3')[stepIndex].nextElementSibling.textContent;
+                if (status.includes('Správná odpověď:') !== !!corrected) throw new Error('Redundant or missing correction');
+                if (corrected && !status.includes('Správná odpověď: ' + formatAnswer(step.answer))) throw new Error('Missing expected value');
             });
             if (${partial} && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Missing blank feedback');
             if (${invalid} && exercise.difficulty === 'easy' &&

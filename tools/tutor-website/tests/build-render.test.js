@@ -109,24 +109,22 @@ test('both subjects embed the selected full-height Rounded satin simple favicon'
     }
 });
 
-test('both subjects embed approved decorative header and fancy footer marks offline', () => {
-    const simple = fs.readFileSync(path.join(__dirname, '..', 'favicon.svg'), 'utf8');
-    const fancy = fs.readFileSync(path.join(__dirname, '..', 'design-proposals', 'issue-52', 'rounded-fancy.svg'), 'utf8');
+test('both subjects embed transparent, theme-aware decorative page marks offline', () => {
+    const logo = fs.readFileSync(path.join(__dirname, '..', 'webpage-logo.svg'), 'utf8');
     for (const [subject, lesson] of [['history', history], ['maths', mathsLesson()]]) {
         const html = renderLesson(subject, lesson);
-        const images = [...html.matchAll(/<img class="([^"]+)" src="data:image\/svg\+xml,([^"]+)" alt="" width="(\d+)" height="(\d+)">/g)];
-        assert.equal(images.length, 2);
-        assert.equal((html.match(/<img\b/g) || []).length, 2);
-        assert.deepEqual(images.map(([, name, , width, height]) => [name, width, height]), [
+        const marks = [...html.matchAll(/<svg class="(lesson-(?:header|footer)-mark)" aria-hidden="true" focusable="false" viewBox="0 0 32 32" width="(\d+)" height="(\d+)">([\s\S]*?)<\/svg>/g)];
+        assert.equal(marks.length, 2);
+        assert.deepEqual(marks.map(([, name, width, height]) => [name, width, height]), [
             ['lesson-header-mark', '64', '64'], ['lesson-footer-mark', '96', '96']
         ]);
-        assert.deepEqual(images.map(([, , svg]) => decodeURIComponent(svg)), [simple, fancy]);
+        assert.deepEqual(marks.map(([, , , , svg]) => svg), [logo, logo]);
         assert.match(html, /class="lesson-title-group">[\s\S]*?id="topic"[\s\S]*?id="subtitle"[\s\S]*?<\/div>\s*<\/div>\s*<button id="theme"/);
-        assert.match(html, /<\/main>\s*<footer class="lesson-footer">\s*<img class="lesson-footer-mark"/);
+        assert.match(html, /<\/main>\s*<footer class="lesson-footer">\s*<svg class="lesson-footer-mark"/);
         assert.doesNotMatch(html, /@@[A-Z_]+@@/);
-        for (const [, , svg] of images) {
-            assert.doesNotMatch(decodeURIComponent(svg), /<(?:script|image|text|foreignObject)\b|\bhref=/i);
-        }
+        assert.doesNotMatch(logo, /<(?:rect|script|image|text|foreignObject)\b|\bhref=/i);
+        assert.match(logo, /fill="currentColor"/);
+        assert.match(logo, /stroke="var\(--text\)"/);
     }
 });
 

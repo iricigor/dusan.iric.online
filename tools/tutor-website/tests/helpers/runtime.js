@@ -67,8 +67,8 @@ class Element {
     querySelector(selector) { return this.querySelectorAll(selector)[0]; }
 }
 
-function page(subject = 'history', stored = []) {
-    const source = structuredClone(subject === 'history' ? lesson : mathsLesson);
+function page(subject = 'history', stored = [], lessonOverride) {
+    const source = structuredClone(lessonOverride || (subject === 'history' ? lesson : mathsLesson));
     // This clock/quiz fixture exercises legacy lessons without optional presentation metadata.
     delete source.highlights;
     delete source.timeline;

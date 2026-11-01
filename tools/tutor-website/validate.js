@@ -120,10 +120,13 @@ function validateLesson(subject, lesson) {
                 if (exercise.options) unique(exercise.options, `$.exercises options for ${exercise.id}`);
             });
         }
-        const progression = ['simple', 'complex', 'everyday', 'challenge'];
-        lesson.examples.forEach((example, index) => {
-            if (example.kind !== progression[index]) errors.push(`$.examples[${index}].kind: expected ${progression[index]} in teaching progression`);
-        });
+        if (lesson.version !== 4) {
+            const progression = ['simple', 'complex', 'everyday', 'challenge'];
+            if (lesson.examples.length !== 4) errors.push('$.examples: expected four legacy worked examples');
+            lesson.examples.forEach((example, index) => {
+                if (example.kind !== progression[index]) errors.push(`$.examples[${index}].kind: expected ${progression[index]} in teaching progression`);
+            });
+        }
         unique(lesson.examples.map(example => example.prompt), '$.examples prompts');
     } else {
         if (!pool.some(question => question.year)) errors.push('$.questions: needs a hard year question');

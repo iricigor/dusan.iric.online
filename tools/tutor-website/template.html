@@ -11,7 +11,7 @@
     <header id="page-header">
         <div class="heading">
             <div class="lesson-identity">
-                <img class="lesson-header-mark" src="data:image/svg+xml,@@FAVICON@@" alt="" width="64" height="64">
+                <svg class="lesson-header-mark" aria-hidden="true" focusable="false" viewBox="0 0 32 32" width="64" height="64">@@WEBPAGE_LOGO@@</svg>
                 <div class="lesson-title-group">
                     <div class="lesson-heading"><span class="badge">@@SUBJECT@@</span><h1 id="topic"></h1></div>
                     <p id="subtitle" class="motivation"></p>
@@ -28,6 +28,8 @@
             <button id="tab-learning" type="button" role="tab" data-tab="learning" aria-controls="learning" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v16m0-16C9 3 5 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 1Z"/></svg><span>Učit se</span></button>
             <button id="tab-quiz" type="button" role="tab" data-tab="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10c3 0 5 11 3 12-1 1-4-3-4-3H8s-3 4-4 3C2 18 4 7 7 7ZM6 11h6m-3-3v6"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="14" r="1"/></svg><span>Hrát si</span></button>
         </nav>
+        </div>
+        <div class="lesson-tools" role="group" aria-label="Nástroje lekce">
         <details id="highlight-tools" class="highlight-tools">
             <summary aria-label="Zvýraznění textu" aria-keyshortcuts="Alt+H" title="Zvýraznění textu (Alt+H)">🖍️</summary>
             <div class="highlight-panel">
@@ -95,7 +97,7 @@
                 @@TIMING@@
                 <p id="difficulty" class="difficulty"></p>
                 <div class="question-heading"><span id="question-icon" class="card-icon" aria-hidden="true"></span><h2 id="question" tabindex="-1"></h2></div>
-                <p id="answer-help" hidden></p>
+                <details id="answer-guide" hidden><summary>Jak odpovídat?</summary><p id="answer-help"></p></details>
                 <form id="answers" novalidate></form>
                 <div id="feedback" role="status" hidden></div>
                 <button id="next" type="button" hidden>Další úloha</button>
@@ -122,7 +124,7 @@
         </section>
     </main>
     <footer class="lesson-footer">
-        <img class="lesson-footer-mark" src="data:image/svg+xml,@@WEBPAGE_LOGO@@" alt="" width="96" height="96">
+        <svg class="lesson-footer-mark" aria-hidden="true" focusable="false" viewBox="0 0 32 32" width="96" height="96">@@WEBPAGE_LOGO@@</svg>
     </footer>
     <button id="glossary-toggle" type="button" aria-haspopup="dialog" aria-controls="glossary-drawer" aria-expanded="false" title="Otevřít slovníček" hidden><span aria-hidden="true">🔖</span><span>Slovníček</span></button>
     <aside id="glossary-drawer" popover="manual" role="dialog" aria-modal="false" aria-labelledby="glossary-title">

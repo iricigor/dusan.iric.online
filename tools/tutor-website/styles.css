@@ -42,7 +42,7 @@ header { position: sticky; top: 0; z-index: 2; background: var(--card); padding:
 .heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .lesson-identity { display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0; }
 .lesson-title-group { min-width: 0; }
-.lesson-header-mark, .lesson-footer-mark { display: block; flex-shrink: 0; object-fit: contain; }
+.lesson-header-mark, .lesson-footer-mark { display: block; flex-shrink: 0; color: var(--primary); }
 .lesson-header-mark { width: 64px; height: 64px; }
 .lesson-footer { display: flex; justify-content: center; padding: 0 1rem 1.5rem; }
 .lesson-footer-mark { width: 96px; height: 96px; }
@@ -61,6 +61,8 @@ button { cursor: pointer; min-height: 44px; border: 1px solid var(--border); bor
 button:where(:not(:disabled):not(.term):not(.correction)):hover { background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
 button:hover { border-color: var(--primary); color: var(--primary); }
 .tab-bar { display: flex; align-items: stretch; gap: .5rem; margin-top: .75rem; border-bottom: 1px solid var(--border); }
+.lesson-tools { display: flex; justify-content: flex-end; align-items: center; gap: .5rem; }
+.lesson-tools:not(:has(> :not([hidden]))) { display: none; }
 nav { flex: 1; min-width: 0; gap: .35rem; flex-wrap: nowrap; }
 .tab-bar nav { margin-top: 0; }
 nav button { display: flex; flex: 1 1 0; max-width: 12rem; align-items: center; justify-content: center; gap: .5rem; min-width: 0; border: 1px solid transparent; border-radius: .65rem .65rem 0 0; margin-bottom: -1px; color: var(--muted); background: var(--bg); font-weight: bold; line-height: 1.4; }
@@ -306,28 +308,26 @@ a { color: var(--primary); }
 @media (max-width: 550px) {
     body { font-size: 1rem; }
     header { padding: .5rem 1rem 0; }
-    .heading { align-items: flex-start; }
+    .heading { position: relative; align-items: flex-start; }
     .lesson-identity { gap: .5rem; }
+    .lesson-title-group { flex: 1; }
     .lesson-header-mark { width: 48px; height: 48px; }
     .lesson-footer-mark { width: 64px; height: 64px; }
-    .lesson-heading { gap: .5rem; }
-    .lesson-heading .badge { padding: .1rem .4rem; font-size: .8rem; }
+    .lesson-heading { flex-direction: column; align-items: flex-start; gap: .6rem; }
+    .lesson-heading .badge { max-width: calc(100% - 84px); padding: .1rem .4rem; font-size: .8rem; }
+    .lesson-heading h1 { margin-top: .6rem; }
+    .heading .motivation { line-height: 1.5; }
+    #theme { position: absolute; top: 0; right: 0; }
     .card { --card-padding: 1rem; }
     .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
     .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .2rem; }
     .explored-control { grid-column: 2; padding-inline: .2rem; }
     .tab-bar { gap: 0; }
     .tab-bar nav { gap: 0; }
+    .lesson-tools { gap: 0; }
     .learning-controls { gap: 0; }
     nav { gap: .2rem; }
     nav button { flex: 1; gap: .25rem; padding: .5rem .3rem; font-size: .85rem; }
-    .tab-bar:has(.learning-controls:not([hidden])) nav button { flex-direction: column; justify-content: flex-start; gap: .1rem; min-width: 44px; padding-inline: 0; font-size: .75rem; }
-    .tab-bar:has(.learning-controls:not([hidden])) nav button:first-child { min-width: min-content; }
     .tab-icon { width: 1rem; height: 1rem; }
     .player-row { gap: .5rem; }
-}
-@media (max-width: 400px) {
-    .heading { flex-wrap: wrap; gap: .5rem; }
-    .lesson-identity { flex-basis: 100%; order: 1; }
-    #theme { margin-left: auto; }
 }

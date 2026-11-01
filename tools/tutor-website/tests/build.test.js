@@ -67,7 +67,10 @@ test('capabilities own subject counts and expose runtime mixes without shared mu
             minimumTasks: 30,
             minimumByDifficulty: progressive ? { easy: 3, medium: 4, hard: 3 } : { easy: 2, medium: 5, hard: 3 },
             recommendedByDifficulty: progressive ? { easy: 9, medium: 12, hard: 9 } : { easy: 6, medium: 15, hard: 9 },
-            ...(progressive ? { minimumMediumByType: { choice: 2, number: 2 }, recommendedMediumByType: { choice: 6, number: 6 } } : {}),
+            ...(progressive ? {
+                minimumMediumByType: { choice: 2, number: 2 }, recommendedMediumByType: { choice: 6, number: 6 },
+                learningExamples: { topicOnlyDefault: 6, countPolicy: 'source-coverage-or-user-agreement', quizBankInLearning: false }
+            } : {}),
             preferredTaskRange: { min: progressive ? 30 : 50, max: 100 },
             minimumTasksEnforcedByValidator: false
         });

@@ -39,9 +39,10 @@ there are no subject-specific CLI or schema aliases.
 Both subjects use `tools\tutor-website\assessment.js`, `tools\tutor-website\template.html` and
 `tools\tutor-website\runtime.js` and `tools\tutor-website\styles.css`.
 The favicon source is `tools\tutor-website\favicon.svg`, embedded into each new
-standalone page as a data URL for the browser tab and simple header mark.
-The matching fancy footer logo is
-`tools\tutor-website\design-proposals\issue-52\rounded-fancy.svg`, also embedded.
+standalone page as a data URL for the browser tab.
+The browser-tab favicon stays unchanged. Both decorative webpage marks use
+the transparent, theme-aware inline fragment
+`tools\tutor-website\webpage-logo.svg`, embedded without an opaque tile.
 Do not retrofit published pages.
 History and maths content/assessment adapters live alongside them in
 `history.js` and `maths.js`. Both prepared lesson sources live in
@@ -70,7 +71,7 @@ events linked by zero-based chunk index, with reviewed event years and optional
 birth/death brackets. No timeline metadata means no rail or reserved space;
 keep old lesson JSON valid. Preserve card order while sorting timeline nodes.
 Use the generator README's metadata shapes, responsive behavior and limits.
-The generator supports progressively scaffolded learning/practice, exact typed
+The generator supports guided learning examples and separate quiz practice, exact typed
 answer evaluation, partial scoring, grades and named per-lesson browser-session
 results. Maths quizzes have no running time display or speed bonus; history retains its
 speed bonus without an answer deadline. Both record active answering duration
@@ -90,7 +91,11 @@ Any other unsupported subject or operation must receive an explicit explanation.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
 the shared Původní text, Učit se and Hrát si tabs and name/nickname-required
-quiz flow. Maths practice is part of Učit se, not a fourth or replacement tab.
+quiz flow. Maths Učit se contains only guided worked examples; keep the full
+practice bank in Hrát si, not a fourth or replacement tab.
+Use capabilities' `authoringRequirements.learningExamples` for the topic-only
+default count. Source coverage or user agreement determines other example counts;
+do not enforce four examples or render the question bank as learning cards.
 Do not create per-lesson or per-subject copies of the common quiz lifecycle.
 Subject adapters may vary assessment rules, not shared functionality.
 For topic-only requests, show the short Czech topic in Původní text.
@@ -134,21 +139,22 @@ nonmodal slide-out drawer overlays the lesson on all screen sizes without a
 reserved column or text reflow. Support close/Escape/outside-click dismissal,
 focus restoration and reduced motion. Definitions open on click instead of
 filling the drawer. In Učit se, two icon-only Rozbalit vše / Sbalit vše controls
-at the right of the tab bar affect only learning disclosures. Keep them outside
-tablist semantics, with Czech tooltips, accessible labels and 44px targets.
+in the separate toolbar below the full-width tab bar affect only learning
+disclosures. Keep them outside tablist semantics, with Czech tooltips,
+accessible labels and 44px targets.
 Hints use a bottom pill, 💡 Nápověda, opening
 an animated tinted inset drawer with a left accent. Single-hint cards share a
 bottom-border footer with the native Prozkoumáno checkbox, slightly overlapping
 the card edge; the drawer expands above it, after the main content.
-Multi-step exercises retain separate step hints.
+Worked examples retain independent step disclosures.
 Keep expanded state accessible and disable motion when requested. Native numbered step/result/solution reveals
 are compact and borderless, retaining touch access. All learning hints, steps,
 results and solutions start collapsed in both subjects; keep the main lesson
 text visible and offer help on demand.
 Support comment/fun/quote alongside existing paragraph styles.
 Fun-fact boxes use golden/amber styling, rounded icon badges and subtle CSS
-sparkles, not purple. The subject badge and title share one row while retaining
-their distinct typography; allow the title to wrap within its column on mobile.
+sparkles, not purple. The subject badge and title share one row on desktop while
+retaining their distinct typography; stack them within the text column on mobile.
 Motivational subtitles use the subject accent, not purple. Original styled
 paragraphs must reconstruct the canonical source text exactly; never insert
 labels or explanations into that text. Original sections/paragraphs additionally allow
@@ -181,17 +187,21 @@ diagonal cap stroke slightly overlapping the upper-left edge, with a hanging
 left tassel. Keep the mark full-height (31 of 32 SVG units), with only 0.5-unit
 top/bottom anti-clipping clearance. Use the shared `tools\tutor-website\favicon.svg`
 for new pages; do not add fancy gradients/details to the favicon or retrofit
-already published pages. Center the simple header mark vertically beside the
+already published pages. Center the transparent header mark vertically beside the
 combined subject badge/title and motivational subtitle block, with the theme
 switch to the right and tabs below. Use a 64px square header mark on desktop,
-48px on narrow screens up to 550px. At widths up to 400px, place the theme
-switch in its own upper-right row above the full-width mark/text block to keep
-long titles readable and the sticky header compact. Center the matching approved Rounded satin
-fancy logo below the active lesson content in the shared footer: 96px square
-on desktop, 64px on narrow screens. Both marks are decorative images with empty
-alt text, not navigation controls. Keep their designs unchanged and embedded
-for offline use across history and maths.
-The subdued quiz cog sits at the right of the tab bar, outside tablist semantics,
+48px on narrow screens up to 550px. Keep the theme switch alongside the identity
+even on small phones, never in its own row above it. Center the matching
+transparent logo below the active lesson content in the shared footer: 96px square
+on desktop, 64px on narrow screens. Both marks are decorative inline SVGs with
+aria-hidden and focusable=false, preserving the D/cap silhouette without an
+opaque tile. Their ink inherits theme colors for offline use across both subjects.
+Numerical answer instructions start collapsed in Jak odpovídat?, reset for each
+question and stay hidden for choice questions. Keep their accessible field
+description. Correct feedback must not repeat the same value as both submitted
+and expected; retain worked explanations, points and corrections for partial,
+incorrect or invalid answers in both immediate feedback and result reviews.
+The subdued quiz cog sits in the separate toolbar below the tab bar, outside tablist semantics,
 in the same action area as learning controls; show it only in Hrát si. Keep its
 44px target and keyboard access. It toggles tools for one local UTF-8 JSON export of the
 complete embedded lesson, named `<lesson-id>-lekce.json`, preserving its numeric

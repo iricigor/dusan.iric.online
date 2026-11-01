@@ -72,6 +72,7 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                     const identity = document.querySelector('.lesson-identity').getBoundingClientRect();
                     const text = document.querySelector('.lesson-title-group').getBoundingClientRect();
                     const title = document.getElementById('topic').getBoundingClientRect();
+                    const badge = document.querySelector('.badge').getBoundingClientRect();
                     const subtitle = document.getElementById('subtitle').getBoundingClientRect();
                     const theme = document.getElementById('theme').getBoundingClientRect();
                     const tabs = document.querySelector('.tab-bar').getBoundingClientRect();
@@ -81,8 +82,9 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                     return mark.width === ${width <= 550 ? 48 : 64} && mark.height === mark.width &&
                         mark.right <= text.left && title.width >= 80 &&
                         heading.height <= innerHeight / 2 &&
-                        (${width} <= 400 ? theme.bottom <= identity.top && theme.right <= heading.right :
-                            text.right <= theme.left) &&
+                        (${width} <= 550 ? badge.right <= theme.left && theme.bottom <= title.top :
+                            text.right <= theme.left) && theme.right <= heading.right &&
+                        theme.top < identity.bottom && theme.bottom > identity.top &&
                         Math.abs((mark.top + mark.bottom - text.top - text.bottom) / 2) < 1 &&
                         title.top >= text.top && subtitle.bottom <= text.bottom &&
                         tabs.top >= Math.max(mark.bottom, text.bottom, theme.bottom) &&
@@ -96,11 +98,21 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                     const badge = document.querySelector('.lesson-heading .badge');
                     const title = document.getElementById('topic');
                     const a = badge.getBoundingClientRect(), b = title.getBoundingClientRect();
-                    return a.right <= b.left && a.top < b.bottom && a.bottom > b.top &&
+                    return (${width} <= 550 ? a.bottom <= b.top : a.right <= b.left && a.top < b.bottom && a.bottom > b.top) &&
                         parseFloat(getComputedStyle(badge).fontSize) < parseFloat(getComputedStyle(title).fontSize) &&
                         getComputedStyle(badge).borderRadius !== '0px' &&
                         getComputedStyle(document.getElementById('subtitle')).color === getComputedStyle(badge).color;
                 })()`), true, `${subject}/${width}/${theme}: badge/title share a row and subtitle uses the subject accent`);
+                assert.equal(await evaluate(`(() => {
+                    const tabs = [...document.querySelectorAll('[role="tab"]')].map(button => button.getBoundingClientRect());
+                    window.tutorTabBounds ??= {};
+                    const key = '${width}/${theme}';
+                    const bounds = tabs.map(rect => [rect.left, rect.width, rect.height]);
+                    const previous = window.tutorTabBounds[key];
+                    window.tutorTabBounds[key] = bounds;
+                    return !previous || bounds.every((rect, index) => rect.every((value, axis) =>
+                        Math.abs(value - previous[index][axis]) < 1));
+                })()`), true, `${subject}/${width}/${theme}: tabs retain identical dimensions in every view`);
                 if (tab === 'original') {
                     assert.equal(await evaluate(`[...document.querySelectorAll('#original-content article')].every(article => {
                         const style = getComputedStyle(article);
@@ -157,14 +169,14 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                         const controls = document.getElementById('learning-controls');
                         const tabs = document.querySelector('[role="tablist"]').getBoundingClientRect();
                         const bounds = controls.getBoundingClientRect();
-                        return !controls.closest('[role="tablist"]') && bounds.left >= tabs.right &&
+                        return !controls.closest('.tab-bar') && bounds.top >= tabs.bottom &&
                             [...controls.querySelectorAll('button')].every(button => {
                                 const rect = button.getBoundingClientRect();
                                 return button.textContent === '' && !!button.querySelector('svg[aria-hidden="true"]') &&
                                     button.title === button.getAttribute('aria-label') &&
                                     rect.width >= 44 && rect.height >= 44;
                             });
-                    })()`), true, `${subject}/${width}/${theme}: compact labelled icons beside, not inside, the tablist`);
+                    })()`), true, `${subject}/${width}/${theme}: labelled learning tools below the full-width tabs`);
                     assert.equal(await evaluate(`[...document.querySelectorAll('#learning-content details')].every(details =>
                         getComputedStyle(details).borderTopWidth === '0px' &&
                         details.querySelector('summary').getBoundingClientRect().height <= 36 &&
@@ -210,13 +222,14 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                         const field = document.getElementById('player');
                         const a = label.getBoundingClientRect(), b = field.getBoundingClientRect();
                         const tabs = document.querySelector('.tab-bar').getBoundingClientRect();
+                        const tools = document.querySelector('.lesson-tools').getBoundingClientRect();
                         const widths = [...document.querySelectorAll('[role="tab"]')].map(tab => tab.getBoundingClientRect().width);
                         const panel = document.querySelector('main').getBoundingClientRect();
                         return label.textContent === 'Přezdívka' && b.left > a.right && b.width >= 100 &&
                             Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 2 &&
                             /3 písmena.*60 znaků/.test(field.title) &&
                             field.getAttribute('aria-describedby').includes('name-help') &&
-                            Math.abs(tabs.bottom - panel.top) <= 1 &&
+                            Math.abs(tools.bottom - panel.top) <= 1 &&
                             Math.abs(tabs.left - panel.left) <= 1 &&
                             Math.abs(tabs.right - panel.right) <= 1 &&
                             Math.max(...widths) - Math.min(...widths) <= 1 &&
