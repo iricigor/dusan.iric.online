@@ -275,6 +275,7 @@ function initializeTutorLearning(lesson, subject) {
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);
+    $('learning-content').append($('practice-tools'));
     const learning = initializeLearning(lesson, document);
     const learningDetails = [...$('learning-content').querySelectorAll('details')];
     const syncLearningControls = () => {

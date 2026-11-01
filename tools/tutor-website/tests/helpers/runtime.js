@@ -53,7 +53,15 @@ class Element {
     }
     hidePopover() { this.open = false; }
     showModal() { this.open = true; }
-    close() { this.open = false; }
+    close() { this.open = false; this.dispatch('close'); }
+    cloneNode(deep = false) {
+        const clone = new Element(this.tag);
+        clone.text = this.text;
+        clone.className = this.className;
+        clone.dataset = { ...this.dataset };
+        if (deep) clone.append(...this.children.map(child => child.cloneNode(true)));
+        return clone;
+    }
     addEventListener(event, listener) { this.listeners[event] = listener; }
     dispatch(event, properties = {}) { this.listeners[event]?.({ preventDefault() {}, ...properties }); }
     querySelectorAll(selector) {
@@ -75,10 +83,13 @@ function page(subject = 'history', stored = []) {
     const shared = path.join(__dirname, '..', '..');
     const template = fs.readFileSync(path.join(shared, 'template.html'), 'utf8')
         .replace('@@TIMING@@', subject === 'history' ? '<div id="bonus"><div id="bonus-bar"></div></div>' : '');
-    assert.doesNotMatch(template, /type="checkbox"|id="speed"/);
+    assert.doesNotMatch(template, /id="speed"/);
     const elements = new Map([...template.matchAll(/\bid="([^"]+)"/g)].map(([, id]) => [id, new Element()]));
     elements.get('lesson-data').textContent = JSON.stringify(source);
     elements.get('player').value = 'Tester';
+    elements.get('print-mode').value = 'easy';
+    elements.get('practice-difficulty').value = 'easy';
+    elements.get('practice-count').value = '3';
     const modes = ['easy', 'medium', 'hard'].map(mode => {
         const element = new Element('button');
         element.dataset.mode = mode;

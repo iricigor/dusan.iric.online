@@ -214,6 +214,21 @@ validation alone cannot establish language or educational correctness. Return
 language problems to the subject tutor rather than silently translating the
 original or changing answers. Do not modify tools or schemas for a lesson request.
 
+Future generated pages also use the shared `runtime\printing.js` controller.
+`Vytisknout test` prints the selected online quiz's questions in their original
+order, or selects a quiz mode independently if no online quiz has been selected.
+`Pracovní list` in Učit se selects a difficulty and an exact whole-exercise count
+from the existing bank without repeats. Reject unavailable counts visibly;
+never invent tasks, duplicate them or silently shorten the selection.
+Both offer a preview and A4 browser printing/save-as-PDF, with handwriting space
+and an optional answer key beginning on separate pages. The key uses authored
+answers, explanations and worked maths step solutions. Preserve labels, units
+and plain-text mathematical notation. Do not add a PDF service/dependency,
+new lesson fields or per-subject print engines. Preparing/cancelling/printing
+must preserve online entries, progress and scores and exclude print-tool time
+from answer duration and history's bonus clock. Existing published pages and
+the independent Gems workflow remain unchanged.
+
 ## Subject-to-website handoff
 
 The caller sends these named fields in its custom-agent request:
@@ -277,6 +292,12 @@ For `build`:
    approved desktop/mobile sizes and unobstructed navigation in both themes.
    For a single-subject draft, inspect its behavior
    directly; the shared tests cover the other subject.
+   Check both print actions on the actual draft, exact question order, choice
+   labels, maths part labels/units/working space, unavailable practice counts,
+   unchecked answer-key privacy and checked answer-key correspondence on separate
+   A4 pages. Use browser print media/PDF checks, not just the screen preview.
+   Verify opening, cancelling and printing preserve entries, scoring, progress
+   and learning state; also check keyboard dismissal/focus and narrow layouts.
    Use the existing browser tooling. A skipped fixture browser test is not
    proof that the actual draft was checked; disclose unavailable browser
    checks or any unexercised behavior explicitly. Do not claim technical

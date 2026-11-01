@@ -60,6 +60,10 @@ subject-specific shapes:
   and appropriate for the audience, not obscure unrelated trivia.
 
 Declare each question's `assessment` using the website's shared contract.
+The shared printable test and practice sheet reuse these questions unchanged.
+Make prompts understandable without popovers or interactive hints. Review
+printed choices, accepted text answers and explanations in the optional separate
+answer key; do not author a second bank or a custom printing implementation.
 List legitimate short/full name variants in both string alternatives and
 `acceptedAnswers`; never accept ambiguous first names or arbitrary substrings.
 Choice answers match the selected zero-based option index. Declare year

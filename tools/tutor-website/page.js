@@ -10,6 +10,7 @@ function readRuntimeSource(subject) {
         'assessment.js', 'highlights.js', 'learning.js', 'runtime.js',
         path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
         path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js'),
+        path.join('runtime', 'printing.js'),
         `${subject}.js`
     ]
         .map(file => fs.readFileSync(path.join(__dirname, file), 'utf8')).join('\n');

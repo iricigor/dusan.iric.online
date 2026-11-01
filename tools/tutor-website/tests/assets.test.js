@@ -15,7 +15,8 @@ test('standalone and VM loaders assemble every shared controller once in the sam
     const files = [
         'assessment.js', 'highlights.js', 'learning.js', 'runtime.js',
         path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
-        path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js')
+        path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js'),
+        path.join('runtime', 'printing.js')
     ];
     for (const subject of ['history', 'maths']) {
         const lesson = JSON.parse(fs.readFileSync(capabilities(subject).examplePath, 'utf8'));
@@ -27,7 +28,7 @@ test('standalone and VM loaders assemble every shared controller once in the sam
         const html = renderLesson(subject, lesson);
         assert.ok(html.includes(`<script>\n${source}`) || html.includes(`<script>${source}`));
         for (const name of ['initializeTutor', 'initializeTutorLearning', 'initializeTutorNavigation',
-            'initializeTutorResults', 'initializeTutorQuiz', 'initializeLearning']) {
+            'initializeTutorResults', 'initializeTutorQuiz', 'initializeTutorPrinting', 'initializeLearning']) {
             assert.equal((source.match(new RegExp(`function ${name}\\(`, 'g')) || []).length, 1, name);
         }
         const other = subject === 'history' ? 'maths' : 'history';

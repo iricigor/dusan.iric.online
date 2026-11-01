@@ -68,6 +68,10 @@ wait for explicit confirmation to start implementation.
 - Subject tutors own educational accuracy, explanations, difficulty definitions,
   exercises, solutions and the educational meaning of accepted answers. They
   author JSON only, never custom HTML, CSS, JavaScript or numerical checkers.
+- Future lessons include shared printable tests and practice sheets from the
+  existing bank. Author self-contained prompts and complete answers/solutions
+  that also make sense without interactive hints. Review the printed Czech
+  questions and optional answer key; do not create another bank or print engine.
 - `tutor-website` owns the single shared schema (history v3, maths v4), validator, builder, task-count
   requirements, assessment implementation, shared page and technical review.
   Read `.github\agents\tutor-website.agent.md` for the named handoff fields.

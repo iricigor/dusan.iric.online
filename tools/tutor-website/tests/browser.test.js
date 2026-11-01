@@ -179,6 +179,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
 }, async t => {
     const browser = await openBrowser(t);
     const { directory, client, evaluate, exceptions, network } = browser;
+    let legacyResults;
     for (const [subject, lesson] of [
         ['maths', { ...mathsAssessmentLesson(), id: 'shared-lesson-id' }],
         ['history', { ...history, id: 'shared-lesson-id' }],
@@ -187,10 +188,16 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         if (subject === 'maths' && lesson.id === 'shared-lesson-id') {
             lesson.glossary[0].icon = '<img src=x onerror=alert(1)>';
         }
-        // File-URL storage sharing varies by browser; test key isolation at one stable URL.
+        // File-origin storage across navigations is browser-dependent; seed real saved
+        // legacy attempts in each progressive document to test namespace coexistence.
         const file = path.join(directory, 'shared-lesson.html');
-        const legacyResults = lesson.version === 4
-            ? await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`) : null;
+        let legacySeed;
+        if (lesson.version === 4) {
+            assert.ok(legacyResults, 'legacy quizzes produced saved attempts for the coexistence fixture');
+            legacySeed = await client.send('Page.addScriptToEvaluateOnNewDocument', {
+                source: `sessionStorage.setItem('maths-tutor:v2:shared-lesson-id', ${JSON.stringify(legacyResults)});`
+            });
+        }
         fs.writeFileSync(file, renderLesson(subject, lesson));
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
         for (let attempt = 0; attempt < 100; attempt++) {
@@ -208,11 +215,19 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         await checkQuizGuard(scenario);
         if (subject === 'maths') await checkMathsQuiz(scenario);
         else await checkHistoryQuiz(scenario);
-        await checkPersistence(scenario);
         if (lesson.version === 4) {
-            assert.ok(legacyResults, 'the same-id legacy results exist before the progressive page');
+            assert.equal(await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`), legacyResults,
+                'progressive initialization and quizzes preserve the real legacy attempts');
+        }
+        await checkPersistence(scenario);
+        if (subject === 'maths' && lesson.version !== 4) {
+            legacyResults = await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`);
+            assert.equal(JSON.parse(legacyResults).length, 2, 'legacy storage recovery saved both real attempts');
+        }
+        if (lesson.version === 4) {
             assert.equal(await evaluate(`sessionStorage.getItem('maths-tutor:v2:shared-lesson-id')`), legacyResults,
                 'progressive quizzes and storage failures do not alter same-id legacy results');
+            await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: legacySeed.identifier });
         }
     }
     assert.deepEqual(exceptions, []);

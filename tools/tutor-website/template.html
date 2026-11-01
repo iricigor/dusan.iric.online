@@ -68,9 +68,12 @@
             @@SHARE@@
         </section>
         <section id="learning" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden>
-            <div id="learning-content"></div>
+            <div id="learning-content">
+                <div id="practice-tools" class="print-actions"><button id="practice-sheet" type="button">Pracovní list</button></div>
+            </div>
         </section>
         <section id="quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden>
+            <div class="print-actions"><button id="print-test" type="button">Vytisknout test</button></div>
             <article id="setup" class="card">
                 <h2><span class="card-icon" aria-hidden="true">🎯</span>Vyber si kvíz</h2>
                 <div class="player-row">
@@ -145,6 +148,31 @@
             <button id="quiz-leave" type="button">Ukončit kvíz a přepnout</button>
         </div>
     </dialog>
+    <dialog id="print-dialog" aria-labelledby="print-title" aria-describedby="print-help">
+        <div class="print-settings">
+            <h2 id="print-title"></h2>
+            <p id="print-help">Prohlédni si list a pak zvol tisk nebo uložení do PDF v prohlížeči. Odpovědi v online kvízu zůstanou beze změny.</p>
+            <p id="print-selection"></p>
+            <div id="print-mode-row"><label for="print-mode">Obtížnost testu</label>
+                <select id="print-mode"><option value="easy">Lehká</option><option value="medium">Střední</option><option value="hard">Těžká</option></select>
+            </div>
+            <div id="practice-settings" hidden>
+                <label for="practice-difficulty">Obtížnost úloh</label>
+                <select id="practice-difficulty"><option value="easy">Lehká</option><option value="medium">Střední</option><option value="hard">Těžká</option></select>
+                <label for="practice-count">Počet úloh</label>
+                <input id="practice-count" type="number" min="1" step="1" value="3" aria-describedby="practice-available print-error">
+                <p id="practice-available"></p>
+            </div>
+            <label class="print-key-option"><input id="print-key" type="checkbox"> Přidat klíč s odpověďmi na samostatné stránky</label>
+            <p id="print-error" role="alert" hidden></p>
+            <div class="print-actions">
+                <button id="print-now" type="button">Tisk / Uložit jako PDF</button>
+                <button id="print-close" type="button">Zavřít</button>
+            </div>
+        </div>
+        <div id="print-preview" aria-label="Náhled k tisku"></div>
+    </dialog>
+    <div id="print-sheet"></div>
     <script id="lesson-data" type="application/json">@@DATA@@</script>
     <script>@@APP@@</script>
 </body>
