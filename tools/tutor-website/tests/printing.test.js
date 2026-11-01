@@ -22,10 +22,15 @@ test('printing pauses answer duration and history bonus without resetting entere
         const prompt = app.get('question').textContent;
         app.get('print-test').dispatch('click');
         app.advance(60000);
+        if (subject === 'history') {
+            assert.ok(Math.abs(Number(app.get('bonus').style.opacity) - (1 - 1000 / 12000)) < 1e-12);
+            assert.ok(Math.abs(Number(app.get('bonus-bar').style.transform.match(/scaleX\((.*)\)/)[1]) - (1 - 1000 / 15000)) < 1e-12);
+        }
         app.get('print-close').dispatch('click');
         assert.equal(app.get('question').textContent, prompt);
         app.advance(1000);
         if (subject === 'history') {
+            assert.ok(Math.abs(Number(app.get('bonus').style.opacity) - (1 - 2000 / 12000)) < 1e-12);
             app.get('answers').children[0].dispatch('click');
             assert.match(app.get('feedback').textContent, /bonus \+10/);
         } else app.get('answers').children[0].dispatch('click');

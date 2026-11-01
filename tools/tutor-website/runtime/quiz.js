@@ -165,7 +165,9 @@ function initializeTutorQuiz(lesson, subject, context) {
         if (subject.speedBonus) {
             quiz.questionStarted = performance.now();
             const update = () => {
-                const remaining = Math.max(0, 1 - ((printPausedAt ?? performance.now()) - quiz.questionStarted) / 15000);
+                const elapsed = (printPausedAt ?? performance.now()) - quiz.questionStarted;
+                const remaining = Math.max(0, 1 - elapsed / 15000);
+                $('bonus').style.opacity = String(Math.max(0, 1 - elapsed / 12000));
                 $('bonus-bar').style.transform = `scaleX(${remaining})`;
                 if (!remaining) clearInterval(timer);
             };
