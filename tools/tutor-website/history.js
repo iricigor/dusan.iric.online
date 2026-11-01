@@ -43,7 +43,7 @@ const historySubject = {
     speedBonus: true,
     rules: [
         'Lehká otázka: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
-        'Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Tenký proužek ukazuje, dokud je bonus dostupný. Potom můžeš dál odpovídat za základní body. Nemusíš spěchat.',
+        'Za zcela správnou odpověď za méně než 15 sekund získáš 2× body. Tenký proužek postupně bledne a po 12 sekundách zmizí. Bonus platí ještě další 3 sekundy. Po 15 sekundách můžeš dál odpovídat za základní body. Nemusíš spěchat.',
         'Známka nezávisí na rychlosti: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5.',
         'Pokusy řadíme podle bodů. Při stejných bodech rozhoduje kratší doba odpovídání. Čtení vysvětlení ani pobyt mimo kvíz se do ní nepočítají. U starších pokusů zůstává původní celková doba.'
     ],

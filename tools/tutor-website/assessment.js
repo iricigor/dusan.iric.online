@@ -6,7 +6,7 @@ const tutorAssessment = (() => {
     const DECIMAL = `${WHOLE}(?:[.,][0-9]{1,12})?`;
     const numericHelp = 'Napiš celé nebo desetinné číslo, zlomek (1/2) či smíšené číslo (1 3/4). Jmenovatel nesmí být nula.';
     const normalizeAnswer = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .toLocaleLowerCase('cs').replace(/y/g, 'i').trim().replace(/\s+/g, ' ');
+        .toLocaleLowerCase('cs').replace(/y/g, 'i').replace(/\s+/g, '');
     function rational(text) {
         const [whole, part = ''] = text.replace(',', '.').split('.');
         return { numerator: BigInt(whole + part), denominator: 10n ** BigInt(part.length) };

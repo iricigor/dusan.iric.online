@@ -6,6 +6,22 @@ const lesson = require('../examples/defenestrace.json');
 const mathsLesson = require('../examples/zlomky-a-prevody-delky.json');
 const { page } = require('./helpers/runtime.js');
 
+test('the whole bonus indicator fades over 12 seconds without changing its 15-second deadline', () => {
+    const runtime = page();
+    runtime.start('easy');
+    for (const [advance, opacity, remaining] of [
+        [0, 1, 1], [6000, .5, .6], [6000, 0, .2], [2000, 0, 1 / 15], [1000, 0, 0], [1000, 0, 0]
+    ]) {
+        runtime.advance(advance);
+        assert.equal(Number(runtime.get('bonus').style.opacity), opacity);
+        const scale = Number(runtime.get('bonus-bar').style.transform.match(/scaleX\((.*)\)/)[1]);
+        assert.ok(Math.abs(scale - remaining) < 1e-12);
+        assert.equal(runtime.get('feedback').hidden, true);
+        assert.equal(runtime.get('next').hidden, true);
+    }
+    assert.equal(runtime.intervals.size, 0);
+});
+
 test('every mode and restarted run enables the bonus, waits for progression and stores totals', () => {
     const runtime = page();
     for (const [mode, count, maximum] of [['easy', 3, 60], ['medium', 5, 110], ['hard', 10, 210]]) {
@@ -15,10 +31,12 @@ test('every mode and restarted run enables the bonus, waits for progression and 
         for (let index = 0; index < count; index++) {
             assert.equal(runtime.get('quiz-progress').value, index);
             assert.equal(runtime.get('bonus').textContent, '');
+            assert.equal(runtime.get('bonus').style.opacity, '1');
             assert.equal(runtime.get('bonus-bar').style.transform, 'scaleX(1)');
             assert.equal(runtime.intervals.size, 1);
             const question = lesson.questions.find(q => q.prompt === runtime.get('question').textContent);
             runtime.advance(14999);
+            assert.equal(runtime.get('bonus').style.opacity, '0');
             if (question.type === 'text') {
                 runtime.get('answer-input').value = question.acceptedAnswers[0];
                 runtime.get('answers').dispatch('submit');
@@ -59,6 +77,7 @@ test('deadline leaves answers available and speed changes totals, not grades or 
             runtime.advance(elapsed);
             if (elapsed >= 15000) {
                 assert.equal(runtime.get('bonus-bar').style.transform, 'scaleX(0)');
+                assert.equal(runtime.get('bonus').style.opacity, '0');
                 assert.equal(runtime.intervals.size, 0);
                 assert.equal(runtime.get('feedback').hidden, true);
                 assert.equal(runtime.get('next').hidden, true);

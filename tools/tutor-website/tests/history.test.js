@@ -65,9 +65,10 @@ test('text normalization supports Czech spelling tolerance and accepted alternat
     assert.equal(scoreAnswer(question, ' FALCKI ', 1000).base, 30);
     assert.equal(scoreAnswer(question, '<img src=x>', 1000).base, 0);
     const name = { ...question, acceptedAnswers: ['Komenský', 'Jan Komenský', 'Jan Amos Komenský'] };
-    for (const answer of ['Komensky', 'Jan Komensky', 'Jan Amos Komenský']) {
+    for (const answer of ['Komensky', 'Jan Komensky', 'Jan Amos Komenský', 'JanAmosKomenski', 'Jan\tAmos\nKomensky']) {
         assert.equal(scoreAnswer(name, answer, 1000).fraction, 1, answer);
     }
+    assert.equal(scoreAnswer({ ...question, acceptedAnswers: ['Karel 4'] }, 'karel4', 1000).fraction, 1);
     assert.equal(scoreAnswer(name, 'Jan', 1000).fraction, 0);
 });
 
