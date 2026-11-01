@@ -45,6 +45,16 @@ maths retains its established rules. No author-supplied scoring configuration
 is needed. One-step equations with numerical answers are supported; arbitrary
 symbolic answer evaluation and interactive geometry remain unsupported.
 
+New generated pages also include shared printable tests and practice sheets
+using the same bank and contract, with no new JSON fields. Author self-contained
+questions that make sense on paper without hints/popovers; retain mathematical
+notation, units and separately labelled parts. Complete canonical answers,
+accepted history text alternatives, explanations and maths step solutions supply
+the optional separate answer key. Subject tutors review these rendered outputs
+for Czech and educational accuracy; the website helper checks selection,
+working space, A4 layout and preservation of the online state. See
+[Printable tests and practice sheets](page-behavior.md#printable-tests-and-practice-sheets).
+
 ### Website-owned task counts
 
 `authoringRequirements` is guidance for new lesson authors, not an additional

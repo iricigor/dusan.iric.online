@@ -34,6 +34,7 @@ function initializeTutorQuiz(lesson, subject, context) {
     const results = initializeTutorResults(lesson, subject, context);
     let quiz = null;
     let timer = null;
+    let printPausedAt = null;
     const warnBeforeUnload = event => {
         if (!quiz || quiz.finished) return;
         event.preventDefault();
@@ -66,6 +67,7 @@ function initializeTutorQuiz(lesson, subject, context) {
     function resumeAnswerClock() {
         if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden &&
             !$('quiz-leave-dialog').open && quiz.answerStarted === null) {
+            if (printPausedAt !== null) return;
             quiz.answerStarted = performance.now();
         }
     }
@@ -96,7 +98,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         focusContent($('results-title'));
     }
     function submit(values) {
-        if (!quiz || quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
+        if (!quiz || quiz.locked || quiz.finished || $('quiz-leave-dialog').open || printPausedAt !== null) return;
         if (!subject.acceptSubmission(values)) {
             $('feedback').textContent = 'Nejdřív napiš odpověď.';
             $('feedback').hidden = false;
@@ -163,7 +165,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         if (subject.speedBonus) {
             quiz.questionStarted = performance.now();
             const update = () => {
-                const remaining = Math.max(0, 1 - (performance.now() - quiz.questionStarted) / 15000);
+                const remaining = Math.max(0, 1 - ((printPausedAt ?? performance.now()) - quiz.questionStarted) / 15000);
                 $('bonus-bar').style.transform = `scaleX(${remaining})`;
                 if (!remaining) clearInterval(timer);
             };
@@ -180,7 +182,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         }
     });
     document.querySelectorAll('[data-mode]').forEach(control => control.addEventListener('click', () => {
-        if ($('quiz-leave-dialog').open) return;
+        if ($('quiz-leave-dialog').open || printPausedAt !== null) return;
         if (quiz && !quiz.finished && $('setup').hidden) return;
         const name = $('player').value.trim();
         if ((name.match(/\p{L}/gu) || []).length < 3 || name.length > 60) {
@@ -206,7 +208,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         showQuestion();
     }));
     $('next').addEventListener('click', () => {
-        if (!quiz || !quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
+        if (!quiz || !quiz.locked || quiz.finished || $('quiz-leave-dialog').open || printPausedAt !== null) return;
         quiz.index++;
         if (quiz.index === quiz.questions.length) finish();
         else showQuestion();
@@ -219,5 +221,19 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('player').focus();
     });
     results.renderLeaderboard();
-    return { isActive: () => !!quiz && !quiz.finished, pauseAnswerClock, resumeAnswerClock, abandonQuiz };
+    return {
+        isActive: () => !!quiz && !quiz.finished, pauseAnswerClock, resumeAnswerClock, abandonQuiz,
+        selectedQuestions: () => quiz ? [...quiz.questions] : [],
+        pauseForPrint() {
+            pauseAnswerClock();
+            printPausedAt = performance.now();
+        },
+        resumeAfterPrint() {
+            if (quiz && subject.speedBonus && printPausedAt !== null) {
+                quiz.questionStarted += Math.max(0, performance.now() - printPausedAt);
+            }
+            printPausedAt = null;
+            resumeAnswerClock();
+        }
+    };
 }

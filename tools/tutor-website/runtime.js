@@ -38,4 +38,5 @@ function initializeTutor(lesson, subject) {
         abandonQuiz: () => quiz.abandonQuiz()
     });
     quiz = initializeTutorQuiz(lesson, subject, context);
+    initializeTutorPrinting(lesson, subject, context, quiz);
 }

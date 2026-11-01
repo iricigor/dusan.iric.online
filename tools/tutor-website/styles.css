@@ -35,6 +35,43 @@ body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-pa
 body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
 body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }
 * { box-sizing: border-box; }
+.print-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0; }
+#print-sheet { display: none; }
+#print-dialog { width: min(58rem, calc(100% - 2rem)); max-width: none; max-height: calc(100dvh - 2rem); padding: 1rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); color: var(--text); }
+#print-dialog::backdrop { background: #0008; }
+.print-settings h2 { margin-top: 0; }
+.print-settings select { max-width: 100%; font: inherit; padding: .4rem; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: .4rem; }
+.print-settings input[type="number"] { width: 6rem; }
+#practice-settings, #print-mode-row { margin: .75rem 0; }
+#practice-settings label { display: block; }
+.print-key-option { display: block; }
+.print-key-option input { width: 1.2rem; height: 1.2rem; vertical-align: middle; }
+#print-error { color: var(--bad); }
+#print-preview { margin-top: 1rem; overflow-wrap: anywhere; }
+.print-document { color-scheme: light; background: white; color: black; font: 12pt/1.5 Arial, sans-serif; padding: 8mm; }
+.print-document h1 { font-size: 20pt; }
+.print-document h2 { font-size: 16pt; }
+.print-document h3 { font-size: 12pt; margin: 4mm 0 2mm; white-space: pre-wrap; }
+.print-document p, .print-options { white-space: pre-wrap; }
+.print-question { margin-bottom: 6mm; break-inside: avoid; }
+.print-question-heading { break-after: avoid; }
+.print-part, .print-key-part { break-inside: avoid; }
+.print-part > p { margin-bottom: 2mm; }
+.print-options { list-style-type: lower-alpha; padding-left: 8mm; }
+.print-working { height: 22mm; border-bottom: 1px solid #aaa; }
+body[data-subject="maths"] .print-part .print-working { height: 32mm; }
+.print-answer-key { break-before: page; border-top: 1px solid #aaa; margin-top: 8mm; }
+.print-key-question { break-inside: avoid; }
+@page { size: A4; margin: 14mm; }
+@media print {
+    html:has(#print-dialog[open]) { color-scheme: light; scrollbar-gutter: auto; overflow: visible; }
+    body:has(#print-dialog[open]) { background: white; color: black; }
+    body:has(#print-dialog[open]) > :not(#print-sheet) { display: none !important; }
+    #print-dialog[open]::backdrop { display: none; }
+    body:has(#print-dialog[open]) #print-sheet { display: block; }
+    #print-sheet .print-document { padding: 0; }
+    #print-sheet .print-answer-key { border: 0; margin-top: 0; }
+}
 html { scrollbar-gutter: stable; view-transition-name: none; }
 @supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
 body { margin: 0; background: var(--bg); color: var(--text); font: 1.1rem/1.7 system-ui, sans-serif; }
