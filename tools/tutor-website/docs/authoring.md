@@ -218,6 +218,11 @@ Only fully correct answers strictly before **15000 ms** earn the mandatory
 double-points speed bonus. Late answers remain available; incorrect and partial
 answers never earn a bonus. Grades use base points only, with 80/60/40/20 percent
 boundaries. The leaderboard sorts total points first, then shorter active answering duration.
+The thin shrinking bonus indicator, including its track, fades linearly from
+full opacity to invisible over the first **12000 ms**, then stays invisible.
+Its disappearance is not the scoring deadline: fully correct answers during
+the final three seconds still earn the bonus. Visibility resets for every new
+question and restarted quiz; learner-facing rules explain the distinction.
 The speed deadline continues while a confirmation or another browser page is shown;
 it is separate from the [answer-duration measurement](page-behavior.md#completion-local-ranking-and-answer-duration).
 Maths never starts the shared controller's bonus timer and has no countdown,

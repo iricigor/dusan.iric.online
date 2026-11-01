@@ -35,6 +35,31 @@ test('all four matcher types work independently for full and partial credit', ()
     assert.equal(evaluate(policy({ ...string('Komenský'), normalization: 'czech' }, undefined, 'text'), 'KOMENSKI').fraction, 1);
 });
 
+test('Czech text matching ignores whitespace for full and partial credit without changing literal or numeric rules', () => {
+    const czech = value => ({ ...string(value), normalization: 'czech' });
+    const expected = policy(alternatives(czech('Karel 4'), czech('Jan Amos Komenský')),
+        alternatives(czech('Karel'), czech('Jan Amos')), 'text');
+    for (const raw of ['karel4', ' K A R E L\t4 ', 'karel\u00a04', 'JANAMOSKOMENSKI', 'Jan\nAmos\tKomensky']) {
+        assert.equal(evaluate(expected, raw).fraction, 1, raw);
+    }
+    for (const raw of ['k a r e l', 'JANAMOS', 'Jan\tAmos']) {
+        assert.equal(evaluate(expected, raw).fraction, .5, raw);
+    }
+    assert.equal(evaluate(expected, 'karel5').fraction, 0);
+    assert.equal(evaluate(expected, '\t \n\u00a0').valid, false);
+    assert.equal(evaluate(policy(czech('karel4'), undefined, 'text'), 'Karel 4').fraction, 1);
+    for (const normalization of [undefined, 'literal']) {
+        const literal = policy({ ...string('karel 4'), ...(normalization ? { normalization } : {}) }, undefined, 'text');
+        assert.equal(evaluate(literal, ' karel 4 ').fraction, 1);
+        for (const raw of ['karel4', 'karel  4', 'karel\t4']) {
+            assert.equal(evaluate(literal, raw).fraction, 0, raw);
+        }
+    }
+    assert.equal(evaluate(policy(number('7/4')), '1 3/4').fraction, 1);
+    assert.equal(evaluate(policy(number('7/4')), '13/4').fraction, 0);
+    assert.equal(evaluate(policy(number('1620')), '16 20').valid, false);
+});
+
 test('1620 is full credit before overlapping 1615-1625 partial interval, including boundaries', () => {
     const expected = policy(number('1620'), range('1615', '1625'));
     for (const raw of ['1620', '1620.0', '3240/2']) assert.equal(evaluate(expected, raw).fraction, 1, raw);

@@ -76,6 +76,86 @@ test('topic-sized guided learning stays compact and transparent on phones', {
     assert.deepEqual(network, []);
 });
 
+test('history bonus track and bar fade before the scoring deadline in the real page', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const { directory, client, evaluate, exceptions, network } = await openBrowser(t);
+    const file = path.join(directory, 'history-bonus-fade.html');
+    fs.writeFileSync(file, renderLesson('history', history));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    for (let attempt = 0; attempt < 100; attempt++) {
+        if (await evaluate(`!!document.querySelector('[data-mode="easy"]')`)) break;
+        await delay(20);
+    }
+    const result = await evaluate(`(async () => {
+        await window.switchTutorTab('quiz');
+        const $ = id => document.getElementById(id);
+        const lesson = JSON.parse($('lesson-data').textContent);
+        let now = 0;
+        let serial = 0;
+        const intervals = new Map();
+        const originalInterval = window.setInterval;
+        const originalClear = window.clearInterval;
+        const originalNow = Object.getOwnPropertyDescriptor(performance, 'now');
+        Object.defineProperty(performance, 'now', { configurable: true, value: () => now });
+        window.setInterval = callback => { intervals.set(++serial, callback); return serial; };
+        window.clearInterval = id => intervals.delete(id);
+        const advance = elapsed => {
+            now += elapsed;
+            [...intervals.values()].forEach(callback => callback());
+        };
+        const answer = () => {
+            const question = lesson.questions.find(q => q.prompt === $('question').textContent);
+            if (question.type === 'text') {
+                $('answer-input').value = question.acceptedAnswers[0];
+                $('answers').requestSubmit();
+            } else $('answers').querySelectorAll('button')[question.answer].click();
+        };
+        try {
+            $('player').value = 'Kontrola';
+            document.querySelector('[data-mode="easy"]').click();
+            const samples = [];
+            for (const elapsed of [0, 6000, 6000, 2000]) {
+                advance(elapsed);
+                samples.push({ opacity: getComputedStyle($('bonus')).opacity,
+                    track: getComputedStyle($('bonus')).backgroundColor,
+                    parent: $('bonus-bar').parentElement.id,
+                    feedbackHidden: $('feedback').hidden, nextHidden: $('next').hidden });
+            }
+            answer();
+            const invisibleBonus = $('feedback').textContent.includes('bonus +');
+            $('next').click();
+            const resetOpacity = getComputedStyle($('bonus')).opacity;
+            advance(15000);
+            const deadlineOpacity = getComputedStyle($('bonus')).opacity;
+            const stopped = intervals.size === 0;
+            answer();
+            return { samples, invisibleBonus, resetOpacity, deadlineOpacity, stopped,
+                deadlineBonus: $('feedback').textContent.includes('bonus +') };
+        } finally {
+            window.setInterval = originalInterval;
+            window.clearInterval = originalClear;
+            if (originalNow) Object.defineProperty(performance, 'now', originalNow);
+            else delete performance.now;
+        }
+    })()`);
+    assert.deepEqual(result.samples.map(sample => sample.opacity), ['1', '0.5', '0', '0']);
+    for (const sample of result.samples) {
+        assert.notEqual(sample.track, 'rgba(0, 0, 0, 0)', 'the painted track is faded with its bar');
+        assert.equal(sample.parent, 'bonus');
+        assert.equal(sample.feedbackHidden, true);
+        assert.equal(sample.nextHidden, true);
+    }
+    assert.equal(result.invisibleBonus, true);
+    assert.equal(result.resetOpacity, '1');
+    assert.equal(result.deadlineOpacity, '0');
+    assert.equal(result.deadlineBonus, false);
+    assert.equal(result.stopped, true);
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('glossary links only the first occurrence of each entry per teaching paragraph', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
