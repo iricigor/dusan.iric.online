@@ -115,55 +115,25 @@ const mathsSubject = {
             article.append(steps, answer);
             examples.append(article);
         });
-        const intro = node('article', undefined, 'card');
-        intro.append(heading('Teď to zkus samostatně', undefined, '✏️'),
-            node('p', 'Začni lehkými příklady a postupuj k těžším. Nejprve počítej bez pomoci. Nápovědu nebo řešení si otevři, až je potřebuješ.'));
-        const exercises = node('div');
-        exercises.id = 'exercises';
-        const levels = lesson.version === 4
-            ? { easy: 'Porozumění: ano/ne', medium: 'Výběr nebo jeden výpočet', hard: 'Navazující výpočty' }
-            : { easy: 'Lehká skupina', medium: 'Slovní úloha', hard: 'Úloha ve třech krocích' };
-        const ordered = ['easy', 'medium', 'hard'].flatMap(level => lesson.exercises.filter(exercise => exercise.difficulty === level));
-        ordered.forEach((exercise, index) => {
-            const key = `exercises.${lesson.exercises.indexOf(exercise)}`;
-            const article = node('article', undefined, 'card');
-            article.id = `learning-exercise-${exercise.id}`;
-            article.dataset.learningCard = 'true';
-            article.append(heading(`${index + 1}. ${levels[exercise.difficulty]}`, exercise.icon, '✏️'),
-                paragraph(exercise.prompt, 'p', { target: `${key}.prompt` }));
-            if (exercise.options) {
-                article.append(paragraph(`Možnosti: ${exercise.options.join(' · ')}`),
-                    hint('Nápověda', exercise.hint, 'h3', { explanation: `${key}.hint` }),
-                    disclose('Řešení', paragraph(`Správná odpověď: ${exercise.options[exercise.answer]}`),
-                        paragraph(exercise.solution, 'p', { target: `${key}.solution` })));
-            }
-            (exercise.steps || []).forEach((step, stepIndex) => {
-                const label = exercise.difficulty === 'easy' ? `${index + 1}${'abcd'[stepIndex]}` : `${index + 1}.${stepIndex + 1}`;
-                article.append(hint(`${label}: ${step.prompt}`, step.hint, 'h3', {
-                    prompt: `${key}.steps.${stepIndex}.prompt`, explanation: `${key}.steps.${stepIndex}.hint`, prefix: label.length + 2
-                }), disclose('Řešení', paragraph(`Správná odpověď: ${formatAnswer(step.answer)}`),
-                    paragraph(step.solution, 'p', { target: `${key}.steps.${stepIndex}.solution` })));
-            });
-            article.append(disclose('Vysvětlení celé úlohy', paragraph(exercise.explanation, 'p', { target: `${key}.explanation` })));
-            exercises.append(article);
-        });
-        $('learning-content').append(examples, intro, exercises);
+        $('learning-content').append(examples);
     },
     feedback({ node }, container, { question: exercise, values, score }, number) {
         const points = value => String(value).replace('.', ',');
         if (exercise.options) {
             const result = score.steps[0];
-            container.append(node('p', `${result.message} Tvoje odpověď: ${exercise.options[values[0]] ?? '(bez odpovědi)'}`,
-                result.correct ? 'correct' : 'incorrect'),
-                node('p', `Správná odpověď: ${exercise.options[exercise.answer]}. ${exercise.solution}`));
+            const display = exercise.options[values[0]] ?? '(bez odpovědi)';
+            const correction = result.correct ? '' : ` Správná odpověď: ${exercise.options[exercise.answer]}.`;
+            container.append(node('p', `${result.message} Tvoje odpověď: ${display}.${correction}`,
+                result.correct ? 'correct' : 'incorrect'), node('p', exercise.solution));
         }
         (exercise.steps || []).forEach((step, index) => {
             const label = exercise.difficulty === 'easy' ? `${number}${'abcd'[index]}` : `${number}.${index + 1}`;
             const result = score.steps[index];
+            const correction = result.correct ? '' : ` Správná odpověď: ${formatAnswer(step.answer)}.`;
             container.append(node('h3', `${label}: ${step.prompt}`),
-                node('p', `${result.message} Tvoje odpověď: ${values[index] || '(bez odpovědi)'}`, result.fraction > 0 ? 'correct' : 'incorrect'),
-                node('p', `Body za výpočet: ${points(result.fraction * POINTS[exercise.difficulty] / exercise.steps.length)}.`),
-                node('p', `Správná odpověď: ${formatAnswer(step.answer)}. ${step.solution}`));
+                node('p', `${result.message} Tvoje odpověď: ${values[index] || '(bez odpovědi)'}.${correction} Body za výpočet: ${points(result.fraction * POINTS[exercise.difficulty] / exercise.steps.length)}.`,
+                    result.fraction > 0 ? 'correct' : 'incorrect'),
+                node('p', step.solution));
         });
         container.append(node('p', exercise.explanation),
             node('p', `Body: ${points(score.total)}${score.accuracy ? ' (včetně 1 bodu za všechny čtyři správné odpovědi)' : ''}.`));

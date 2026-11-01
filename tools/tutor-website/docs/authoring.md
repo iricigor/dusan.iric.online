@@ -30,7 +30,7 @@ preserve their different teaching and assessment needs.
 | Subject | Contract | Output now |
 |---|---|---|
 | History | Shared v3, history section | Original text, factual review/corrections, learning, quiz and session results |
-| Maths | Shared v3, maths section | Original material, progressive worked examples/practice, exact checking, untimed quizzes, partial scoring and named session results |
+| Maths | Shared v3, maths section | Original material, guided worked examples, separate quiz practice, exact checking, untimed quizzes, partial scoring and named session results |
 
 Legacy history v1 and maths v2 JSON remain accepted without rewriting source
 material. Compatibility is limited to lesson data and grading, not old tool
@@ -55,6 +55,13 @@ Maths v4 minimums are 3/4/3, with at least two medium `choice` and two medium
 `number` tasks (`minimumMediumByType`). Recommendations are 9/12/9, including
 six medium choices and six medium numerical tasks (`recommendedMediumByType`).
 These quotas come from maths' runtime selections, not the tutor profiles.
+They describe the **quiz bank**, never the number of learning cards.
+Maths `learningExamples` exposes `topicOnlyDefault: 6`,
+`countPolicy: "source-coverage-or-user-agreement"` and `quizBankInLearning: false`.
+For custom source material, use enough guided examples to teach its concepts or
+agree the count with the user. A short topic-only input defaults to six examples,
+unless agreed otherwise. Never pad teaching to match the quiz-bank quota.
+Explicit prepared-default requests still reuse their reviewed JSON unchanged.
 For substantial history material, `preferredTaskRange` is 50–100; maths uses
 30–100. Material must support useful distinct tasks: never pad to reach a count.
 `minimumTasksEnforcedByValidator: false` distinguishes the new-authoring total

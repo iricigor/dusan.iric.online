@@ -15,22 +15,19 @@ async function checkProgressiveMaths({ client, evaluate, lesson }) {
     await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
     assert.deepEqual(await evaluate(`(async () => {
         await window.switchTutorTab('learning');
-        const cards = [...document.querySelectorAll('#exercises > article')];
-        const labels = cards.map(card => card.querySelector('.heading-text').textContent.replace(/^\\d+\\. /, ''));
-        document.querySelector('#exercises details summary').click();
+        document.querySelector('#examples details summary').click();
         window.timerStarts = 0;
         const interval = window.setInterval;
         window.setInterval = (...args) => { window.timerStarts++; return interval(...args); };
         return {
             examples: document.querySelectorAll('#examples > article').length,
-            labels, solution: document.querySelector('#exercises details').open,
+            exercises: document.querySelectorAll('#exercises > article').length,
+            solution: document.querySelector('#examples details').open,
             modes: [...document.querySelectorAll('[data-mode] .mode-count')].map(node => node.textContent),
             timing: document.querySelectorAll('#bonus, #timer, #countdown').length
         };
     })()`), {
-        examples: 4,
-        labels: ['easy', 'medium', 'hard'].flatMap(level => lesson.exercises.filter(task => task.difficulty === level)
-            .map(() => ({ easy: 'Porozumění: ano/ne', medium: 'Výběr nebo jeden výpočet', hard: 'Navazující výpočty' }[level]))),
+        examples: lesson.examples.length, exercises: 0,
         solution: true, modes: ['4 úlohy', '6 úloh', '10 úloh'], timing: 0
     });
     const requirements = {
@@ -85,7 +82,8 @@ async function checkProgressiveMaths({ client, evaluate, lesson }) {
                     if (wrong) earned = 0;
                     buttons[selected].click();
                     if (!$('feedback').textContent.includes('Tvoje odpověď: ' + task.options[selected])) throw new Error('Feedback lost selected label');
-                    if (!$('feedback').textContent.includes('Správná odpověď: ' + task.options[task.answer] + '. ' + task.solution)) throw new Error('Missing choice explanation');
+                    if (!$('feedback').textContent.includes(task.solution)) throw new Error('Missing choice explanation');
+                    if ($('feedback').textContent.includes('Správná odpověď:') !== wrong) throw new Error('Redundant or missing choice correction');
                     if (!buttons.every(button => button.disabled)) throw new Error('Choice not locked');
                     const score = $('score').textContent;
                     buttons[selected].click();
@@ -101,8 +99,12 @@ async function checkProgressiveMaths({ client, evaluate, lesson }) {
                     if (kind === 'blank' || kind === 'invalid') earned = 0;
                     $('answers').requestSubmit();
                     if (!inputs.every(input => input.disabled)) throw new Error('Numerical fields not locked');
-                    task.steps.forEach(step => {
-                        if (!$('feedback').textContent.includes('Správná odpověď: ' + formatAnswer(step.answer) + '. ' + step.solution)) throw new Error('Missing worked numerical answer');
+                    task.steps.forEach((step, stepIndex) => {
+                        if (!$('feedback').textContent.includes(step.solution)) throw new Error('Missing worked numerical answer');
+                        const corrected = kind === 'blank' || kind === 'invalid' || kind === 'partial' && step.assessment.partial;
+                        const status = $('feedback').querySelectorAll('h3')[stepIndex].nextElementSibling.textContent;
+                        if (status.includes('Správná odpověď:') !== !!corrected) throw new Error('Redundant or missing numerical correction');
+                        if (corrected && !status.includes('Správná odpověď: ' + formatAnswer(step.answer))) throw new Error('Missing expected numerical value');
                     });
                     if (kind === 'blank' && !$('feedback').textContent.includes('Odpověď chybí')) throw new Error('Blank answer not explained');
                     if (kind === 'invalid' && !$('feedback').textContent.includes('Napiš celé nebo desetinné')) throw new Error('Invalid expression not explained');

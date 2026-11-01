@@ -30,9 +30,9 @@ async function checkExport({ client, evaluate, capture, downloads, subject, less
             const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
             const valid = initiallyClosed && tools.open && cog.getAttribute('aria-label') === 'Nástroje kvízu' &&
                 !!cog.querySelector('svg[aria-hidden="true"]') &&
-                tools.parentElement.className === 'tab-bar' && !tools.closest('[role="tablist"]') &&
+                tools.parentElement.classList.contains('lesson-tools') && !tools.closest('[role="tablist"]') &&
                 !document.getElementById('setup').contains(tools) && Number(restingOpacity) <= .7 &&
-                trigger.left >= tabs.right && trigger.width >= 44 && trigger.height >= 44 &&
+                trigger.top >= tabs.bottom && trigger.width >= 44 && trigger.height >= 44 &&
                 panel.left >= 0 && panel.right <= innerWidth && panel.bottom <= innerHeight &&
                 panel.width <= Math.min(14 * rootFontSize, innerWidth - 2 * rootFontSize) &&
                 panel.height <= 80 &&

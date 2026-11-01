@@ -75,7 +75,8 @@ const historySubject = {
         const correct = question.type === 'text' ? question.acceptedAnswers[0] : question.options[question.answer];
         const display = question.type === 'text' ? values[0] : question.options[values[0]];
         const label = score.fraction === 1 ? 'Správně!' : score.fraction > 0 ? 'Blízko! Máš polovinu bodů.' : 'Tentokrát ne. Zkus to příště!';
-        container.append(node('p', `${score.assessment.valid ? label : score.assessment.message} Tvoje odpověď: ${display}. Správná odpověď: ${correct}. ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`,
+        const correction = score.fraction === 1 ? '' : ` Správná odpověď: ${correct}.`;
+        container.append(node('p', `${score.assessment.valid ? label : score.assessment.message} Tvoje odpověď: ${display}.${correction} ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`,
             score.fraction > 0 ? 'correct' : 'incorrect'));
     },
     result(answers, questions) {

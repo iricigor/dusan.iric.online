@@ -155,8 +155,10 @@ The short `Přezdívka` label and input share a row, including on mobile.
 The three-letter/60-character requirements appear in a native tooltip and an
 accessible field description; validation errors stay visible. The redundant
 privacy paragraph is omitted from setup; session-local storage remains unchanged.
-In Učit se, two icon-only `Rozbalit vše` / `Sbalit vše` controls sit at the right
-of the tab bar, outside tablist semantics, with Czech tooltips, accessible labels
+The mobile theme switch stays alongside the lesson identity, never in a
+standalone row above it. Tabs have the same full-width layout across all views.
+In Učit se, two icon-only `Rozbalit vše` / `Sbalit vše` controls sit in a separate
+toolbar below the tab bar, alongside highlighting tools, with Czech tooltips, accessible labels
 and 44px targets. They affect only learning
 hints, steps, answers and explanations, never the glossary or quiz disclosures.
 Individual disclosures remain independently operable. Hints use a centered,
@@ -164,7 +166,7 @@ bottom-aligned `💡 Nápověda` pill and a tinted inset drawer
 with a left accent. Single-hint cards share a bottom-border footer with the
 completion checkbox; both controls slightly overlap the card edge. Drawers
 expand above this footer, after the main content;
-multi-step exercises retain a separate hint beside each step's content.
+Worked examples retain separate step disclosures.
 Opening and closing smoothly animate the drawer height; reduced motion disables
 the animation. The button exposes its expanded state and controls
 the explanation. Native step/result/solution reveals
@@ -175,10 +177,10 @@ collapsed in both subjects; the main lesson text stays visible.
 ### Learning progress and optional history timeline
 
 The sticky header shows a segmented learning-only progress bar and a live
-`3/12 Prozkoumáno` counter. Each history chunk, maths worked example and whole
-maths exercise has a native, reversible `Prozkoumáno` checkbox on its bottom-right
-border; the maths practice
-introduction is not counted. Scrolling, hints and timeline navigation never
+`3/12 Prozkoumáno` counter. Each history chunk and maths worked example
+has a native, reversible `Prozkoumáno` checkbox on its bottom-right
+border. Quiz-bank exercises are not learning cards and are not counted.
+Scrolling, hints and timeline navigation never
 mark a card explored automatically. Completion stays in memory while switching
 tabs; reloading the page resets it. It does not affect quiz results.
 Explored cards use subdued text without dimming their controls or markers;
@@ -265,8 +267,11 @@ Unsupported targets, missing/ambiguous quotes and invalid colors fail validation
 | `exercises.<index>.hint` / `.solution` | V4 maths choice practice hint and solution |
 | `exercises.<index>.steps.<index>.prompt` / `.hint` / `.solution` | Maths practice steps |
 
-All indices refer to the source JSON, even if practice cards are displayed in
-difficulty order. Headings, generated numbering/answer labels, glossary panels
+All indices refer to the source JSON. Exercise targets remain accepted for
+compatibility with existing metadata and stored highlights, but are not painted:
+the quiz bank is no longer rendered as learning cards, and quiz text is not
+highlightable. New authored highlights should use original or guided-example
+targets. Headings, generated numbering/answer labels, glossary panels
 and quiz content are not highlighting targets.
 
 Children select text on either text tab, then use the crayon control or `Alt+H`
@@ -301,14 +306,14 @@ Its teaching paragraphs and glossary explain the monarchs' lives, fathers and
 reigns without changing the preserved original. Generated site pages embed their own assets and are not
 retroactively changed or published by updating these sources.
 
-The subject badge and lesson title share one row, retaining distinct badge
-and heading typography. Long titles wrap within their column on narrow screens.
-Motivational subtitles use the subject accent, not purple. The simple identity
+The subject badge and lesson title share one row on desktop and stack within
+the text column on mobile, retaining distinct badge and heading typography.
+Long titles wrap within their column.
+Motivational subtitles use the subject accent, not purple. The transparent identity
 mark sits to the left, vertically centered against the combined title/subtitle
 block; the theme switch stays to the right and tabs remain below.
-On screens up to 400px wide, the theme switch has its own upper-right row so
-the mark and text can use the full header width without squeezing long titles
-into an excessively tall sticky header.
+The theme switch remains beside this block even on small phones, without
+a standalone row. The tools occupy their own toolbar below the full-width tabs.
 Trusted subject selectors in the one shared stylesheet provide sepia/amber
 history accents and blue/teal maths accents. Softly visible CSS-only paper grain or
 graph-paper backgrounds cover entire original/learning cards, including headings
@@ -319,7 +324,7 @@ Fun facts use warm golden/amber boxes, rounded icon badges and CSS-only sparkles
 Other semantic callouts retain their own styling. Quiz/results
 backgrounds remain neutral; no lesson-supplied CSS or external assets are used.
 
-A subdued, smaller cog at the right of the tab bar toggles native quiz tools
+A subdued, smaller cog in the separate toolbar below the tab bar toggles native quiz tools
 only in Hrát si, in the same action area as learning expand/collapse controls.
 It remains keyboard-accessible with a 44px target and brightens on focus/hover.
 `Stáhnout lekci (JSON)` downloads the complete embedded lesson locally as UTF-8
@@ -387,12 +392,16 @@ with an open counter, and a short black diagonal cap stroke slightly overlapping
 its upper-left edge with a hanging left tassel. The mark spans 31 of 32 SVG
 units vertically, leaving only 0.5-unit top/bottom anti-clipping clearance
 (a quarter pixel at 16px). It contains no gradients or fine logo details.
-`page.js` embeds it as a data URL for both the browser-tab favicon and the
-header mark in every new standalone page. The header mark is 64px square on
+`page.js` embeds it as a data URL for the browser-tab favicon.
+The shared `webpage-logo.svg` inline fragment preserves the D and cap silhouette
+without a tile or border; its ink inherits the theme's primary/text colors, so
+the header and footer backgrounds show through in both themes.
+The header mark is 64px square on
 desktop and 48px on narrow screens (up to 550px). The matching approved
-`design-proposals\issue-52\rounded-fancy.svg` is embedded as a centered footer
+transparent logo is embedded as a centered footer
 mark below the active lesson content: 96px square on desktop and 64px on narrow
-screens. Both webpage images are decorative (`alt=""`), not navigation controls.
+screens. Both inline SVGs are decorative (`aria-hidden="true"` and
+`focusable="false"`), not navigation controls.
 Both subjects use the same shared template, stylesheet and assets: no font,
 network request or external asset is required. Do not regenerate or retrofit
 already published HTML. The independent Gems workflow remains unchanged.
@@ -481,7 +490,15 @@ Both quizzes require a name or nickname containing at least three Unicode
 letters, at most 60 characters. It is entered in the browser, never embedded
 in lesson JSON, and shown in the session-local results table.
 
-Maths examples and exercises share Učit se. All four worked examples initially
-leave hints, steps and results collapsed. Independent practice follows, ordered
-easy, medium, hard, with hints and solutions collapsed.
+Maths Učit se contains guided worked examples only; practice belongs in Hrát si.
+The example count follows the provided text or user agreement; topic-only
+lessons default to six. All examples initially leave hints, steps and results
+collapsed. The full question bank remains embedded for quiz selection and export.
 All hints, steps and solutions remain available on demand.
+
+Numerical-answer instructions use a collapsed `Jak odpovídat?` disclosure,
+reset for each question and hidden for choice-only questions. Inputs retain an
+accessible reference to the full help text. Correct feedback shows the submitted
+answer once, with its explanation and points, without a redundant correct-answer
+label. Partial, incorrect, blank and malformed answers retain explicit correction
+details. The results review uses the same feedback rules.

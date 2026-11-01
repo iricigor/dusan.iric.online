@@ -30,7 +30,10 @@ function capabilities(subject) {
             minimumByDifficulty: Object.fromEntries(levels.map((level, index) =>
                 [level, Math.max(...Object.values(modes).map(mix => mix[index]))])),
             recommendedByDifficulty: subject === 'maths' ? { easy: 9, medium: 12, hard: 9 } : { easy: 6, medium: 15, hard: 9 },
-            ...(subject === 'maths' ? { minimumMediumByType: { ...PROGRESSIVE_MEDIUM_MINIMUM }, recommendedMediumByType: { choice: 6, number: 6 } } : {}),
+            ...(subject === 'maths' ? {
+                minimumMediumByType: { ...PROGRESSIVE_MEDIUM_MINIMUM }, recommendedMediumByType: { choice: 6, number: 6 },
+                learningExamples: { topicOnlyDefault: 6, countPolicy: 'source-coverage-or-user-agreement', quizBankInLearning: false }
+            } : {}),
             preferredTaskRange: { min: subject === 'history' ? 50 : 30, max: 100 },
             minimumTasksEnforcedByValidator: false
         },

@@ -8,7 +8,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         control.querySelector('.mode-count').textContent = `${count} ${count < 5 ? 'úlohy' : 'úloh'}`;
     });
     $('answer-help').textContent = subject.answerHelp || '';
-    $('answer-help').hidden = !subject.answerHelp;
+    $('answer-guide').hidden = !subject.answerHelp;
     $('quiz-export').addEventListener('click', () => {
         $('export-error').hidden = true;
         let url;
@@ -49,6 +49,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('results').hidden = true;
         $('setup').hidden = false;
         $('answers').replaceChildren();
+        $('answer-guide').open = false;
         $('feedback').replaceChildren();
         $('feedback').hidden = true;
         $('next').hidden = true;
@@ -140,6 +141,8 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('answers').replaceChildren();
         $('feedback').hidden = true;
         $('next').hidden = true;
+        $('answer-guide').open = false;
+        $('answer-guide').hidden = !subject.answerHelp || !!question.options;
         if (question.options) {
             question.options.forEach((option, index) => $('answers').append(button(option, () => submit([index]))));
         } else {

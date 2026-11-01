@@ -30,7 +30,10 @@ and correction boundaries are unchanged. See the
 [Důležité example and motion rules](page-behavior.md#motivation-semantic-paragraphs-and-motion).
 Authors cannot supply animation, HTML, CSS or grouping fields.
 
-`examples` contains exactly four objects in this order:
+For maths v4, `examples` contains 1–100 guided teaching objects. The count follows
+source coverage or user agreement; topic-only lessons default to six as exposed
+by capabilities. This is authoring guidance, not a fixed structural quota.
+Use `kind` to describe each example's teaching role, progressing as appropriate:
 
 1. `kind: "simple"` — simple worked example.
 2. `kind: "complex"` — more complex worked example.
@@ -41,6 +44,8 @@ Each also has `heading`, `prompt`, `hint`, optional styled `paragraphs`, `steps`
 `calculation` and child-friendly `explanation`), and `answer` (display text).
 The child can reveal hints, each worked step, and the result independently.
 Calculations are displayed as text; no symbolic algebra is evaluated.
+Učit se renders only these examples, not `exercises`. All quiz tasks remain
+available in Hrát si. Legacy maths v2/v3 retains its exact four-example sequence.
 
 Author `exercises` using capabilities' website-owned task counts, counting whole
 tasks rather than individual steps. Educational difficulty and connected-step
@@ -73,6 +78,9 @@ learner expressions are never evaluated. Teach every tested concept and provide
 meaningful hints and worked solutions. The validator checks structure, not
 whether text really teaches the method, contains exactly one calculation, or
 connects hard steps; those are mandatory educational-review checks.
+Connect equations to their follow-up, for example `x + 20 = 200, x = ?`,
+rather than `x + 20 = 200. x = ?`. Preserve normal sentence punctuation
+in explanations and original source text.
 
 Quiz modes sample **without replacement**, always easy → medium → hard.
 There is no fourth difficulty and no accuracy or speed bonus.

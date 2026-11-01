@@ -65,13 +65,14 @@ async function checkIntroduction({ client, evaluate, capture, subject, lesson })
     assert.equal(await evaluate('document.querySelector("#original-content .card-icon").textContent'), lesson.original[0].icon || '📄');
     assert.equal(await evaluate('document.querySelector("#glossary .card-icon").textContent'), lesson.glossary[0].icon || '📖');
     assert.equal(await evaluate('document.querySelectorAll(".card-icon img, .card-icon svg").length'), 0, 'lesson icon markup remains plain text');
-    assert.equal(await evaluate(`(async () => {
-        const images = [...document.querySelectorAll('img')];
-        await Promise.all(images.map(image => image.decode()));
-        return images.length === 2 && images.every(image =>
-            image.alt === '' && image.src.startsWith('data:image/svg+xml,') &&
-            image.naturalWidth > 0 && !image.closest('a, button'));
-    })()`), true, `${subject}: both decorative identity marks decode offline`);
+    assert.equal(await evaluate(`(() => {
+        const marks = [...document.querySelectorAll('.lesson-header-mark, .lesson-footer-mark')];
+        return marks.length === 2 && marks.every(mark =>
+            mark.tagName === 'svg' && mark.getAttribute('aria-hidden') === 'true' &&
+            mark.getAttribute('focusable') === 'false' && mark.querySelectorAll('path').length === 2 &&
+            !mark.querySelector('rect, image') && !mark.closest('a, button') &&
+            getComputedStyle(mark.querySelector('path')).fill === getComputedStyle(mark).color);
+    })()`), true, `${subject}: transparent decorative identity marks inherit theme ink offline`);
     assert.equal(await evaluate('document.getElementById("audience")'), null);
     assert.equal(await evaluate(`document.getElementById('setup').textContent.includes('Na server nic neposíláme')`), false);
     assert.equal(await evaluate(`(() => {
