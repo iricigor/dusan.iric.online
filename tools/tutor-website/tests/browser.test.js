@@ -38,34 +38,39 @@ test('topic-sized guided learning stays compact and transparent on phones', {
         await delay(20);
     }
     await client.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: false });
-    for (const theme of ['light', 'dark']) {
-        await evaluate(`(() => {
-            if (document.getElementById('theme').getAttribute('aria-checked') !== '${theme === 'dark'}')
-                document.getElementById('theme').click();
-        })()`);
-        await evaluate(`window.switchTutorTab('learning')`);
-        const result = await evaluate(`(() => {
-            const header = document.querySelector('.heading').getBoundingClientRect();
-            const badge = document.querySelector('.badge').getBoundingClientRect();
-            const title = document.getElementById('topic').getBoundingClientRect();
-            const theme = document.getElementById('theme').getBoundingClientRect();
-            const cards = [...document.querySelectorAll('[data-learning-card]')];
-            const marks = [...document.querySelectorAll('.lesson-header-mark, .lesson-footer-mark')];
-            return {
-                compact: header.height < 180 && title.width > 200 && badge.right <= theme.left &&
-                    theme.top < badge.bottom && theme.bottom <= title.top,
-                cards: cards.length,
-                guidedOnly: cards.every(card => card.id.startsWith('learning-example-')),
-                counter: document.getElementById('learning-counter').textContent,
-                transparent: marks.every(mark => !mark.querySelector('rect, image') &&
-                    getComputedStyle(mark.querySelector('path')).fill === getComputedStyle(mark).color),
-                overflow: document.documentElement.scrollWidth > innerWidth
-            };
-        })()`);
-        assert.deepEqual(result, {
-            compact: true, cards: 6, guidedOnly: true, counter: '0/6 Prozkoumáno', transparent: true, overflow: false
-        });
-        await capture(`guided-learning-320-${theme}`);
+    for (const font of ['system-ui', 'Arial', 'Verdana']) {
+        await evaluate(`document.body.style.fontFamily = '${font}'`);
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`(() => {
+                if (document.getElementById('theme').getAttribute('aria-checked') !== '${theme === 'dark'}')
+                    document.getElementById('theme').click();
+            })()`);
+            await evaluate(`window.switchTutorTab('learning')`);
+            const result = await evaluate(`(() => {
+                const header = document.querySelector('.heading').getBoundingClientRect();
+                const badge = document.querySelector('.badge').getBoundingClientRect();
+                const title = document.getElementById('topic').getBoundingClientRect();
+                const theme = document.getElementById('theme').getBoundingClientRect();
+                const cards = [...document.querySelectorAll('[data-learning-card]')];
+                const marks = [...document.querySelectorAll('.lesson-header-mark, .lesson-footer-mark')];
+                return {
+                    compact: header.height < 180 && title.width > 200 && badge.right <= theme.left &&
+                        theme.top < badge.bottom && theme.bottom <= title.top,
+                    cards: cards.length,
+                    guidedOnly: cards.every(card => card.id.startsWith('learning-example-')),
+                    counter: document.getElementById('learning-counter').textContent,
+                    transparent: marks.every(mark => !mark.querySelector('rect, image') &&
+                        getComputedStyle(mark.querySelector('path')).fill === getComputedStyle(mark).color),
+                    overflow: document.documentElement.scrollWidth > innerWidth,
+                    geometry: { header: header.toJSON(), badge: badge.toJSON(), title: title.toJSON(), theme: theme.toJSON() }
+                };
+            })()`);
+            const { geometry, ...checks } = result;
+            assert.deepEqual(checks, {
+                compact: true, cards: 6, guidedOnly: true, counter: '0/6 Prozkoumáno', transparent: true, overflow: false
+            }, `${font}/${theme}: ${JSON.stringify(geometry)}`);
+            await capture(`guided-learning-320-${font}-${theme}`);
+        }
     }
     assert.deepEqual(exceptions, []);
     assert.deepEqual(network, []);

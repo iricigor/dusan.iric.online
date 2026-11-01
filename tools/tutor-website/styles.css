@@ -316,6 +316,7 @@ a { color: var(--primary); }
     .lesson-heading { flex-direction: column; align-items: flex-start; gap: .6rem; }
     .lesson-heading .badge { max-width: calc(100% - 84px); padding: .1rem .4rem; font-size: .8rem; }
     .lesson-heading h1 { margin-top: .6rem; }
+    .heading .motivation { line-height: 1.5; }
     #theme { position: absolute; top: 0; right: 0; }
     .card { --card-padding: 1rem; }
     .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
