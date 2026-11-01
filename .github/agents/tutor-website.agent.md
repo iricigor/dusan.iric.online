@@ -162,7 +162,11 @@ Keep history review and source information
 in lesson metadata, not a visible Ověření a doplnění card; retain separate factual
 correction popovers. Quiz mode pills show only
 difficulty and question counts; scoring rules are expandable. History's bonus
-is a thin shrinking bar without a countdown or visible label. Celebrate every
+is a thin shrinking bar without a countdown or visible label. Fade the whole
+indicator, including its track, linearly to invisible at 12000 ms, resetting for
+each question. The strict-before-15000ms scoring deadline is unchanged; explain
+that the bonus remains available for three seconds after the bar disappears.
+Celebrate every
 completed quiz with brief CSS confetti (disabled for reduced motion); show the
 attempt's rank inside the session leaderboard. Keep the leaderboard collapsed
 in quiz setup, but expand it automatically when a quiz finishes.

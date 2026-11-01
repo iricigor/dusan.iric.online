@@ -18,13 +18,14 @@ async function checkHistoryQuiz({ evaluate }) {
             Math.random = random;
             if ($('quiz-tools').open) throw new Error('Export tools obscure a newly started quiz');
             const bonus = $('bonus').textContent === '' && $('bonus').getAttribute('aria-hidden') === 'true' &&
-                $('bonus-bar').style.transform === 'scaleX(1)';
+                $('bonus-bar').style.transform === 'scaleX(1)' && getComputedStyle($('bonus')).opacity === '1';
             if ($('score').textContent !== 'Skóre: 0 b' || $('quiz-progress').value !== 0 ||
                 $('quiz-progress').max !== ${count}) throw new Error('Invalid initial quiz status');
             let total = 0;
             let partials = 0;
             let previousLevel = -1;
             for (let index = 0; index < ${count}; index++) {
+                if (getComputedStyle($('bonus')).opacity !== '1') throw new Error('Bonus visibility did not reset');
                 const question = lesson.questions.find(q => q.prompt === $('question').textContent);
                 const level = ['easy', 'medium', 'hard'].indexOf(question.difficulty);
                 if (level < previousLevel) throw new Error('History difficulty went backwards');
@@ -32,7 +33,7 @@ async function checkHistoryQuiz({ evaluate }) {
                 window.answerClock += 2000;
                 if (question.type === 'text') {
                     const partialYear = ${JSON.stringify(mode)} === 'hard' && question.id === 'h-bitva';
-                    $('answer-input').value = partialYear ? '1618' : question.acceptedAnswers[0];
+                    $('answer-input').value = partialYear ? '1618' : question.acceptedAnswers[0].replace(/\\s+/g, '');
                     if (partialYear) partials++;
                     $('answers').requestSubmit();
                 } else $('answers').querySelectorAll('button')[question.answer].click();

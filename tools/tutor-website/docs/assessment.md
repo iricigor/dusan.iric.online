@@ -25,7 +25,14 @@ JSON numbers: the `number` tag selects numeric semantics. They use the numeric
 notation described below (stored decimal points, not commas). Arrays contain
 1–20 distinct atomic number/string/range matchers, not nested arrays.
 String matchers can explicitly request `normalization: "czech"` for historical
-case/diacritic/i-y tolerance in text input only; `literal` is the default.
+case/diacritic/i-y tolerance in text input only; this normalization also removes
+all whitespace from both the learner answer and the matcher value, so `karel4`
+matches `karel 4`. It applies equally to full/partial string matchers, including
+array alternatives, and legacy history text answers. Word boundaries are
+deliberately ignored: strings differing only in whitespace become equivalent.
+Use literal matching for spacing-sensitive spelling or word-boundary exercises.
+`literal` is the default and retains internal whitespace; numeric parsing is
+unchanged, so the mixed number `1 3/4` is not equivalent to `13/4`.
 No regex, expressions, scripts, unknown fields or arbitrary match programs.
 All matcher values have a maximum of 80 characters. Range bounds must be valid,
 ordered and nonempty; equal bounds are allowed only if both ends are included.
