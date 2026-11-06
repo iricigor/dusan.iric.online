@@ -26,15 +26,30 @@
       --highlight: #fff1c2;
       --highlight-border: #e0a800;
       --highlight-text: #3d3200;
-      --dusan-surface: #fff;
-      --dusan-lesson: #eef6f9;
-      --dusan-stripe: #f7f9fa;
-      --marko-surface: #fffefa;
-      --marko-lesson: #f2f4e9;
-      --marko-stripe: #fafaf4;
-      --petar-surface: #fffaff;
-      --petar-lesson: #f5eff7;
-      --petar-stripe: #fbf8fc;
+      --dusan-light-surface: #fff5f5;
+      --dusan-light-lesson: #ffd6d6;
+      --dusan-light-stripe: #ffebeb;
+      --dusan-light-accent: #a51d2d;
+      --marko-light-surface: #f2f7ff;
+      --marko-light-lesson: #cfe3ff;
+      --marko-light-stripe: #e5efff;
+      --marko-light-accent: #1553a0;
+      --petar-light-surface: #f1faf3;
+      --petar-light-lesson: #ceeccf;
+      --petar-light-stripe: #e3f3e5;
+      --petar-light-accent: #216b35;
+      --dusan-surface: var(--dusan-light-surface);
+      --dusan-lesson: var(--dusan-light-lesson);
+      --dusan-stripe: var(--dusan-light-stripe);
+      --dusan-accent: var(--dusan-light-accent);
+      --marko-surface: var(--marko-light-surface);
+      --marko-lesson: var(--marko-light-lesson);
+      --marko-stripe: var(--marko-light-stripe);
+      --marko-accent: var(--marko-light-accent);
+      --petar-surface: var(--petar-light-surface);
+      --petar-lesson: var(--petar-light-lesson);
+      --petar-stripe: var(--petar-light-stripe);
+      --petar-accent: var(--petar-light-accent);
       color: var(--text);
       background: var(--page);
     }
@@ -55,15 +70,18 @@
       --highlight: #5a4a12;
       --highlight-border: #f2c94c;
       --highlight-text: #fff6d6;
-      --dusan-surface: #1b2630;
-      --dusan-lesson: #253946;
-      --dusan-stripe: #202e38;
-      --marko-surface: #202921;
-      --marko-lesson: #2b3a30;
-      --marko-stripe: #263329;
-      --petar-surface: #292330;
-      --petar-lesson: #3a3042;
-      --petar-stripe: #30283a;
+      --dusan-surface: #2b2024;
+      --dusan-lesson: #512c35;
+      --dusan-stripe: #35262b;
+      --dusan-accent: #ffabb4;
+      --marko-surface: #1c2736;
+      --marko-lesson: #263f60;
+      --marko-stripe: #223044;
+      --marko-accent: #9bc8ff;
+      --petar-surface: #1d2b22;
+      --petar-lesson: #2a4933;
+      --petar-stripe: #25372b;
+      --petar-accent: #9dddac;
     }
 
     * { box-sizing: border-box; }
@@ -325,23 +343,49 @@
       right: 0;
     }
 
-    #dusan {
+    #dusan,
+    #dusan-heading,
+    #dusan-heading + .schedule-window {
       --surface: var(--dusan-surface);
       --lesson: var(--dusan-lesson);
       --stripe: var(--dusan-stripe);
+      --accent: var(--dusan-accent);
+      --break: var(--dusan-surface);
     }
 
-    #marko {
+    #marko,
+    #marko-heading,
+    #marko-heading + .schedule-window {
       --surface: var(--marko-surface);
       --lesson: var(--marko-lesson);
       --stripe: var(--marko-stripe);
+      --accent: var(--marko-accent);
+      --break: var(--marko-surface);
     }
 
-    #petar {
+    #petar,
+    #petar-heading,
+    #petar-heading + .schedule-window {
       --surface: var(--petar-surface);
       --lesson: var(--petar-lesson);
       --stripe: var(--petar-stripe);
+      --accent: var(--petar-accent);
+      --break: var(--petar-surface);
     }
+
+    .timetable-colors-off :is(#dusan, #marko, #petar, #dusan-heading, #marko-heading, #petar-heading),
+    .timetable-colors-off :is(#dusan-heading, #marko-heading, #petar-heading) + .schedule-window {
+      --surface: inherit;
+      --lesson: inherit;
+      --stripe: inherit;
+      --break: inherit;
+      --accent: var(--text);
+    }
+
+    .timetable-heading,
+    .subject { color: var(--accent, var(--text)); }
+
+    .lesson.highlight .subject { color: var(--highlight-text); }
 
     .corner,
     .period,
@@ -417,7 +461,7 @@
       inset: 0;
       z-index: 2;
       margin: 4px 3px 10px;
-      border: 3px solid #ed2542;
+      border: 3px solid var(--accent, #ed2542);
       border-radius: 7px;
       pointer-events: none;
     }
@@ -651,7 +695,28 @@
     }
 
     @media print {
+      :root.print-color {
+        --text: #000;
+        --surface: #fff;
+        --lesson: #eee;
+        --stripe: #fff;
+        --break: #fff;
+        --dusan-surface: var(--dusan-light-surface);
+        --dusan-lesson: var(--dusan-light-lesson);
+        --dusan-stripe: var(--dusan-light-stripe);
+        --dusan-accent: var(--dusan-light-accent);
+        --marko-surface: var(--marko-light-surface);
+        --marko-lesson: var(--marko-light-lesson);
+        --marko-stripe: var(--marko-light-stripe);
+        --marko-accent: var(--marko-light-accent);
+        --petar-surface: var(--petar-light-surface);
+        --petar-lesson: var(--petar-light-lesson);
+        --petar-stripe: var(--petar-light-stripe);
+        --petar-accent: var(--petar-light-accent);
+      }
+
       html, body {
+        color-scheme: light;
         width: 100%;
         min-width: 0;
         margin: 0;
@@ -734,6 +799,7 @@
       .lesson {
         inset: 2px 1px 3px;
         border-radius: 2px;
+        transition: none;
       }
 
       .class-name,
@@ -796,7 +862,7 @@
 
       .subject-block {
         margin: 2px 1px 3px;
-        border-color: #d71935 !important;
+        border-color: #555 !important;
         border-radius: 2px;
       }
 
@@ -837,6 +903,20 @@
         color: #000 !important;
       }
 
+      .print-color .lesson,
+      .print-color .lesson.highlight {
+        background: var(--lesson) !important;
+      }
+
+      .print-color .period,
+      .print-color .day,
+      .print-color .corner,
+      .print-color .slot {
+        background: var(--surface) !important;
+      }
+
+      .print-color .subject-block { border-color: var(--accent) !important; }
+
       .schedule.proportional .lesson {
         left: 0;
         right: 0;
@@ -850,6 +930,11 @@
       .period-times,
       .day {
         color: #000 !important;
+      }
+
+      .print-color .subject,
+      .print-color .timetable-heading {
+        color: var(--accent) !important;
       }
 
     }
@@ -888,6 +973,10 @@
         <hr class="settings-divider">
         <p class="settings-heading">Zobrazení</p>
         <label class="axis-control">
+          <span>Barevné rozvrhy</span>
+          <input id="timetable-colors" type="checkbox" role="switch" aria-label="Barevné rozvrhy" checked>
+        </label>
+        <label class="axis-control">
           <span>Reálný čas</span>
           <input id="time-axis" type="checkbox" role="switch" aria-label="Společná časová osa podle délky hodin a přestávek" aria-controls="dusan marko petar">
         </label>
@@ -908,6 +997,11 @@
           <input id="dark-mode" type="checkbox" role="switch" aria-label="Tmavý režim">
         </label>
         <hr class="settings-divider">
+        <p class="settings-heading">Tisk</p>
+        <label class="axis-control">
+          <span>Barevný tisk</span>
+          <input id="print-color" type="checkbox" role="switch" aria-label="Barevný tisk">
+        </label>
         <button class="print-button" type="button" aria-label="Tisknout rozvrhy" title="Tisknout rozvrhy">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -1246,6 +1340,30 @@
     });
     document.addEventListener("click", (event) => {
       if (settingsMenu.open && !settingsMenu.contains(event.target)) settingsMenu.open = false;
+    });
+
+    const colorPreferences = [
+      { id: "timetable-colors", key: "timetable2.colors", className: "timetable-colors-off", inverted: true },
+      { id: "print-color", key: "timetable2.printColor", className: "print-color", inverted: false }
+    ];
+    colorPreferences.forEach(({ id, key, className, inverted }) => {
+      const toggle = document.getElementById(id);
+      try {
+        const saved = localStorage.getItem(key);
+        if (saved === "true" || saved === "false") toggle.checked = saved === "true";
+      } catch (error) {
+        console.warn(`Nelze načíst nastavení „${toggle.getAttribute("aria-label")}“.`, error);
+      }
+      const apply = () => document.documentElement.classList.toggle(className, inverted ? !toggle.checked : toggle.checked);
+      apply();
+      toggle.addEventListener("change", () => {
+        apply();
+        try {
+          localStorage.setItem(key, String(toggle.checked));
+        } catch (error) {
+          console.warn(`Nelze uložit nastavení „${toggle.getAttribute("aria-label")}“.`, error);
+        }
+      });
     });
 
     const darkMode = document.querySelector("#dark-mode");
