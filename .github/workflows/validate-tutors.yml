@@ -71,6 +71,7 @@ jobs:
       - name: Validate tutor definitions, contracts and offline pages
         env:
           TUTOR_BROWSER_PATH: /usr/bin/google-chrome
+          TUTOR_BROWSER_CONCURRENCY: "2"
         run: |
           test -x "$TUTOR_BROWSER_PATH"
           node --test tools/tutor-website/tests/*.test.js

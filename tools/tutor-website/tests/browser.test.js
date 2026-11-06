@@ -1,6 +1,6 @@
 'use strict';
 
-const { test } = require('node:test');
+const { describe, test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -20,6 +20,13 @@ const { checkQuizGuard } = require('./browser/quiz-guard.js');
 const { checkMathsQuiz } = require('./browser/maths-quiz.js');
 const { checkHistoryQuiz } = require('./browser/history-quiz.js');
 const { checkPersistence } = require('./browser/persistence.js');
+
+const concurrency = process.env.TUTOR_BROWSER_CONCURRENCY ?? '2';
+assert.match(concurrency, /^[1-9]\d*$/, 'TUTOR_BROWSER_CONCURRENCY must be a positive integer');
+assert.ok(Number.isSafeInteger(Number(concurrency)), 'TUTOR_BROWSER_CONCURRENCY must be a safe integer');
+
+// Only independent browsers overlap; shared-page scenarios retain their order.
+describe('offline browser coverage', { concurrency: Number(concurrency) }, () => {
 
 test('topic-sized guided learning stays compact and transparent on phones', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
@@ -257,6 +264,7 @@ test('real offline pages share navigation, named quizzes, persistence and storag
         // Scenarios intentionally share a page and run in this order.
         await checkIntroduction(scenario);
         await checkResponsive(scenario);
+        assert.equal(await evaluate('window.finishTutorTransitions'), false);
         await checkGlossary(scenario);
         await checkExport(scenario);
         await checkBranding(scenario);
@@ -514,14 +522,20 @@ test('prepared history timeline keeps compact years readable and expands lesson 
                 layout.targets.every(target => target.width >= 44 && target.height >= 44 &&
                     target.boxHeight >= 26 && target.boxHeight <= 32 && target.boxWidth <= target.width - 6) && !layout.overflow,
             true, `${width}/${theme}: ${JSON.stringify(layout)}`);
+            await evaluate('window.scrollTo({ top: 0, behavior: "instant" })');
+            await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
             const edge = await evaluate(`(() => {
                 const button = document.querySelector('.timeline-year-link');
                 const bounds = button.getBoundingClientRect();
                 return { x: bounds.left + 2, y: bounds.top + bounds.height / 2, target: button.parentElement.querySelector('.timeline-node').getAttribute('aria-controls') };
             })()`);
+            assert.equal(await evaluate(`document.elementFromPoint(${edge.x}, ${edge.y}) ===
+                document.querySelector('.timeline-year-link')`), true, `${width}/${theme}: ${JSON.stringify(edge)}`);
+            await client.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: edge.x, y: edge.y });
             await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: edge.x, y: edge.y, button: 'left', clickCount: 1 });
             await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: edge.x, y: edge.y, button: 'left', clickCount: 1 });
-            assert.equal(await evaluate('document.activeElement.id'), edge.target, 'the transparent edge retains the full year click target');
+            assert.equal(await evaluate('document.activeElement.id'), edge.target,
+                `${width}/${theme}: the transparent edge retains the full year click target`);
         }
     }
     assert.deepEqual(exceptions, []);
@@ -1234,4 +1248,5 @@ test('legacy offline pages download complete lessons without upgrading their con
     }
     assert.deepEqual(browser.exceptions, []);
     assert.deepEqual(browser.network, []);
+});
 });
