@@ -31,7 +31,14 @@ async function connect(url, events) {
         else request.resolve(message.result);
     });
     return {
-        close: () => socket.close(),
+        close: () => {
+            socket.close();
+            for (const request of pending.values()) {
+                clearTimeout(request.timeout);
+                request.reject(new Error('CDP connection closed'));
+            }
+            pending.clear();
+        },
         send: (method, params = {}) => new Promise((resolve, reject) => {
             const id = ++sequence;
             const timeout = setTimeout(() => {
@@ -58,24 +65,33 @@ async function openBrowser(t) {
     processHandle.on('error', error => { launchError = error; });
     let client;
     t.after(async () => {
-        if (client) {
-            await client.send('Browser.close');
-            client.close();
-        } else if (processHandle.pid) {
-            processHandle.kill();
+        try {
+            if (client && processHandle.exitCode === null) {
+                const exited = new Promise(resolve => processHandle.once('exit', resolve));
+                await Promise.race([client.send('Browser.close'), exited]);
+            }
+        } finally {
+            client?.close();
+            if (!client && processHandle.pid) processHandle.kill();
+            for (let attempt = 0; attempt < 50 && processHandle.pid && processHandle.exitCode === null; attempt++) await delay(100);
+            if (processHandle.exitCode === null && processHandle.pid) processHandle.kill();
+            fs.rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
         }
-        for (let attempt = 0; attempt < 50 && processHandle.exitCode === null; attempt++) await delay(100);
-        if (processHandle.exitCode === null) processHandle.kill();
-        fs.rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
     });
     const portFile = path.join(profile, 'DevToolsActivePort');
-    for (let attempt = 0; attempt < 150 && !fs.existsSync(portFile); attempt++) {
+    let port;
+    for (let attempt = 0; attempt < 150; attempt++) {
         if (launchError) throw launchError;
         if (processHandle.exitCode !== null) throw new Error(`Browser exited: ${stderr}`);
+        try {
+            port = fs.readFileSync(portFile, 'utf8').match(/^(\d+)\r?\n\/devtools\/browser\/[^\r\n]+/)?.[1];
+        } catch (error) {
+            if (!['ENOENT', 'EBUSY'].includes(error.code)) throw error;
+        }
+        if (port) break;
         await delay(100);
     }
-    assert.ok(fs.existsSync(portFile), `Browser did not become ready: ${stderr}`);
-    const port = fs.readFileSync(portFile, 'utf8').split(/\r?\n/)[0];
+    assert.ok(port, `Browser did not publish a complete readable debug port: ${stderr}`);
     const target = await (await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, { method: 'PUT' })).json();
     const exceptions = [];
     const network = [];
@@ -90,6 +106,7 @@ async function openBrowser(t) {
     await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
         const startTransition = document.startViewTransition?.bind(document);
         window.tabTransitions = [];
+        window.finishTutorTransitions = false;
         if (startTransition) document.startViewTransition = update => {
             const transition = startTransition(update);
             window.tabTransitions.push(transition);
@@ -97,7 +114,16 @@ async function openBrowser(t) {
         };
         window.waitForTutorTab = async () => {
             const transition = window.tabTransitions.at(-1);
-            if (transition) await transition.finished;
+            if (transition) {
+                if (window.finishTutorTransitions) {
+                    await transition.ready;
+                    const animations = document.getAnimations().filter(animation =>
+                        Number.isFinite(animation.effect.getComputedTiming().endTime));
+                    animations.forEach(animation => animation.finish());
+                    await Promise.all(animations.map(animation => animation.finished));
+                }
+                await transition.finished;
+            }
         };
         window.switchTutorTab = async name => {
             document.querySelector('[data-tab="' + name + '"]').click();
@@ -137,12 +163,13 @@ async function openBrowser(t) {
     };
     const capture = async name => {
         if (!process.env.TUTOR_SCREENSHOT_DIRECTORY) return;
-        fs.mkdirSync(process.env.TUTOR_SCREENSHOT_DIRECTORY, { recursive: true });
+        const screenshotDirectory = path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, path.basename(directory));
+        fs.mkdirSync(screenshotDirectory, { recursive: true });
         // Headless rendering can throttle animations inside offscreen disclosures.
         await evaluate('document.getAnimations().forEach(animation => animation.finish())');
         await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
         const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
-        fs.writeFileSync(path.join(process.env.TUTOR_SCREENSHOT_DIRECTORY, `${name}.png`), Buffer.from(screenshot.data, 'base64'));
+        fs.writeFileSync(path.join(screenshotDirectory, `${name}.png`), Buffer.from(screenshot.data, 'base64'));
     };
     return { directory, client, downloads, evaluate, handleDialog, capture, exceptions, network };
 }

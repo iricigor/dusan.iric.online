@@ -16,6 +16,42 @@ It checks the tutor definitions and runs the Node test suite, including real
 offline Chrome coverage on the hosted runner.
 The comment-script regression tests also use Bash (Git Bash on Windows).
 
+Node runs separate test files concurrently. The browser suite also runs up to
+two independent tests concurrently, each with its own Chrome process, profile,
+downloads and temporary HTML files. `TUTOR_BROWSER_CONCURRENCY` sets this
+positive-integer limit (default `2`, explicitly set in CI); it is not a tutor
+count. Use `1` for serial diagnosis or compare `2` and `3` on the same machine
+before increasing the limit.
+
+The responsive width/theme matrix finishes finite animations after the native
+tab transition is ready, then awaits their completion before inspecting layout.
+This also settles animated drawer cleanup rather than relying on a 300 ms
+transition as an incidental delay. The optimization is test-only and is restored
+even if a layout check fails. Dedicated native/fallback animation, rapid-tab
+selection and reduced-motion checks still use real animation behavior. No
+responsive combinations or assertions are skipped.
+
+### Validation timing baseline
+
+Measurements for this optimization on Windows with Node **26.5.1**, installed
+Edge, no screenshot capture, and the complete suite:
+
+| Configuration | Full-suite duration | Result |
+| --- | --- | --- |
+| Unchanged suite, serial browser tests | 165.1 s | 111 passed, none skipped |
+| Optimized animations, one browser worker | 80.5 s | 112 passed, none skipped |
+| Optimized animations, two browser workers (two final runs) | 54.5 s / 50.2 s | 112 passed each, none skipped |
+| Optimized animations, three browser workers (two final runs) | 51.3 s / 51.6 s | 112 passed each, none skipped |
+
+The additional test verifies restoration after a responsive-layout failure.
+Two and three workers have overlapping timings; two avoids extra browser load
+without a consistent speed penalty. Earlier concurrency trials exposed startup
+file-lock, pointer-paint and shutdown races that were fixed in the test harness
+before these final runs. These local measurements are not a hosted-runner
+guarantee: the original GitHub Actions run
+[42229880882](https://github.com/iricigor/dusan.iric.online/actions/runs/42229880882)
+used Node 22 and Chrome and recorded **156.5 s** for the test suite.
+
 After validation, it discovers both current defaults through `capabilities`,
 copies their JSON into the runner's temporary directory, and uses the guarded
 shared builder to generate `history.html` and `maths.html`. Download the
@@ -81,13 +117,17 @@ unexercised checks to the caller. Return language and educational problems
 to the subject tutor rather than silently changing the lesson.
 
 `tests/browser.test.js` orchestrates ordered scenarios in `tests/browser` with
-the CDP lifecycle/interaction helper in `tests/helpers/browser.js`. These share
-one browser/page and result history; do not run them independently or in parallel.
+the CDP lifecycle/interaction helper in `tests/helpers/browser.js`. Within the
+cross-subject integration test, those scenarios share one browser/page and
+result history; do not run them independently or in parallel. Other browser
+tests are isolated and may overlap within the configured worker limit.
 The fake DOM/clock harness in `tests/helpers/runtime.js` uses the same runtime
 assembly as generated pages. Build coverage remains discoverable through
 `tests/*.test.js`, divided into capabilities/defaults, rendering/validation and
 guarded filesystem suites. Set `TUTOR_SCREENSHOT_DIRECTORY` to an absolute
-session-artifact directory to capture representative offline surfaces.
+session-artifact directory to capture representative offline surfaces. Each
+browser writes into its own `tutor-browser-*` subdirectory so parallel tests
+cannot overwrite one another's screenshots.
 
 The subject tutor reviews the actual rendered educational content, Czech
 language, original preservation, explanations, difficulty and worked solutions.
