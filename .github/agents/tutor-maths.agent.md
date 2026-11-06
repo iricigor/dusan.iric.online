@@ -68,6 +68,11 @@ not a full stop followed by a disconnected fragment. Keep normal punctuation
 in explanatory prose and never rewrite preserved source text for this rule.
 Use only website-supported numerical formats for entry and explicit
 `assessment` policies for each choice task or numerical step.
+The shared printable test and practice sheet preserve whole exercises and
+their labelled parts, with extra handwriting space for calculations. Keep units
+and mathematical notation in self-contained prompts; verify that the optional
+printed answer key includes each authored step answer and worked solution.
+Do not author separate printable-only tasks or change the generated page.
 Choices are plain-text labels, checked by their selected zero-based index;
 do not parse comparison symbols as numbers. The website owns parsing/matcher syntax;
 you decide which values or representations deserve full or partial credit.

@@ -90,6 +90,12 @@ const mathsSubject = {
         id: `answer-${stepIndex}`,
         label: `${index + 1}${exercise.difficulty === 'easy' ? 'abcd'[stepIndex] : `.${stepIndex + 1}`}: ${step.prompt}${step.answer.format === 'length' ? ' (včetně jednotky)' : ''}`
     })),
+    printAnswers: (exercise, index) => exercise.options
+        ? [{ label: 'Správná odpověď', answer: exercise.options[exercise.answer], solution: exercise.solution }]
+        : exercise.steps.map((step, stepIndex) => ({
+            label: mathsSubject.fields(exercise, index)[stepIndex].label,
+            answer: formatAnswer(step.answer), solution: step.solution
+        })),
     compareResults: (a, b) => b.total - a.total,
     validRecord: row => validRecords([row]),
     renderLearning({ $, node, paragraph, paragraphs, disclose, hint, heading }, lesson) {

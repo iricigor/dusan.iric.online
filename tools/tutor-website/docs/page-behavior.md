@@ -15,6 +15,9 @@ the exported quiz utilities and composes the controllers in `runtime`:
 `learning.js` owns content/glossary/disclosures, `navigation.js` owns tabs/theme
 and leave confirmation, `quiz.js` owns names/submission/progression/answer timing,
 and `results.js` owns ranking/storage and warnings for both subjects.
+`printing.js` owns print selection/settings, preview and isolated printable
+content. It reuses quiz selections, adapter field labels and authored answer
+formats, not interactive forms or learner data.
 The shared root-level `highlights.js` manages authored and child-added markers;
 root-level `learning.js` manages completion and the optional historical timeline.
 The extracted learning controller wires both into content and navigation.
@@ -60,6 +63,51 @@ limit and quiz behavior are unchanged; existing published pages are not updated.
 Suggestions depend on the browser, saved form history and browser settings.
 These HTML attributes do not guarantee that the browser saves names on these
 pages or displays suggestions on double-click.
+
+### Printable tests and practice sheets
+
+Future generated lessons expose **Vytisknout test** in Hrát si and **Pracovní
+list** in Učit se. Both open an accessible preview/settings dialog, with
+**Tisk / Uložit jako PDF** invoking the browser's own print dialog. PDF saving
+depends on the browser; there is no PDF service, package, network request or
+automatically downloaded PDF.
+
+Test printing copies the currently selected quiz's whole questions in exactly
+the same order, even during feedback or after completion. If no quiz has been
+selected, the print dialog selects a quiz mode using the existing subject
+sampler without starting a quiz or requiring a nickname. Practice sheets
+randomly sample one chosen difficulty and an exact positive integer exercise
+count without replacement. The available count is shown; invalid or unavailable
+counts disable printing and show a Czech error instead of padding, duplicating
+or truncating the bank. Changing the answer-key checkbox preserves selection.
+
+The printable DOM is separate from the online lesson. It contains numbered,
+unanswered prompts, plain-text choices, labelled answer parts and handwriting
+space. Maths numerical parts have 32mm working space each, retaining authored
+units, fractions, comparison signs and other supported plain-text notation.
+No hints, entered answers, scores, glossary buttons or other interactive
+controls appear. The optional **Přidat klíč s odpověďmi na samostatné stránky**
+is initially unchecked. When enabled, it adds corresponding canonical answers
+(authored alternatives for history text questions), explanations and worked
+maths step solutions, ordered to match the sheet. It does not generate solutions
+or change assessment policies.
+
+Shared print CSS uses A4 with 14mm margins, black text on white even in dark
+mode, and a page break before the answer key. It keeps exercises, answer parts
+and key entries together where practical; unusually long content can span
+pages rather than being clipped. The screen preview marks the key boundary,
+but actual pagination depends on browser fonts and print settings; inspect
+print media and the generated PDF, not just screen layout. Browser-added
+headers/footers can be disabled in its print dialog.
+
+While the preview is open, the online answering clock and history's bonus
+clock pause. Closing, Escape, cancelling browser printing and print failures
+leave questions, entries, scores, learning completion and session results
+unchanged. Close/Escape restores launcher focus and resumes active answering.
+Print failures are logged and visibly reported for retry. The print sheet is
+cleared on closing the preview, so it cannot leak into later normal printing.
+Native printing while the preview is open prints the same prepared sheet.
+No existing published HTML is retrofitted and `gems` remains independent.
 
 ### Motivation, semantic paragraphs and motion
 

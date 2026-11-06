@@ -52,6 +52,10 @@ const historySubject = {
     score: (question, values, elapsed) => scoreAnswer(question, values[0], elapsed),
     acceptSubmission: values => typeof values[0] !== 'string' || Boolean(values[0].trim()),
     fields: question => [{ id: 'answer-input', label: 'Tvoje odpověď', inputMode: question.year ? 'numeric' : undefined }],
+    printAnswers: question => [{
+        label: 'Správná odpověď',
+        answer: question.type === 'text' ? question.acceptedAnswers.join(' / ') : question.options[question.answer]
+    }],
     compareResults,
     validRecord: row => Object.hasOwn(MODES, row.mode) && Number.isFinite(row.total) && row.total >= 0 &&
         Number.isFinite(row.duration) && row.duration >= 0 && Number.isInteger(row.grade) && row.grade >= 1 && row.grade <= 5,

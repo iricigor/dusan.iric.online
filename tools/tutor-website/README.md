@@ -71,6 +71,10 @@ See [Shared page behavior and ownership](docs/page-behavior.md#icons-glossary-an
 
 See [Shared page behavior and ownership](docs/page-behavior.md#completion-local-ranking-and-answer-duration).
 
+### Printable tests and practice sheets
+
+See [Shared page behavior and ownership](docs/page-behavior.md#printable-tests-and-practice-sheets).
+
 ### Selective Gems integration
 
 See [Shared page behavior and ownership](docs/page-behavior.md#selective-gems-integration).
