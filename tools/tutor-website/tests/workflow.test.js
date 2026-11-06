@@ -69,6 +69,7 @@ test('CI uploads separate, attempt-specific HTML archives and isolates PR write 
     assert.doesNotMatch(validationJob, /(?:contents|pull-requests): write/);
     assert.match(validationJob, /needs: changes/);
     assert.match(validationJob, /if: needs.changes.outputs.changed == 'true'/);
+    assert.match(validationJob, /TUTOR_BROWSER_CONCURRENCY: "2"/);
     assert.match(commentJob, /if: always\(\) && github.event_name == 'pull_request'/);
     assert.match(commentJob, /pull-requests: write/);
     assert.doesNotMatch(commentJob, /actions\/checkout/);

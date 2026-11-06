@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const { setTimeout: delay } = require('node:timers/promises');
 
-async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
+async function checkResponsiveLayout({ client, evaluate, capture, subject, lesson }) {
     for (const width of [320, 400, 401, 550, 551, 1024, 1600]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
         for (const theme of ['light', 'dark']) {
@@ -367,6 +367,15 @@ async function checkResponsive({ client, evaluate, capture, subject, lesson }) {
                 labelled: true
             }, `${subject}/${width}/${theme} shared layout`);
         }
+    }
+}
+
+async function checkResponsive(scenario) {
+    await scenario.evaluate('window.finishTutorTransitions = true');
+    try {
+        await checkResponsiveLayout(scenario);
+    } finally {
+        await scenario.evaluate('window.finishTutorTransitions = false');
     }
 }
 
