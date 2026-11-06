@@ -241,13 +241,15 @@ function initializeTutorLearning(lesson, subject) {
     const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
         styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
             { target: target ? `${target}.${index}.text` : undefined }), block.style));
-    const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading };
+    const speech = subject.listening ? initializeTutorSpeech({ node, button }) : null;
+    const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading, speech };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
     lesson.original.forEach((section, index) => {
         const article = node('article', undefined, 'card');
         article.append(heading(section.heading, section.icon, '📄'));
         const text = node('div', undefined, 'original-text');
+        if (section.language) text.lang = section.language;
         const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
             .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
         let paragraphOffset = 0;

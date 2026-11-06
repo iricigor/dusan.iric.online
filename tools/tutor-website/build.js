@@ -11,17 +11,17 @@ const { colors } = require('./highlights.js');
 const PUBLICATION_ORIGIN = 'https://dusan.iric.online/';
 
 function capabilities(subject) {
-    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    if (!['history', 'maths', 'english'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     const levels = ['easy', 'medium', 'hard'];
     const modes = subject === 'maths' ? PROGRESSIVE_MODES : MODES;
     return {
-        subject, version: subject === 'maths' ? 4 : 3, language: 'cs-CZ', standalone: true,
+        subject, version: { history: 3, maths: 4, english: 5 }[subject], language: 'cs-CZ', standalone: true,
         tabs: ['original', 'learning', 'quiz'], playerNameRequired: true,
         schemaPath: path.join(__dirname, 'lesson.schema.json'),
         validatorPath: path.join(__dirname, 'validate.js'),
         builderPath: __filename,
         contractPath: path.join(__dirname, 'README.md'),
-        examplePath: path.join(__dirname, 'examples', subject === 'history' ? 'defenestrace.json' : 'zlomky-a-prevody-delky.json'),
+        examplePath: path.join(__dirname, 'examples', { history: 'defenestrace.json', maths: 'zlomky-a-prevody-delky.json', english: 'my-collections.json' }[subject]),
         generation: 'lesson-and-quiz',
         assessment: 'available',
         authoringRequirements: {
@@ -34,6 +34,11 @@ function capabilities(subject) {
                 minimumMediumByType: { ...PROGRESSIVE_MEDIUM_MINIMUM }, recommendedMediumByType: { choice: 6, number: 6 },
                 learningExamples: { topicOnlyDefault: 6, countPolicy: 'source-coverage-or-user-agreement', quizBankInLearning: false }
             } : {}),
+            ...(subject === 'english' ? {
+                topicOnlyEnglishWords: { min: 800, max: 1000, czechExplanationsIncluded: false, enforcedByValidator: false },
+                exerciseTypes: ['trueFalse', 'choice', 'gapFill', 'wordOrder', 'text', 'translation', 'listening'],
+                learningLanguage: 'en-GB', explanationLanguage: 'cs-CZ'
+            } : {}),
             preferredTaskRange: { min: subject === 'history' ? 50 : 30, max: 100 },
             minimumTasksEnforcedByValidator: false
         },
@@ -43,15 +48,18 @@ function capabilities(subject) {
         answerDuration: 'active-answering-only-excludes-feedback-and-hidden-quiz',
         inlineHighlighting: { colors: [...colors], tabs: ['original', 'learning'], childStorage: 'tab-session-including-reloads' },
         optionalTimeline: subject === 'history',
+        ...(subject === 'english' ? { listening: { provider: 'browser-speech-synthesis', voice: 'local-English', replay: 'unrestricted', microphone: false } } : {}),
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
-            ...(subject === 'maths' ? ['Arbitrary symbolic answer evaluation and interactive geometry are unsupported; one-step equations with numerical answers are supported.'] : [])
+            ...(subject === 'maths' ? ['Arbitrary symbolic answer evaluation and interactive geometry are unsupported; one-step equations with numerical answers are supported.'] : []),
+            ...(subject === 'english' ? ['Listening requires a local English speech-synthesis voice; availability and pronunciation vary by device. No microphone or automatic speaking assessment.',
+                'Translations use declared alternatives, not automatic semantic grading. Typo credit excludes known lesson words and explicitly declared grammar/vocabulary confusions.'] : [])
         ]
     };
 }
 
 function getPublicationUrl(subject, lessonId, publicationPath = `test/${lessonId}.html`) {
-    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    if (!['history', 'maths', 'english'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     if (typeof publicationPath !== 'string' || publicationPath.startsWith('/') ||
         /[?#\\]/.test(publicationPath) || !publicationPath.endsWith('.html')) {
         throw new Error('publicationPath must be a relative .html path under the site root');
@@ -121,7 +129,7 @@ if (require.main === module) {
     try {
         const [operation, argument, ...extra] = process.argv.slice(2);
         if (extra.length || !argument || !['capabilities', 'build'].includes(operation)) {
-            throw new Error('Usage: node tools\\tutor-website\\build.js capabilities <history|maths> OR build <handoff.json>');
+            throw new Error('Usage: node tools\\tutor-website\\build.js capabilities <history|maths|english> OR build <handoff.json>');
         }
         const result = operation === 'capabilities' ? capabilities(argument) : build(JSON.parse(fs.readFileSync(argument, 'utf8')));
         console.log(JSON.stringify(result, null, 2));

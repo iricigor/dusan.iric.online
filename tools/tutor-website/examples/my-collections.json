@@ -1,0 +1,122 @@
+{
+  "version": 5,
+  "subject": "english",
+  "language": "cs-CZ",
+  "id": "my-collections",
+  "topic": "Moje sbírky a věci doma",
+  "subtitle": "Objevuj anglická slova a skládej vlastní věty.",
+  "audience": "Začátečníci A1 kolem deseti let, s českými vysvětleními.",
+  "original": [{ "heading": "Téma", "text": "Moje sbírky a věci doma", "language": "cs-CZ" }],
+  "review": "Původní autorská ukázka pro A1, nikoli přepis učebnice. Učí názvy věcí, have got / has got, What / How many, jednoduchá umístění a porozumění krátkým textům. Poslech vyžaduje místní anglický hlas. Bez mikrofonu.",
+  "glossary": [
+    { "term": "collection", "definition": "Sbírka věcí, které patří k sobě.", "forms": ["collections"] },
+    { "term": "sticker", "definition": "Samolepka.", "forms": ["stickers"] },
+    { "term": "comic", "definition": "Komiks: příběh s obrázky a krátkými texty.", "forms": ["comics"] },
+    { "term": "magazine", "definition": "Časopis.", "forms": ["magazines"] },
+    { "term": "badge", "definition": "Odznak.", "forms": ["badges"] },
+    { "term": "key ring", "definition": "Kroužek nebo přívěsek na klíče.", "forms": ["key rings"] },
+    { "term": "shelf", "definition": "Police. Více polic se řekne shelves.", "forms": ["shelves"] },
+    { "term": "box", "definition": "Krabice.", "forms": ["boxes"] },
+    { "term": "dinosaur", "definition": "Dinosaurus; zde hračka ve tvaru dinosaura.", "forms": ["dinosaurs"] },
+    { "term": "fossil", "definition": "Zkamenělina.", "forms": ["fossils"] },
+    { "term": "football card", "definition": "Sběratelská kartička s fotbalistou.", "forms": ["football cards"] },
+    { "term": "magnet", "definition": "Magnet.", "forms": ["magnets"] },
+    { "term": "apple", "definition": "Jablko, druh ovoce.", "forms": ["apples"] },
+    { "term": "fruit", "definition": "Ovoce.", "forms": [] },
+    { "term": "orange", "definition": "Pomeranč; také oranžová barva.", "forms": ["oranges"] }
+  ],
+  "chunks": [
+    {
+      "heading": "Věci ve sbírce",
+      "sentences": [
+        "This is my collection. I have got stickers, comics and football cards. A sticker is a small picture. You can put it on a box or in a book. A comic has got pictures and a story. A magazine has got pictures and short texts. A football card has got a picture of a player.",
+        "I have got a toy dinosaur too. It is green. My friend has got a fossil. A fossil is not a toy dinosaur. We look at our things together. We can read a comic together. We do not put stickers on our friend's things without asking."
+      ],
+      "explanation": "Collection znamená sbírka. Sticker je samolepka, comic komiks a football card fotbalová kartička. Slovníček vysvětluje další slova. Rozlišuj hračku dinosaura a zkamenělinu.",
+      "audio": { "text": "This is my collection. I have got stickers, comics and football cards. My friend has got a fossil.", "language": "en-GB" }
+    },
+    {
+      "heading": "I have got a he has got",
+      "sentences": [
+        "I have got a blue box. You have got a red box. We have got two boxes. I have got a badge in my box. You have got a key ring in your box. A key ring can hold keys. Our friend Ben has got a toy dinosaur. He has got a green dinosaur and a small comic.",
+        "Our friend Mia has got a magazine. She has got some stickers too. Ben and Mia have got different collections. They have got things to show us. I say, 'I have got a comic.' Ben says, 'I have got a comic too.' We can read our comics together. I have got can be short: I've got. She has got can be short: she's got."
+      ],
+      "explanation": "S I, you, we a they používáme have got. S he a she používáme has got. I have got znamená mám. He has got znamená on má. Zkráceně píšeme I've got a she's got. Uvnitř těchto zkrácených tvarů zachovej apostrof.",
+      "audio": { "text": "I have got a blue box. She has got a magazine. They have got different collections.", "language": "en-GB" }
+    },
+    {
+      "heading": "Kde jsou věci?",
+      "sentences": [
+        "There is a shelf in my bedroom. My comics are on the shelf. My stickers are in a small box. The box is blue. It is on the shelf too. My key ring is in my school bag. The bag is on a chair. There is a green magnet on the door.",
+        "Look at the red box. The toy dinosaur is in the red box. It is not on the shelf. My badge is on my school bag. I can see it. The magazine is on the table. I put my things away after reading. Now I can find my comic, my stickers and my key ring."
+      ],
+      "explanation": "In znamená uvnitř, on znamená na povrchu. In the box je v krabici. On the shelf je na polici. Rozlišuj umístění věci a její barvu."
+    },
+    {
+      "heading": "What: ptáme se na věci",
+      "sentences": [
+        "What have you got in your box? I have got a badge and a key ring. What has Ben got on his shelf? He has got some comics. What has Mia got in her bag? She has got a magazine. What have they got on the table? They have got a blue box.",
+        "We use What to ask about things. Listen to the question before you answer. A question about a thing does not need a number. You can say the name of the thing. You can also use a full sentence. 'A badge' and 'I have got a badge' can answer a question about your box."
+      ],
+      "explanation": "What znamená co. V otázce měníme pořadí: What have you got? nebo What has Ben got? Krátká odpověď může pojmenovat věc. Pokud zadání vyžaduje celou větu, napiš ji celou.",
+      "audio": { "text": "What have you got in your box? I have got a badge and a key ring.", "language": "en-GB" }
+    },
+    {
+      "heading": "How many: ptáme se na počet",
+      "sentences": [
+        "How many stickers have you got? I have got six stickers. How many comics has Ben got? He has got three comics. How many key rings has Mia got? She has got two key rings. We use How many to ask about a number of things. One comic is not the same as three comics.",
+        "Count the things before you answer. You can write a number when the question asks for a number. You can write a short sentence when it asks for a sentence. Ben has got three comics and one magazine. He has got four things to read. Mia has got two key rings, not three."
+      ],
+      "explanation": "How many znamená kolik. Po něm bývá věc v množném čísle, například comics. Otázka se ptá na počet, ne na barvu nebo místo. Six je šest, three tři a two dvě.",
+      "audio": { "text": "How many comics has Ben got? He has got three comics.", "language": "en-GB" }
+    },
+    {
+      "heading": "Krátký příběh: čteme a hledáme odpovědi",
+      "sentences": [
+        "Ben and Mia are at home. Ben has got a yellow box. There are three comics in his box. He has got a green dinosaur on his shelf. Mia has got a red box. She has got six stickers and two key rings in it. Her magazine is on the table.",
+        "Ben asks, 'What have you got in your box?' Mia shows him her stickers. Then Mia asks, 'How many comics have you got?' Ben counts his comics. There are three. They put a comic on the table and read it together. The dinosaur stays on the shelf. The stickers stay in the red box."
+      ],
+      "explanation": "Nejprve najdi osobu a věc, na kterou se otázka ptá. Ben má tři komiksy ve žluté krabici. Mia má šest samolepek a dva přívěsky v červené krabici. Nezaměň jejich sbírky."
+    },
+    {
+      "heading": "Ano, nebo ne? Věci a jejich význam",
+      "sentences": [
+        "An apple is a fruit. An orange is a fruit too. A comic is not a fruit. You can read a comic, but you do not eat it. A box can hold your things. A shelf can hold your books. A sticker is a picture, not a football card. A magazine is something you can read.",
+        "Is an apple a fruit? Yes. Is a comic a fruit? No. Is the dinosaur in the red box in our story? No, it is on Ben's shelf. Read the whole question. A word can be familiar, but the sentence can still be wrong. Look back at the story if you need help. Learning is not a race."
+      ],
+      "explanation": "U ano/ne otázek ověř celou větu. Apple znamená jablko a fruit ovoce. V příběhu je dinosaurus na polici, nikoli v červené krabici. Odpovědi ano a ne kontrolují porozumění."
+    }
+  ],
+  "exercises": [
+    { "id": "apple-fruit", "difficulty": "easy", "type": "trueFalse", "skill": "meaning", "prompt": "Je následující věta pravdivá?", "text": "An apple is a fruit.", "options": ["Ano", "Ne"], "answer": 0, "assessment": { "input": "number", "exact": { "type": "number", "value": "0" } }, "explanation": "Apple je jablko a patří mezi ovoce." },
+    { "id": "comic-fruit", "difficulty": "easy", "type": "trueFalse", "skill": "meaning", "prompt": "Je komiks druh ovoce?", "text": "A comic is a fruit.", "options": ["Ano", "Ne"], "answer": 1, "assessment": { "input": "number", "exact": { "type": "number", "value": "1" } }, "explanation": "Komiks čteme, není to ovoce." },
+    { "id": "sticker-meaning", "difficulty": "easy", "type": "trueFalse", "skill": "meaning", "prompt": "Znamená sticker samolepka?", "options": ["Ano", "Ne"], "answer": 0, "assessment": { "input": "number", "exact": { "type": "number", "value": "0" } }, "explanation": "Ano. Sticker je samolepka." },
+    { "id": "czech-comic", "difficulty": "easy", "type": "trueFalse", "skill": "meaning", "prompt": "Přeložíme české slovo komiks jako box?", "options": ["Ano", "Ne"], "answer": 1, "assessment": { "input": "number", "exact": { "type": "number", "value": "1" } }, "explanation": "Ne. Komiks je comic. Box je krabice." },
+    { "id": "ben-dinosaur", "difficulty": "easy", "type": "trueFalse", "skill": "meaning", "prompt": "Je dinosaurus podle příběhu na Benově polici?", "text": "Ben has got a dinosaur on his shelf.", "options": ["Ano", "Ne"], "answer": 0, "assessment": { "input": "number", "exact": { "type": "number", "value": "0" } }, "explanation": "Ano. V příběhu zůstává dinosaurus na polici." },
+    { "id": "magazine-read", "difficulty": "easy", "type": "trueFalse", "skill": "meaning", "prompt": "Můžeš číst časopis?", "text": "You can read a magazine.", "options": ["Ano", "Ne"], "answer": 0, "assessment": { "input": "number", "exact": { "type": "number", "value": "0" } }, "explanation": "Magazine znamená časopis, který můžeme číst." },
+    { "id": "what-choice", "difficulty": "medium", "type": "choice", "skill": "grammar", "prompt": "Vyber tázací výraz, který se ptá na věc.", "text": "____ have you got in your box?", "options": ["What", "How many", "On", "In"], "answer": 0, "assessment": { "input": "number", "exact": { "type": "number", "value": "0" } }, "explanation": "What se ptá na věci. How many na počet." },
+    { "id": "count-choice", "difficulty": "medium", "type": "choice", "skill": "grammar", "prompt": "Vyber výraz, který se ptá na počet samolepek.", "text": "____ stickers have you got?", "options": ["What", "How many", "Has", "Shelf"], "answer": 1, "assessment": { "input": "number", "exact": { "type": "number", "value": "1" } }, "explanation": "How many stickers znamená kolik samolepek." },
+    { "id": "shelf-choice", "difficulty": "medium", "type": "choice", "skill": "meaning", "prompt": "Které anglické slovo znamená police?", "options": ["box", "shelf", "badge", "fruit"], "answer": 1, "assessment": { "input": "number", "exact": { "type": "number", "value": "1" } }, "explanation": "Shelf je police. Box je krabice." },
+    { "id": "ben-count-choice", "difficulty": "medium", "type": "choice", "skill": "meaning", "prompt": "Kolik komiksů má Ben v příběhu? Vyber anglické slovo.", "text": "How many comics has Ben got?", "options": ["one", "two", "three", "six"], "answer": 2, "assessment": { "input": "number", "exact": { "type": "number", "value": "2" } }, "explanation": "Ben má tři komiksy. Three znamená tři." },
+    { "id": "translate-sticker", "difficulty": "medium", "type": "translation", "skill": "meaning", "prompt": "Přelož toto anglické slovo do češtiny.", "text": "sticker", "direction": "en-cs", "answerLanguage": "cs-CZ", "acceptedAnswers": ["samolepka"], "assessment": { "input": "text", "exact": { "type": "string", "value": "samolepka", "normalization": "language" }, "partial": { "credit": 0.5, "match": { "type": "typo", "values": ["samolepka"], "excludedWords": [] } } }, "explanation": "Sticker znamená samolepka." },
+    { "id": "translate-box", "difficulty": "medium", "type": "translation", "skill": "meaning", "prompt": "Napiš anglický překlad slova krabice.", "text": "krabice", "direction": "cs-en", "answerLanguage": "en-GB", "acceptedAnswers": ["box"], "assessment": { "input": "text", "exact": { "type": "string", "value": "box", "normalization": "language" } }, "explanation": "Krabice je box. Ve třípísmenném slově se překlep neuznává." },
+    { "id": "translate-magazine", "difficulty": "medium", "type": "translation", "skill": "meaning", "prompt": "Přelož do angličtiny název věci, kterou můžeme číst.", "text": "časopis", "direction": "cs-en", "answerLanguage": "en-GB", "acceptedAnswers": ["magazine"], "assessment": { "input": "text", "exact": { "type": "string", "value": "magazine", "normalization": "language" }, "partial": { "credit": 0.5, "match": { "type": "typo", "values": ["magazine"], "excludedWords": ["magazines"] } } }, "explanation": "Časopis je magazine. Magazines je množné číslo, nikoli překlep." },
+    { "id": "translate-key-ring", "difficulty": "medium", "type": "translation", "skill": "meaning", "prompt": "Přelož název předmětu na klíče do češtiny.", "text": "key ring", "direction": "en-cs", "answerLanguage": "cs-CZ", "acceptedAnswers": ["přívěsek na klíče", "kroužek na klíče"], "assessment": { "input": "text", "exact": { "type": "array", "items": [{ "type": "string", "value": "přívěsek na klíče", "normalization": "language" }, { "type": "string", "value": "kroužek na klíče", "normalization": "language" }] } }, "explanation": "Key ring může být kroužek nebo přívěsek na klíče." },
+    { "id": "gap-i", "difficulty": "medium", "type": "gapFill", "skill": "grammar", "prompt": "Doplň have nebo has. Napiš pouze chybějící slovo.", "text": "I ____ got a comic.", "answerLanguage": "en-GB", "acceptedAnswers": ["have"], "assessment": { "input": "text", "exact": { "type": "string", "value": "have", "normalization": "language" } }, "explanation": "S I používáme have got." },
+    { "id": "gap-she", "difficulty": "medium", "type": "gapFill", "skill": "grammar", "prompt": "Doplň sloveso po she, pouze jedno slovo.", "text": "She ____ got a magazine.", "answerLanguage": "en-GB", "acceptedAnswers": ["has"], "assessment": { "input": "text", "exact": { "type": "string", "value": "has", "normalization": "language" } }, "explanation": "S she používáme has got." },
+    { "id": "gap-in", "difficulty": "medium", "type": "gapFill", "skill": "grammar", "prompt": "Doplň předložku: samolepky jsou uvnitř krabice.", "text": "The stickers are ____ the box.", "answerLanguage": "en-GB", "acceptedAnswers": ["in"], "assessment": { "input": "text", "exact": { "type": "string", "value": "in", "normalization": "language" } }, "explanation": "In the box znamená uvnitř krabice." },
+    { "id": "order-statement", "difficulty": "medium", "type": "wordOrder", "skill": "grammar", "prompt": "Seřaď slova do věty: Mám krabici. Napiš bez tečky.", "words": ["box", "got", "I", "a", "have"], "answerLanguage": "en-GB", "acceptedAnswers": ["I have got a box"], "assessment": { "input": "text", "exact": { "type": "string", "value": "I have got a box", "normalization": "language" } }, "explanation": "Po I následuje have got, potom předmět a box." },
+    { "id": "order-she", "difficulty": "medium", "type": "wordOrder", "skill": "grammar", "prompt": "Sestav větu: Ona má časopis. Napiš bez tečky.", "words": ["magazine", "has", "a", "She", "got"], "answerLanguage": "en-GB", "acceptedAnswers": ["She has got a magazine"], "assessment": { "input": "text", "exact": { "type": "string", "value": "She has got a magazine", "normalization": "language" } }, "explanation": "She has got znamená ona má." },
+    { "id": "listen-thing", "difficulty": "medium", "type": "listening", "skill": "meaning", "prompt": "Poslechni si větu. Kterou věc má mluvčí? Napiš anglicky jedno slovo.", "audio": { "text": "I have got a magazine in my blue box.", "language": "en-GB" }, "answerLanguage": "en-GB", "acceptedAnswers": ["magazine"], "assessment": { "input": "text", "exact": { "type": "string", "value": "magazine", "normalization": "language" }, "partial": { "credit": 0.5, "match": { "type": "typo", "values": ["magazine"], "excludedWords": ["magazines"] } } }, "explanation": "Mluvčí má časopis v modré krabici." },
+    { "id": "listen-count", "difficulty": "medium", "type": "listening", "skill": "meaning", "prompt": "Poslechni si počet samolepek. Napiš anglické slovo pro tento počet.", "audio": { "text": "I have got six stickers. My stickers are in a red box.", "language": "en-GB" }, "answerLanguage": "en-GB", "acceptedAnswers": ["six"], "assessment": { "input": "text", "exact": { "type": "string", "value": "six", "normalization": "language" } }, "explanation": "Six stickers znamená šest samolepek." },
+    { "id": "translate-i-sentence", "difficulty": "hard", "type": "translation", "skill": "grammar", "prompt": "Přelož celou větu do angličtiny pomocí have got. Zachovej tečku.", "text": "Mám komiks.", "direction": "cs-en", "answerLanguage": "en-GB", "acceptedAnswers": ["I have got a comic.", "I've got a comic."], "assessment": { "input": "text", "exact": { "type": "array", "items": [{ "type": "string", "value": "I have got a comic.", "normalization": "language" }, { "type": "string", "value": "I've got a comic.", "normalization": "language" }] } }, "explanation": "I have got a comic. Zkrácený zápis I've got a comic. má stejný význam." },
+    { "id": "translate-she-sentence", "difficulty": "hard", "type": "translation", "skill": "grammar", "prompt": "Přelož větu o dívce pomocí has got, s tečkou.", "text": "Ona má časopis.", "direction": "cs-en", "answerLanguage": "en-GB", "acceptedAnswers": ["She has got a magazine.", "She's got a magazine."], "assessment": { "input": "text", "exact": { "type": "array", "items": [{ "type": "string", "value": "She has got a magazine.", "normalization": "language" }, { "type": "string", "value": "She's got a magazine.", "normalization": "language" }] } }, "explanation": "S she používáme has got. She's got je zkrácená podoba." },
+    { "id": "translate-place", "difficulty": "hard", "type": "translation", "skill": "grammar", "prompt": "Přelož celou anglickou větu do češtiny, s tečkou.", "text": "The comics are on the shelf.", "direction": "en-cs", "answerLanguage": "cs-CZ", "acceptedAnswers": ["Komiksy jsou na polici.", "Ty komiksy jsou na polici."], "assessment": { "input": "text", "exact": { "type": "array", "items": [{ "type": "string", "value": "Komiksy jsou na polici.", "normalization": "language" }, { "type": "string", "value": "Ty komiksy jsou na polici.", "normalization": "language" }] } }, "explanation": "On the shelf znamená na polici. Comics je množné číslo." },
+    { "id": "order-what", "difficulty": "hard", "type": "wordOrder", "skill": "grammar", "prompt": "Seřaď otázku: Co máš ve své krabici? Doplň na konci otazník.", "words": ["box", "got", "your", "What", "you", "in", "have"], "answerLanguage": "en-GB", "acceptedAnswers": ["What have you got in your box?"], "assessment": { "input": "text", "exact": { "type": "string", "value": "What have you got in your box?", "normalization": "language" } }, "explanation": "Otázka začíná What have you got, potom následuje místo." },
+    { "id": "order-count", "difficulty": "hard", "type": "wordOrder", "skill": "grammar", "prompt": "Seřaď otázku na počet Benových komiksů, s otazníkem.", "words": ["Ben", "many", "got", "How", "comics", "has"], "answerLanguage": "en-GB", "acceptedAnswers": ["How many comics has Ben got?"], "assessment": { "input": "text", "exact": { "type": "string", "value": "How many comics has Ben got?", "normalization": "language" } }, "explanation": "How many se pojí s množným číslem comics. S Ben používáme has." },
+    { "id": "story-box", "difficulty": "hard", "type": "text", "skill": "meaning", "prompt": "Jakou barvu má Benova krabice v příběhu? Napiš anglicky barvu.", "text": "Read the story about Ben and Mia. Think about Ben's box, not Mia's box.", "answerLanguage": "en-GB", "acceptedAnswers": ["yellow"], "assessment": { "input": "text", "exact": { "type": "string", "value": "yellow", "normalization": "language" }, "partial": { "credit": 0.5, "match": { "type": "typo", "values": ["yellow"], "excludedWords": [] } } }, "explanation": "Ben má žlutou krabici. Mia má červenou." },
+    { "id": "story-place", "difficulty": "hard", "type": "text", "skill": "grammar", "prompt": "Kde je Miin časopis? Napiš anglicky krátkou odpověď bez tečky.", "text": "Where is Mia's magazine in the story?", "answerLanguage": "en-GB", "acceptedAnswers": ["on the table"], "assessment": { "input": "text", "exact": { "type": "string", "value": "on the table", "normalization": "language" } }, "explanation": "Miin časopis je na stole: on the table." },
+    { "id": "listen-place", "difficulty": "hard", "type": "listening", "skill": "grammar", "prompt": "Kde jsou komiksy v poslechu? Napiš krátkou anglickou odpověď bez tečky.", "audio": { "text": "My stickers are in a box. My comics are on the shelf. My box is on the table.", "language": "en-GB" }, "answerLanguage": "en-GB", "acceptedAnswers": ["on the shelf"], "assessment": { "input": "text", "exact": { "type": "string", "value": "on the shelf", "normalization": "language" } }, "explanation": "Poslech rozlišuje tři místa. Komiksy jsou na polici." },
+    { "id": "listen-translate", "difficulty": "hard", "type": "listening", "skill": "grammar", "prompt": "Poslechni si celou větu a přelož ji do češtiny, s tečkou.", "audio": { "text": "She has got two key rings.", "language": "en-GB" }, "answerLanguage": "cs-CZ", "acceptedAnswers": ["Ona má dva přívěsky na klíče.", "Má dva přívěsky na klíče.", "Ona má dva kroužky na klíče.", "Má dva kroužky na klíče."], "assessment": { "input": "text", "exact": { "type": "array", "items": [{ "type": "string", "value": "Ona má dva přívěsky na klíče.", "normalization": "language" }, { "type": "string", "value": "Má dva přívěsky na klíče.", "normalization": "language" }, { "type": "string", "value": "Ona má dva kroužky na klíče.", "normalization": "language" }, { "type": "string", "value": "Má dva kroužky na klíče.", "normalization": "language" }] } }, "explanation": "She has got znamená ona má. Two key rings jsou dva přívěsky nebo kroužky na klíče." }
+  ]
+}

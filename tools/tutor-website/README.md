@@ -13,11 +13,20 @@ From the repository root in PowerShell:
 ```powershell
 node tools\tutor-website\build.js capabilities history
 node tools\tutor-website\build.js capabilities maths
+node tools\tutor-website\build.js capabilities english
 node tools\tutor-website\build.js build "C:\session-artifacts\handoff.json"
 node --test tools\tutor-website\tests\*.test.js
 ```
 
 Read the linked contracts before authoring or reviewing a lesson. `capabilities.contractPath` remains this index; schema, builder and CLI paths are unchanged.
+
+## English tutor
+
+See [English v5](docs/english.md) for A1 bilingual authoring, the 800-1,000-word
+topic-only target and measurement, listening, writing/translation/word-order
+formats, bounded spelling partial credit and untimed scoring.
+Browser listening requires a local English voice; text pages have no external
+assets, microphone access or runtime network dependency.
 
 ## Discover, author, hand off
 

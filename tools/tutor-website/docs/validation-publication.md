@@ -59,13 +59,13 @@ Both hosted runs used Node 22 and Chrome; runner variability still applies.
 
 ### Prepared example artifacts
 
-After validation, it discovers both current defaults through `capabilities`,
+After validation, it discovers all three current defaults through `capabilities`,
 copies their JSON into the runner's temporary directory, and uses the guarded
-shared builder to generate `history.html` and `maths.html`. Download the
-separate **history-example** and **maths-example** artifacts from the workflow
+shared builder to generate `history.html`, `maths.html` and `english.html`. Download the
+separate **history-example**, **maths-example** and **english-example** artifacts from the workflow
 run (their names end with the run-attempt number). Each ZIP contains one
 standalone HTML file. A separate, checkout-free reporting job posts a **new**
-PR comment on every run/attempt, with both download links and the validation-run
+PR comment on every run/attempt, with all download links and the validation-run
 link; it never updates an earlier comment. Failed validation posts a failure
 notice instead of broken download links. Reporting requires PR comment
 permissions, which GitHub withholds from fork pull-request tokens by default.
@@ -86,8 +86,8 @@ all families on one Releases page.
 
 The merge workflow validates and builds the **actual merged commit**, not the
 PR head or an unrelated newer `main`. A separate job downloads those exact
-validated artifacts and creates the release at that commit with **history.html**
-and **maths.html** as raw HTML assets. Downloads do not require unpacking a ZIP
+validated artifacts and creates the release at that commit with **history.html**,
+**maths.html** and **english.html** as raw HTML assets. Downloads do not require unpacking a ZIP
 and are not subject to the Actions artifact retention limit. Automatic tutor
 releases use PR-based tags rather than guessing semantic-version increments,
 and `--latest=false` avoids replacing the repository's overall latest release.
@@ -98,7 +98,7 @@ merge commit with read-only contents permissions and no persisted credentials.
 Only the checkout-free release job receives `contents: write`. Artifact IDs
 connect the jobs, so rerunning only a failed release job still selects the
 original validated pages. Reruns reuse the same release and replace only the
-two named example assets with `--clobber`; a release already targeting a
+three named example assets with `--clobber`; a release already targeting a
 different commit causes an explicit failure instead.
 
 Publishing an unrelated or manually created release does not trigger tutor
@@ -110,7 +110,7 @@ PR download comments remain exclusive to the pre-merge PR validation runs.
 The website helper opens the actual generated file locally for technical review.
 Check the three shared tabs, name validation,
 original text, glossary, progressively reduced step/hint reveals,
-all content, narrow layout, light/dark themes and offline operation. For both
+all content, narrow layout, light/dark themes and offline operation. For all
 subjects, play all quiz modes through feedback/results and storage warnings.
 The browser test uses installed Edge/Chrome (or `TUTOR_BROWSER_PATH`) and Node's
 built-in WebSocket/CDP, with no browser/package downloads. It skips explicitly
@@ -139,6 +139,12 @@ cannot overwrite one another's screenshots.
 The subject tutor reviews the actual rendered educational content, Czech
 language, original preservation, explanations, difficulty and worked solutions.
 The common helper provides guidance only, not build/browser coordination.
+
+English adds `tests/english-browser.test.js` for bilingual content and every
+exercise format, listening replay/cancellation/failures, translation and typo
+grading, separate session results and narrow/theme layouts. Speech is mocked
+for deterministic lifecycle checks; this does not verify audible pronunciation
+or that a local English voice is installed. Disclose actual audio-review limits.
 
 Drafts remain in session artifacts. Give the user the absolute HTML path and
 request review/explicit approval. Only after approval may the calling subject

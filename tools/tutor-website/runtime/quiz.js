@@ -59,6 +59,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('leaderboard').open = false;
     }
     function pauseAnswerClock() {
+        context.speech?.stop();
         if (quiz && quiz.answerStarted !== null) {
             quiz.questionElapsedMs += Math.max(0, performance.now() - quiz.answerStarted);
             quiz.answerStarted = null;
@@ -75,6 +76,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         else resumeAnswerClock();
     });
     function finish() {
+        context.speech?.stop();
         quiz.finished = true;
         window.removeEventListener('beforeunload', warnBeforeUnload);
         clearInterval(timer);
@@ -125,6 +127,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('next').focus();
     }
     function showQuestion() {
+        context.speech?.stop();
         clearInterval(timer);
         quiz.locked = false;
         quiz.questionElapsedMs = 0;
@@ -134,17 +137,24 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('quiz-progress').max = quiz.questions.length;
         $('quiz-progress').value = quiz.answers.length;
         $('question').replaceChildren(node('span', question.prompt, 'question-enter'));
-        $('question-icon').textContent = question.icon || (subject.speedBonus ? '🏰' : '📐');
+        $('question-icon').textContent = question.icon || subject.icon || (subject.speedBonus ? '🏰' : '📐');
         $('difficulty').textContent = (subject.difficultyLabels ||
             { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' })[question.difficulty];
         $('difficulty').dataset.level = question.difficulty;
         $('answers').replaceChildren();
+        $('question-material').replaceChildren();
+        $('question-material').hidden = true;
+        subject.renderQuestion?.(context, question);
         $('feedback').hidden = true;
         $('next').hidden = true;
         $('answer-guide').open = false;
         $('answer-guide').hidden = !subject.answerHelp || !!question.options;
         if (question.options) {
-            question.options.forEach((option, index) => $('answers').append(button(option, () => submit([index]))));
+            question.options.forEach((option, index) => {
+                const control = button(option, () => submit([index]));
+                if (subject.optionLanguage) control.lang = subject.optionLanguage(question);
+                $('answers').append(control);
+            });
         } else {
             subject.fields(question, quiz.index).forEach(field => {
                 const label = node('label', field.label);
@@ -155,6 +165,7 @@ function initializeTutorQuiz(lesson, subject, context) {
                 input.autocomplete = 'off';
                 input.maxLength = 80;
                 input.spellcheck = false;
+                if (field.language) input.lang = field.language;
                 if (field.inputMode) input.inputMode = field.inputMode;
                 if (subject.answerHelp) input.setAttribute('aria-describedby', 'answer-help');
                 $('answers').append(label, input);

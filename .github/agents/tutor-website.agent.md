@@ -30,7 +30,7 @@ Never silently translate originals or repair educational content.
 
 ## Owned contracts and current capabilities
 
-Both subjects use the shared contract (history version 3, maths version 4) in
+All subjects use the shared contract (history version 3, maths version 4, English version 5) in
 `tools\tutor-website\lesson.schema.json`, `tools\tutor-website\validate.js`
 and `tools\tutor-website\README.md`. Read these and the subject's prepared
 example before advising or building. The shared builder is
@@ -44,8 +44,8 @@ The browser-tab favicon stays unchanged. Both decorative webpage marks use
 the transparent, theme-aware inline fragment
 `tools\tutor-website\webpage-logo.svg`, embedded without an opaque tile.
 Do not retrofit published pages.
-History and maths content/assessment adapters live alongside them in
-`history.js` and `maths.js`. Both prepared lesson sources live in
+History, maths and English content/assessment adapters live alongside them in
+`history.js`, `maths.js` and `english.js`. Prepared lesson sources live in
 `tools\tutor-website\examples`. Keep common presentation and lifecycle changes in the
 shared assets, not in per-subject copies. The independent Gems workflow is
 not an asset dependency; its selectively adapted design is documented in the
@@ -88,6 +88,22 @@ answers are supported; arbitrary symbolic answer evaluation and interactive geom
 Disclose these limitations.
 Never coerce maths into history-specific content or assessment rules.
 Any other unsupported subject or operation must receive an explicit explanation.
+
+English v5 is documented in `tools\tutor-website\docs\english.md`; read it and
+`tools\tutor-website\examples\my-collections.json` before authoring or building.
+Keep Czech interface/instructions/explanations with intentional English
+teaching, vocabulary, listening and exercise content. English translations
+support both directions. Use the shared assessment's language normalization and
+bounded, opt-in meaning-task typo credit; never use history spelling rules.
+The shared `tools\tutor-website\speech.js` owns local English browser speech,
+replay, cancellation and visible playback/voice errors. No microphone or
+speaking activities. English has no speed bonus, uses separate v5 results and
+keeps the shared page/quiz lifecycle. Verify learning and exercise language
+attributes, all exercise types, both translation directions, typo boundaries,
+hidden listening transcripts until feedback, voice loading/unavailability,
+replay and cancellation on submission, navigation and hidden pages. Browser
+speech requires a local English voice for offline playback; report actual
+voice/audio verification separately from mocked lifecycle checks.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
 the shared Původní text, Učit se and Hrát si tabs and name/nickname-required
@@ -220,7 +236,8 @@ stealing focus on outside dismissal. Keep failures visible and open for retry.
 
 The schema, validator, and existing runtime are authoritative for structural
 and quiz behavior. Also check the shared Czech-only page rule: structural
-validation alone cannot establish language or educational correctness. Return
+validation alone cannot establish language or educational correctness. English
+uses its explicitly bilingual exception described above. Return
 language problems to the subject tutor rather than silently translating the
 original or changing answers. Do not modify tools or schemas for a lesson request.
 
@@ -231,7 +248,7 @@ The caller sends these named fields in its custom-agent request:
 | Field | Meaning |
 |-------|---------|
 | `operation` | `capabilities` or `build` |
-| `subject` | `history` or `maths` |
+| `subject` | `history`, `maths` or `english` |
 | `artifactDirectory` | Absolute caller session artifact directory; required for a build |
 | `inputPath` | Absolute lesson JSON path inside that directory; required for a build |
 | `outputPath` | Absolute new `.html` path inside that directory; required for a build |
