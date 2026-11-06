@@ -9,6 +9,7 @@ From the repository root in PowerShell:
 ```powershell
 node tools\tutor-website\build.js capabilities history
 node tools\tutor-website\build.js capabilities maths
+node tools\tutor-website\build.js capabilities english
 node tools\tutor-website\build.js build "C:\session-artifacts\handoff.json"
 node --test tools\tutor-website\tests\*.test.js
 ```
@@ -20,21 +21,25 @@ It also returns `authoringRequirements` and `quizModes`, the website-owned
 task counts described below. Subject tutors define what makes a task easy,
 medium or hard; they consume these counts rather than maintaining local quotas.
 Unsupported subjects/operations fail with a nonzero exit code, not a fallback.
-`examplePath` identifies prepared, reusable default lesson JSON for both subjects.
-The structural test fixture is not teaching material. Both subjects use
+`examplePath` identifies prepared, reusable default lesson JSON for all subjects.
+The structural test fixture is not teaching material. All subjects use
 **`tools\tutor-website\lesson.schema.json`** and `validate.js`;
-capabilities selects history v3 or progressive maths v4.
+capabilities selects history v3, progressive maths v4 or English v5.
 Common fields and definitions have one source; conditional subject sections
 preserve their different teaching and assessment needs.
 
 | Subject | Contract | Output now |
 |---|---|---|
 | History | Shared v3, history section | Original text, factual review/corrections, learning, quiz and session results |
-| Maths | Shared v3, maths section | Original material, guided worked examples, separate quiz practice, exact checking, untimed quizzes, partial scoring and named session results |
+| Maths | Shared v4, maths section | Original material, guided worked examples, separate quiz practice, exact checking, untimed quizzes, partial scoring and named session results |
+| English | Shared v5, English section | Czech guidance, English learning, writing/translation/listening exercises, untimed quizzes and named session results |
+
+See [English v5](english.md) for bilingual source handling, topic-only content
+size, exercise shapes, local speech requirements and bounded typo policies.
 
 Legacy history v1 and maths v2 JSON remain accepted without rewriting source
 material. Compatibility is limited to lesson data and grading, not old tool
-paths or APIs: use the shared builder and schema for both subjects.
+paths or APIs: use the shared builder and schema for all subjects.
 Legacy maths v3 is also preserved. New history content uses v3 and maths uses v4 with
 `subject`, `language: "cs-CZ"` and a nonblank motivational `subtitle`.
 The schema can enforce presence, not whether wording is genuinely encouraging;
@@ -48,8 +53,8 @@ symbolic answer evaluation and interactive geometry remain unsupported.
 ### Website-owned task counts
 
 `authoringRequirements` is guidance for new lesson authors, not an additional
-structural validator rule. `minimumTasks` is 30 for either subject, counting
-history questions or whole maths exercises (`taskUnit`), never maths answer
+structural validator rule. `minimumTasks` is 30 for each subject, counting
+history questions or whole maths/English exercises (`taskUnit`), never maths answer
 fields. History `minimumByDifficulty` remains 2/5/3 and its recommendation 6/15/9.
 Maths v4 minimums are 3/4/3, with at least two medium `choice` and two medium
 `number` tasks (`minimumMediumByType`). Recommendations are 9/12/9, including
@@ -76,6 +81,8 @@ numerical entries in every v4 run. These come from the runtime, not authored
 lesson configuration. Selection remains random without
 replacement within each level and presents easy → medium → hard.
 History's hard-mode year guarantee and subject scoring/timing are unchanged.
+English uses 1/1/1, 1/2/2 and 2/5/3 without a year guarantee or speed bonus;
+its recommendation is 6/15/9 and preferred bank range 30-100.
 
 ### Prepared defaults
 
@@ -86,6 +93,7 @@ asks for a default/example, it reuses `capabilities.examplePath`:
 |---|---|---|
 | History | `tools\tutor-website\examples\defenestrace.json` | Od defenestrace k Bílé hoře |
 | Maths | `tools\tutor-website\examples\zlomky-a-prevody-delky.json` | Zlomky a převody jednotek délky |
+| English | `tools\tutor-website\examples\my-collections.json` | Moje sbírky a věci doma (A1) |
 
 These sources are prepared once, not synthesized on each default request.
 History reuses the existing reviewed example. The maths default combines both

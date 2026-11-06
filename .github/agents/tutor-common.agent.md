@@ -9,7 +9,7 @@ tools: ["read", "search"]
 # Shared tutoring guidance
 
 This profile is the shared source of teaching and workflow policy for
-`tutor-history`, `tutor-maths`, and `tutor-website`. Those agents must read this
+`tutor-history`, `tutor-maths`, `tutor-english`, and `tutor-website`. Those agents must read this
 file first. It can also answer their questions about shared teaching rules.
 Only participate in an explicitly requested tutoring workflow; do not apply
 these instructions to unrelated repository work.
@@ -32,6 +32,10 @@ wait for explicit confirmation to start implementation.
   corrections, hints, glossary, questions, solutions and reference labels.
   If verbatim source preservation conflicts with this rule, ask the user to
   resolve the conflict before generating a page.
+  English tutoring is the explicit exception: use Czech instructions and
+  explanations with English learning/exercise/listening content and either
+  language for translation sources. Follow tutor-english's preservation and
+  language rules; do not translate supplied originals silently.
 - Explain why an answer works. Teach everything tested, use meaningful examples
   and avoid duplicate questions used as padding. If the material cannot support
   the website's task-count requirements, request more material or agree on a
@@ -68,7 +72,7 @@ wait for explicit confirmation to start implementation.
 - Subject tutors own educational accuracy, explanations, difficulty definitions,
   exercises, solutions and the educational meaning of accepted answers. They
   author JSON only, never custom HTML, CSS, JavaScript or numerical checkers.
-- `tutor-website` owns the single shared schema (history v3, maths v4), validator, builder, task-count
+- `tutor-website` owns the single shared schema (history v3, maths v4, English v5), validator, builder, task-count
   requirements, assessment implementation, shared page and technical review.
   Read `.github\agents\tutor-website.agent.md` for the named handoff fields.
   Ask for `capabilities` before authoring, then read the identified contract.

@@ -7,7 +7,7 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..', '..', '..');
 const directory = path.join(root, '.github', 'agents');
-const names = ['tutor-common', 'tutor-history', 'tutor-maths', 'tutor-website'];
+const names = ['tutor-common', 'tutor-history', 'tutor-maths', 'tutor-english', 'tutor-website'];
 const profiles = names.map(name => {
     const text = fs.readFileSync(path.join(directory, `${name}.agent.md`), 'utf8');
     const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]+)$/);
@@ -35,7 +35,7 @@ test('tutor profiles have consistent names and documented frontmatter fields', (
 
 test('subject tutors are opt-in and internal helpers allow only programmatic selection', () => {
     profiles.forEach(({ name, header }) => {
-        const subject = name === 'tutor-history' || name === 'tutor-maths';
+        const subject = ['tutor-history', 'tutor-maths', 'tutor-english'].includes(name);
         assert.match(header, new RegExp(`^user-invocable: ${subject}$`, 'm'));
         assert.match(header, new RegExp(`^disable-model-invocation: ${subject}$`, 'm'));
         const tools = header.match(/^tools: (.+)$/m);
@@ -50,7 +50,7 @@ test('subject and website profiles explicitly load common guidance and handoff i
     profiles.filter(profile => profile.name !== 'tutor-common').forEach(({ body }) => {
         assert.ok(body.includes('Read `.github\\agents\\tutor-common.agent.md` first'));
     });
-    for (const name of ['tutor-history', 'tutor-maths']) {
+    for (const name of ['tutor-history', 'tutor-maths', 'tutor-english']) {
         const { body } = profiles.find(profile => profile.name === name);
         assert.ok(body.includes('`.github\\agents\\tutor-website.agent.md`'));
     }
@@ -86,7 +86,7 @@ test('subjects author JSON only and website owns shared page behavior and techni
         }
         assert.ok(body.includes('name/nickname'), `${name}: common name requirement`);
     }
-    for (const name of ['tutor-history', 'tutor-maths']) {
+    for (const name of ['tutor-history', 'tutor-maths', 'tutor-english']) {
         const body = profiles.find(profile => profile.name === name).body.replace(/\s+/g, ' ');
         assert.ok(body.includes('Follow tutor-common\'s "Responsibility and handoff" and "Drafts, review, and publication" sections.'),
             `${name}: shared handoff and approval reference`);
@@ -121,16 +121,17 @@ test('common owns shared pedagogy and workflow without duplicating website techn
 });
 
 test('website owns numerical task quotas while subjects retain educational difficulty definitions', () => {
-    for (const name of ['tutor-common', 'tutor-history', 'tutor-maths']) {
+    for (const name of ['tutor-common', 'tutor-history', 'tutor-maths', 'tutor-english']) {
         const body = profiles.find(profile => profile.name === name).body;
         assert.ok(body.includes('authoringRequirements'), name);
         assert.ok(body.includes('quizModes'), name);
-        assert.doesNotMatch(body, /at least \d+|50[-–]100|6\/15\/9|1\/2\/2/);
+        assert.doesNotMatch(body, /50[-–]100|6\/15\/9|1\/2\/2/);
+        if (name !== 'tutor-english') assert.doesNotMatch(body, /at least \d+/);
     }
     const website = profiles.find(profile => profile.name === 'tutor-website').body;
     assert.ok(website.includes('bank-size requirements'));
     assert.ok(website.includes('supported legacy banks valid'));
-    for (const name of ['tutor-history', 'tutor-maths']) {
+    for (const name of ['tutor-history', 'tutor-maths', 'tutor-english']) {
         const body = profiles.find(profile => profile.name === name).body;
         for (const level of ['Easy', 'Medium', 'Hard']) assert.ok(body.includes(`**${level}:**`), name);
     }
@@ -160,7 +161,7 @@ test('both tutors reuse discoverable prepared JSON for default or empty requests
     for (const text of ['supplies no topic or source', 'capabilities.examplePath', 'copy it unchanged', 'Explicit topics/material take']) {
         assert.ok(common.includes(text), `Missing default rule: ${text}`);
     }
-    for (const name of ['tutor-history', 'tutor-maths']) {
+    for (const name of ['tutor-history', 'tutor-maths', 'tutor-english']) {
         const body = profiles.find(profile => profile.name === name).body;
         assert.ok(body.includes('default/example request or no supplied topic/material'), name);
         assert.ok(body.includes('capabilities.examplePath'), name);

@@ -60,6 +60,8 @@ jobs:
       maths-url: ${{ steps.maths.outputs.artifact-url }}
       history-id: ${{ steps.history.outputs.artifact-id }}
       maths-id: ${{ steps.maths.outputs.artifact-id }}
+      english-url: ${{ steps.english.outputs.artifact-url }}
+      english-id: ${{ steps.english.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,7 +76,7 @@ jobs:
         run: |
           test -x "$TUTOR_BROWSER_PATH"
           node --test tools/tutor-website/tests/*.test.js
-      - name: Generate both prepared default pages
+      - name: Generate all prepared default pages
         run: |
           node <<'NODE'
           const fs = require('node:fs');
@@ -82,7 +84,7 @@ jobs:
           const { capabilities, build } = require('./tools/tutor-website/build.js');
           const artifactDirectory = path.join(process.env.RUNNER_TEMP, 'tutor-default-pages');
           fs.mkdirSync(artifactDirectory);
-          for (const subject of ['history', 'maths']) {
+          for (const subject of ['history', 'maths', 'english']) {
             const inputPath = path.join(artifactDirectory, `${subject}.json`);
             const outputPath = path.join(artifactDirectory, `${subject}.html`);
             fs.copyFileSync(capabilities(subject).examplePath, inputPath, fs.constants.COPYFILE_EXCL);
@@ -107,6 +109,15 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Upload English default page
+        id: english
+        uses: actions/upload-artifact@v4
+        with:
+          name: english-example-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tutor-default-pages/english.html
+          if-no-files-found: error
+          retention-days: 14
+
   release:
     needs: validate
     if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
@@ -118,7 +129,7 @@ jobs:
       - name: Download the validated example pages
         uses: actions/download-artifact@v4
         with:
-          artifact-ids: ${{ needs.validate.outputs.history-id }},${{ needs.validate.outputs.maths-id }}
+          artifact-ids: ${{ needs.validate.outputs.history-id }},${{ needs.validate.outputs.maths-id }},${{ needs.validate.outputs.english-id }}
           merge-multiple: true
           path: ${{ runner.temp }}/tutor-release-pages
       - name: Create or update this merged PR's tutor release
@@ -136,13 +147,15 @@ jobs:
             fi
             gh release upload --repo "$GITHUB_REPOSITORY" --clobber -- "$tag" \
               "$RUNNER_TEMP/tutor-release-pages/history.html" \
-              "$RUNNER_TEMP/tutor-release-pages/maths.html"
+              "$RUNNER_TEMP/tutor-release-pages/maths.html" \
+              "$RUNNER_TEMP/tutor-release-pages/english.html"
           else
-            notes="Default history and maths pages generated from merged PR #${PR_NUMBER} (${MERGE_SHA}). Download the two standalone HTML assets below."
+            notes="Default history, maths and English pages generated from merged PR #${PR_NUMBER} (${MERGE_SHA}). Download the three standalone HTML assets below."
             gh release create --repo "$GITHUB_REPOSITORY" --target "$MERGE_SHA" \
               --title "Tutor examples - PR #${PR_NUMBER}" --notes "$notes" --latest=false -- "$tag" \
               "$RUNNER_TEMP/tutor-release-pages/history.html" \
-              "$RUNNER_TEMP/tutor-release-pages/maths.html"
+              "$RUNNER_TEMP/tutor-release-pages/maths.html" \
+              "$RUNNER_TEMP/tutor-release-pages/english.html"
           fi
 
   comment:
@@ -160,15 +173,17 @@ jobs:
           VALIDATION_RESULT: ${{ needs.validate.result }}
           HISTORY_URL: ${{ needs.validate.outputs.history-url }}
           MATHS_URL: ${{ needs.validate.outputs.maths-url }}
+          ENGLISH_URL: ${{ needs.validate.outputs.english-url }}
         run: |
           run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
           body="### Tutor examples - run ${GITHUB_RUN_NUMBER}, attempt ${GITHUB_RUN_ATTEMPT}"$'\n\n'
-          if [[ "$VALIDATION_RESULT" == "success" && -n "$HISTORY_URL" && -n "$MATHS_URL" ]]; then
+          if [[ "$VALIDATION_RESULT" == "success" && -n "$HISTORY_URL" && -n "$MATHS_URL" && -n "$ENGLISH_URL" ]]; then
             body+="[Download history.html (ZIP)](${HISTORY_URL})"$'\n\n'
             body+="[Download maths.html (ZIP)](${MATHS_URL})"$'\n\n'
+            body+="[Download english.html (ZIP)](${ENGLISH_URL})"$'\n\n'
             body+="Each archive contains one standalone HTML page generated from its default dataset. Sign in to GitHub to download; retention is up to 14 days. Reruns or artifact deletion can invalidate earlier links - use the newest comment. Nothing is published to the site."
           else
-            body+="Validation or example generation did not complete successfully (${VALIDATION_RESULT}); a complete pair of downloads is unavailable."
+            body+="Validation or example generation did not complete successfully (${VALIDATION_RESULT}); a complete set of downloads is unavailable."
           fi
           body+=$'\n\n'"[View this validation run](${run_url})"
           gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$body"

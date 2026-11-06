@@ -5,9 +5,9 @@ const path = require('node:path');
 const { createQrSvg } = require('./qr.js');
 
 function readRuntimeSource(subject) {
-    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    if (!['history', 'maths', 'english'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     return [
-        'assessment.js', 'highlights.js', 'learning.js', 'runtime.js',
+        'assessment.js', 'highlights.js', 'learning.js', ...(subject === 'english' ? ['speech.js'] : []), 'runtime.js',
         path.join('runtime', 'learning.js'), path.join('runtime', 'navigation.js'),
         path.join('runtime', 'results.js'), path.join('runtime', 'quiz.js'),
         `${subject}.js`
@@ -16,7 +16,7 @@ function readRuntimeSource(subject) {
 }
 
 function renderPage(lesson, subject, publicationUrl) {
-    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    if (!['history', 'maths', 'english'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
     const escapeHtml = text => text.replace(/[&<>"']/g, char => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[char]);
@@ -24,7 +24,7 @@ function renderPage(lesson, subject, publicationUrl) {
         TITLE: escapeHtml(lesson.topic),
         FAVICON: encodeURIComponent(fs.readFileSync(path.join(__dirname, 'favicon.svg'), 'utf8')).replace(/'/g, '%27'),
         WEBPAGE_LOGO: fs.readFileSync(path.join(__dirname, 'webpage-logo.svg'), 'utf8'),
-        SUBJECT: subject === 'history' ? 'Dějepis' : 'Matematika',
+        SUBJECT: { history: 'Dějepis', maths: 'Matematika', english: 'Angličtina' }[subject],
         SUBJECT_ID: subject,
         TIMING: subject === 'history' ? '<div id="bonus" aria-hidden="true"><div id="bonus-bar"></div></div>' : '',
         SHARE: `<aside class="lesson-share" aria-label="Odkaz na lekci"><div><p>Otevři si tuto lekci na jiném zařízení naskenováním QR kódu nebo kliknutím na odkaz:</p><a href="${escapeHtml(publicationUrl)}">${escapeHtml(publicationUrl)}</a></div>${createQrSvg(publicationUrl)}</aside>`,

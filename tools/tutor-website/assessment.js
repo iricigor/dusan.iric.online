@@ -7,6 +7,46 @@ const tutorAssessment = (() => {
     const numericHelp = 'Napiš celé nebo desetinné číslo, zlomek (1/2) či smíšené číslo (1 3/4). Jmenovatel nesmí být nula.';
     const normalizeAnswer = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         .toLocaleLowerCase('cs').replace(/y/g, 'i').replace(/\s+/g, '');
+    const normalizeLanguage = value => value.normalize('NFC').toLocaleLowerCase('cs').trim().replace(/\s+/g, ' ');
+    const words = text => normalizeLanguage(text).match(/\p{L}+/gu) || [];
+    function knownWords(value, result = new Set()) {
+        if (typeof value === 'string') words(value).forEach(word => result.add(word));
+        else if (Array.isArray(value)) value.forEach(item => knownWords(item, result));
+        else if (value && typeof value === 'object') Object.values(value).forEach(item => knownWords(item, result));
+        return result;
+    }
+    function oneLetterApart(left, right) {
+        const a = [...left], b = [...right];
+        if (a.length < 4 || Math.abs(a.length - b.length) > 1 || left === right) return false;
+        if (a.length === b.length) {
+            const different = a.map((letter, index) => letter === b[index] ? -1 : index).filter(index => index >= 0);
+            return different.length === 1 || (different.length === 2 && different[1] === different[0] + 1 &&
+                a[different[0]] === b[different[1]] && a[different[1]] === b[different[0]]);
+        }
+        const longer = a.length > b.length ? a : b;
+        const shorter = a.length > b.length ? b : a;
+        const index = shorter.findIndex((letter, at) => letter !== longer[at]);
+        const remove = index < 0 ? shorter.length : index;
+        return longer.filter((_, at) => at !== remove).join('') === shorter.join('');
+    }
+    function typoMatches(matcher, raw, context) {
+        if (!(context.knownWords instanceof Set)) throw new Error('Typo assessment requires the lesson vocabulary');
+        const actual = normalizeLanguage(raw);
+        const tokens = actual.match(/\p{L}+|[^\p{L}]+/gu) || [];
+        const excluded = new Set(matcher.excludedWords.map(normalizeLanguage));
+        return matcher.values.some(value => {
+            const expected = normalizeLanguage(value).match(/\p{L}+|[^\p{L}]+/gu) || [];
+            if (tokens.length !== expected.length) return false;
+            let differences = 0;
+            return expected.every((token, index) => {
+                if (token === tokens[index]) return true;
+                differences++;
+                return differences === 1 && /^\p{L}+$/u.test(token) && /^\p{L}+$/u.test(tokens[index]) &&
+                    !excluded.has(tokens[index]) && !context.knownWords.has(tokens[index]) &&
+                    oneLetterApart(token, tokens[index]);
+            }) && differences === 1;
+        });
+    }
     function rational(text) {
         const [whole, part = ''] = text.replace(',', '.').split('.');
         return { numerator: BigInt(whole + part), denominator: 10n ** BigInt(part.length) };
@@ -61,10 +101,11 @@ const tutorAssessment = (() => {
         const value = policy.input === 'year' ? rational(String(Number(text))) : parseNumber(text);
         return value ? { text, value } : { error: numericHelp };
     }
-    function matches(matcher, parsed) {
+    function matches(matcher, parsed, context = {}) {
         switch (matcher.type) {
             case 'string': {
-                const normalize = matcher.normalization === 'czech' ? normalizeAnswer : text => text.trim().normalize('NFC');
+                const normalize = matcher.normalization === 'czech' ? normalizeAnswer :
+                    matcher.normalization === 'language' ? normalizeLanguage : text => text.trim().normalize('NFC');
                 return normalize(parsed.text) === normalize(matcher.value);
             }
             case 'number': {
@@ -80,16 +121,18 @@ const tutorAssessment = (() => {
                     (upper < 0 || (upper === 0 && matcher.includeMax));
             }
             case 'array':
-                return matcher.items.some(item => matches(item, parsed));
+                return matcher.items.some(item => matches(item, parsed, context));
+            case 'typo':
+                return typoMatches(matcher, parsed.text, context);
             default:
                 throw new Error(`Unsupported answer matcher: ${matcher.type}`);
         }
     }
-    function evaluate(policy, raw) {
+    function evaluate(policy, raw, context = {}) {
         const parsed = parseInput(policy, raw);
         if (parsed.error) return { fraction: 0, correct: false, valid: false, status: 'invalid', message: parsed.error };
-        const fraction = matches(policy.exact, parsed) ? 1 :
-            policy.partial && matches(policy.partial.match, parsed) ? policy.partial.credit : 0;
+        const fraction = matches(policy.exact, parsed, context) ? 1 :
+            policy.partial && matches(policy.partial.match, parsed, context) ? policy.partial.credit : 0;
         return {
             fraction, correct: fraction === 1, valid: true,
             status: fraction === 1 ? 'correct' : fraction > 0 ? 'partial' : 'incorrect',
@@ -116,7 +159,8 @@ const tutorAssessment = (() => {
             partial: { credit: .5, match: { type: 'range', min: String(year - 9), max: String(year + 9), includeMin: true, includeMax: true } }
         };
     }
-    return { parseNumber, parseInput, compare, evaluate, normalizeAnswer, legacyMathsPolicy, legacyHistoryPolicy };
+    return { parseNumber, parseInput, compare, evaluate, normalizeAnswer, normalizeLanguage, knownWords,
+        oneLetterApart, legacyMathsPolicy, legacyHistoryPolicy };
 })();
 
 if (typeof module !== 'undefined') module.exports = tutorAssessment;

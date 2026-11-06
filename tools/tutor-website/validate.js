@@ -2,13 +2,18 @@
 
 const { schemaErrors } = require('./schema.js');
 const schema = require('./lesson.schema.json');
-const { parseNumber, parseInput, compare, evaluate } = require('./assessment.js');
+const { parseNumber, parseInput, compare, evaluate, normalizeLanguage, knownWords } = require('./assessment.js');
 const { authored } = require('./highlights.js');
 const { PROGRESSIVE_MINIMUM, PROGRESSIVE_MEDIUM_MINIMUM } = require('./maths.js');
 
-function validateAssessment(policy, location, errors) {
+function validateAssessment(policy, location, errors, subject) {
     const check = (matcher, at) => {
         if (matcher.type === 'array') return matcher.items.forEach((item, index) => check(item, `${at}.items[${index}]`));
+        if (matcher.type === 'typo') {
+            if (subject !== 'english' || policy.input !== 'text') errors.push(`${at}: typo credit is only supported for English text answers`);
+            return;
+        }
+        if (matcher.normalization === 'language' && subject !== 'english') errors.push(`${at}: language normalization is only supported for English lessons`);
         if (matcher.type === 'number') {
             if (matcher.value.includes(',') || !parseNumber(matcher.value)) errors.push(`${at}.value: expected a bounded exact number with decimal point`);
         } else if (matcher.type === 'range') {
@@ -29,8 +34,8 @@ function validateAssessment(policy, location, errors) {
 }
 
 function validateLesson(subject, lesson) {
-    if (!['history', 'maths'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
-    const label = subject === 'maths' ? 'Invalid maths lesson' : 'Invalid lesson';
+    if (!['history', 'maths', 'english'].includes(subject)) throw new Error(`Unsupported subject: ${subject}`);
+    const label = subject === 'history' ? 'Invalid lesson' : `Invalid ${subject} lesson`;
     const errors = schemaErrors(lesson, schema);
     if (lesson?.subject !== subject && !(subject === 'history' && lesson?.version === 1 && lesson.subject === undefined)) {
         errors.push(`$.subject: expected ${subject}`);
@@ -39,8 +44,8 @@ function validateLesson(subject, lesson) {
     if (lesson.version >= 3) {
         const check = (policy, canonical, at) => {
             const before = errors.length;
-            validateAssessment(policy, `${at}.assessment`, errors);
-            if (errors.length === before && canonical.some(answer => !evaluate(policy, answer).correct)) {
+            validateAssessment(policy, `${at}.assessment`, errors, subject);
+            if (errors.length === before && canonical.some(answer => !evaluate(policy, answer, { knownWords: knownWords(lesson) }).correct)) {
                 errors.push(`${at}.assessment.exact: must award full credit to every canonical answer`);
             }
         };
@@ -49,6 +54,50 @@ function validateLesson(subject, lesson) {
             if (question.options && question.assessment.input !== 'number') errors.push(`${at}.assessment.input: choice answers require number input (option index)`);
             if (question.year && question.assessment.input !== 'number') errors.push(`${at}.assessment.input: year answers require number input`);
             check(question.assessment, question.type === 'text' ? question.acceptedAnswers : [String(question.answer)], at);
+        });
+        else if (subject === 'english') lesson.exercises.forEach((exercise, index) => {
+            const at = `$.exercises[${index}]`;
+            const policy = exercise.assessment;
+            if (exercise.options) {
+                if (exercise.answer >= exercise.options.length) errors.push(`${at}.answer: must refer to an offered option`);
+                if (policy.exact.value !== String(exercise.answer)) errors.push(`${at}.assessment.exact: must match only the correct option index`);
+                check(policy, [String(exercise.answer)], at);
+                return;
+            }
+            const matchers = policy.exact.type === 'array' ? policy.exact.items : [policy.exact];
+            if (matchers.some(matcher => matcher.type !== 'string' || matcher.normalization !== 'language')) {
+                errors.push(`${at}.assessment.exact: English written answers require language-normalized string alternatives`);
+            } else {
+                const expected = exercise.acceptedAnswers.map(normalizeLanguage);
+                const declared = matchers.map(matcher => normalizeLanguage(matcher.value));
+                if (expected.length !== declared.length || expected.some(answer => !declared.includes(answer))) {
+                    errors.push(`${at}.assessment.exact: must contain exactly the declared acceptedAnswers`);
+                }
+                if (new Set(expected).size !== expected.length) errors.push(`${at}.acceptedAnswers: duplicate normalized alternatives`);
+            }
+            if (policy.partial) {
+                const typo = policy.partial.match;
+                if (typo.type !== 'typo') errors.push(`${at}.assessment.partial: English only supports bounded typo credit`);
+                else if (exercise.skill !== 'meaning' || exercise.type === 'wordOrder') errors.push(`${at}.assessment.partial: spelling and grammar tasks cannot award typo credit`);
+                else if (typo.values.length !== exercise.acceptedAnswers.length ||
+                    typo.values.some(value => !exercise.acceptedAnswers.map(normalizeLanguage).includes(normalizeLanguage(value)))) {
+                    errors.push(`${at}.assessment.partial: typo targets must equal the full-credit alternatives`);
+                }
+            }
+            if (exercise.type === 'translation' && exercise.answerLanguage !== (exercise.direction === 'en-cs' ? 'cs-CZ' : 'en-GB')) {
+                errors.push(`${at}.answerLanguage: must match the translation direction`);
+            }
+            if (exercise.type === 'gapFill' && !exercise.text.includes('____')) errors.push(`${at}.text: gap-fill requires an ____ answer blank`);
+            if (exercise.words) {
+                const bank = [...exercise.words].map(normalizeLanguage).sort().join('|');
+                if (exercise.words.some(word => /\s/.test(word) || !/^[\p{L}'’]+$/u.test(word))) errors.push(`${at}.words: use individual words without punctuation`);
+                exercise.acceptedAnswers.forEach(answer => {
+                    if (normalizeLanguage(answer).replace(/[.!?]$/, '').split(' ').sort().join('|') !== bank) {
+                        errors.push(`${at}.acceptedAnswers: must use every offered word exactly once`);
+                    }
+                });
+            }
+            check(policy, exercise.acceptedAnswers, at);
         });
         else lesson.exercises.forEach((exercise, index) => {
             if (exercise.options) {
@@ -74,7 +123,7 @@ function validateLesson(subject, lesson) {
     const unique = (items, location) => {
         if (new Set(items.map(normalize)).size !== items.length) errors.push(`${location}: values must be unique ignoring case and whitespace`);
     };
-    const poolKey = subject === 'maths' ? 'exercises' : 'questions';
+    const poolKey = subject === 'history' ? 'questions' : 'exercises';
     const pool = lesson[poolKey];
     errors.push(...authored(lesson).errors);
     (lesson.timeline || []).forEach((event, index) => {
@@ -128,7 +177,7 @@ function validateLesson(subject, lesson) {
             });
         }
         unique(lesson.examples.map(example => example.prompt), '$.examples prompts');
-    } else {
+    } else if (subject === 'history') {
         if (!pool.some(question => question.year)) errors.push('$.questions: needs a hard year question');
         pool.forEach(question => {
             if (question.options) unique(question.options, `$.questions options for ${question.id}`);
@@ -141,6 +190,16 @@ function validateLesson(subject, lesson) {
             } catch {
                 errors.push(`$.sources: invalid source URL: ${source.url}`);
             }
+            if (subject !== 'english') {
+                (lesson.chunks || []).forEach((chunk, index) => {
+                    if (chunk.audio) errors.push(`$.chunks[${index}].audio: listening is English-only`);
+                });
+                lesson.original.forEach((section, index) => {
+                    if (section.language && section.language !== 'cs-CZ') errors.push(`$.original[${index}].language: non-English lessons must remain Czech`);
+                });
+            } else pool.forEach(exercise => {
+                if (exercise.options) unique(exercise.options, `$.exercises options for ${exercise.id}`);
+            });
         }
         const ranges = new Map();
         lesson.corrections.forEach((correction, index) => {
