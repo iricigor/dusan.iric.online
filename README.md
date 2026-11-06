@@ -3,6 +3,17 @@
 - 👉 [dusan.iric.online](https://dusan.iric.online/)
 - 👉 [dusan.iric.online/i](https://dusan.iric.online/i/index.html)
 
+## Timetable printing
+
+In [the combined timetable](https://dusan.iric.online/timetable2.html), enable
+**Barevný tisk** above **Tisk** to print the light timetable colors on white,
+regardless of dark mode. Dušan uses red, Marko blue, and Petar green, with pale
+backgrounds and stronger lesson and subject colors in both screen themes.
+**Barevné rozvrhy** under **Zobrazení** is enabled by default; disable it for
+neutral timetables on screen and in print. **Barevný tisk** is off by default
+and changes only printing. Both choices are saved in this browser.
+The printer's own grayscale setting can still override the colors.
+
 ## Deployment previews
 
 Pull requests changing `site/` receive one comment linking to the ephemeral
