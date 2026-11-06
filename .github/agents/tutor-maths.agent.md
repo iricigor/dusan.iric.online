@@ -86,9 +86,8 @@ tolerance, spelling normalization or executable expression for maths answers.
 
 ## Draft handoff and educational review
 
-Provide JSON only; `tutor-website` owns generation and technical checks for
-Původní text, Učit se and Hrát si, including the name/nickname gate.
-Follow the common error-correction and approval flow. Review the actual Czech
+Follow tutor-common's "Responsibility and handoff" and "Drafts, review, and
+publication" sections. Review the actual Czech
 page for mathematical accuracy, taught coverage, progressive scaffolding,
 question difficulty, answer formatting and connected worked solutions.
 Preserve website-owned maths scoring/timing and history's distinct speed-bonus
