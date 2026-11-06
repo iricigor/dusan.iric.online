@@ -51,6 +51,13 @@ before these final runs. These local measurements are not a hosted-runner
 guarantee: the original GitHub Actions run
 [42229880882](https://github.com/iricigor/dusan.iric.online/actions/runs/42229880882)
 used Node 22 and Chrome and recorded **156.5 s** for the test suite.
+The optimized hosted run
+[42235012412](https://github.com/iricigor/dusan.iric.online/actions/runs/42235012412)
+recorded **53.9 s**, with all **112 tests passing** and none skipped: about
+**66% less test time**. The complete `validate` job fell from **164 s to 62 s**.
+Both hosted runs used Node 22 and Chrome; runner variability still applies.
+
+### Prepared example artifacts
 
 After validation, it discovers both current defaults through `capabilities`,
 copies their JSON into the runner's temporary directory, and uses the guarded
