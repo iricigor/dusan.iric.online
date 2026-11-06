@@ -52,9 +52,10 @@ test('subject and website profiles explicitly load common guidance and handoff i
     });
     for (const name of ['tutor-history', 'tutor-maths']) {
         const { body } = profiles.find(profile => profile.name === name);
-        assert.ok(body.includes('`tutor-website`'));
         assert.ok(body.includes('`.github\\agents\\tutor-website.agent.md`'));
     }
+    const common = profiles.find(profile => profile.name === 'tutor-common').body;
+    assert.ok(common.includes('Request `build` from `tutor-website`'));
 });
 
 test('agent file references resolve and website owns the single shared contract', () => {
@@ -77,11 +78,20 @@ test('subjects author JSON only and website owns shared page behavior and techni
     for (const text of ['JSON only', 'technical page checks', 'rendered educational content']) {
         assert.ok(common.includes(text), `Missing shared rule: ${text}`);
     }
-    for (const name of ['tutor-history', 'tutor-maths', 'tutor-website']) {
+    for (const name of ['tutor-common', 'tutor-website']) {
         const body = profiles.find(profile => profile.name === name).body;
         assert.ok(body.includes('JSON only'), `${name}: JSON-only responsibility`);
-        assert.ok(body.includes('Původní text'), `${name}: original tab`);
+        for (const tab of ['Původní text', 'Učit se', 'Hrát si']) {
+            assert.ok(body.includes(tab), `${name}: ${tab} tab`);
+        }
         assert.ok(body.includes('name/nickname'), `${name}: common name requirement`);
+    }
+    for (const name of ['tutor-history', 'tutor-maths']) {
+        const body = profiles.find(profile => profile.name === name).body.replace(/\s+/g, ' ');
+        assert.ok(body.includes('Follow tutor-common\'s "Responsibility and handoff" and "Drafts, review, and publication" sections.'),
+            `${name}: shared handoff and approval reference`);
+        assert.ok(!body.includes('Provide JSON only;'), `${name}: no duplicated handoff`);
+        assert.ok(!body.includes('name/nickname'), `${name}: name gate belongs to shared guidance`);
     }
     const maths = profiles.find(profile => profile.name === 'tutor-maths').body;
     assert.ok(maths.includes('version 4'));

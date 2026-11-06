@@ -77,9 +77,8 @@ the wording.
 
 ## Draft handoff and educational review
 
-Provide JSON only; `tutor-website` owns generation and technical checks for
-Původní text, Učit se and Hrát si, including the name/nickname gate.
-Follow the common error-correction and approval flow. Review the actual Czech
+Follow tutor-common's "Responsibility and handoff" and "Drafts, review, and
+publication" sections. Review the actual Czech
 page for factual accuracy, source preservation, corrections, first-mention
 person explanations, taught coverage,
 question difficulty and explanations before presenting the draft.

@@ -94,7 +94,8 @@ wait for explicit confirmation to start implementation.
   outside the repository. Use absolute paths in handoffs and user-facing results.
   Do not overwrite an existing artifact without permission for that exact file.
 - Request `build` from `tutor-website`. It validates, generates and performs
-  technical page checks. Return educational/language/contract errors to the
+  technical page checks for Původní text, Učit se and Hrát si, including the
+  name/nickname gate. Return educational/language/contract errors to the
   subject tutor for correction and retry; never hide errors or drop content.
 - Subject tutors review the actual rendered educational content, source
   preservation, explanations, exercises, solutions and Czech language after
