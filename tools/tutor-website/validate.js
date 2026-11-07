@@ -75,6 +75,9 @@ function validateLesson(subject, lesson) {
                 }
                 if (new Set(expected).size !== expected.length) errors.push(`${at}.acceptedAnswers: duplicate normalized alternatives`);
             }
+            if (exercise.skill === 'meaning' && !policy.partial) {
+                errors.push(`${at}.assessment.partial: meaning answers require explicit typo-tolerance targets`);
+            }
             if (policy.partial) {
                 const typo = policy.partial.match;
                 if (typo.type !== 'typo') errors.push(`${at}.assessment.partial: English only supports bounded typo credit`);
@@ -142,6 +145,11 @@ function validateLesson(subject, lesson) {
             errors.push(`$.original[${index}].paragraphs: text joined by blank lines must exactly preserve the original section text`);
         }
     });
+    if (subject === 'english' && !lesson.original.some(section => section.panelDescription)) {
+        for (const key of ['comicIntroduction', 'comicGuidance']) {
+            if (Object.hasOwn(lesson, key)) errors.push(`$.${key}: requires an original comic panel with panelDescription`);
+        }
+    }
     unique(pool.map(task => task.id), `$.${poolKey} ids`);
     unique(pool.map(task => task.prompt), `$.${poolKey} prompts`);
     unique(lesson.glossary.map(entry => entry.term), '$.glossary terms');

@@ -115,6 +115,18 @@ test('English spelling review uses visible source notes without treating dialect
     assert.ok(website.includes('neutral consistency notes, never mistakes'));
 });
 
+test('English tutor authoring guidance follows the combined partial-mistake schedule', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['67%', '33%', 'zero for three or more', 'final full stop',
+        'each missing apostrophe', 'ten or more letters', 'first operation is ignored',
+        'explicit `assessment.partial.match` typo matcher']) assert.ok(english.includes(text), text);
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    for (const text of ['67%/33%/zero partial-mistake schedule',
+        'length-based typo tolerance', 'Do not apply English scoring to history or maths']) {
+        assert.ok(website.includes(text), text);
+    }
+});
+
 test('English comics require panel-by-panel descriptions and confirmed verbatim transcription', () => {
     const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
     for (const text of ['one `original` section per panel', 'reading order', '`panelDescription`',
@@ -138,6 +150,18 @@ test('English listening guidance keeps availability quiet and voice choices cons
         for (const text of ['routine voice-available notices', 'play/pause/resume',
             'near the top', 'pairs', 'infer gender from arbitrary']) assert.ok(body.includes(text), `${name}: ${text}`);
     }
+});
+
+test('comic introductions are grounded prose with subdued explanation and separately labelled guidance', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['single, subdued note near the top', '`comicIntroduction`', '`comicGuidance`',
+        'grounded in the actual comic', 'logical connection', 'no invented characters',
+        'Omit it rather than add generic filler', 'general reading/study guidance', 'Obecné pokyny',
+        'Review the introduction for coherence']) assert.ok(english.includes(text), text);
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    for (const text of ['without a banner, border, icon or extra heading',
+        'outside the original text and panel cards', 'label separate general guidance "Obecné pokyny"',
+        'Do not invent an introduction when omitted']) assert.ok(website.includes(text), text);
 });
 
 test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {

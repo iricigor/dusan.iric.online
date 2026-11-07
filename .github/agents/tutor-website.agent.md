@@ -93,8 +93,11 @@ English v5 is documented in `tools\tutor-website\docs\english.md`; read it and
 `tools\tutor-website\examples\my-collections.json` before authoring or building.
 Keep Czech interface/instructions/explanations with intentional English
 teaching, vocabulary, listening and exercise content. English translations
-support both directions. Use the shared assessment's language normalization and
-bounded, opt-in meaning-task typo credit; never use history spelling rules.
+support both directions. Follow `tools\tutor-website\docs\english.md` for the
+combined 67%/33%/zero partial-mistake schedule, optional final full stops,
+required question/exclamation marks and length-based typo tolerance. Meaning
+text answers require explicit typo matchers; spelling and grammar tasks never
+receive typo credit. Do not apply English scoring to history or maths.
 The shared `tools\tutor-website\speech.js` owns local English browser speech,
 replay, cancellation and visible playback/voice errors. No microphone or
 speaking activities. English has no speed bonus, uses separate v5 results and
@@ -126,7 +129,13 @@ secondary to the original text: use smaller,
 muted text without an attention-grabbing callout border or background, maintaining
 readable contrast in both themes. The original English text remains primary.
 Do not add repeated internal titles such as "Autorský popis", "Popis obrázku" or
-"Text z obrázku"; the introduction explains the distinction.
+"Text z obrázku". Explain Czech descriptions with a single, small, muted note
+near the top of Původní text, without a banner, border, icon or extra heading.
+Keep optional Czech `comicIntroduction` and `comicGuidance` outside the original
+text and panel cards. Render the introduction as plain prose and label separate
+general guidance "Obecné pokyny" once. Do not invent an introduction when omitted;
+return incoherent, generic or unsupported introductory content to the English
+tutor for revision. Both optional fields require a described comic panel.
 Image interpretation and transcription confirmation belong to the
 English tutor.
 

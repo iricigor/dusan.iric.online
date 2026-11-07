@@ -10,6 +10,96 @@ const { renderLesson } = require('../build.js');
 const lesson = require('../examples/my-collections.json');
 const { browserPath, openBrowser } = require('./helpers/browser.js');
 
+test('comic context keeps the explanation quiet and separates optional introductions from general guidance', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    const panels = [
+        { heading: 'Obrázek 1', language: 'en-GB', panelDescription: 'Dítě ukazuje kamarádovi krabici.', text: 'Look at my collection!' },
+        { heading: 'Obrázek 2', language: 'en-GB', panelDescription: 'Děti společně prohlížejí krabici.', text: 'Wow!' }
+    ];
+    const introduction = 'Dítě ukazuje kamarádovi svou sbírku. Společně si prohlížejí krabici.';
+    const guidance = 'Čti obrázky postupně. Když něčemu nerozumíš, vrať se k předchozí větě.';
+    const cases = [
+        { original: lesson.original },
+        { original: panels, comicIntroduction: '<b>Úvod není HTML.</b>', comicGuidance: '<img src=x onerror=alert(1)>' },
+        { original: panels },
+        { original: panels, comicIntroduction: introduction },
+        { original: panels, comicGuidance: guidance },
+        { original: panels, comicIntroduction: introduction, comicGuidance: guidance }
+    ];
+    for (const [index, context] of cases.entries()) {
+        const source = { ...structuredClone(lesson), ...context, topic: `Komiks ${index}` };
+        const file = path.join(directory, `comic-context-${index}.html`);
+        fs.writeFileSync(file, renderLesson('english', source));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        let ready = false;
+        for (let attempt = 0; attempt < 100; attempt++) {
+            ready = await evaluate(`document.getElementById('topic')?.textContent === ${JSON.stringify(source.topic)}`);
+            if (ready) break;
+            await delay(20);
+        }
+        assert.equal(ready, true);
+        const result = await evaluate(`(() => {
+            const container = document.getElementById('original-content');
+            const context = container.querySelector('.comic-context');
+            const firstCard = container.querySelector('.card');
+            return {
+                originals: [...container.querySelectorAll('.original-text')].map(element => element.textContent),
+                notices: container.querySelectorAll('.comic-description-note').length,
+                introduction: context?.querySelector('.comic-introduction')?.textContent ?? null,
+                guidance: context?.querySelector('.comic-guidance span')?.textContent ?? null,
+                guidanceLabel: context?.querySelector('.comic-guidance strong')?.textContent ?? null,
+                top: !context || (context === container.firstElementChild &&
+                    context.getBoundingClientRect().bottom <= firstCard.getBoundingClientRect().top),
+                separate: !container.querySelector('.card .comic-context, .original-text .comic-context'),
+                plainText: !context?.querySelector('b, img, script'),
+                quiet: !context?.querySelector('h1, h2, h3, .card, .callout, [role="alert"]'),
+                language: context?.lang ?? null
+            };
+        })()`);
+        assert.deepEqual(result.originals, source.original.map(section => section.text));
+        assert.equal(result.notices, context.original === panels ? 1 : 0);
+        assert.equal(result.introduction, context.comicIntroduction || null);
+        assert.equal(result.guidance, context.comicGuidance || null);
+        assert.equal(result.guidanceLabel, context.comicGuidance ? 'Obecné pokyny: ' : null);
+        assert.equal(result.language, context.original === panels ? 'cs-CZ' : null);
+        for (const key of ['top', 'separate', 'plainText', 'quiet']) assert.equal(result[key], true, `${index}: ${key}`);
+    }
+    for (const width of [320, 1280]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        for (const theme of ['light', 'dark']) {
+            const layout = await evaluate(`(() => {
+                document.documentElement.dataset.theme = '${theme}';
+                const note = document.querySelector('.comic-description-note');
+                const guidance = document.querySelector('.comic-guidance');
+                const text = document.querySelector('.original-text');
+                return {
+                    readable: note.checkVisibility() && guidance.checkVisibility(),
+                    sizes: [note, guidance, text].map(element => parseFloat(getComputedStyle(element).fontSize)),
+                    colors: [note, guidance, text].map(element => getComputedStyle(element).color),
+                    noDecoration: [note, guidance].every(element => {
+                        const style = getComputedStyle(element);
+                        return style.backgroundColor === 'rgba(0, 0, 0, 0)' &&
+                            style.borderLeftWidth === '0px' && style.boxShadow === 'none';
+                    }),
+                    overflow: document.documentElement.scrollWidth > innerWidth
+                };
+            })()`);
+            assert.equal(layout.readable, true);
+            assert.ok(layout.sizes[0] < layout.sizes[2] && layout.sizes[1] < layout.sizes[2]);
+            assert.equal(layout.colors[0], layout.colors[1]);
+            assert.notEqual(layout.colors[0], layout.colors[2]);
+            assert.equal(layout.noDecoration, true);
+            assert.equal(layout.overflow, false);
+            await capture(`comic-context-${width}-${theme}`);
+        }
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('English comic panels and spelling feedback preserve source text and distinguish UK/US notes in orange themes', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
@@ -109,6 +199,7 @@ test('English comic panels and spelling feedback preserve source text and distin
                     const original = document.querySelector('#original-content .card');
                     const label = document.querySelector('.original-note.callout-note strong');
                     const description = getComputedStyle(original.querySelector('.comic-panel-description'));
+                    const explanation = getComputedStyle(document.querySelector('.comic-description-note'));
                     const source = getComputedStyle(original.querySelector('.original-text p'));
                     const luminance = color => {
                         const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(value => {
@@ -126,6 +217,8 @@ test('English comic panels and spelling feedback preserve source text and distin
                         contrast: contrast(luminance(accent), luminance(getComputedStyle(original).backgroundColor)),
                         noteContrast: contrast(luminance(accent), luminance(getComputedStyle(label.parentElement).backgroundColor)),
                         descriptionContrast: contrast(luminance(description.color), luminance(getComputedStyle(original).backgroundColor)),
+                        explanationContrast: contrast(luminance(explanation.color), luminance(getComputedStyle(document.querySelector('main')).backgroundColor)),
+                        explanationColor: explanation.color,
                         descriptionColor: description.color,
                         sourceColor: source.color,
                         smallerDescription: parseFloat(description.fontSize) < parseFloat(source.fontSize),
@@ -146,6 +239,8 @@ test('English comic panels and spelling feedback preserve source text and distin
                 assert.ok(colors.contrast >= 4.5, `${width}/${theme}: readable accent`);
                 assert.ok(colors.noteContrast >= 4.5, `${width}/${theme}: readable note label`);
                 assert.ok(colors.descriptionContrast >= 4.5, `${width}/${theme}: readable description`);
+                assert.ok(colors.explanationContrast >= 4.5, `${width}/${theme}: readable explanation near the top`);
+                assert.equal(colors.explanationColor, colors.descriptionColor);
                 assert.equal(colors.smallerDescription, true);
                 assert.equal(colors.descriptionColor, theme === 'light' ? 'rgb(71, 85, 105)' : 'rgb(203, 213, 225)');
                 assert.notEqual(colors.descriptionColor, colors.sourceColor);
@@ -285,7 +380,7 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
                     const typo = question.id === 'translate-magazine';
                     $('answer-input').value = typo ? 'magazin' : question.acceptedAnswers[0];
                     $('answers').requestSubmit();
-                    if (typo) partial ||= $('feedback').textContent.includes('polovinu bodů');
+                    if (typo) partial ||= $('feedback').textContent.includes('67 % bodů');
                 }
                 if (question.audio) transcriptAfter &&= $('feedback').textContent.includes(question.audio.text);
                 const score = $('score').textContent;

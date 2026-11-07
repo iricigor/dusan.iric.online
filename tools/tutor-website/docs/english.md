@@ -36,8 +36,8 @@ The original-text page displays each panel in its own card, with its visual
 description visibly inside the same section but outside the verbatim
 `.original-text`. Descriptions use smaller, muted text without a prominent
 callout border or tinted background, keeping the original English text visually
-primary while preserving readable contrast in both themes. Rely on the
-introduction for the distinction; do not repeat internal titles such as
+primary while preserving readable contrast in both themes. Rely on the single,
+subdued note near the top for the distinction; do not repeat internal titles such as
 **Autorský popis**, **Popis obrázku** or **Text z obrázku** within each panel.
 Keep only the panel's own heading.
 Do not merge panels into a summary, silently correct
@@ -54,6 +54,36 @@ lesson. Ask about unreadable text, missing panels or ambiguous reading order
 rather than guessing. Spelling notes still refer to the panel's zero-based
 original section and leave its transcription unchanged. Visual descriptions
 are authored Czech guidance and do not contribute to `contentSize.englishWords`.
+
+#### Introductions and general guidance
+
+The website explains Czech descriptions once near the top of **Původní text**:
+"Menší český text popisuje obrázky. Text z komiksu je přepsaný beze změn."
+This is a small, muted, readable paragraph, not a banner or heading. Do not
+duplicate it in an authored introduction or invent a source section for it.
+It appears only for lessons with a described comic panel.
+
+An optional top-level `comicIntroduction` can provide one or two child-friendly
+Czech sentences about the actual comic. Make the paragraph logical and coherent:
+connect its sentences, introduce only supported characters/actions and avoid
+unrelated instructions or invented motives. Omit it if there is no useful
+comic-specific context. Put general reading/study instructions in the separate,
+optional `comicGuidance` field instead:
+
+```json
+{
+  "comicIntroduction": "Dítě ukazuje kamarádovi svou sbírku. Společně si prohlížejí krabici.",
+  "comicGuidance": "Čti obrázky postupně. Když něčemu nerozumíš, vrať se k předchozí větě."
+}
+```
+
+These are lesson-level fields, not part of an `original` section. The website
+renders guidance under **Obecné pokyny** near the top; do not include the label
+in the string or repeat it inside panels. Both fields are optional nonblank
+plain text, English-only, and require at least one original section with
+`panelDescription`. They remain outside the verbatim source, do not change
+section indices, and do not count toward `contentSize.englishWords`.
+Coherence and grounding require educational review, not just schema validation.
 
 ### Original-text spelling feedback
 
@@ -148,39 +178,59 @@ Choices use `input: "number"` with one number matcher for the correct option
 index and no partial credit. Written answers use `input: "text"` and either one
 string matcher or an array of string matchers, all with
 `normalization: "language"`. These must exactly match `acceptedAnswers`.
-Normalization preserves accents and punctuation, ignores capitalization,
-normalizes Unicode NFC and collapses extra whitespace without joining words.
-No automatic semantic translation, fuzzy full credit or history i/y matching.
-Answer fields retain the shared 80-character limit; scope each question accordingly.
+Matching normalizes Unicode NFC and collapses extra whitespace without joining
+words. Capitalization is assessed as a partial mistake rather than ignored.
+Preserve accents, apostrophes and punctuation, except that a final full stop is
+optional. A missing required question mark or exclamation mark counts as one
+partial mistake. No automatic semantic translation, fuzzy full credit or
+history i/y matching. Answer fields retain the shared 80-character limit;
+scope each question accordingly.
 
-Meaning tasks can opt into partial credit:
+For otherwise-correct written answers, combine partial mistakes as follows:
+
+| Partial mistakes | Points awarded |
+|------------------|----------------|
+| 0 | 100% |
+| 1 | 67% |
+| 2 | 33% |
+| 3 or more | 0% |
+
+Any number of capitalization differences counts as one partial mistake per
+answer. Each missing apostrophe is one mistake; a missing required question or
+exclamation mark is one. Optional final full stops do not count.
+
+Every written meaning task explicitly enables typo tolerance:
 
 ```json
 {
   "input": "text",
   "exact": { "type": "string", "value": "magazine", "normalization": "language" },
   "partial": {
-    "credit": 0.5,
     "match": { "type": "typo", "values": ["magazine"], "excludedWords": ["magazines"] }
   }
 }
 ```
 
-`values` must equal the declared full-credit alternatives. The shared evaluator
-awards half credit for precisely one insertion, deletion, substitution or
-adjacent-letter swap in one expected word of at least four letters. All other
-words, whitespace boundaries and punctuation must match after normalization.
-Only one typo in the whole answer is allowed. Correct alternatives win first.
-The English adapter passes `knownWords(lesson)` to `evaluate`; a typo matcher
-without that context throws an explicit error. Known lesson words and authored
-`excludedWords` can never receive typo credit as the changed token.
+`values` must equal the declared full-credit alternatives. Count each letter
+insertion, deletion, substitution or adjacent-letter swap as one typo operation;
+a swap counts once. For answers with fewer than ten letters, every operation
+adds one partial mistake. For answers with ten or more letters, the first
+operation is ignored and every additional operation adds one partial mistake.
+Thus, exactly ten letters follows the longer-answer rule. The resulting typo
+mistakes combine with capitalization, apostrophe and required end-mark
+mistakes under the schedule above. All other words, word boundaries and
+punctuation must match. Correct alternatives win first.
 
-Spelling and grammar tasks (including word ordering) cannot opt in. This
-conservative rule prevents grammatical inflections and changes of word order
-from receiving typo credit without a grammar parser. Authors also list untaught
-real-word/confusion variants in `excludedWords`. This is not a dictionary or AI
-grammar checker: educational review must check ambiguous pairs. Do not
-declare a meaning task merely to bypass a grammar or spelling requirement.
+The English adapter passes `knownWords(lesson)` to the typo matcher; missing
+context raises an explicit error. Known lesson words and authored
+`excludedWords` can never receive typo credit as the changed token. Spelling
+and grammar tasks (including word ordering) cannot receive typo credit. This
+prevents grammatical inflections and changes of word order from receiving typo
+credit without a grammar parser. Authors also list untaught real-word,
+grammatical and vocabulary confusions in `excludedWords`. This is not a
+dictionary or AI grammar checker: educational review must check ambiguous
+pairs. Do not declare a meaning task merely to bypass a grammar or spelling
+requirement.
 
 ## Listening and shared UI
 
