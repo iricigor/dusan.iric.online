@@ -114,7 +114,10 @@ Comic panels use separate English `original` sections in reading order, each
 with a Czech `panelDescription` and verbatim image `text`. Render the description
 separately from source text; retain silent panels with `text: ""` rather than
 inventing dialogue. Verify each panel's source preservation and description
-separation. Image interpretation and transcription confirmation belong to the
+separation. Keep the description label and text visually secondary: use smaller,
+muted text without an attention-grabbing callout border or background, maintaining
+readable contrast in both themes. The original English text remains primary.
+Image interpretation and transcription confirmation belong to the
 English tutor.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use

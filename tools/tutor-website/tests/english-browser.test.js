@@ -103,6 +103,9 @@ test('English comic panels and spelling feedback preserve source text and distin
                     ${automatic ? 'delete document.documentElement.dataset.theme;' : `document.documentElement.dataset.theme = '${theme}';`}
                     const original = document.querySelector('#original-content .card');
                     const label = document.querySelector('.original-note.callout-note strong');
+                    const description = getComputedStyle(original.querySelector('.comic-panel-description'));
+                    const source = getComputedStyle(original.querySelector('.original-text p'));
+                    const descriptionLabel = original.querySelector('.comic-panel-label');
                     const luminance = color => {
                         const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(value => {
                             const channel = Number(value) / (color.startsWith('color(srgb') ? 1 : 255);
@@ -118,6 +121,14 @@ test('English comic panels and spelling feedback preserve source text and distin
                         heading: getComputedStyle(original.querySelector('h2')).color,
                         contrast: contrast(luminance(accent), luminance(getComputedStyle(original).backgroundColor)),
                         noteContrast: contrast(luminance(accent), luminance(getComputedStyle(label.parentElement).backgroundColor)),
+                        descriptionContrast: contrast(luminance(description.color), luminance(getComputedStyle(original).backgroundColor)),
+                        descriptionColor: description.color,
+                        sourceColor: source.color,
+                        smallerDescription: parseFloat(description.fontSize) < parseFloat(source.fontSize),
+                        descriptionLabel: descriptionLabel.textContent,
+                        labelColor: getComputedStyle(descriptionLabel).color,
+                        descriptionBorder: description.borderLeftWidth,
+                        descriptionBackground: description.backgroundColor,
                         overflow: document.documentElement.scrollWidth > innerWidth
                     };
                 })()`);
@@ -126,6 +137,14 @@ test('English comic panels and spelling feedback preserve source text and distin
                 assert.equal(colors.heading, colors.accent);
                 assert.ok(colors.contrast >= 4.5, `${width}/${theme}: readable accent`);
                 assert.ok(colors.noteContrast >= 4.5, `${width}/${theme}: readable note label`);
+                assert.ok(colors.descriptionContrast >= 4.5, `${width}/${theme}: readable description`);
+                assert.equal(colors.smallerDescription, true);
+                assert.equal(colors.descriptionColor, theme === 'light' ? 'rgb(71, 85, 105)' : 'rgb(203, 213, 225)');
+                assert.notEqual(colors.descriptionColor, colors.sourceColor);
+                assert.equal(colors.descriptionLabel, 'Popis obrázku: ');
+                assert.equal(colors.labelColor, colors.descriptionColor);
+                assert.equal(colors.descriptionBorder, '0px');
+                assert.equal(colors.descriptionBackground, 'rgba(0, 0, 0, 0)');
                 assert.equal(colors.overflow, false);
                 if (!automatic) await capture(`english-original-${width}-${theme}`);
             }

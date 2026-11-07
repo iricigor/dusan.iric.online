@@ -249,9 +249,9 @@ function initializeTutorLearning(lesson, subject) {
         const article = node('article', undefined, 'card');
         article.append(heading(section.heading, section.icon, '📄'));
         if (section.panelDescription) {
-            const description = node('aside', undefined, 'comic-panel-description callout');
+            const description = node('aside', undefined, 'comic-panel-description');
             description.lang = 'cs-CZ';
-            description.append(node('strong', 'Popis obrázku: ', 'callout-label'), node('p', section.panelDescription));
+            description.append(node('span', 'Popis obrázku: ', 'comic-panel-label'), node('p', section.panelDescription));
             article.append(description, node('p', section.text ? 'Text z obrázku:' : 'Obrázek neobsahuje text.'));
         }
         const text = node('div', undefined, 'original-text');

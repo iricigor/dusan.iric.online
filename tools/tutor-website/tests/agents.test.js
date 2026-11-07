@@ -125,6 +125,8 @@ test('English comics require panel-by-panel descriptions and confirmed verbatim 
     const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
     assert.ok(website.includes('Render the description separately from source text'));
     assert.ok(website.includes('retain silent panels'));
+    assert.ok(english.includes('clearly labelled but visually secondary'));
+    assert.ok(website.includes('muted text without an attention-grabbing callout'));
 });
 
 test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {

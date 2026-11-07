@@ -34,7 +34,10 @@ text verbatim in `text`, including spelling, capitalization and punctuation:
 
 The original-text page displays each panel in its own card. Authored visual
 descriptions are explicitly labelled **Popis obrázku** and remain outside the
-verbatim `.original-text`. Do not merge panels into a summary, silently correct
+verbatim `.original-text`. The label and description use smaller, muted text
+without a prominent callout border or tinted background, keeping the original
+English text visually primary while preserving readable contrast in both themes.
+Do not merge panels into a summary, silently correct
 dialogue or invent speaker labels. Preserve distinct text blocks in reading
 order; optional styled paragraphs must still reproduce `text` exactly.
 
