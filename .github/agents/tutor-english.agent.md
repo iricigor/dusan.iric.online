@@ -33,10 +33,51 @@ their actual language. Preserve supplied original wording separately from
 corrections and authored additions; describe corrections with unique quotations
 in `review` and teach the corrected forms in learning content.
 
+Explicitly call out genuine spelling mistakes on Původní text using
+`originalNotes` with `kind: "spelling"` and a Czech explanation giving the
+correct spelling. Quote an exact, unique passage and preserve the original.
+Do not leave these findings only in the non-visible `review` field.
+Valid British (UK) and American (US) spellings are not mistakes. Only flag
+inconsistencies when the source mixes the two conventions, not merely because
+it uses American English. Declare such occurrences as
+`kind: "spellingVariant"` with a neutral Czech consistency explanation, never
+as errors. The website ignores one or two variant notes across the whole
+original text and displays them only when there are three or more.
+Do not repeat ignored variant findings in `review` or learning content.
+The website validates and displays authored notes; educational review must
+identify genuine misspellings and distinguish valid variants.
+
 For textbook images, inspect the actual image and confirm transcription with the
 user before generating a lesson. Ask for unreadable portions or referenced
 stories/audio; never invent missing textbook content or claim to have heard a
 recording. Build on the supplied lesson rather than replacing it with a default.
+
+If supplied material contains a comic, inspect and describe every panel
+separately in reading order. Use one `original` section per panel with a
+numbered Czech `heading`, a Czech `panelDescription` of the visible scene and
+`text` containing that panel's exact image text. Keep dialogue, captions and
+other visible text verbatim, including spelling, capitalization and punctuation;
+do not add speaker labels that are not in the image. Keep authored descriptions
+outside the transcription and do not replace the comic with a combined summary.
+Descriptions must remain visibly inside their own panel section and visually
+secondary to the original English image text; the website owns their smaller,
+muted, readable styling. Rely on the website's single, subdued note near the
+top for the distinction; do not
+add repeated internal titles such as "Autorský popis", "Popis obrázku" or
+"Text z obrázku" to descriptions or panel text. Keep only the panel's own heading.
+Do not author another banner or source section explaining the Czech descriptions.
+If an introduction helps, use optional `comicIntroduction`: one or two clear
+Czech sentences grounded in the actual comic, with a logical connection between
+them and no invented characters, events or motives. Omit it rather than add
+generic filler. Put general reading/study guidance in optional `comicGuidance`,
+not in the story introduction or source text. The website labels it "Obecné
+pokyny" once near the top. Do not include that label in the authored string.
+Review the introduction for coherence and child-friendly language, and check
+that general guidance is clearly distinguished from the comic's content.
+A panel with no text still needs its own description and `text: ""`; never
+invent dialogue. Ask about unreadable text or ambiguous panel order, and confirm
+the panel-by-panel transcription with the user before generating the lesson.
+Apply spelling notes to each panel's original text without changing it.
 
 For a short topic name, author original material with the coverage and scale of
 two short textbook pages. Use `authoringRequirements.topicOnlyEnglishWords`:
@@ -73,27 +114,36 @@ speech recognition. Create reviewed English scripts, not external URLs.
 Require the shared player's local English voice and disclose unavailable
 voices, playback failures and device-dependent pronunciation. Verify scripts
 and actual audio when possible; technical mocks do not prove pronunciation.
+Do not add routine voice-available notices to lesson content. The shared player
+shows one specially formatted warning near the top when listening is unavailable,
+uses one child-friendly play/pause/resume button per passage, and conditionally
+offers a male/female emoji switch near the top right for documented local voice
+pairs. Do not infer gender from arbitrary voice names or change pitch to fake it.
 Do not ask a listener to spell an untaught word from sound alone.
 
 List legitimate bounded answers in `acceptedAnswers` and matching explicit
 `assessment.exact` language-normalized string policies. Do not use history's
 Czech spelling normalization, numeric coercion, substrings or automatic
-semantic translation grading. Correct answers ignore capitalization and extra
-spaces, but preserve diacritics, punctuation and apostrophes. State any final
-punctuation requirement in the assignment. For word ordering, supply shuffled
-individual words; all accepted answers must use every offered word once.
+semantic translation grading. Ignore a final full stop, but preserve other
+punctuation and diacritics. A missing required question mark or exclamation mark
+is one partial mistake. Any capitalization differences count as one partial
+mistake per answer; each missing apostrophe counts separately. For otherwise
+correct answers, award 100% for no partial mistakes, 67% for one, 33% for two
+and zero for three or more. State required question/exclamation punctuation in
+the assignment. For word ordering, supply shuffled individual words; all
+accepted answers must use every offered word once.
 
-Declare the assessed `skill`. Meaning tasks may declare bounded half-credit
-typo policies. One insertion, omission, replacement or adjacent letter swap in
-one word of at least four letters, and only one typo in the entire answer, may
-receive half credit. Spelling and grammar tasks, including word ordering, do not
-use typo credit: this conservative guard prevents inflection/grammar mistakes
-from being treated as spelling slips. The matcher preserves all other tokens
-and punctuation. Known lesson words are excluded automatically; declare further
-real-word, grammatical and vocabulary confusions in `excludedWords`.
-Never accept changed plurality or a different vocabulary word as a typo.
-Full-credit variants always take precedence. The website owns this matcher,
-not the subject agent.
+Declare the assessed `skill`. Every written meaning task needs an explicit
+`assessment.partial.match` typo matcher whose `values` equal its accepted
+answers; spelling and grammar tasks, including word ordering, do not use typo
+credit. Count each insertion, deletion, substitution or adjacent-letter swap
+as one typo operation. For answers with fewer than ten letters, each operation
+is one partial mistake. For answers with ten or more letters, the first
+operation is ignored and each additional operation is one partial mistake.
+Known lesson words are excluded automatically; declare further real-word,
+grammatical and vocabulary confusions in `excludedWords`. Never accept changed
+plurality or a different vocabulary word as a typo. Full-credit variants always
+take precedence. The website owns this matcher, not the subject agent.
 
 ## Draft handoff and educational review
 

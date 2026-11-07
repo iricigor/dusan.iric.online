@@ -48,11 +48,17 @@
         "properties": {
           "heading": { "$ref": "#/$defs/text" },
           "icon": { "$ref": "#/$defs/icon" },
-          "text": { "$ref": "#/$defs/text" },
+          "text": { "type": "string" },
+          "panelDescription": { "$ref": "#/$defs/text" },
           "language": { "enum": ["cs-CZ", "en-GB"] },
           "style": { "$ref": "#/$defs/originalStyle" },
           "paragraphs": { "$ref": "#/$defs/originalParagraphs" }
-        }
+        },
+        "allOf": [{
+          "if": { "required": ["panelDescription"] },
+          "then": { "properties": { "text": { "anyOf": [{ "const": "" }, { "$ref": "#/$defs/text" }] } } },
+          "else": { "properties": { "text": { "$ref": "#/$defs/text" } } }
+        }]
       }
     },
     "glossary": {
@@ -67,7 +73,22 @@
         }
       }
     },
+    "comicIntroduction": { "$ref": "#/$defs/text" },
+    "comicGuidance": { "$ref": "#/$defs/text" },
     "review": { "$ref": "#/$defs/text" },
+    "originalNotes": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["section", "quote", "kind", "explanation"],
+        "properties": {
+          "section": { "type": "integer", "minimum": 0 },
+          "quote": { "$ref": "#/$defs/text" },
+          "kind": { "enum": ["spelling", "spellingVariant"] },
+          "explanation": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
     "sources": {
       "type": "array", "minItems": 1,
       "items": {
@@ -139,7 +160,15 @@
           "exercises": { "items": { "$ref": "#/$defs/englishExercise" } }
         }
       },
-      "else": { "properties": { "subject": { "enum": ["history", "maths"] } } }
+      "else": {
+        "properties": {
+          "subject": { "enum": ["history", "maths"] },
+          "original": { "items": { "not": { "required": ["panelDescription"] } } }
+        },
+        "not": { "anyOf": [
+          { "required": ["originalNotes"] }, { "required": ["comicIntroduction"] }, { "required": ["comicGuidance"] }
+        ] }
+      }
     },
     {
       "if": { "properties": { "version": { "const": 3 } } },
@@ -204,6 +233,26 @@
     "url": { "type": "string", "pattern": "^https://[^\\s]+$" },
     "difficulty": { "enum": ["easy", "medium", "hard"] },
     "numericValue": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "englishAssessment": {
+      "type": "object", "additionalProperties": false, "required": ["input", "exact"],
+      "properties": {
+        "input": { "enum": ["text", "number"] },
+        "exact": { "$ref": "#/$defs/matcher" },
+        "partial": {
+          "type": "object", "additionalProperties": false, "required": ["match"],
+          "properties": {
+            "match": { "$ref": "#/$defs/typoMatcher" },
+            "credit": { "const": 0.5 }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "input": { "const": "number" } } },
+          "then": { "not": { "required": ["partial"] } }
+        }
+      ]
+    },
     "numberMatcher": {
       "type": "object", "additionalProperties": false, "required": ["type", "value"],
       "properties": { "type": { "const": "number" }, "value": { "$ref": "#/$defs/numericValue" } }
@@ -295,7 +344,7 @@
           "options": { "type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
           "answer": { "type": "integer", "minimum": 0, "maximum": 3 },
           "acceptedAnswers": { "type": "array", "minItems": 1, "maxItems": 20, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 80 } },
-          "assessment": { "$ref": "#/$defs/assessment" }
+          "assessment": { "$ref": "#/$defs/englishAssessment" }
         },
         "allOf": [
           {

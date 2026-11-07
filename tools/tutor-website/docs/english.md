@@ -16,6 +16,112 @@ text exactly and explain corrections separately in `review`, with matching
 quotations; do not silently repair originals. Confirm image transcriptions
 before lesson generation and disclose missing referenced stories or recordings.
 
+### Comics
+
+Inspect every panel separately and preserve reading order. Use one `original`
+section per panel with a numbered Czech heading and a Czech `panelDescription`
+describing only what is visible. Keep all dialogue, captions and other image
+text verbatim in `text`, including spelling, capitalization and punctuation:
+
+```json
+{
+  "heading": "Komiks – obrázek 1",
+  "language": "en-GB",
+  "panelDescription": "Dítě ukazuje kamarádovi krabici se svou sbírkou.",
+  "text": "Look! My collektion!"
+}
+```
+
+The original-text page displays each panel in its own card, with its visual
+description visibly inside the same section but outside the verbatim
+`.original-text`. Descriptions use smaller, muted text without a prominent
+callout border or tinted background, keeping the original English text visually
+primary while preserving readable contrast in both themes. Rely on the single,
+subdued note near the top for the distinction; do not repeat internal titles such as
+**Autorský popis**, **Popis obrázku** or **Text z obrázku** within each panel.
+Keep only the panel's own heading.
+Do not merge panels into a summary, silently correct
+dialogue or invent speaker labels. Preserve distinct text blocks in reading
+order; optional styled paragraphs must still reproduce `text` exactly.
+
+For a silent panel, provide its description and `text: ""`. The panel still
+appears with its description, without invented dialogue. Empty text is allowed
+only for described English comic panels, not ordinary source sections. Whitespace
+alone is not a transcription. Other subjects cannot use `panelDescription`.
+
+Confirm the panel-by-panel transcription with the user before generating a
+lesson. Ask about unreadable text, missing panels or ambiguous reading order
+rather than guessing. Spelling notes still refer to the panel's zero-based
+original section and leave its transcription unchanged. Visual descriptions
+are authored Czech guidance and do not contribute to `contentSize.englishWords`.
+
+#### Introductions and general guidance
+
+The website explains Czech descriptions once near the top of **Původní text**:
+"Menší český text popisuje obrázky. Text z komiksu je přepsaný beze změn."
+This is a small, muted, readable paragraph, not a banner or heading. Do not
+duplicate it in an authored introduction or invent a source section for it.
+It appears only for lessons with a described comic panel.
+
+An optional top-level `comicIntroduction` can provide one or two child-friendly
+Czech sentences about the actual comic. Make the paragraph logical and coherent:
+connect its sentences, introduce only supported characters/actions and avoid
+unrelated instructions or invented motives. Omit it if there is no useful
+comic-specific context. Put general reading/study instructions in the separate,
+optional `comicGuidance` field instead:
+
+```json
+{
+  "comicIntroduction": "Dítě ukazuje kamarádovi svou sbírku. Společně si prohlížejí krabici.",
+  "comicGuidance": "Čti obrázky postupně. Když něčemu nerozumíš, vrať se k předchozí větě."
+}
+```
+
+These are lesson-level fields, not part of an `original` section. The website
+renders guidance under **Obecné pokyny** near the top; do not include the label
+in the string or repeat it inside panels. Both fields are optional nonblank
+plain text, English-only, and require at least one original section with
+`panelDescription`. They remain outside the verbatim source, do not change
+section indices, and do not count toward `contentSize.englishWords`.
+Coherence and grounding require educational review, not just schema validation.
+
+### Original-text spelling feedback
+
+English uses an orange accent in both light and dark themes. Genuine spelling
+mistakes must be explicitly called out on **Původní text**, not only recorded
+in the non-visible `review` field. Author optional `originalNotes`:
+
+```json
+{
+  "section": 0,
+  "quote": "I have a collektion.",
+  "kind": "spelling",
+  "explanation": "Slovo collektion je pravopisná chyba. Správně je collection."
+}
+```
+
+Each note quotes exactly one occurrence in its zero-based original section.
+Use surrounding wording to disambiguate repeated words. Quotes cannot overlap
+or cross styled paragraph boundaries. Original wording remains unchanged;
+quoted passages become accessible popup buttons and visible explanatory notes
+appear beneath the source in the same card.
+
+Use `kind: "spellingVariant"` for valid British/American spellings only when
+the original mixes the two conventions. Explain consistency neutrally in Czech:
+valid UK/US variants are **not mistakes**, and an entirely American source is
+not inconsistent. The renderer counts authored variant occurrences across all
+original sections: zero, one or two are ignored; three or more are displayed
+as **Pravopisná varianta (UK/US)**, not **Pravopisná chyba**. Genuine spelling
+notes are always displayed, independently of that threshold. Do not repeat
+ignored variants in `review` or teaching content.
+
+Notes are tutor-authored, not automatic dictionary or dialect detection.
+Educational review must identify spelling mistakes, classify variants correctly
+and include the corrected spelling in mistake explanations. Existing English
+v5 lessons without notes remain valid; other subjects cannot use this field.
+
+### Learning content and size
+
 `chunks` contain a Czech `heading`, English `sentences` (at least two), a Czech
 `explanation` and optional Czech styled `paragraphs`. They teach vocabulary,
 grammar, readings/dialogues and worked examples, not the independent quiz bank.
@@ -72,39 +178,59 @@ Choices use `input: "number"` with one number matcher for the correct option
 index and no partial credit. Written answers use `input: "text"` and either one
 string matcher or an array of string matchers, all with
 `normalization: "language"`. These must exactly match `acceptedAnswers`.
-Normalization preserves accents and punctuation, ignores capitalization,
-normalizes Unicode NFC and collapses extra whitespace without joining words.
-No automatic semantic translation, fuzzy full credit or history i/y matching.
-Answer fields retain the shared 80-character limit; scope each question accordingly.
+Matching normalizes Unicode NFC and collapses extra whitespace without joining
+words. Capitalization is assessed as a partial mistake rather than ignored.
+Preserve accents, apostrophes and punctuation, except that a final full stop is
+optional. A missing required question mark or exclamation mark counts as one
+partial mistake. No automatic semantic translation, fuzzy full credit or
+history i/y matching. Answer fields retain the shared 80-character limit;
+scope each question accordingly.
 
-Meaning tasks can opt into partial credit:
+For otherwise-correct written answers, combine partial mistakes as follows:
+
+| Partial mistakes | Points awarded |
+|------------------|----------------|
+| 0 | 100% |
+| 1 | 67% |
+| 2 | 33% |
+| 3 or more | 0% |
+
+Any number of capitalization differences counts as one partial mistake per
+answer. Each missing apostrophe is one mistake; a missing required question or
+exclamation mark is one. Optional final full stops do not count.
+
+Every written meaning task explicitly enables typo tolerance:
 
 ```json
 {
   "input": "text",
   "exact": { "type": "string", "value": "magazine", "normalization": "language" },
   "partial": {
-    "credit": 0.5,
     "match": { "type": "typo", "values": ["magazine"], "excludedWords": ["magazines"] }
   }
 }
 ```
 
-`values` must equal the declared full-credit alternatives. The shared evaluator
-awards half credit for precisely one insertion, deletion, substitution or
-adjacent-letter swap in one expected word of at least four letters. All other
-words, whitespace boundaries and punctuation must match after normalization.
-Only one typo in the whole answer is allowed. Correct alternatives win first.
-The English adapter passes `knownWords(lesson)` to `evaluate`; a typo matcher
-without that context throws an explicit error. Known lesson words and authored
-`excludedWords` can never receive typo credit as the changed token.
+`values` must equal the declared full-credit alternatives. Count each letter
+insertion, deletion, substitution or adjacent-letter swap as one typo operation;
+a swap counts once. For answers with fewer than ten letters, every operation
+adds one partial mistake. For answers with ten or more letters, the first
+operation is ignored and every additional operation adds one partial mistake.
+Thus, exactly ten letters follows the longer-answer rule. The resulting typo
+mistakes combine with capitalization, apostrophe and required end-mark
+mistakes under the schedule above. All other words, word boundaries and
+punctuation must match. Correct alternatives win first.
 
-Spelling and grammar tasks (including word ordering) cannot opt in. This
-conservative rule prevents grammatical inflections and changes of word order
-from receiving typo credit without a grammar parser. Authors also list untaught
-real-word/confusion variants in `excludedWords`. This is not a dictionary or AI
-grammar checker: educational review must check ambiguous pairs. Do not
-declare a meaning task merely to bypass a grammar or spelling requirement.
+The English adapter passes `knownWords(lesson)` to the typo matcher; missing
+context raises an explicit error. Known lesson words and authored
+`excludedWords` can never receive typo credit as the changed token. Spelling
+and grammar tasks (including word ordering) cannot receive typo credit. This
+prevents grammatical inflections and changes of word order from receiving typo
+credit without a grammar parser. Authors also list untaught real-word,
+grammatical and vocabulary confusions in `excludedWords`. This is not a
+dictionary or AI grammar checker: educational review must check ambiguous
+pairs. Do not declare a meaning task merely to bypass a grammar or spelling
+requirement.
 
 ## Listening and shared UI
 
@@ -112,13 +238,38 @@ declare a meaning task merely to bypass a grammar or spelling requirement.
 slower playback rate. Local voices avoid dependence on remote voice services.
 There are no external audio URLs, microphone permissions, recognition or
 speaking exercises. Voice availability/pronunciation depend on the device.
-If no local English voice is installed, the page visibly asks for one; it does
-not substitute a Czech voice or show a successful listening result. Voice lists
-may arrive asynchronously; the user can retry after they load. API, startup and
-playback failures are visible. Replaying replaces rather than queues audio.
-Controls allow unrestricted replay and stop. Submission, tab navigation, hidden
+Do not add routine voice-available notices. If no local English voice is installed
+or speech APIs are unavailable, show one specially formatted warning near the
+top of the page, not a repeated warning per passage. The page does not substitute
+a Czech or remote voice. Voice lists may arrive asynchronously; loading an
+English voice clears the warning without showing a ready announcement.
+Voice-list errors use that same page warning; preparation, startup and playback
+failures remain explicit beside the relevant control.
+
+Each passage has one rounded, child-friendly listening button: **🎧 Poslouchej**,
+**⏸️ Pauza**, then **▶️ Pokračuj**. It plays, pauses and resumes the same
+utterance; completion resets it for unrestricted replay. Playback deadlines are
+suspended while paused and resume with their remaining time. Starting a different
+passage replaces rather than queues audio. Submission, tab navigation, hidden
 documents and page exit cancel current playback. Late events from a replaced
 utterance cannot change the new playback state.
+
+When both documented male and female local English voices are installed, a
+top-right **👨 / 👩** switch selects the voice. The active emoji is colored; the
+inactive emoji is gray but the switch remains operable. It has a keyboard-accessible
+switch role and an announced female/male state. Switching stops current playback
+and applies to subsequent listening; it never changes scoring or stored results.
+Hide the selector for incomplete or unclassified pairs; those local English
+voices still work with ordinary playback. Do not fake gender by changing pitch.
+
+[`SpeechSynthesisVoice`](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisVoice)
+exposes no gender property. `voiceGender` recognizes only Microsoft identities
+documented in [Microsoft's Windows voice table](https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices):
+David, Mark, George, James, Richard, Ravi, Sean, Guy, Ryan and Prabhat are male;
+Zira, Hazel, Susan, Catherine, Linda, Heera, Jenny, Aria, Sonia and Neerja are female.
+Recognition requires a Microsoft voice name plus local service and English
+language metadata. Other platforms and unidentified names deliberately do not
+get gender labels. Do not infer gender from first names alone or use cloud voices.
 
 English keeps Původní text, Učit se, Hrát si, the name/nickname gate, shared
 feedback/results, session-only storage, highlighting, learning progress,
