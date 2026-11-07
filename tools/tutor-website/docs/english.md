@@ -16,6 +16,43 @@ text exactly and explain corrections separately in `review`, with matching
 quotations; do not silently repair originals. Confirm image transcriptions
 before lesson generation and disclose missing referenced stories or recordings.
 
+### Original-text spelling feedback
+
+English uses an orange accent in both light and dark themes. Genuine spelling
+mistakes must be explicitly called out on **Původní text**, not only recorded
+in the non-visible `review` field. Author optional `originalNotes`:
+
+```json
+{
+  "section": 0,
+  "quote": "I have a collektion.",
+  "kind": "spelling",
+  "explanation": "Slovo collektion je pravopisná chyba. Správně je collection."
+}
+```
+
+Each note quotes exactly one occurrence in its zero-based original section.
+Use surrounding wording to disambiguate repeated words. Quotes cannot overlap
+or cross styled paragraph boundaries. Original wording remains unchanged;
+quoted passages become accessible popup buttons and visible explanatory notes
+appear beneath the source in the same card.
+
+Use `kind: "spellingVariant"` for valid British/American spellings only when
+the original mixes the two conventions. Explain consistency neutrally in Czech:
+valid UK/US variants are **not mistakes**, and an entirely American source is
+not inconsistent. The renderer counts authored variant occurrences across all
+original sections: zero, one or two are ignored; three or more are displayed
+as **Pravopisná varianta (UK/US)**, not **Pravopisná chyba**. Genuine spelling
+notes are always displayed, independently of that threshold. Do not repeat
+ignored variants in `review` or teaching content.
+
+Notes are tutor-authored, not automatic dictionary or dialect detection.
+Educational review must identify spelling mistakes, classify variants correctly
+and include the corrected spelling in mistake explanations. Existing English
+v5 lessons without notes remain valid; other subjects cannot use this field.
+
+### Learning content and size
+
 `chunks` contain a Czech `heading`, English `sentences` (at least two), a Czech
 `explanation` and optional Czech styled `paragraphs`. They teach vocabulary,
 grammar, readings/dialogues and worked examples, not the independent quiz bank.

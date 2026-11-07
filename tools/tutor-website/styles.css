@@ -4,7 +4,7 @@
     --primary: #174cb5; --border: #cbd5e1; --good: #146b3a; --bad: #b42318;
     --warning: #875300; --shadow: 0 4px 12px #1720330d;
     --violet: #7036b0; --teal: #087574;
-    --history-accent: #80551d; --maths-accent: #086e79; --english-accent: #7036b0;
+    --history-accent: #80551d; --maths-accent: #086e79; --english-accent: #a34400;
     --history-paper: #f9f0dd; --maths-paper: #eaf4f7;
     --fun: #955900; --fun-paper: #fff0c2;
 }
@@ -15,7 +15,7 @@
         --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
         --warning: #ffd082; --shadow: 0 4px 12px #0003;
         --violet: #d7b1ff; --teal: #77dfda;
-        --history-accent: #e2c28f; --maths-accent: #8bd5df; --english-accent: #d7b1ff;
+        --history-accent: #e2c28f; --maths-accent: #8bd5df; --english-accent: #ffb675;
         --history-paper: #2c2e2f; --maths-paper: #1e343f;
         --fun: #ffd47b; --fun-paper: #46371f;
     }
@@ -26,13 +26,14 @@
     --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
     --warning: #ffd082; --shadow: 0 4px 12px #0003;
     --violet: #d7b1ff; --teal: #77dfda;
-    --history-accent: #e2c28f; --maths-accent: #8bd5df; --english-accent: #d7b1ff;
+    --history-accent: #e2c28f; --maths-accent: #8bd5df; --english-accent: #ffb675;
     --history-paper: #2c2e2f; --maths-paper: #1e343f;
     --fun: #ffd47b; --fun-paper: #46371f;
 }
 body[data-subject="history"] { --subject-accent: var(--history-accent); --subject-paper: var(--history-paper); --subject-pattern: radial-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) .675px, transparent .9px); --subject-pattern-size: 5px 7px; }
 body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-paper: var(--maths-paper); --subject-pattern: linear-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px); --subject-pattern-size: 1rem 1rem; }
 body[data-subject="english"] { --subject-accent: var(--english-accent); --subject-paper: var(--card); --subject-pattern: linear-gradient(transparent 95%, color-mix(in srgb, var(--subject-accent) 8%, transparent) 95%); --subject-pattern-size: 100% 1.5rem; }
+body[data-subject="english"] .original-note.callout-note { --callout: var(--subject-accent); }
 .listening-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
 .listening-controls p { flex-basis: 100%; margin: 0; }
 #question-material { overflow-wrap: anywhere; }
@@ -119,6 +120,7 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .learning-controls button:disabled { opacity: .5; }
 .term, .correction { display: inline; min-height: 0; padding: .1em 0; border: 0; border-radius: .2rem; background: transparent; font: inherit; color: var(--primary); text-decoration: underline dotted; text-underline-offset: .2em; }
 .correction { color: var(--bad); white-space: pre-wrap; text-align: left; }
+body[data-subject="english"] .correction-variant { color: var(--subject-accent); }
 #glossary { display: flex; flex-direction: column; gap: .25rem; padding-top: 1rem; overflow-y: auto; min-height: 0; }
 #glossary button { text-align: left; background: transparent; border-color: transparent; padding: .35rem .5rem; overflow-wrap: anywhere; font-size: .95rem; }
 details { border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: .5rem; padding: .5rem 1rem; margin-top: 1rem; }

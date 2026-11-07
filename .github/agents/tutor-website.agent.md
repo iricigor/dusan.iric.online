@@ -104,6 +104,12 @@ hidden listening transcripts until feedback, voice loading/unavailability,
 replay and cancellation on submission, navigation and hidden pages. Browser
 speech requires a local English voice for offline playback; report actual
 voice/audio verification separately from mocked lifecycle checks.
+English `originalNotes` must preserve quoted source text and explicitly display
+spelling mistakes on Původní text. Validate exact, unique, non-overlapping
+quotes within a single styled paragraph. Ignore one or two UK/US variant
+occurrences across all original sections; show three or more as neutral
+consistency notes, never mistakes. Educational classification belongs to the
+English tutor; the website owns rendering and the threshold.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
 the shared Původní text, Učit se and Hrát si tabs and name/nickname-required
@@ -134,8 +140,9 @@ that preserve historical spelling/year tolerance and maths notation restrictions
 They share grade thresholds and easy-to-hard quiz progression, randomizing
 only within each difficulty. Keep subject themes in the shared stylesheet using
 trusted subject selectors: sepia/amber paper grain for history, blue/teal graph
-paper for maths. Cover entire original/learning cards (headings and padding
-included) with softly visible textures at moderate strength, not strips behind paragraphs. Preserve
+paper for maths, orange accents and lined paper for English. Cover entire
+original/learning cards (headings and padding included) with softly visible
+textures at moderate strength, not strips behind paragraphs. Preserve
 semantic callouts and neutral quiz/results backgrounds, and support dark mode.
 Do not add separate subject stylesheets, assets or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.

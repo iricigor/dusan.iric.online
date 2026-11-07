@@ -104,6 +104,17 @@ test('subjects author JSON only and website owns shared page behavior and techni
     }
 });
 
+test('English spelling review uses visible source notes without treating dialect variants as errors', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['`originalNotes`', 'kind: "spelling"', 'kind: "spellingVariant"',
+        'Původní text', 'not mistakes', 'one or two', 'three or more', 'not merely because it uses American English']) {
+        assert.ok(english.includes(text), text);
+    }
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    assert.ok(website.includes('orange accents'));
+    assert.ok(website.includes('neutral consistency notes, never mistakes'));
+});
+
 test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
     for (const rule of ['`subtitle`', 'easy to medium to hard', 'full-credit',

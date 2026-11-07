@@ -33,6 +33,20 @@ their actual language. Preserve supplied original wording separately from
 corrections and authored additions; describe corrections with unique quotations
 in `review` and teach the corrected forms in learning content.
 
+Explicitly call out genuine spelling mistakes on Původní text using
+`originalNotes` with `kind: "spelling"` and a Czech explanation giving the
+correct spelling. Quote an exact, unique passage and preserve the original.
+Do not leave these findings only in the non-visible `review` field.
+Valid British (UK) and American (US) spellings are not mistakes. Only flag
+inconsistencies when the source mixes the two conventions, not merely because
+it uses American English. Declare such occurrences as
+`kind: "spellingVariant"` with a neutral Czech consistency explanation, never
+as errors. The website ignores one or two variant notes across the whole
+original text and displays them only when there are three or more.
+Do not repeat ignored variant findings in `review` or learning content.
+The website validates and displays authored notes; educational review must
+identify genuine misspellings and distinguish valid variants.
+
 For textbook images, inspect the actual image and confirm transcription with the
 user before generating a lesson. Ask for unreadable portions or referenced
 stories/audio; never invent missing textbook content or claim to have heard a

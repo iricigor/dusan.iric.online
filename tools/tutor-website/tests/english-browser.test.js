@@ -10,6 +10,117 @@ const { renderLesson } = require('../build.js');
 const lesson = require('../examples/my-collections.json');
 const { browserPath, openBrowser } = require('./helpers/browser.js');
 
+test('English original spelling feedback preserves source text and distinguishes UK/US notes in orange themes', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    const source = structuredClone(lesson);
+    source.original = [
+        { heading: 'První zdroj', language: 'en-GB', text: 'I have a collektion. My favorite colour is orange.' },
+        { heading: 'Druhý zdroj', language: 'en-GB',
+            text: 'This center has a colourful display.\n\nMy neighbour likes its organization and color.',
+            paragraphs: [
+                { style: 'plain', text: 'This center has a colourful display.' },
+                { style: 'quote', text: 'My neighbour likes its organization and color.' }
+            ] }
+    ];
+    const spelling = { section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection. <b>Text není HTML.</b>' };
+    const variants = ['favorite', 'center', 'organization', 'color'].map((quote, index) => ({
+        section: index ? 1 : 0, quote, kind: 'spellingVariant', explanation: 'Platná americká varianta; sjednoť britský a americký pravopis.'
+    }));
+    source.highlights = [{ target: 'original.0.text', quote: spelling.quote, color: 'yellow' }];
+    for (const count of [0, 1, 2, 3, 4]) {
+        source.originalNotes = [spelling, ...variants.slice(0, count)];
+        const file = path.join(directory, `spelling-${count}.html`);
+        fs.writeFileSync(file, renderLesson('english', source));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        let ready = false;
+        for (let attempt = 0; attempt < 100; attempt++) {
+            ready = await evaluate(`document.querySelectorAll('#original-content .card').length === 2`);
+            if (ready) break;
+            await delay(20);
+        }
+        assert.equal(ready, true);
+        const feedback = await evaluate(`(() => {
+            const cards = [...document.querySelectorAll('#original-content .card')];
+            const notes = [...document.querySelectorAll('.original-note')];
+            const spelling = document.querySelector('.correction:not(.correction-variant)');
+            spelling.click();
+            const popup = document.getElementById('definition');
+            const popupOpen = popup.matches(':popover-open') &&
+                document.getElementById('definition-title').textContent.includes('Pravopisná chyba') &&
+                document.getElementById('definition-text').textContent.includes('collection');
+            document.getElementById('definition-close').click();
+            return {
+                originals: cards.map(card => card.querySelector('.original-text').textContent),
+                labels: notes.map(note => note.querySelector('strong').textContent),
+                noteCounts: cards.map(card => card.querySelectorAll('.original-note').length),
+                marks: cards.map(card => card.querySelectorAll('.correction').length),
+                visible: notes.every(note => note.checkVisibility()),
+                literal: !notes[0].querySelector('b') && notes[0].textContent.includes('<b>Text není HTML.</b>'),
+                highlighted: !!spelling.querySelector('[data-highlight-color="yellow"]'),
+                popupOpen, focusRestored: document.activeElement === spelling
+            };
+        })()`);
+        assert.deepEqual(feedback.originals, source.original.map(section => section.text));
+        assert.deepEqual(feedback.noteCounts, count >= 3 ? [2, count - 1] : [1, 0]);
+        assert.deepEqual(feedback.marks, feedback.noteCounts);
+        assert.deepEqual(feedback.labels, ['Pravopisná chyba: ',
+            ...Array(count >= 3 ? count : 0).fill('Pravopisná varianta (UK/US): ')]);
+        for (const key of ['visible', 'literal', 'highlighted', 'popupOpen', 'focusRestored']) assert.equal(feedback[key], true, key);
+        if (count >= 3) {
+            assert.equal(await evaluate(`(() => {
+                const variant = document.querySelector('.correction-variant');
+                variant.click();
+                const title = document.getElementById('definition-title').textContent;
+                const neutral = title.includes('Pravopisná varianta (UK/US)') && !title.includes('chyba');
+                document.getElementById('definition-close').click();
+                return neutral;
+            })()`), true);
+        }
+    }
+    for (const width of [320, 1280]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        for (const automatic of [false, true]) {
+            for (const theme of ['light', 'dark']) {
+                await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
+                const colors = await evaluate(`(() => {
+                    ${automatic ? 'delete document.documentElement.dataset.theme;' : `document.documentElement.dataset.theme = '${theme}';`}
+                    const original = document.querySelector('#original-content .card');
+                    const label = document.querySelector('.original-note.callout-note strong');
+                    const luminance = color => {
+                        const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(value => {
+                            const channel = Number(value) / (color.startsWith('color(srgb') ? 1 : 255);
+                            return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
+                        });
+                        return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
+                    };
+                    const contrast = (a, b) => (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+                    const accent = getComputedStyle(label).color;
+                    return {
+                        accent,
+                        mark: getComputedStyle(document.querySelector('.correction-variant')).color,
+                        heading: getComputedStyle(original.querySelector('h2')).color,
+                        contrast: contrast(luminance(accent), luminance(getComputedStyle(original).backgroundColor)),
+                        noteContrast: contrast(luminance(accent), luminance(getComputedStyle(label.parentElement).backgroundColor)),
+                        overflow: document.documentElement.scrollWidth > innerWidth
+                    };
+                })()`);
+                assert.equal(colors.accent, theme === 'light' ? 'rgb(163, 68, 0)' : 'rgb(255, 182, 117)');
+                assert.equal(colors.mark, colors.accent);
+                assert.equal(colors.heading, colors.accent);
+                assert.ok(colors.contrast >= 4.5, `${width}/${theme}: readable accent`);
+                assert.ok(colors.noteContrast >= 4.5, `${width}/${theme}: readable note label`);
+                assert.equal(colors.overflow, false);
+                if (!automatic) await capture(`english-original-${width}-${theme}`);
+            }
+        }
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('English real page covers all exercise formats, listening lifecycle, grading, modes, storage and mobile themes', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000

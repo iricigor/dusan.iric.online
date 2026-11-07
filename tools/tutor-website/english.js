@@ -26,6 +26,15 @@ function scoreExercise(exercise, answers, vocabulary) {
 
 const maximumPoints = exercises => exercises.reduce((sum, exercise) => sum + POINTS[exercise.difficulty], 0);
 
+function originalNotes(lesson) {
+    const notes = lesson.originalNotes || [];
+    const variants = notes.filter(note => note.kind === 'spellingVariant').length;
+    return notes.filter(note => note.kind !== 'spellingVariant' || variants >= 3).map(note => ({
+        ...note,
+        title: note.kind === 'spelling' ? 'Pravopisná chyba' : 'Pravopisná varianta (UK/US)'
+    }));
+}
+
 function contentSize(lesson) {
     const passages = [
         ...lesson.original.filter(section => section.language === 'en-GB').map(section => section.text),
@@ -46,11 +55,24 @@ function contentSize(lesson) {
 
 function subjectForLesson(lesson) {
     const vocabulary = knownWords(lesson);
+    const notes = originalNotes(lesson);
     return {
         storagePrefix: 'english-tutor:v5',
         speedBonus: false,
         listening: true,
         icon: '📚',
+        originalCorrections: notes,
+        renderOriginalNotes({ node }, article, section, index) {
+            notes.filter(note => note.section === index).forEach(note => {
+                const block = node('aside', undefined,
+                    `original-note callout callout-${note.kind === 'spelling' ? 'warning' : 'note'}`);
+                block.append(node('strong', `${note.title}: `, 'callout-label'));
+                const quote = node('q', note.quote);
+                quote.lang = section.language;
+                block.append(quote, node('p', note.explanation));
+                article.append(block);
+            });
+        },
         rules: [
             'Lehká úloha: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
             'Nespěchej. Poslech můžeš opakovat bez omezení a bez ztráty bodů. Nepoužíváme mikrofon.',
@@ -123,7 +145,7 @@ function subjectForLesson(lesson) {
     };
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { selectExercises, scoreExercise, maximumPoints, subjectForLesson, contentSize };
+if (typeof module !== 'undefined' && module.exports) module.exports = { selectExercises, scoreExercise, maximumPoints, subjectForLesson, contentSize, originalNotes };
 if (typeof document !== 'undefined') {
     const englishLesson = JSON.parse(document.getElementById('lesson-data').textContent);
     initializeTutor(englishLesson, subjectForLesson(englishLesson));

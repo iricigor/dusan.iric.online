@@ -8,9 +8,65 @@ const path = require('node:path');
 const { capabilities, renderLesson, build } = require('../build.js');
 const { validateLesson } = require('../validate.js');
 const { evaluate, knownWords, oneLetterApart } = require('../assessment.js');
-const { selectExercises, scoreExercise, subjectForLesson, contentSize } = require('../english.js');
+const { selectExercises, scoreExercise, subjectForLesson, contentSize, originalNotes } = require('../english.js');
 const { MODES } = require('../runtime.js');
 const lesson = require('../examples/my-collections.json');
+
+test('original spelling notes are always visible and UK/US notes use a lesson-wide threshold', () => {
+    assert.deepEqual(originalNotes(lesson), []);
+    const spelling = { section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection.' };
+    const variants = ['favorite', 'center', 'organization', 'color'].map((quote, index) => ({
+        section: index % 2, quote, kind: 'spellingVariant', explanation: 'Platná americká varianta; sjednoť styl.'
+    }));
+    for (const count of [0, 1, 2, 3, 4]) {
+        const source = { originalNotes: [spelling, ...variants.slice(0, count)] };
+        const before = structuredClone(source);
+        const notes = originalNotes(source);
+        assert.equal(notes.length, 1 + (count >= 3 ? count : 0), `${count} variants`);
+        assert.equal(notes[0].title, 'Pravopisná chyba');
+        assert.ok(notes.slice(1).every(note => note.title === 'Pravopisná varianta (UK/US)'));
+        assert.deepEqual(subjectForLesson({ ...lesson, ...source }).originalCorrections, notes);
+        assert.deepEqual(source, before);
+        assert.equal(originalNotes({ originalNotes: variants.slice(0, count) }).length, count >= 3 ? count : 0);
+    }
+});
+
+test('original spelling notes validate source locations, shapes and paragraph boundaries', () => {
+    const source = structuredClone(lesson);
+    source.original = [{ heading: 'Zdroj', language: 'en-GB', text: 'A collektion.\n\nMy favorite colour.',
+        paragraphs: [{ style: 'plain', text: 'A collektion.' }, { style: 'quote', text: 'My favorite colour.' }] }];
+    source.originalNotes = [
+        { section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection.' },
+        { section: 0, quote: 'favorite', kind: 'spellingVariant', explanation: 'Platná americká varianta.' }
+    ];
+    assert.equal(validateLesson('english', source), source);
+    assert.doesNotThrow(() => renderLesson('english', source));
+    const reject = (edit, pattern) => {
+        const copy = structuredClone(source);
+        edit(copy);
+        assert.throws(() => validateLesson('english', copy), pattern);
+    };
+    reject(copy => { copy.originalNotes[0].section = 99; }, /originalNotes.*exactly one occurrence/);
+    reject(copy => { copy.originalNotes[0].section = -1; }, /minimum/);
+    reject(copy => { copy.originalNotes[0].quote = 'absent'; }, /exactly one occurrence/);
+    reject(copy => { copy.originalNotes[0].quote = ' '; }, /blank/);
+    reject(copy => { copy.originalNotes[0].explanation = ''; }, /blank/);
+    reject(copy => { copy.originalNotes[0].kind = 'grammar'; }, /spellingVariant/);
+    reject(copy => { delete copy.originalNotes[0].kind; }, /missing kind/);
+    reject(copy => { copy.originalNotes[0].html = '<b>Unsafe</b>'; }, /unknown property/);
+    reject(copy => { copy.originalNotes.push({ ...copy.originalNotes[0] }); }, /overlaps/);
+    reject(copy => { copy.originalNotes.push({ ...copy.originalNotes[0], quote: 'A collektion.' }); }, /overlaps/);
+    reject(copy => { copy.originalNotes[0].quote = 'collektion.\n\nMy'; }, /within one styled/);
+    reject(copy => {
+        delete copy.original[0].paragraphs;
+        copy.original[0].text += ' Another collektion.';
+    }, /exactly one occurrence/);
+    for (const subject of ['history', 'maths']) {
+        const other = structuredClone(require(subject === 'history' ? '../examples/defenestrace.json' : '../examples/zlomky-a-prevody-delky.json'));
+        other.originalNotes = [];
+        assert.throws(() => validateLesson(subject, other), /forbidden/);
+    }
+});
 
 test('English discovery, prepared content size, coverage and guarded standalone generation', t => {
     const discovery = capabilities('english');

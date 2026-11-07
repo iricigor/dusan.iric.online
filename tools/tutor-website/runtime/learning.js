@@ -250,7 +250,7 @@ function initializeTutorLearning(lesson, subject) {
         article.append(heading(section.heading, section.icon, '📄'));
         const text = node('div', undefined, 'original-text');
         if (section.language) text.lang = section.language;
-        const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
+        const corrections = (subject.originalCorrections || lesson.corrections || []).filter(correction => correction.section === index)
             .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
         let paragraphOffset = 0;
         (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
@@ -261,8 +261,9 @@ function initializeTutorLearning(lesson, subject) {
             for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
                 const start = block.text.indexOf(correction.quote);
                 source.append(document.createTextNode(block.text.slice(offset, start)));
-                const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
-                mark.title = correction.explanation;
+                const mark = definitionButton(correction.quote, correction.title || 'Historická oprava', correction.explanation,
+                    correction.kind === 'spellingVariant' ? 'correction correction-variant' : 'correction', '🔎');
+                mark.title = correction.title ? `${correction.title}: ${correction.explanation}` : correction.explanation;
                 source.append(mark);
                 offset = start + correction.quote.length;
             }
@@ -274,6 +275,7 @@ function initializeTutorLearning(lesson, subject) {
         });
         styleParagraph(article, section.style);
         article.append(text);
+        subject.renderOriginalNotes?.(context, article, section, index);
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);
