@@ -283,6 +283,7 @@ function initializeTutorLearning(lesson, subject) {
         });
         styleParagraph(article, section.style);
         article.append(text);
+        subject.renderOriginalControls?.(context, article, section, index);
         subject.renderOriginalNotes?.(context, article, section, index);
         $('original-content').append(article);
     });

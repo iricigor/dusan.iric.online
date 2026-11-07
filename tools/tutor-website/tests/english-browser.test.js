@@ -10,7 +10,7 @@ const { renderLesson } = require('../build.js');
 const lesson = require('../examples/my-collections.json');
 const { browserPath, openBrowser } = require('./helpers/browser.js');
 
-test('comic context keeps the explanation quiet and separates optional introductions from general guidance', {
+test('comic context combines opening prose under its heading beside the QR code', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
 }, async t => {
@@ -48,38 +48,49 @@ test('comic context keeps the explanation quiet and separates optional introduct
             return {
                 originals: [...container.querySelectorAll('.original-text')].map(element => element.textContent),
                 notices: container.querySelectorAll('.comic-description-note').length,
-                introduction: context?.querySelector('.comic-introduction')?.textContent ?? null,
-                guidance: context?.querySelector('.comic-guidance span')?.textContent ?? null,
-                guidanceLabel: context?.querySelector('.comic-guidance strong')?.textContent ?? null,
+                prose: context?.querySelector('p')?.textContent ?? null,
+                heading: context?.querySelector('h2')?.textContent ?? null,
+                singleParagraph: !context || (context.querySelectorAll('p').length === 1 &&
+                    !context.querySelector('.comic-guidance, .comic-introduction')),
                 top: !context || (context === container.firstElementChild &&
                     context.getBoundingClientRect().bottom <= firstCard.getBoundingClientRect().top),
                 separate: !container.querySelector('.card .comic-context, .original-text .comic-context'),
                 plainText: !context?.querySelector('b, img, script'),
-                quiet: !context?.querySelector('h1, h2, h3, .card, .callout, [role="alert"]'),
+                quiet: !context?.querySelector('h1, h3, .card, .callout, [role="alert"]'),
                 language: context?.lang ?? null
             };
         })()`);
         assert.deepEqual(result.originals, source.original.map(section => section.text));
         assert.equal(result.notices, context.original === panels ? 1 : 0);
-        assert.equal(result.introduction, context.comicIntroduction || null);
-        assert.equal(result.guidance, context.comicGuidance || null);
-        assert.equal(result.guidanceLabel, context.comicGuidance ? 'Obecné pokyny: ' : null);
+        assert.equal(result.prose, context.original === panels ? [
+            context.comicIntroduction,
+            'Menší český text popisuje obrázky. Text z komiksu je přepsaný beze změn.',
+            context.comicGuidance || 'Čti obrázky postupně. Anglický text každého obrázku si můžeš také poslechnout.'
+        ].filter(Boolean).join(' ') : null);
+        assert.equal(result.heading, context.original === panels ? 'Jak číst přepis' : null);
         assert.equal(result.language, context.original === panels ? 'cs-CZ' : null);
-        for (const key of ['top', 'separate', 'plainText', 'quiet']) assert.equal(result[key], true, `${index}: ${key}`);
+        for (const key of ['top', 'separate', 'plainText', 'quiet', 'singleParagraph']) assert.equal(result[key], true, `${index}: ${key}`);
     }
-    for (const width of [320, 1280]) {
+    for (const width of [320, 375, 760, 1280]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
         for (const theme of ['light', 'dark']) {
             const layout = await evaluate(`(() => {
                 document.documentElement.dataset.theme = '${theme}';
                 const note = document.querySelector('.comic-description-note');
-                const guidance = document.querySelector('.comic-guidance');
+                const context = document.querySelector('.comic-context');
+                const share = document.querySelector('.lesson-share');
+                const a = context.getBoundingClientRect();
+                const b = share.getBoundingClientRect();
                 const text = document.querySelector('.original-text');
                 return {
-                    readable: note.checkVisibility() && guidance.checkVisibility(),
-                    sizes: [note, guidance, text].map(element => parseFloat(getComputedStyle(element).fontSize)),
-                    colors: [note, guidance, text].map(element => getComputedStyle(element).color),
-                    noDecoration: [note, guidance].every(element => {
+                    readable: note.checkVisibility() && share.checkVisibility(),
+                    positioned: innerWidth > 760 ? b.left >= a.right && Math.abs(b.top - a.top) < 1 :
+                        b.top >= a.bottom && Math.abs(b.left - a.left) < 1,
+                    cardsBelowQr: [...document.querySelectorAll('#original-content .card')].every(card =>
+                        card.getBoundingClientRect().top >= b.bottom),
+                    sizes: [note, text].map(element => parseFloat(getComputedStyle(element).fontSize)),
+                    colors: [note, text].map(element => getComputedStyle(element).color),
+                    noDecoration: [note].every(element => {
                         const style = getComputedStyle(element);
                         return style.backgroundColor === 'rgba(0, 0, 0, 0)' &&
                             style.borderLeftWidth === '0px' && style.boxShadow === 'none';
@@ -88,14 +99,122 @@ test('comic context keeps the explanation quiet and separates optional introduct
                 };
             })()`);
             assert.equal(layout.readable, true);
-            assert.ok(layout.sizes[0] < layout.sizes[2] && layout.sizes[1] < layout.sizes[2]);
-            assert.equal(layout.colors[0], layout.colors[1]);
-            assert.notEqual(layout.colors[0], layout.colors[2]);
+            assert.equal(layout.positioned, true);
+            assert.equal(layout.cardsBelowQr, true);
+            assert.ok(layout.sizes[0] < layout.sizes[1]);
+            assert.notEqual(layout.colors[0], layout.colors[1]);
             assert.equal(layout.noDecoration, true);
             assert.equal(layout.overflow, false);
             await capture(`comic-context-${width}-${theme}`);
         }
     }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
+test('original sections share the English listening lifecycle and speak only their own source text', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const { directory, client, evaluate, exceptions, network } = await openBrowser(t);
+    await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
+        window.speechCalls = [];
+        window.cancelledSpeech = 0;
+        window.pausedSpeech = 0;
+        window.resumedSpeech = 0;
+        window.testVoices = [
+            { name: 'Microsoft David Desktop - English (United States)', lang: 'en-US', localService: true, default: true },
+            { name: 'Microsoft Zira Desktop - English (United States)', lang: 'en-US', localService: true }
+        ];
+        Object.defineProperty(window, 'SpeechSynthesisUtterance', { configurable: true, value: function(text) { this.text = text; } });
+        Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {
+            getVoices: () => window.testVoices,
+            addEventListener: (event, action) => { if (event === 'voiceschanged') window.fireVoicesChanged = action; },
+            speak: utterance => { window.speechCalls.push(utterance); utterance.onstart(); },
+            pause: () => { window.pausedSpeech++; window.speechSynthesis.paused = true; },
+            resume: () => { window.resumedSpeech++; window.speechSynthesis.paused = false; },
+            cancel: () => { window.cancelledSpeech++; }
+        } });
+    ` });
+    const source = structuredClone(lesson);
+    source.original = [
+        { heading: 'Obrázek 1', language: 'en-GB', panelDescription: 'Dítě ukazuje sbírku.', text: 'Look!\nMy collektion!' },
+        { heading: 'Obrázek 2', language: 'en-GB', panelDescription: 'Kamarád se usmívá.', text: '"Wow!"\n\nIt\'s big!',
+            paragraphs: [{ style: 'quote', text: '"Wow!"' }, { style: 'plain', text: 'It\'s big!' }] },
+        { heading: 'Vysvětlení', language: 'en-GB', text: 'Use have got with I and you.' },
+        { heading: 'Tichý obrázek', language: 'en-GB', panelDescription: 'Děti odcházejí.', text: '' },
+        { heading: 'Český text', language: 'cs-CZ', text: 'České vysvětlení.' }
+    ];
+    source.originalNotes = [{ section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection.' }];
+    const file = path.join(directory, 'original-listening.html');
+    fs.writeFileSync(file, renderLesson('english', source));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    let ready = false;
+    for (let attempt = 0; attempt < 100; attempt++) {
+        ready = await evaluate(`document.querySelectorAll('#original-content .card').length === 5`);
+        if (ready) break;
+        await delay(20);
+    }
+    assert.equal(ready, true);
+    assert.deepEqual(await evaluate(`(() => {
+        const cards = [...document.querySelectorAll('#original-content .card')];
+        return {
+            counts: cards.map(card => card.querySelectorAll('.listening-toggle').length),
+            originals: cards.map(card => card.querySelector('.original-text').textContent),
+            separate: cards.every(card => !card.querySelector('.original-text .listening-controls')),
+            accessible: cards.slice(0, 3).every(card => {
+                const button = card.querySelector('.listening-toggle');
+                return button.type === 'button' && button.getAttribute('aria-label') === 'Přehrát anglický poslech';
+            })
+        };
+    })()`), { counts: [1, 1, 1, 0, 0], originals: source.original.map(section => section.text),
+        separate: true, accessible: true });
+    const playback = await evaluate(`(async () => {
+        const buttons = [...document.querySelectorAll('#original-content .listening-toggle')];
+        buttons[0].focus();
+        buttons[0].click();
+        const first = window.speechCalls.at(-1);
+        buttons[0].click();
+        const paused = window.pausedSpeech === 1 && buttons[0].textContent.includes('Pokračuj');
+        buttons[0].click();
+        const resumed = window.resumedSpeech === 1 && window.speechCalls.length === 1;
+        buttons[1].click();
+        const second = window.speechCalls.at(-1);
+        const replaced = window.cancelledSpeech === 1 && buttons[0].textContent.includes('Poslouchej');
+        first.onend();
+        const lateIgnored = buttons[1].textContent.includes('Pauza');
+        second.onend();
+        const reset = buttons[1].textContent.includes('Poslouchej');
+        buttons[1].click();
+        document.getElementById('voice-switch').click();
+        const voiceStops = buttons[1].textContent.includes('Poslouchej');
+        buttons[2].click();
+        const explanation = window.speechCalls.at(-1);
+        const female = explanation.voice.name.includes('Zira');
+        await window.switchTutorTab('learning');
+        const navigationStops = buttons[2].textContent.includes('Poslouchej');
+        document.querySelector('#learning-content .listening-toggle').click();
+        const learningText = window.speechCalls.at(-1).text;
+        await window.switchTutorTab('original');
+        buttons[0].click();
+        window.testVoices = [];
+        window.fireVoicesChanged();
+        const unavailable = !document.getElementById('voice-warning').hidden &&
+            buttons[0].textContent.includes('Poslouchej') &&
+            document.querySelectorAll('.voice-warning:not([hidden])').length === 1;
+        buttons[0].click();
+        return {
+            texts: [first.text, second.text, explanation.text],
+            english: [first, second, explanation].every(utterance => utterance.lang === 'en-GB'),
+            paused, resumed, replaced, lateIgnored, reset, voiceStops, female, navigationStops,
+            learningText, unavailable, calls: window.speechCalls.length
+        };
+    })()`);
+    assert.deepEqual(playback.texts, source.original.slice(0, 3).map(section => section.text));
+    assert.equal(playback.learningText, source.chunks[0].audio.text);
+    assert.equal(playback.calls, 6);
+    for (const key of ['english', 'paused', 'resumed', 'replaced', 'lateIgnored', 'reset',
+        'voiceStops', 'female', 'navigationStops', 'unavailable']) assert.equal(playback[key], true, key);
     assert.deepEqual(exceptions, []);
     assert.deepEqual(network, []);
 });

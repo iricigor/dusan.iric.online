@@ -152,16 +152,28 @@ test('English listening guidance keeps availability quiet and voice choices cons
     }
 });
 
-test('comic introductions are grounded prose with subdued explanation and separately labelled guidance', () => {
+test('comic introductions combine grounded prose and reading guidance beside the QR code', () => {
     const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
-    for (const text of ['single, subdued note near the top', '`comicIntroduction`', '`comicGuidance`',
+    for (const text of ['single, subdued opening paragraph', '`comicIntroduction`', '`comicGuidance`',
         'grounded in the actual comic', 'logical connection', 'no invented characters',
-        'Omit it rather than add generic filler', 'general reading/study guidance', 'Obecné pokyny',
+        'Omit it rather than add generic filler', 'general reading/study guidance', 'Jak číst přepis',
+        'left of the QR code', 'above it on mobile',
         'Review the introduction for coherence']) assert.ok(english.includes(text), text);
     const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
-    for (const text of ['without a banner, border, icon or extra heading',
-        'outside the original text and panel cards', 'label separate general guidance "Obecné pokyny"',
+    for (const text of ['without a banner, border or icon',
+        'outside the original text and panel cards', 'one small, muted opening paragraph', 'Jak číst přepis',
+        'not separate headings or guidance callouts',
         'Do not invent an introduction when omitted']) assert.ok(website.includes(text), text);
+});
+
+test('English original listening uses per-section verbatim text without authored audio fields', () => {
+    for (const name of ['tutor-english', 'tutor-website']) {
+        const body = profiles.find(profile => profile.name === name).body.replace(/\s+/g, ' ');
+        for (const text of ['nonempty English original section', 'correction notes',
+            'authored audio field', 'Silent panels', 'Czech original sections']) {
+            assert.ok(body.toLowerCase().includes(text.toLowerCase()), `${name}: ${text}`);
+        }
+    }
 });
 
 test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {
