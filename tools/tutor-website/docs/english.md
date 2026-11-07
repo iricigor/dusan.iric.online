@@ -188,13 +188,38 @@ declare a meaning task merely to bypass a grammar or spelling requirement.
 slower playback rate. Local voices avoid dependence on remote voice services.
 There are no external audio URLs, microphone permissions, recognition or
 speaking exercises. Voice availability/pronunciation depend on the device.
-If no local English voice is installed, the page visibly asks for one; it does
-not substitute a Czech voice or show a successful listening result. Voice lists
-may arrive asynchronously; the user can retry after they load. API, startup and
-playback failures are visible. Replaying replaces rather than queues audio.
-Controls allow unrestricted replay and stop. Submission, tab navigation, hidden
+Do not add routine voice-available notices. If no local English voice is installed
+or speech APIs are unavailable, show one specially formatted warning near the
+top of the page, not a repeated warning per passage. The page does not substitute
+a Czech or remote voice. Voice lists may arrive asynchronously; loading an
+English voice clears the warning without showing a ready announcement.
+Voice-list errors use that same page warning; preparation, startup and playback
+failures remain explicit beside the relevant control.
+
+Each passage has one rounded, child-friendly listening button: **🎧 Poslouchej**,
+**⏸️ Pauza**, then **▶️ Pokračuj**. It plays, pauses and resumes the same
+utterance; completion resets it for unrestricted replay. Playback deadlines are
+suspended while paused and resume with their remaining time. Starting a different
+passage replaces rather than queues audio. Submission, tab navigation, hidden
 documents and page exit cancel current playback. Late events from a replaced
 utterance cannot change the new playback state.
+
+When both documented male and female local English voices are installed, a
+top-right **👨 / 👩** switch selects the voice. The active emoji is colored; the
+inactive emoji is gray but the switch remains operable. It has a keyboard-accessible
+switch role and an announced female/male state. Switching stops current playback
+and applies to subsequent listening; it never changes scoring or stored results.
+Hide the selector for incomplete or unclassified pairs; those local English
+voices still work with ordinary playback. Do not fake gender by changing pitch.
+
+[`SpeechSynthesisVoice`](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisVoice)
+exposes no gender property. `voiceGender` recognizes only Microsoft identities
+documented in [Microsoft's Windows voice table](https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices):
+David, Mark, George, James, Richard, Ravi, Sean, Guy, Ryan and Prabhat are male;
+Zira, Hazel, Susan, Catherine, Linda, Heera, Jenny, Aria, Sonia and Neerja are female.
+Recognition requires a Microsoft voice name plus local service and English
+language metadata. Other platforms and unidentified names deliberately do not
+get gender labels. Do not infer gender from first names alone or use cloud voices.
 
 English keeps Původní text, Učit se, Hrát si, the name/nickname gate, shared
 feedback/results, session-only storage, highlighting, learning progress,

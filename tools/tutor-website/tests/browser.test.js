@@ -496,6 +496,7 @@ test('prepared history timeline keeps compact years readable and expands lesson 
     await evaluate('window.switchTutorTab("learning")');
     for (const width of [1024, 1600]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
         for (const theme of ['light', 'dark']) {
             await evaluate(`document.documentElement.dataset.theme = '${theme}'; document.getElementById('timeline-details').open = true`);
             await capture(`history-timeline-${width}-${theme}-expanded`);

@@ -104,6 +104,13 @@ hidden listening transcripts until feedback, voice loading/unavailability,
 replay and cancellation on submission, navigation and hidden pages. Browser
 speech requires a local English voice for offline playback; report actual
 voice/audio verification separately from mocked lifecycle checks.
+Do not show routine voice-available notices. Use one specially formatted
+unavailable-voice warning near the top and one child-friendly play/pause/resume
+button per passage. Keep playback failures explicit. Pause playback deadlines
+while paused. When documented installed local English male/female voices are
+both available, show one top-right emoji switch with gray inactive and colored
+active states; hide it for unclassified or incomplete pairs. Stop playback when
+switching voice, and never infer gender from arbitrary names or alter pitch.
 English `originalNotes` must preserve quoted source text and explicitly display
 spelling mistakes on Původní text. Validate exact, unique, non-overlapping
 quotes within a single styled paragraph. Ignore one or two UK/US variant

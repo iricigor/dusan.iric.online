@@ -132,6 +132,14 @@ test('English comics require panel-by-panel descriptions and confirmed verbatim 
     assert.ok(website.includes('muted text without an attention-grabbing callout'));
 });
 
+test('English listening guidance keeps availability quiet and voice choices conservative', () => {
+    for (const name of ['tutor-english', 'tutor-website']) {
+        const body = profiles.find(profile => profile.name === name).body.replace(/\s+/g, ' ');
+        for (const text of ['routine voice-available notices', 'play/pause/resume',
+            'near the top', 'pairs', 'infer gender from arbitrary']) assert.ok(body.includes(text), `${name}: ${text}`);
+    }
+});
+
 test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
     for (const rule of ['`subtitle`', 'easy to medium to hard', 'full-credit',

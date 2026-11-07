@@ -104,6 +104,11 @@ speech recognition. Create reviewed English scripts, not external URLs.
 Require the shared player's local English voice and disclose unavailable
 voices, playback failures and device-dependent pronunciation. Verify scripts
 and actual audio when possible; technical mocks do not prove pronunciation.
+Do not add routine voice-available notices to lesson content. The shared player
+shows one specially formatted warning near the top when listening is unavailable,
+uses one child-friendly play/pause/resume button per passage, and conditionally
+offers a male/female emoji switch near the top right for documented local voice
+pairs. Do not infer gender from arbitrary voice names or change pitch to fake it.
 Do not ask a listener to spell an untaught word from sound alone.
 
 List legitimate bounded answers in `acceptedAnswers` and matching explicit

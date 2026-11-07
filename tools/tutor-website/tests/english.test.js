@@ -108,6 +108,9 @@ test('English discovery, prepared content size, coverage and guarded standalone 
     assert.equal(discovery.version, 5);
     assert.equal(discovery.timing, 'none');
     assert.equal(discovery.listening.microphone, false);
+    assert.equal(discovery.listening.playback, 'single-play-pause-resume-button');
+    assert.equal(discovery.listening.availability, 'single-page-warning');
+    assert.equal(discovery.listening.voiceSelection, 'documented-local-male-female-pair');
     assert.deepEqual(Object.keys(discovery.quizModes), Object.keys(MODES));
     for (const key of ['schemaPath', 'validatorPath', 'builderPath', 'contractPath', 'examplePath']) {
         assert.ok(path.isAbsolute(discovery[key]) && fs.existsSync(discovery[key]));

@@ -36,6 +36,12 @@ body[data-subject="english"] { --subject-accent: var(--english-accent); --subjec
 body[data-subject="english"] .original-note.callout-note { --callout: var(--subject-accent); }
 .listening-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
 .listening-controls p { flex-basis: 100%; margin: 0; }
+body[data-subject="english"] .listening-toggle { display: inline-flex; align-items: center; gap: .65rem; min-height: 52px; border: 2px solid var(--english-accent); border-radius: 2rem; padding: .5rem 1.1rem; color: var(--english-accent); background: color-mix(in srgb, var(--english-accent) 9%, var(--card)); font-weight: 600; }
+.listening-icon { font-size: 1.4em; }
+.voice-warning { color: var(--warning); }
+.voice-switch { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex: 0 0 92px; min-width: 92px; padding: .2rem .5rem; border-radius: 2rem; }
+.voice-switch span { font-size: 1.4rem; filter: grayscale(1); opacity: .5; }
+.voice-switch[aria-checked="false"] .voice-male, .voice-switch[aria-checked="true"] .voice-female { filter: none; opacity: 1; }
 #question-material { overflow-wrap: anywhere; }
 body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
 body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }
@@ -326,6 +332,8 @@ a { color: var(--primary); }
     .lesson-heading h1 { margin-top: .6rem; }
     .heading .motivation { line-height: 1.5; }
     #theme { position: absolute; top: 0; right: 0; }
+    .heading:has(.voice-switch:not([hidden])) { padding-top: 3.5rem; }
+    .voice-switch { position: absolute; top: 0; right: 84px; }
     .card { --card-padding: 1rem; }
     .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
     .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .2rem; }

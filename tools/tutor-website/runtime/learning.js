@@ -241,7 +241,8 @@ function initializeTutorLearning(lesson, subject) {
     const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
         styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
             { target: target ? `${target}.${index}.text` : undefined }), block.style));
-    const speech = subject.listening ? initializeTutorSpeech({ node, button }) : null;
+    const speech = subject.listening ? initializeTutorSpeech({ node, button,
+        warning: $('voice-warning'), voiceSwitch: $('voice-switch') }) : null;
     const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading, speech };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';

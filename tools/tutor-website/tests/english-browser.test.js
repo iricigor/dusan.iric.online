@@ -169,12 +169,20 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
     await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
         window.speechCalls = [];
         window.cancelledSpeech = 0;
-        window.testVoices = [{ lang: 'en-GB', localService: true }];
+        window.pausedSpeech = 0;
+        window.resumedSpeech = 0;
+        window.testVoicePair = [
+            { name: 'Microsoft David Desktop - English (United States)', lang: 'en-US', localService: true, default: true },
+            { name: 'Microsoft Zira Desktop - English (United States)', lang: 'en-US', localService: true }
+        ];
+        window.testVoices = window.testVoicePair;
         Object.defineProperty(window, 'SpeechSynthesisUtterance', { configurable: true, value: function(text) { this.text = text; } });
         Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {
             getVoices: () => window.testVoices,
-            addEventListener: () => {},
+            addEventListener: (event, action) => { if (event === 'voiceschanged') window.fireVoicesChanged = action; },
             speak: utterance => { window.speechCalls.push(utterance); utterance.onstart(); },
+            pause: () => { window.pausedSpeech++; window.speechSynthesis.paused = true; },
+            resume: () => { window.resumedSpeech++; window.speechSynthesis.paused = false; },
             cancel: () => { window.cancelledSpeech++; }
         } });
     ` });
@@ -196,17 +204,28 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
         const controls = document.querySelector('.listening-controls');
         controls.querySelector('button').click();
         controls.querySelector('button').click();
-        const replay = speechCalls.length === 2 && cancelledSpeech === 1;
+        const paused = controls.querySelector('button').textContent.includes('Pokračuj') && pausedSpeech === 1;
+        controls.querySelector('button').click();
+        const pauseResume = paused && speechCalls.length === 1 && resumedSpeech === 1 && cancelledSpeech === 0;
+        const oneButton = controls.querySelectorAll('button').length === 1;
+        const noAvailableMessages = $('voice-warning').hidden &&
+            [...document.querySelectorAll('.listening-controls p')].every(status => status.hidden && !status.textContent);
+        $('voice-switch').click();
+        controls.querySelector('button').click();
+        const voiceSelected = $('voice-switch').getAttribute('aria-checked') === 'true' &&
+            speechCalls[1].voice.name.includes('Zira') && cancelledSpeech === 1;
         const language = document.querySelector('#learning-content p[lang]').lang;
         const count = $('learning-counter').textContent;
         await window.switchTutorTab('quiz');
         const cancelledOnTab = cancelledSpeech === 2;
         $('player').value = 'Ab';
         document.querySelector('[data-mode="hard"]').click();
-        return { cards: chunks.length, hintsClosed, replay, language, count, cancelledOnTab,
+        return { cards: chunks.length, hintsClosed, pauseResume, oneButton, noAvailableMessages, voiceSelected, language, count, cancelledOnTab,
             blocked: !$('setup').hidden && !!$('name-error').textContent, noBonus: !$('bonus') };
     })()`);
-    assert.deepEqual(introduction, { cards: 7, hintsClosed: true, replay: true, language: 'en-GB', count: '0/7 Prozkoumáno', cancelledOnTab: true, blocked: true, noBonus: true });
+    assert.deepEqual(introduction, { cards: 7, hintsClosed: true, pauseResume: true, oneButton: true,
+        noAvailableMessages: true, voiceSelected: true, language: 'en-GB', count: '0/7 Prozkoumáno',
+        cancelledOnTab: true, blocked: true, noBonus: true });
 
     const results = await evaluate(`(async () => {
         const $ = id => document.getElementById(id);
@@ -242,8 +261,14 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
                     if (!missingVoice) {
                         testVoices = [];
                         play.click();
-                        missingVoice = $('question-material').textContent.includes('není dostupný');
+                        missingVoice = !$('voice-warning').hidden && $('voice-warning').textContent.includes('není dostupný') &&
+                            $('voice-warning').classList.contains('callout-warning') &&
+                            document.querySelectorAll('#voice-warning').length === 1 &&
+                            !$('question-material').textContent.includes('není dostupný') &&
+                            $('voice-switch').hidden;
                         testVoices = [{lang: 'en-US', localService: true}];
+                        fireVoicesChanged();
+                        missingVoice &&= $('voice-warning').hidden;
                     }
                     play.click();
                     const count = cancelledSpeech;
@@ -287,6 +312,7 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
     assert.ok(results.finished.every(result => result.duration.includes('Doba odpovídání:') && result.grade.includes('Známka: 1')));
     assert.equal(results.stored, 5);
     assert.equal(results.otherStorage, null);
+    await evaluate(`testVoices = testVoicePair; fireVoicesChanged();`);
 
     for (const width of [320, 1280]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -295,13 +321,30 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
                 document.documentElement.dataset.theme = '${theme}';
                 await window.switchTutorTab('learning');
                 const card = document.querySelector('[data-learning-card]');
+                const toggle = document.querySelector('.listening-toggle');
+                const voice = document.getElementById('voice-switch');
+                const voiceBounds = voice.getBoundingClientRect();
+                const themeBounds = document.getElementById('theme').getBoundingClientRect();
+                const titleBounds = document.querySelector('.lesson-identity').getBoundingClientRect();
+                const active = voice.querySelector(voice.getAttribute('aria-checked') === 'true' ? '.voice-female' : '.voice-male');
+                const inactive = voice.querySelector(voice.getAttribute('aria-checked') === 'true' ? '.voice-male' : '.voice-female');
                 return { overflow: document.documentElement.scrollWidth > innerWidth,
                     paper: getComputedStyle(card).backgroundColor,
+                    oneButton: [...document.querySelectorAll('.listening-controls')].every(panel => panel.querySelectorAll('button').length === 1),
+                    childFriendly: toggle.getBoundingClientRect().height >= 52 && parseFloat(getComputedStyle(toggle).borderRadius) >= 20,
+                    switchVisible: voice.checkVisibility() && voice.getAttribute('role') === 'switch' && !!voice.getAttribute('aria-label'),
+                    activeFilter: getComputedStyle(active).filter, inactiveFilter: getComputedStyle(inactive).filter,
+                    noOverlap: voiceBounds.right <= themeBounds.left &&
+                        (voiceBounds.left >= titleBounds.right || voiceBounds.bottom <= titleBounds.top),
+                    warningAtTop: document.getElementById('voice-warning').parentElement.tagName === 'MAIN',
                     english: [...document.querySelectorAll('#learning-content p[lang="en-GB"]')].length };
             })()`);
             assert.equal(layout.overflow, false, `${width}/${theme}`);
             assert.notEqual(layout.paper, 'rgba(0, 0, 0, 0)');
             assert.equal(layout.english, 7);
+            for (const key of ['oneButton', 'childFriendly', 'switchVisible', 'noOverlap', 'warningAtTop']) assert.equal(layout[key], true, `${width}/${theme}: ${key}`);
+            assert.equal(layout.activeFilter, 'none');
+            assert.equal(layout.inactiveFilter, 'grayscale(1)');
             await capture(`english-${width}-${theme}`);
         }
     }
