@@ -110,7 +110,8 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .callout-fun .card-icon { display: inline-grid; place-items: center; min-width: 2rem; min-height: 2rem; border-radius: 50%; background: color-mix(in srgb, var(--fun) 20%, transparent); }
 .callout-quote { --callout: var(--teal); font-style: italic; margin-inline: 0; }
 .comic-context { overflow-wrap: anywhere; }
-.comic-panel-description, .comic-description-note, .comic-guidance { color: var(--muted); font-size: .95rem; line-height: 1.6; margin-block: .75rem; }
+.comic-context h2 { margin-top: 0; color: var(--primary); }
+.comic-panel-description, .comic-description-note { color: var(--muted); font-size: .95rem; line-height: 1.6; margin-block: .75rem; }
 .comic-panel-description p { margin: .25rem 0; }
 .original-text { white-space: pre-wrap; }
 .original-text:has(> :nth-child(2)) { white-space: normal; }

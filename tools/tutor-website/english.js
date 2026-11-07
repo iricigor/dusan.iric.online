@@ -198,16 +198,17 @@ function subjectForLesson(lesson) {
             if (!source.original.some(section => section.panelDescription)) return;
             const introduction = node('div', undefined, 'comic-context');
             introduction.lang = 'cs-CZ';
-            if (source.comicIntroduction) introduction.append(node('p', source.comicIntroduction, 'comic-introduction'));
-            introduction.append(node('p',
+            introduction.append(node('h2', 'Jak číst přepis'), node('p', [
+                source.comicIntroduction,
                 'Menší český text popisuje obrázky. Text z komiksu je přepsaný beze změn.',
-                'comic-description-note'));
-            if (source.comicGuidance) {
-                const guidance = node('aside', undefined, 'comic-guidance');
-                guidance.append(node('strong', 'Obecné pokyny: '), node('span', source.comicGuidance));
-                introduction.append(guidance);
-            }
+                source.comicGuidance || 'Čti obrázky postupně. Anglický text každého obrázku si můžeš také poslechnout.'
+            ].filter(Boolean).join(' '), 'comic-description-note'));
             $('original-content').append(introduction);
+        },
+        renderOriginalControls({ speech }, article, section) {
+            if (section.language === 'en-GB' && section.text.trim()) {
+                article.append(speech.controls({ text: section.text, language: section.language }));
+            }
         },
         renderOriginalNotes({ node }, article, section, index) {
             notes.filter(note => note.section === index).forEach(note => {

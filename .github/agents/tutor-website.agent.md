@@ -109,7 +109,12 @@ speech requires a local English voice for offline playback; report actual
 voice/audio verification separately from mocked lifecycle checks.
 Do not show routine voice-available notices. Use one specially formatted
 unavailable-voice warning near the top and one child-friendly play/pause/resume
-button per passage. Keep playback failures explicit. Pause playback deadlines
+button per passage. Keep playback failures explicit.
+On Původní text, automatically add one listening control to each
+nonempty English original section, including comic panels and source
+explanations. Read its exact `text`, excluding headings, Czech descriptions and
+correction notes, without requiring authored audio fields. Silent panels and
+Czech original sections have no English listening control. Pause playback deadlines
 while paused. When documented installed local English male/female voices are
 both available, show one top-right emoji switch with gray inactive and colored
 active states; hide it for unclassified or incomplete pairs. Stop playback when
@@ -129,11 +134,13 @@ secondary to the original text: use smaller,
 muted text without an attention-grabbing callout border or background, maintaining
 readable contrast in both themes. The original English text remains primary.
 Do not add repeated internal titles such as "Autorský popis", "Popis obrázku" or
-"Text z obrázku". Explain Czech descriptions with a single, small, muted note
-near the top of Původní text, without a banner, border, icon or extra heading.
+"Text z obrázku". Explain Czech descriptions in one small, muted opening paragraph
+under "Jak číst přepis", without a banner, border or icon. Combine the note,
+optional comic introduction and general reading guidance in that paragraph.
+Keep this block left of the QR code on wider screens and above it on mobile.
 Keep optional Czech `comicIntroduction` and `comicGuidance` outside the original
-text and panel cards. Render the introduction as plain prose and label separate
-general guidance "Obecné pokyny" once. Do not invent an introduction when omitted;
+text and panel cards. Render both as plain prose in the combined paragraph, not
+separate headings or guidance callouts. Do not invent an introduction when omitted;
 return incoherent, generic or unsupported introductory content to the English
 tutor for revision. Both optional fields require a described comic panel.
 Image interpretation and transcription confirmation belong to the

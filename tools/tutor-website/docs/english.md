@@ -37,7 +37,7 @@ description visibly inside the same section but outside the verbatim
 `.original-text`. Descriptions use smaller, muted text without a prominent
 callout border or tinted background, keeping the original English text visually
 primary while preserving readable contrast in both themes. Rely on the single,
-subdued note near the top for the distinction; do not repeat internal titles such as
+subdued opening paragraph under **Jak číst přepis** for the distinction; do not repeat internal titles such as
 **Autorský popis**, **Popis obrázku** or **Text z obrázku** within each panel.
 Keep only the panel's own heading.
 Do not merge panels into a summary, silently correct
@@ -59,8 +59,10 @@ are authored Czech guidance and do not contribute to `contentSize.englishWords`.
 
 The website explains Czech descriptions once near the top of **Původní text**:
 "Menší český text popisuje obrázky. Text z komiksu je přepsaný beze změn."
-This is a small, muted, readable paragraph, not a banner or heading. Do not
-duplicate it in an authored introduction or invent a source section for it.
+This is part of one small, muted, readable opening paragraph under **Jak číst
+přepis**, to the left of the QR code on wider screens and above it on mobile.
+It is not a banner. Do not duplicate it in an authored introduction or invent
+a source section for it.
 It appears only for lessons with a described comic panel.
 
 An optional top-level `comicIntroduction` can provide one or two child-friendly
@@ -78,8 +80,11 @@ optional `comicGuidance` field instead:
 ```
 
 These are lesson-level fields, not part of an `original` section. The website
-renders guidance under **Obecné pokyny** near the top; do not include the label
-in the string or repeat it inside panels. Both fields are optional nonblank
+combines the introduction, description note and guidance into the single opening
+paragraph under **Jak číst přepis**; do not include headings in the strings or
+repeat guidance inside panels. When guidance is omitted, the website provides
+short instructions to read panels in order and listen to their English text.
+Both fields are optional nonblank
 plain text, English-only, and require at least one original section with
 `panelDescription`. They remain outside the verbatim source, do not change
 section indices, and do not count toward `contentSize.englishWords`.
@@ -233,6 +238,14 @@ pairs. Do not declare a meaning task merely to bypass a grammar or spelling
 requirement.
 
 ## Listening and shared UI
+
+On **Původní text**, every nonempty `original` section marked `en-GB`
+automatically receives its own listening control. Use one section per comic
+panel or original explanation section. Playback reads that section's exact
+`text`, including original spelling and punctuation, not headings, Czech panel
+descriptions, styled paragraph labels or correction notes. No new audio field
+is required. Silent panels and Czech original sections have no English
+listening control. These controls reuse the same player as learning and quizzes.
 
 `speech.js` owns browser Speech Synthesis, with a local English voice and a
 slower playback rate. Local voices avoid dependence on remote voice services.

@@ -12,6 +12,31 @@ const { selectExercises, scoreExercise, subjectForLesson, contentSize, originalN
 const { MODES } = require('../runtime.js');
 const lesson = require('../examples/my-collections.json');
 
+test('original listening passes exact English section text to the shared player only', () => {
+    const adapter = subjectForLesson(lesson);
+    const audio = [];
+    const children = [];
+    const context = { speech: { controls: value => { audio.push(value); return value; } } };
+    const article = { append: child => children.push(child) };
+    const sections = [
+        { language: 'en-GB', text: 'Look!\nMy collektion!', panelDescription: 'Dítě ukazuje sbírku.' },
+        { language: 'en-GB', text: '"Wow!"\n\nIt\'s big!', paragraphs: [
+            { style: 'quote', text: '"Wow!"' }, { style: 'plain', text: 'It\'s big!' }
+        ] },
+        { language: 'en-GB', text: 'Use have got with I and you.' },
+        { language: 'en-GB', text: '', panelDescription: 'Tichý obrázek.' },
+        { language: 'cs-CZ', text: 'České vysvětlení.' },
+        { text: 'An unmarked section.' }
+    ];
+    const before = structuredClone(sections);
+    sections.forEach(section => adapter.renderOriginalControls(context, article, section));
+    assert.deepEqual(audio, sections.slice(0, 3).map(section => ({
+        text: section.text, language: 'en-GB'
+    })));
+    assert.deepEqual(children, audio);
+    assert.deepEqual(sections, before);
+});
+
 test('English comics preserve separate panel descriptions and exact image text, including silent panels', () => {
     const source = structuredClone(lesson);
     source.original = [

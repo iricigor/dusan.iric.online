@@ -61,8 +61,8 @@ do not add speaker labels that are not in the image. Keep authored descriptions
 outside the transcription and do not replace the comic with a combined summary.
 Descriptions must remain visibly inside their own panel section and visually
 secondary to the original English image text; the website owns their smaller,
-muted, readable styling. Rely on the website's single, subdued note near the
-top for the distinction; do not
+muted, readable styling. Rely on the website's single, subdued opening paragraph
+under "Jak číst přepis" for the distinction; do not
 add repeated internal titles such as "Autorský popis", "Popis obrázku" or
 "Text z obrázku" to descriptions or panel text. Keep only the panel's own heading.
 Do not author another banner or source section explaining the Czech descriptions.
@@ -70,14 +70,22 @@ If an introduction helps, use optional `comicIntroduction`: one or two clear
 Czech sentences grounded in the actual comic, with a logical connection between
 them and no invented characters, events or motives. Omit it rather than add
 generic filler. Put general reading/study guidance in optional `comicGuidance`,
-not in the story introduction or source text. The website labels it "Obecné
-pokyny" once near the top. Do not include that label in the authored string.
+not in the story introduction or source text. The website combines it with the
+Czech-description note in one opening paragraph under "Jak číst přepis", left
+of the QR code on wider screens and above it on mobile. Do not author a
+duplicate guidance heading, paragraph or original section.
 Review the introduction for coherence and child-friendly language, and check
 that general guidance is clearly distinguished from the comic's content.
 A panel with no text still needs its own description and `text: ""`; never
 invent dialogue. Ask about unreadable text or ambiguous panel order, and confirm
 the panel-by-panel transcription with the user before generating the lesson.
 Apply spelling notes to each panel's original text without changing it.
+Keep English explanatory source material in separate `original` sections too.
+The website automatically adds one listening control per nonempty English
+original section, including each comic panel and explanation section. It reads
+only that section's verbatim `text`, not headings, Czech descriptions or
+correction notes. No authored audio field is needed; silent panels and Czech
+original sections do not receive English listening controls.
 
 For a short topic name, author original material with the coverage and scale of
 two short textbook pages. Use `authoringRequirements.topicOnlyEnglishWords`:
