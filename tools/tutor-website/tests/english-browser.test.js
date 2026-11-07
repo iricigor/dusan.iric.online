@@ -62,7 +62,12 @@ test('English comic panels and spelling feedback preserve source text and distin
                 sourceLanguages: cards.map(card => card.querySelector('.original-text').lang),
                 descriptionSeparate: cards.every(card => !card.querySelector('.original-text .comic-panel-description')),
                 descriptionLiteral: !cards[0].querySelector('.comic-panel-description b'),
-                silent: cards[2].textContent.includes('Obrázek neobsahuje text.'),
+                descriptionIntegrated: cards.every(card => card.querySelector('.comic-panel-description').parentElement === card),
+                noRepeatedTitles: cards.every(card => card.querySelectorAll('h2').length === 1 &&
+                    !card.querySelector('.comic-panel-label') &&
+                    !['Autorský popis', 'Popis obrázku:', 'Text z obrázku:'].some(title => card.textContent.includes(title))),
+                silent: cards[2].querySelector('.original-text').textContent === '' &&
+                    cards[2].querySelector('.comic-panel-description').checkVisibility(),
                 labels: notes.map(note => note.querySelector('strong').textContent),
                 noteCounts: cards.map(card => card.querySelectorAll('.original-note').length),
                 marks: cards.map(card => card.querySelectorAll('.correction').length),
@@ -82,7 +87,7 @@ test('English comic panels and spelling feedback preserve source text and distin
         assert.deepEqual(feedback.labels, ['Pravopisná chyba: ',
             ...Array(count >= 3 ? count : 0).fill('Pravopisná varianta (UK/US): ')]);
         for (const key of ['visible', 'literal', 'highlighted', 'popupOpen', 'focusRestored',
-            'descriptionSeparate', 'descriptionLiteral', 'silent']) assert.equal(feedback[key], true, key);
+            'descriptionSeparate', 'descriptionLiteral', 'descriptionIntegrated', 'noRepeatedTitles', 'silent']) assert.equal(feedback[key], true, key);
         if (count >= 3) {
             assert.equal(await evaluate(`(() => {
                 const variant = document.querySelector('.correction-variant');
@@ -105,7 +110,6 @@ test('English comic panels and spelling feedback preserve source text and distin
                     const label = document.querySelector('.original-note.callout-note strong');
                     const description = getComputedStyle(original.querySelector('.comic-panel-description'));
                     const source = getComputedStyle(original.querySelector('.original-text p'));
-                    const descriptionLabel = original.querySelector('.comic-panel-label');
                     const luminance = color => {
                         const rgb = color.match(/[\\d.]+/g).slice(0, 3).map(value => {
                             const channel = Number(value) / (color.startsWith('color(srgb') ? 1 : 255);
@@ -125,8 +129,12 @@ test('English comic panels and spelling feedback preserve source text and distin
                         descriptionColor: description.color,
                         sourceColor: source.color,
                         smallerDescription: parseFloat(description.fontSize) < parseFloat(source.fontSize),
-                        descriptionLabel: descriptionLabel.textContent,
-                        labelColor: getComputedStyle(descriptionLabel).color,
+                        descriptionsWithinCards: [...document.querySelectorAll('.comic-panel-description')].every(comment => {
+                            const bounds = comment.getBoundingClientRect();
+                            const card = comment.closest('#original-content .card').getBoundingClientRect();
+                            return bounds.top >= card.top && bounds.bottom <= card.bottom &&
+                                bounds.left >= card.left && bounds.right <= card.right;
+                        }),
                         descriptionBorder: description.borderLeftWidth,
                         descriptionBackground: description.backgroundColor,
                         overflow: document.documentElement.scrollWidth > innerWidth
@@ -141,8 +149,7 @@ test('English comic panels and spelling feedback preserve source text and distin
                 assert.equal(colors.smallerDescription, true);
                 assert.equal(colors.descriptionColor, theme === 'light' ? 'rgb(71, 85, 105)' : 'rgb(203, 213, 225)');
                 assert.notEqual(colors.descriptionColor, colors.sourceColor);
-                assert.equal(colors.descriptionLabel, 'Popis obrázku: ');
-                assert.equal(colors.labelColor, colors.descriptionColor);
+                assert.equal(colors.descriptionsWithinCards, true);
                 assert.equal(colors.descriptionBorder, '0px');
                 assert.equal(colors.descriptionBackground, 'rgba(0, 0, 0, 0)');
                 assert.equal(colors.overflow, false);

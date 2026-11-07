@@ -114,9 +114,12 @@ Comic panels use separate English `original` sections in reading order, each
 with a Czech `panelDescription` and verbatim image `text`. Render the description
 separately from source text; retain silent panels with `text: ""` rather than
 inventing dialogue. Verify each panel's source preservation and description
-separation. Keep the description label and text visually secondary: use smaller,
+separation. Keep each description inside its own panel card and visually
+secondary to the original text: use smaller,
 muted text without an attention-grabbing callout border or background, maintaining
 readable contrast in both themes. The original English text remains primary.
+Do not add repeated internal titles such as "Autorský popis", "Popis obrázku" or
+"Text z obrázku"; the introduction explains the distinction.
 Image interpretation and transcription confirmation belong to the
 English tutor.
 

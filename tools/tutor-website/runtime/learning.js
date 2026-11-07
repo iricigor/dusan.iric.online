@@ -251,8 +251,8 @@ function initializeTutorLearning(lesson, subject) {
         if (section.panelDescription) {
             const description = node('aside', undefined, 'comic-panel-description');
             description.lang = 'cs-CZ';
-            description.append(node('span', 'Popis obrázku: ', 'comic-panel-label'), node('p', section.panelDescription));
-            article.append(description, node('p', section.text ? 'Text z obrázku:' : 'Obrázek neobsahuje text.'));
+            description.append(node('p', section.panelDescription));
+            article.append(description);
         }
         const text = node('div', undefined, 'original-text');
         if (section.language) text.lang = section.language;

@@ -32,17 +32,20 @@ text verbatim in `text`, including spelling, capitalization and punctuation:
 }
 ```
 
-The original-text page displays each panel in its own card. Authored visual
-descriptions are explicitly labelled **Popis obrázku** and remain outside the
-verbatim `.original-text`. The label and description use smaller, muted text
-without a prominent callout border or tinted background, keeping the original
-English text visually primary while preserving readable contrast in both themes.
+The original-text page displays each panel in its own card, with its visual
+description visibly inside the same section but outside the verbatim
+`.original-text`. Descriptions use smaller, muted text without a prominent
+callout border or tinted background, keeping the original English text visually
+primary while preserving readable contrast in both themes. Rely on the
+introduction for the distinction; do not repeat internal titles such as
+**Autorský popis**, **Popis obrázku** or **Text z obrázku** within each panel.
+Keep only the panel's own heading.
 Do not merge panels into a summary, silently correct
 dialogue or invent speaker labels. Preserve distinct text blocks in reading
 order; optional styled paragraphs must still reproduce `text` exactly.
 
-For a silent panel, provide its description and `text: ""`. The page explicitly
-states that the panel has no text; do not invent dialogue. Empty text is allowed
+For a silent panel, provide its description and `text: ""`. The panel still
+appears with its description, without invented dialogue. Empty text is allowed
 only for described English comic panels, not ordinary source sections. Whitespace
 alone is not a transcription. Other subjects cannot use `panelDescription`.
 

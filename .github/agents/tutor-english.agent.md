@@ -59,8 +59,11 @@ numbered Czech `heading`, a Czech `panelDescription` of the visible scene and
 other visible text verbatim, including spelling, capitalization and punctuation;
 do not add speaker labels that are not in the image. Keep authored descriptions
 outside the transcription and do not replace the comic with a combined summary.
-Descriptions must be clearly labelled but visually secondary to the original
-English image text; the website owns their smaller, muted, readable styling.
+Descriptions must remain visibly inside their own panel section and visually
+secondary to the original English image text; the website owns their smaller,
+muted, readable styling. Rely on the introduction for the distinction; do not
+add repeated internal titles such as "Autorský popis", "Popis obrázku" or
+"Text z obrázku" to descriptions or panel text. Keep only the panel's own heading.
 A panel with no text still needs its own description and `text: ""`; never
 invent dialogue. Ask about unreadable text or ambiguous panel order, and confirm
 the panel-by-panel transcription with the user before generating the lesson.
