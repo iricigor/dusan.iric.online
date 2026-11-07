@@ -241,7 +241,12 @@ function initializeTutorLearning(lesson, subject) {
     const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
         styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
             { target: target ? `${target}.${index}.text` : undefined }), block.style));
-    const speech = subject.listening ? initializeTutorSpeech({ node, button }) : null;
+    const speech = subject.listening ? initializeTutorSpeech({ node, button, compact: subject.compactListening }) : null;
+    if (speech?.voiceSelector) {
+        document.body.dataset.listeningUi = 'compact';
+        $('page-header').querySelector('.lesson-tools').prepend(speech.voiceSelector);
+        document.querySelector('main').prepend(speech.notice);
+    }
     const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading, speech };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
@@ -256,6 +261,7 @@ function initializeTutorLearning(lesson, subject) {
         (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
             if (blockIndex) text.append(document.createTextNode('\n\n'));
             const content = node(block.style === 'quote' ? 'blockquote' : 'p');
+            if (block.language) content.lang = block.language;
             const source = node('span', undefined, 'highlight-text');
             let offset = 0;
             for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
@@ -274,6 +280,8 @@ function initializeTutorLearning(lesson, subject) {
         });
         styleParagraph(article, section.style);
         article.append(text);
+        const audio = subject.originalAudio?.(section);
+        if (audio) article.append(speech.controls(audio, { mode: 'stop' }));
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);

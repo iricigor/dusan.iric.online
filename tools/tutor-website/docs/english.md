@@ -108,6 +108,49 @@ declare a meaning task merely to bypass a grammar or spelling requirement.
 
 ## Listening and shared UI
 
+### Opt-in compact listening
+
+Set `"listeningUi": "compact"` on an English v5 lesson to opt in to a
+single Play/Pause/Resume button in learning and quizzes, a single availability
+warning near the top, and a shared male/female voice selector. Original English
+sections additionally get one Play/Stop button each. Without this field, existing
+lessons keep their two-button controls and per-clip status messages. This option
+does not change quizzes, scoring, result storage or the page accent color.
+
+For styled original sections, declare `language` on **every paragraph** when
+opting in. Playback includes only `en-GB` paragraphs; Czech descriptions and
+guidance are omitted. Paragraph text must still reconstruct `original.text`
+exactly with blank-line separators. For example:
+
+```json
+{
+  "heading": "Komiks — obrázek 1",
+  "language": "en-GB",
+  "text": "Dvě děti slaví narozeniny.\n\nIt's our birthday!",
+  "paragraphs": [
+    { "style": "comment", "language": "cs-CZ", "text": "Dvě děti slaví narozeniny." },
+    { "style": "plain", "language": "en-GB", "text": "It's our birthday!" }
+  ]
+}
+```
+
+Original playback reads the preserved text, not unavailable textbook recordings
+or answers to blanks. It uses the same local device voice as authored listening.
+The browser does not provide voice gender. The selector recognizes only verified
+Microsoft US voice names: David and Mark (male), Zira (female), as listed in
+[Microsoft's supported Narrator voices](https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices).
+Unknown voices are not guessed or mislabeled; a usable unrecognized English voice
+can still play, with the selector disabled and an explanation. Missing choices
+are disabled. If a selected voice disappears, playback does not silently switch
+to another voice. Availability updates when voices load.
+
+Pause/resume keeps the same utterance. Starting another clip or switching voices
+cancels the current one, including paused playback. Playback errors remain visible
+at the affected clip; routine state announcements are accessible but not repeated
+as visible availability comments. Completion, navigation and quiz submission
+reset playback. No microphone, remote voice or automatic speaking assessment
+is added.
+
 `speech.js` owns browser Speech Synthesis, with a local English voice and a
 slower playback rate. Local voices avoid dependence on remote voice services.
 There are no external audio URLs, microphone permissions, recognition or

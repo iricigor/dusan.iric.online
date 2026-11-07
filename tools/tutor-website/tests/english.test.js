@@ -138,3 +138,33 @@ test('English validation rejects mismatched, unsafe or ambiguous authoring witho
     };
     assert.throws(() => validateLesson('history', history), /only supported for English/);
 });
+
+test('compact listening is opt-in and original playback respects explicit paragraph languages', () => {
+    const copy = structuredClone(lesson);
+    copy.listeningUi = 'compact';
+    copy.original = [{
+        heading: 'Komiks', language: 'en-GB',
+        text: "Dvě děti slaví narozeniny.\n\nIt's our birthday!",
+        paragraphs: [
+            { style: 'comment', language: 'cs-CZ', text: 'Dvě děti slaví narozeniny.' },
+            { style: 'plain', language: 'en-GB', text: "It's our birthday!" }
+        ]
+    }];
+    assert.equal(validateLesson('english', copy), copy);
+    assert.equal(subjectForLesson(copy).compactListening, true);
+    assert.deepEqual(subjectForLesson(copy).originalAudio(copy.original[0]), { text: "It's our birthday!", language: 'en-GB' });
+    assert.equal(contentSize(copy).englishWords, contentSize(lesson).englishWords + 3);
+    assert.equal(subjectForLesson(copy).originalAudio({ language: 'cs-CZ', text: 'Pouze český popis.' }), null);
+    assert.equal(subjectForLesson(lesson).compactListening, false);
+    assert.equal(subjectForLesson(lesson).originalAudio(copy.original[0]), null);
+    delete copy.original[0].paragraphs[0].language;
+    assert.throws(() => validateLesson('english', copy), /explicit paragraph language/);
+    copy.listeningUi = 'unsupported';
+    assert.throws(() => validateLesson('english', copy), /compact/);
+    const maths = structuredClone(require('../examples/zlomky-a-prevody-delky.json'));
+    maths.listeningUi = 'compact';
+    assert.throws(() => validateLesson('maths', maths), /Invalid maths/);
+    delete maths.listeningUi;
+    maths.original[0].paragraphs = [{ style: 'plain', language: 'cs-CZ', text: maths.original[0].text }];
+    assert.throws(() => validateLesson('maths', maths), /English-only/);
+});

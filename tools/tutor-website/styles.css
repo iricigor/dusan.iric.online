@@ -35,6 +35,16 @@ body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-pa
 body[data-subject="english"] { --subject-accent: var(--english-accent); --subject-paper: var(--card); --subject-pattern: linear-gradient(transparent 95%, color-mix(in srgb, var(--subject-accent) 8%, transparent) 95%); --subject-pattern-size: 100% 1.5rem; }
 .listening-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
 .listening-controls p { flex-basis: 100%; margin: 0; }
+.listening-compact .listening-toggle { display: inline-flex; align-items: center; gap: .6rem; border-radius: 2rem; padding: .4rem 1rem .4rem .4rem; border-color: color-mix(in srgb, var(--subject-accent) 55%, var(--border)); background: color-mix(in srgb, var(--subject-accent) 10%, var(--card)); font-weight: bold; }
+.listening-icon { display: inline-grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; color: var(--subject-accent); background: var(--card); }
+.listening-toggle[aria-pressed="true"] { border-color: var(--subject-accent); box-shadow: inset 0 0 0 1px var(--subject-accent); }
+.voice-selector { display: flex; flex: 0 0 auto; gap: .3rem; margin-right: auto; }
+.voice-selector button { display: grid; place-items: center; width: 44px; height: 44px; padding: .25rem; border-radius: 50%; font-size: 1.35rem; }
+.voice-selector button[aria-pressed="true"] { border-color: var(--subject-accent); background: color-mix(in srgb, var(--subject-accent) 18%, var(--card)); box-shadow: inset 0 0 0 2px var(--subject-accent); }
+.voice-selector button:disabled, .listening-toggle:disabled { opacity: .5; }
+.listening-notice, .listening-error { border-left: 4px solid var(--warning); padding: .75rem 1rem; border-radius: .5rem; background: color-mix(in srgb, var(--warning) 12%, var(--card)); }
+.listening-notice { margin-top: 0; }
+.listening-controls .listening-error { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 9%, var(--card)); }
 #question-material { overflow-wrap: anywhere; }
 body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
 body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }

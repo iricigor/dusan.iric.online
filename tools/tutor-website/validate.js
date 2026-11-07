@@ -138,6 +138,14 @@ function validateLesson(subject, lesson) {
         }
     });
     lesson.original.forEach((section, index) => {
+        (section.paragraphs || []).forEach((block, blockIndex) => {
+            if (lesson.listeningUi === 'compact' && !block.language) {
+                errors.push(`$.original[${index}].paragraphs[${blockIndex}].language: compact playback requires an explicit paragraph language`);
+            }
+            if (block.language && subject !== 'english') {
+                errors.push(`$.original[${index}].paragraphs[${blockIndex}].language: paragraph languages are English-only`);
+            }
+        });
         if (section.paragraphs && section.paragraphs.map(block => block.text).join('\n\n') !== section.text) {
             errors.push(`$.original[${index}].paragraphs: text joined by blank lines must exactly preserve the original section text`);
         }
