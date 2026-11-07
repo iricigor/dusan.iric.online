@@ -248,6 +248,12 @@ function initializeTutorLearning(lesson, subject) {
     lesson.original.forEach((section, index) => {
         const article = node('article', undefined, 'card');
         article.append(heading(section.heading, section.icon, '📄'));
+        if (section.panelDescription) {
+            const description = node('aside', undefined, 'comic-panel-description callout');
+            description.lang = 'cs-CZ';
+            description.append(node('strong', 'Popis obrázku: ', 'callout-label'), node('p', section.panelDescription));
+            article.append(description, node('p', section.text ? 'Text z obrázku:' : 'Obrázek neobsahuje text.'));
+        }
         const text = node('div', undefined, 'original-text');
         if (section.language) text.lang = section.language;
         const corrections = (subject.originalCorrections || lesson.corrections || []).filter(correction => correction.section === index)

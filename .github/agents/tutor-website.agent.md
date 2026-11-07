@@ -110,6 +110,12 @@ quotes within a single styled paragraph. Ignore one or two UK/US variant
 occurrences across all original sections; show three or more as neutral
 consistency notes, never mistakes. Educational classification belongs to the
 English tutor; the website owns rendering and the threshold.
+Comic panels use separate English `original` sections in reading order, each
+with a Czech `panelDescription` and verbatim image `text`. Render the description
+separately from source text; retain silent panels with `text: ""` rather than
+inventing dialogue. Verify each panel's source preservation and description
+separation. Image interpretation and transcription confirmation belong to the
+English tutor.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
 the shared Původní text, Učit se and Hrát si tabs and name/nickname-required

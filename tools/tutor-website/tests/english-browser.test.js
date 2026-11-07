@@ -10,20 +10,22 @@ const { renderLesson } = require('../build.js');
 const lesson = require('../examples/my-collections.json');
 const { browserPath, openBrowser } = require('./helpers/browser.js');
 
-test('English original spelling feedback preserves source text and distinguishes UK/US notes in orange themes', {
+test('English comic panels and spelling feedback preserve source text and distinguish UK/US notes in orange themes', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
 }, async t => {
     const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
     const source = structuredClone(lesson);
     source.original = [
-        { heading: 'První zdroj', language: 'en-GB', text: 'I have a collektion. My favorite colour is orange.' },
-        { heading: 'Druhý zdroj', language: 'en-GB',
+        { heading: 'Komiks – obrázek 1', language: 'en-GB', panelDescription: 'Dítě ukazuje sbírku. <b>Popis není HTML.</b>',
+            text: 'I have a collektion.\nMy "favorite" colour is orange!' },
+        { heading: 'Komiks – obrázek 2', language: 'en-GB', panelDescription: 'Kamarád prohlíží barevnou vitrínu.',
             text: 'This center has a colourful display.\n\nMy neighbour likes its organization and color.',
             paragraphs: [
                 { style: 'plain', text: 'This center has a colourful display.' },
                 { style: 'quote', text: 'My neighbour likes its organization and color.' }
-            ] }
+            ] },
+        { heading: 'Komiks – obrázek 3', language: 'en-GB', panelDescription: 'Děti odcházejí společně.', text: '' }
     ];
     const spelling = { section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection. <b>Text není HTML.</b>' };
     const variants = ['favorite', 'center', 'organization', 'color'].map((quote, index) => ({
@@ -37,7 +39,7 @@ test('English original spelling feedback preserves source text and distinguishes
         await client.send('Page.navigate', { url: pathToFileURL(file).href });
         let ready = false;
         for (let attempt = 0; attempt < 100; attempt++) {
-            ready = await evaluate(`document.querySelectorAll('#original-content .card').length === 2`);
+            ready = await evaluate(`document.querySelectorAll('#original-content .card').length === 3`);
             if (ready) break;
             await delay(20);
         }
@@ -54,6 +56,13 @@ test('English original spelling feedback preserves source text and distinguishes
             document.getElementById('definition-close').click();
             return {
                 originals: cards.map(card => card.querySelector('.original-text').textContent),
+                headings: cards.map(card => card.querySelector('.heading-text').textContent),
+                descriptions: cards.map(card => card.querySelector('.comic-panel-description p').textContent),
+                descriptionLanguages: cards.map(card => card.querySelector('.comic-panel-description').lang),
+                sourceLanguages: cards.map(card => card.querySelector('.original-text').lang),
+                descriptionSeparate: cards.every(card => !card.querySelector('.original-text .comic-panel-description')),
+                descriptionLiteral: !cards[0].querySelector('.comic-panel-description b'),
+                silent: cards[2].textContent.includes('Obrázek neobsahuje text.'),
                 labels: notes.map(note => note.querySelector('strong').textContent),
                 noteCounts: cards.map(card => card.querySelectorAll('.original-note').length),
                 marks: cards.map(card => card.querySelectorAll('.correction').length),
@@ -64,11 +73,16 @@ test('English original spelling feedback preserves source text and distinguishes
             };
         })()`);
         assert.deepEqual(feedback.originals, source.original.map(section => section.text));
-        assert.deepEqual(feedback.noteCounts, count >= 3 ? [2, count - 1] : [1, 0]);
+        assert.deepEqual(feedback.headings, source.original.map(section => section.heading));
+        assert.deepEqual(feedback.descriptions, source.original.map(section => section.panelDescription));
+        assert.deepEqual(feedback.descriptionLanguages, ['cs-CZ', 'cs-CZ', 'cs-CZ']);
+        assert.deepEqual(feedback.sourceLanguages, ['en-GB', 'en-GB', 'en-GB']);
+        assert.deepEqual(feedback.noteCounts, count >= 3 ? [2, count - 1, 0] : [1, 0, 0]);
         assert.deepEqual(feedback.marks, feedback.noteCounts);
         assert.deepEqual(feedback.labels, ['Pravopisná chyba: ',
             ...Array(count >= 3 ? count : 0).fill('Pravopisná varianta (UK/US): ')]);
-        for (const key of ['visible', 'literal', 'highlighted', 'popupOpen', 'focusRestored']) assert.equal(feedback[key], true, key);
+        for (const key of ['visible', 'literal', 'highlighted', 'popupOpen', 'focusRestored',
+            'descriptionSeparate', 'descriptionLiteral', 'silent']) assert.equal(feedback[key], true, key);
         if (count >= 3) {
             assert.equal(await evaluate(`(() => {
                 const variant = document.querySelector('.correction-variant');

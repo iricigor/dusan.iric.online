@@ -16,6 +16,39 @@ text exactly and explain corrections separately in `review`, with matching
 quotations; do not silently repair originals. Confirm image transcriptions
 before lesson generation and disclose missing referenced stories or recordings.
 
+### Comics
+
+Inspect every panel separately and preserve reading order. Use one `original`
+section per panel with a numbered Czech heading and a Czech `panelDescription`
+describing only what is visible. Keep all dialogue, captions and other image
+text verbatim in `text`, including spelling, capitalization and punctuation:
+
+```json
+{
+  "heading": "Komiks – obrázek 1",
+  "language": "en-GB",
+  "panelDescription": "Dítě ukazuje kamarádovi krabici se svou sbírkou.",
+  "text": "Look! My collektion!"
+}
+```
+
+The original-text page displays each panel in its own card. Authored visual
+descriptions are explicitly labelled **Popis obrázku** and remain outside the
+verbatim `.original-text`. Do not merge panels into a summary, silently correct
+dialogue or invent speaker labels. Preserve distinct text blocks in reading
+order; optional styled paragraphs must still reproduce `text` exactly.
+
+For a silent panel, provide its description and `text: ""`. The page explicitly
+states that the panel has no text; do not invent dialogue. Empty text is allowed
+only for described English comic panels, not ordinary source sections. Whitespace
+alone is not a transcription. Other subjects cannot use `panelDescription`.
+
+Confirm the panel-by-panel transcription with the user before generating a
+lesson. Ask about unreadable text, missing panels or ambiguous reading order
+rather than guessing. Spelling notes still refer to the panel's zero-based
+original section and leave its transcription unchanged. Visual descriptions
+are authored Czech guidance and do not contribute to `contentSize.englishWords`.
+
 ### Original-text spelling feedback
 
 English uses an orange accent in both light and dark themes. Genuine spelling

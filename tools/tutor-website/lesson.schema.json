@@ -48,11 +48,17 @@
         "properties": {
           "heading": { "$ref": "#/$defs/text" },
           "icon": { "$ref": "#/$defs/icon" },
-          "text": { "$ref": "#/$defs/text" },
+          "text": { "type": "string" },
+          "panelDescription": { "$ref": "#/$defs/text" },
           "language": { "enum": ["cs-CZ", "en-GB"] },
           "style": { "$ref": "#/$defs/originalStyle" },
           "paragraphs": { "$ref": "#/$defs/originalParagraphs" }
-        }
+        },
+        "allOf": [{
+          "if": { "required": ["panelDescription"] },
+          "then": { "properties": { "text": { "anyOf": [{ "const": "" }, { "$ref": "#/$defs/text" }] } } },
+          "else": { "properties": { "text": { "$ref": "#/$defs/text" } } }
+        }]
       }
     },
     "glossary": {
@@ -153,7 +159,10 @@
         }
       },
       "else": {
-        "properties": { "subject": { "enum": ["history", "maths"] } },
+        "properties": {
+          "subject": { "enum": ["history", "maths"] },
+          "original": { "items": { "not": { "required": ["panelDescription"] } } }
+        },
         "not": { "required": ["originalNotes"] }
       }
     },

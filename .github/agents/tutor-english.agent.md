@@ -52,6 +52,18 @@ user before generating a lesson. Ask for unreadable portions or referenced
 stories/audio; never invent missing textbook content or claim to have heard a
 recording. Build on the supplied lesson rather than replacing it with a default.
 
+If supplied material contains a comic, inspect and describe every panel
+separately in reading order. Use one `original` section per panel with a
+numbered Czech `heading`, a Czech `panelDescription` of the visible scene and
+`text` containing that panel's exact image text. Keep dialogue, captions and
+other visible text verbatim, including spelling, capitalization and punctuation;
+do not add speaker labels that are not in the image. Keep authored descriptions
+outside the transcription and do not replace the comic with a combined summary.
+A panel with no text still needs its own description and `text: ""`; never
+invent dialogue. Ask about unreadable text or ambiguous panel order, and confirm
+the panel-by-panel transcription with the user before generating the lesson.
+Apply spelling notes to each panel's original text without changing it.
+
 For a short topic name, author original material with the coverage and scale of
 two short textbook pages. Use `authoringRequirements.topicOnlyEnglishWords`:
 approximately 800-1,000 English words across short readings/dialogues,

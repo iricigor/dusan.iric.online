@@ -12,6 +12,41 @@ const { selectExercises, scoreExercise, subjectForLesson, contentSize, originalN
 const { MODES } = require('../runtime.js');
 const lesson = require('../examples/my-collections.json');
 
+test('English comics preserve separate panel descriptions and exact image text, including silent panels', () => {
+    const source = structuredClone(lesson);
+    source.original = [
+        { heading: 'Obrázek 1', language: 'en-GB', panelDescription: 'Dítě ukazuje sbírku.', text: 'Look!\nMy collektion!' },
+        { heading: 'Obrázek 2', language: 'en-GB', panelDescription: 'Kamarád se usmívá.', text: '"Wow!"\n\nIt\'s big!',
+            paragraphs: [{ style: 'quote', text: '"Wow!"' }, { style: 'plain', text: 'It\'s big!' }] },
+        { heading: 'Obrázek 3', language: 'en-GB', panelDescription: 'Děti společně prohlížejí krabici.', text: '' }
+    ];
+    source.originalNotes = [{ section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection.' }];
+    const before = structuredClone(source);
+    assert.equal(validateLesson('english', source), source);
+    const html = renderLesson('english', source);
+    assert.deepEqual(JSON.parse(html.match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), source);
+    const plain = structuredClone(source);
+    plain.original.forEach(section => { delete section.panelDescription; });
+    assert.deepEqual(contentSize(source), contentSize(plain), 'Czech descriptions do not count as English source text');
+    assert.deepEqual(source, before);
+    const reject = (edit, pattern) => {
+        const copy = structuredClone(source);
+        edit(copy);
+        assert.throws(() => validateLesson('english', copy), pattern);
+    };
+    reject(copy => { delete copy.original[2].panelDescription; }, /blank/);
+    reject(copy => { copy.original[2].text = '  '; }, /allowed shape/);
+    reject(copy => { copy.original[0].panelDescription = ''; }, /blank/);
+    reject(copy => { copy.original[0].panelDescription = { html: 'description' }; }, /expected string/);
+    reject(copy => { delete copy.original[0].text; }, /missing text/);
+    reject(copy => { copy.original[1].paragraphs[0].text = 'Wow!'; }, /exactly preserve/);
+    for (const subject of ['history', 'maths']) {
+        const other = structuredClone(require(subject === 'history' ? '../examples/defenestrace.json' : '../examples/zlomky-a-prevody-delky.json'));
+        other.original[0].panelDescription = 'Popis obrázku.';
+        assert.throws(() => validateLesson(subject, other), /forbidden/);
+    }
+});
+
 test('original spelling notes are always visible and UK/US notes use a lesson-wide threshold', () => {
     assert.deepEqual(originalNotes(lesson), []);
     const spelling = { section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection.' };
