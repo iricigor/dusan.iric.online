@@ -254,3 +254,23 @@ test('compact cancellation failures are explicit and do not start overlapping cl
     assert.equal(page.utterances.length, 2);
     page.controller.stop();
 });
+
+test('failed cancellation preserves the original startup deadline', t => {
+    t.mock.method(console, 'error', () => {});
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = fixture([male, female], true, true);
+    const other = page.controller.controls({ text: 'Hello.', language: 'en-GB' });
+    page.play.click();
+    t.mock.timers.tick(5000);
+    const cancel = page.synthesis.cancel;
+    page.synthesis.cancel = () => { throw new Error('cancel failed'); };
+    other.children[0].click();
+    assert.equal(page.utterances.length, 1);
+    assert.match(page.status.textContent, /zastavit/);
+    page.synthesis.cancel = cancel;
+    t.mock.timers.tick(4999);
+    assert.equal(page.play.dataset.state, 'starting');
+    t.mock.timers.tick(1);
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.match(page.status.textContent, /nespustil/);
+});

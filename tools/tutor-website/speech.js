@@ -100,16 +100,15 @@ function initializeTutorSpeech({ node, button, compact = false }, host = window)
         if (!current) return true;
         const playing = current;
         current = null;
-        clearTimeout(deadline);
         try {
             synthesis.cancel();
         } catch (error) {
             current = playing;
-            if (playing.state === 'playing') watchPlayback(playing);
             console.error('Tutor: cannot stop English listening.', error);
             status(playing.control, 'Poslech se nepodařilo zastavit. Zkus to znovu.', true);
             return false;
         }
+        clearTimeout(deadline);
         updateButton(playing.control);
         status(playing.control, 'Poslech zastaven. Můžeš ho přehrát znovu.');
         return true;
