@@ -5,12 +5,227 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const vm = require('node:vm');
 const { capabilities, renderLesson, build } = require('../build.js');
 const { validateLesson } = require('../validate.js');
 const { knownWords, oneLetterApart } = require('../assessment.js');
-const { selectExercises, scoreExercise, subjectForLesson, contentSize, originalNotes } = require('../english.js');
+const { selectExercises, scoreExercise, subjectForLesson, contentSize, originalNotes, englishKnownWords, alignLetters } = require('../english.js');
 const { MODES } = require('../runtime.js');
 const lesson = require('../examples/my-collections.json');
+
+function writtenExercise(value, { difficulty = 'medium', skill = 'meaning', type = 'text', excludedWords = [] } = {}) {
+    return {
+        difficulty, skill, type, acceptedAnswers: [value], answerLanguage: 'en-GB',
+        assessment: {
+            input: 'text', exact: { type: 'string', value, normalization: 'language' },
+            ...(skill === 'meaning' ? { partial: { match: { type: 'typo', values: [value], excludedWords } } } : {})
+        }
+    };
+}
+
+test('typing alignment separates spelling operations from genuine capitalization differences', () => {
+    const exercise = writtenExercise('July');
+    for (const [raw, fraction, labels] of [
+        ['July', 1, []],
+        ['jJuly', 0.8, ['překlepy']],
+        ['july', 0.8, ['velká a malá písmena']],
+        ['juli', 0.6, ['velká a malá písmena', 'překlepy']],
+        ['Jly', 0.8, ['překlepy']],
+        ['jly', 0.6, ['velká a malá písmena', 'překlepy']],
+        ['uJly', 0.8, ['překlepy']],
+        ['ujly', 0.6, ['velká a malá písmena', 'překlepy']],
+        ['Jule', 0.8, ['překlepy']]
+    ]) {
+        const result = scoreExercise(exercise, [raw], new Set());
+        assert.equal(result.fraction, fraction, raw);
+        assert.deepEqual(result.assessment.mistakes.map(mistake => mistake.label), labels, raw);
+    }
+    assert.deepEqual(alignLetters('aAa', 'Aa'), { edits: 1, capitalization: 0, pairs: [[1, 0], [2, 1]] });
+    assert.deepEqual(alignLetters('uJly', 'July').pairs, [[0, 1], [1, 0], [2, 2], [3, 3]]);
+    assert.equal(scoreExercise(writtenExercise('Žába'), ['žába'], new Set()).fraction, 0.8);
+    assert.equal(scoreExercise(writtenExercise('Žába'), ['Zába'], new Set()).fraction, 0.8);
+});
+
+test('case-aware alignment preserves the existing adjacent-swap edit distance', () => {
+    const distance = (left, right) => {
+        const a = [...left.toLowerCase()], b = [...right.toLowerCase()];
+        const table = Array.from({ length: a.length + 1 }, () => Array(b.length + 1));
+        for (let i = 0; i <= a.length; i++) table[i][0] = i;
+        for (let j = 0; j <= b.length; j++) table[0][j] = j;
+        for (let i = 1; i <= a.length; i++) {
+            for (let j = 1; j <= b.length; j++) {
+                table[i][j] = Math.min(table[i - 1][j] + 1, table[i][j - 1] + 1,
+                    table[i - 1][j - 1] + Number(a[i - 1] !== b[j - 1]));
+                if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+                    table[i][j] = Math.min(table[i][j], table[i - 2][j - 2] + 1);
+                }
+            }
+        }
+        return table[a.length][b.length];
+    };
+    const words = [''];
+    let level = [''];
+    for (let size = 1; size <= 3; size++) {
+        level = level.flatMap(prefix => ['a', 'A', 'b'].map(letter => prefix + letter));
+        words.push(...level);
+    }
+    for (const left of words) {
+        for (const right of words) {
+            const result = alignLetters(left, right);
+            assert.equal(result.edits, distance(left, right), `${left}/${right}`);
+            assert.equal(result.capitalization, result.pairs.filter(([i, j]) =>
+                left[i].toLowerCase() === right[j].toLowerCase() && left[i] !== right[j]).length);
+        }
+    }
+});
+
+test('integer results keep historical storage intact and reject fractional new records explicitly', () => {
+    const source = fs.readFileSync(path.join(__dirname, '..', 'runtime', 'results.js'), 'utf8');
+    const subject = subjectForLesson(lesson);
+    const currentKey = `${subject.storagePrefix}:${lesson.id}`;
+    const previousKey = `${subject.previousStoragePrefix}:${lesson.id}`;
+    const historical = JSON.stringify([
+        { id: 'old-fraction', name: 'Tester', mode: 'hard', total: 126.8, maximum: 210, grade: 2, time: 'včera' },
+        { id: 'old-integer', name: 'Tester', mode: 'hard', total: 126, maximum: 210, grade: 2, time: 'včera' }
+    ]);
+    const fractional = JSON.stringify([
+        { id: 'invalid', name: 'Tester', mode: 'hard', total: 126.8, maximum: 210, grade: 2, time: 'dnes' }
+    ]);
+    for (const stored of [null, fractional]) {
+        const storage = new Map([[previousKey, historical]]);
+        if (stored) storage.set(currentKey, stored);
+        const node = (tag, text = '') => ({
+            text, hidden: true, children: [],
+            append(...items) { this.children.push(...items); },
+            replaceChildren() { this.children = []; },
+            setAttribute() {},
+            get textContent() { return this.text + this.children.map(child => child.textContent).join(''); },
+            set textContent(value) { this.text = value; this.children = []; }
+        });
+        const elements = new Map(['storage-warning', 'leaderboard-content', 'leaderboard-rank'].map(id => [id, node('div')]));
+        const warnings = [];
+        const context = {
+            sessionStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
+            console: { warn: (...args) => warnings.push(args) },
+            crypto: { randomUUID: () => 'new-run' },
+            tutorQuiz: require('../runtime.js')
+        };
+        vm.runInNewContext(source, context);
+        const results = context.initializeTutorResults(lesson, subject, {
+            $: id => elements.get(id), node, points: String
+        });
+        results.renderLeaderboard();
+        if (!stored) {
+            assert.ok(elements.get('leaderboard-content').textContent.includes(subject.previousResultsNotice));
+            assert.equal(elements.get('storage-warning').hidden, true);
+        } else {
+            assert.equal(elements.get('storage-warning').hidden, false);
+            assert.match(elements.get('storage-warning').textContent, /původní úložiště nepřepíšeme/);
+            assert.equal(warnings.length, 1);
+        }
+        results.save('Tester', 'hard', { total: 142, maximum: 210, grade: 2 }, 12345);
+        assert.equal(storage.get(previousKey), historical);
+        if (stored) assert.equal(storage.get(currentKey), stored, 'invalid new storage is not overwritten');
+        else {
+            const records = JSON.parse(storage.get(currentKey));
+            assert.equal(records.length, 1);
+            assert.equal(records[0].total, 142);
+            assert.ok(elements.get('leaderboard-content').textContent.includes(subject.previousResultsNotice));
+            assert.doesNotMatch(elements.get('leaderboard-content').textContent, /126[.,]8/);
+        }
+    }
+});
+
+test('all partial-credit tiers yield integer question points, totals and record values', () => {
+    const rawAnswers = ['abcdef', 'abcde', 'abcd', 'abc', 'ab', 'a'];
+    const fractions = [1, 0.8, 0.6, 0.4, 0, 0];
+    const subject = subjectForLesson(lesson);
+    for (const difficulty of ['easy', 'medium', 'hard']) {
+        const question = writtenExercise('abcdef', { difficulty });
+        const scores = rawAnswers.map(raw => scoreExercise(question, [raw], new Set()));
+        assert.deepEqual(scores.map(score => score.fraction), fractions, difficulty);
+        const maximum = { easy: 10, medium: 20, hard: 30 }[difficulty];
+        assert.deepEqual(scores.map(score => score.total), fractions.map(fraction => Math.round(maximum * fraction)));
+        for (const score of scores) {
+            for (const points of [score.base, score.bonus, score.total]) assert.equal(Number.isInteger(points), true);
+        }
+        assert.match(scores[3].assessment.message, /40 % bodů/);
+        assert.match(scores[4].assessment.message, /Body nezískáváš/);
+        const result = subject.result(scores.map(score => ({ score })), scores.map(() => question));
+        assert.equal(Number.isInteger(result.total), true);
+        assert.doesNotMatch(result.text, /\d[.,]\d/);
+    }
+    assert.equal(subject.validRecord({ mode: 'hard', total: 126.8, maximum: 210, grade: 2 }), false);
+    assert.equal(subject.validRecord({ mode: 'hard', total: 142, maximum: 210, grade: 2 }), true);
+    assert.equal(subject.storagePrefix, 'english-tutor:v5:integer-v1');
+    assert.equal(subject.previousStoragePrefix, 'english-tutor:v5');
+});
+
+test('English vocabulary excludes internal authoring strings without changing the shared collector', () => {
+    const source = structuredClone(lesson);
+    const before = englishKnownWords(source);
+    assert.equal(before.has('bog'), false);
+    source.id = 'bog';
+    source.review = 'bog';
+    source.audience = 'bog';
+    source.highlights = [{ target: 'bog', quote: 'bog', color: 'yellow' }];
+    source.sources = [{ title: 'bog', url: 'https://example.org/bog' }];
+    source.exercises.forEach(exercise => {
+        exercise.id = 'bog';
+        exercise.assessment.internalNote = 'bog';
+    });
+    assert.deepEqual(englishKnownWords(source), before);
+    assert.equal(knownWords(source).has('bog'), true, 'the shared collector is unchanged');
+    const exercise = writtenExercise('box');
+    assert.equal(scoreExercise(exercise, ['bog'], englishKnownWords(source)).fraction, 0.8);
+    assert.equal(subjectForLesson(source).score(exercise, ['bog']).fraction, 0.8);
+    source.glossary.push({ term: 'bog', definition: 'Bažina.', forms: ['bog'] });
+    assert.equal(scoreExercise(exercise, ['bog'], englishKnownWords(source)).fraction, 0);
+    assert.equal(scoreExercise(writtenExercise('box', { excludedWords: ['bog'] }), ['bog'], before).fraction, 0);
+});
+
+test('English vocabulary collects only explicit educational text and displayed correction notes', () => {
+    const source = {
+        topic: 'topicword', subtitle: 'subtitleword', comicIntroduction: 'introword', comicGuidance: 'guidanceword',
+        original: [{ heading: 'sourceheading', text: 'sourceword', panelDescription: 'panelword',
+            paragraphs: [{ text: 'paragraphword', style: 'hiddenstyle' }] }],
+        chunks: [{ heading: 'chunkheading', sentences: ['sentenceword'], explanation: 'explanationword',
+            audio: { text: 'audioword', language: 'hiddenlanguage' }, paragraphs: [{ text: 'learningword' }] }],
+        glossary: [{ term: 'termword', definition: 'definitionword', forms: ['formword'] }],
+        exercises: [{ prompt: 'promptword', text: 'exerciseword', explanation: 'feedbackword',
+            audio: { text: 'listeningword' }, options: ['optionword'], words: ['bankword'],
+            acceptedAnswers: ['answerword'], skill: 'hiddenskill',
+            assessment: { partial: { match: { excludedWords: ['hiddenexclusion'] } } } }],
+        originalNotes: [
+            { kind: 'spelling', quote: 'quoteword', explanation: 'correctionword' },
+            { kind: 'spellingVariant', quote: 'hiddenvariant', explanation: 'hiddenvariantnote' }
+        ]
+    };
+    const vocabulary = englishKnownWords(source);
+    assert.deepEqual([...vocabulary].sort(), [
+        'topicword', 'subtitleword', 'introword', 'guidanceword', 'sourceheading', 'sourceword', 'panelword',
+        'paragraphword', 'chunkheading', 'sentenceword', 'explanationword', 'audioword', 'learningword',
+        'termword', 'definitionword', 'formword', 'promptword', 'exerciseword', 'feedbackword',
+        'listeningword', 'optionword', 'bankword', 'answerword', 'quoteword', 'correctionword'
+    ].sort());
+});
+
+test('screenshot answer boundaries remain correct under the new scale', () => {
+    const vocabulary = new Set(['her', 'their', 'její', 'jejich']);
+    for (const [expected, raw, options, points] of [
+        ['Lily and Finn', 'Lily and finn', { difficulty: 'hard' }, 24],
+        ['When is her birthday?', 'When is her birthday', { difficulty: 'hard', skill: 'grammar', type: 'wordOrder' }, 24],
+        ['their', 'ther', { skill: 'grammar' }, 0],
+        ['their', 'her', { skill: 'grammar' }, 0],
+        ['their', 'ther', { skill: 'spelling' }, 0],
+        ['Toto je jejich dort.', 'toto je její dort', { difficulty: 'hard', skill: 'grammar' }, 0]
+    ]) {
+        assert.equal(scoreExercise(writtenExercise(expected, options), [raw], vocabulary).total, points, raw);
+    }
+    const alternatives = writtenExercise('July');
+    alternatives.acceptedAnswers.push('juli');
+    assert.equal(scoreExercise(alternatives, ['juli'], new Set()).fraction, 1, 'full-credit alternatives win');
+});
 
 test('original listening passes exact English section text to the shared player only', () => {
     const adapter = subjectForLesson(lesson);
@@ -198,7 +413,7 @@ test('English discovery, prepared content size, coverage and guarded standalone 
 
 test('English has progressive non-repeating selection, canonical credit and time-independent results', () => {
     const subject = subjectForLesson(lesson);
-    const vocabulary = knownWords(lesson);
+    const vocabulary = englishKnownWords(lesson);
     for (const exercise of lesson.exercises) {
         const values = [exercise.options ? exercise.answer : exercise.acceptedAnswers[0]];
         const scored = scoreExercise(exercise, values, vocabulary);
@@ -226,8 +441,8 @@ test('English has progressive non-repeating selection, canonical credit and time
 
 test('English grading accepts declared translations, preserves word boundaries and makes a final full stop optional', () => {
     const exercise = lesson.exercises.find(exercise => exercise.id === 'translate-key-ring');
-    const vocabulary = knownWords(lesson);
-    assert.equal(scoreExercise(exercise, ['  PŘÍVĚSEK   NA KLÍČE  '], vocabulary).fraction, 0.67);
+    const vocabulary = englishKnownWords(lesson);
+    assert.equal(scoreExercise(exercise, ['  PŘÍVĚSEK   NA KLÍČE  '], vocabulary).fraction, 0.8);
     for (const raw of ['kroužek na klíče']) {
         assert.equal(scoreExercise(exercise, [raw], vocabulary).fraction, 1);
     }
@@ -237,7 +452,7 @@ test('English grading accepts declared translations, preserves word boundaries a
         assert.equal(scoreExercise(exercise, [raw], vocabulary).fraction, 0);
     }
     const gap = lesson.exercises.find(exercise => exercise.id === 'gap-i');
-    assert.equal(scoreExercise(gap, ['HAVE'], vocabulary).fraction, 0.67);
+    assert.equal(scoreExercise(gap, ['HAVE'], vocabulary).fraction, 0.8);
     assert.equal(scoreExercise(gap, ['has'], vocabulary).fraction, 0);
 });
 
@@ -251,39 +466,40 @@ test('English partial mistakes combine capitalization, apostrophes, end marks an
     });
     const vocabulary = new Set(['apple', 'apples', 'magazine', 'magazines', 'live', 'love', 'shelf', 'shelves', 'box']);
     const score = (value, raw, options) => scoreExercise(task(value, options), [raw], vocabulary);
-    assert.equal(score('My birthday is in July.', 'my birthday is in july').fraction, 0.67);
-    assert.equal(score('My birthday is in July.', 'my birthday is in july.').fraction, 0.67);
-    assert.equal(score('I have got a comic?', 'i have got a comic').fraction, 0.33);
-    assert.equal(score("I've got a comic?", 'Ive got a comic?').fraction, 0.67);
-    assert.equal(score("I've got a comic?", 'ive got a comic').fraction, 0);
+    assert.equal(score('My birthday is in July.', 'my birthday is in july').fraction, 0.8);
+    assert.equal(score('My birthday is in July.', 'my birthday is in july.').fraction, 0.8);
+    assert.equal(score('I have got a comic?', 'i have got a comic').fraction, 0.6);
+    assert.equal(score("I've got a comic?", 'Ive got a comic?').fraction, 0.8);
+    assert.equal(score("I've got a comic?", 'ive got a comic').fraction, 0.4);
     assert.equal(score('magazine', 'magazin', { skill: 'grammar' }).fraction, 0);
-    assert.equal(score('Look!', 'Look').fraction, 0.67);
+    assert.equal(score('Look!', 'Look').fraction, 0.8);
     assert.equal(score('Look.', 'Look').fraction, 1);
     assert.equal(score('Look', 'Look.').fraction, 1);
-    assert.equal(score('Look!', 'Look.').fraction, 0.67);
-    assert.equal(score('magazine', 'magazin').fraction, 0.67);
-    assert.equal(score('magazine', 'magzaine').fraction, 0.67);
-    assert.equal(score('magazine', 'magzainee').fraction, 0.33);
+    assert.equal(score('Look!', 'Look.').fraction, 0.8);
+    assert.equal(score('magazine', 'magazin').fraction, 0.8);
+    assert.equal(score('magazine', 'magzaine').fraction, 0.8);
+    assert.equal(score('magazine', 'magzainee').fraction, 0.6);
     assert.equal(score('magazine', 'xyzab').fraction, 0);
     assert.equal(score('magazine', 'magazines').fraction, 0);
-    assert.equal(score('box', 'bog').fraction, 0.67);
-    assert.equal(score('box', 'bxo').fraction, 0.67);
+    assert.equal(score('box', 'bog').fraction, 0.8);
+    assert.equal(score('box', 'bxo').fraction, 0.8);
     assert.equal(score('live', 'love').fraction, 0);
     assert.equal(score('like', 'likes', { excludedWords: ['likes'] }).fraction, 0);
     assert.equal(score('a green dinosaur', 'a gren dinosaur').fraction, 1);
-    assert.equal(score('a green dinosaur', 'a gren dinosuar').fraction, 0.67);
-    assert.equal(score('a green dinosaur', 'a gren dnosaure').fraction, 0.33);
+    assert.equal(score('a green dinosaur', 'a gren dinosuar').fraction, 0.8);
+    assert.equal(score('a green dinosaur', 'a gren dnosaure').fraction, 0.6);
     assert.equal(score('a green dinosaur', 'a gn dnosaure').fraction, 0);
     assert.equal(score('a green dinosaur', 'green a dinosaur').fraction, 0);
     assert.equal(score('a  green   dinosaur', 'a green dinosaur').fraction, 1);
     assert.equal(score('abcdefghij', 'abcdefghiX').fraction, 1);
-    assert.equal(score('abcdefghij', 'abcdefgXXj').fraction, 0.67);
-    assert.equal(score('samolepka', 'samolepkaa', { answerLanguage: 'cs-CZ' }).fraction, 0.67);
-    assert.equal(score('magazine', 'MAGAZINE').fraction, 0.67);
-    assert.equal(score('magazine', 'magazin', { difficulty: 'hard' }).total, 20.1);
-    assert.match(score('My birthday is in July.', 'my birthday is in july').assessment.message, /67 % bodů/);
+    assert.equal(score('abcdefghij', 'abcdefgXXj').fraction, 0.8);
+    assert.equal(score('samolepka', 'samolepkaa', { answerLanguage: 'cs-CZ' }).fraction, 0.8);
+    assert.equal(score('magazine', 'MAGAZINE').fraction, 0.8);
+    assert.equal(score('magazine', 'magazin', { difficulty: 'hard' }).total, 24);
+    assert.match(score('My birthday is in July.', 'my birthday is in july').assessment.message, /80 % bodů/);
     assert.match(score('My birthday is in July.', 'my birthday is in july.').assessment.message, /velká a malá písmena/);
-    assert.match(score("I've got a comic?", 'ive got a comic').assessment.message, /Body nezískáváš/);
+    assert.match(score("I've got a comic?", 'ive got a comic').assessment.message, /40 % bodů/);
+    assert.match(score("I've got a comic?", 'ive got a com').assessment.message, /Body nezískáváš/);
     assert.equal(score('magazine', 'a'.repeat(81)).assessment.valid, false);
 
     const feedback = [];
@@ -326,7 +542,7 @@ test('English validation rejects mismatched, unsafe or ambiguous authoring witho
     const legacy = structuredClone(lesson);
     legacy.exercises.find(e => e.id === 'translate-box').assessment.partial.credit = 0.5;
     assert.equal(validateLesson('english', legacy), legacy);
-    assert.equal(scoreExercise(legacy.exercises.find(e => e.id === 'translate-box'), ['bog'], knownWords(legacy)).fraction, 0.67);
+    assert.equal(scoreExercise(legacy.exercises.find(e => e.id === 'translate-box'), ['bog'], englishKnownWords(legacy)).fraction, 0.8);
     const history = structuredClone(require('../examples/defenestrace.json'));
     history.questions.find(q => q.type === 'text').assessment.partial = {
         credit: 0.5, match: { type: 'typo', values: ['test'], excludedWords: [] }

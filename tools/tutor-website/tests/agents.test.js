@@ -117,11 +117,11 @@ test('English spelling review uses visible source notes without treating dialect
 
 test('English tutor authoring guidance follows the combined partial-mistake schedule', () => {
     const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
-    for (const text of ['67%', '33%', 'zero for three or more', 'final full stop',
+    for (const text of ['80%', '60%', '40%', 'zero for four or more', 'integer points', 'final full stop',
         'each missing apostrophe', 'ten or more letters', 'first operation is ignored',
         'explicit `assessment.partial.match` typo matcher']) assert.ok(english.includes(text), text);
     const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
-    for (const text of ['67%/33%/zero partial-mistake schedule',
+    for (const text of ['80%/60%/40%/zero partial-mistake schedule', 'integer points',
         'length-based typo tolerance', 'Do not apply English scoring to history or maths']) {
         assert.ok(website.includes(text), text);
     }

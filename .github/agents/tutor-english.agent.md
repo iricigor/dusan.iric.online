@@ -136,8 +136,9 @@ semantic translation grading. Ignore a final full stop, but preserve other
 punctuation and diacritics. A missing required question mark or exclamation mark
 is one partial mistake. Any capitalization differences count as one partial
 mistake per answer; each missing apostrophe counts separately. For otherwise
-correct answers, award 100% for no partial mistakes, 67% for one, 33% for two
-and zero for three or more. State required question/exclamation punctuation in
+correct answers, award 100% for no partial mistakes, 80% for one, 60% for two,
+40% for three and zero for four or more. Award integer points with the existing
+10/20/30-point difficulty weights. State required question/exclamation punctuation in
 the assignment. For word ordering, supply shuffled individual words; all
 accepted answers must use every offered word once.
 
@@ -148,7 +149,10 @@ credit. Count each insertion, deletion, substitution or adjacent-letter swap
 as one typo operation. For answers with fewer than ten letters, each operation
 is one partial mistake. For answers with ten or more letters, the first
 operation is ignored and each additional operation is one partial mistake.
-Known lesson words are excluded automatically; declare further real-word,
+Known words from educational text are excluded automatically; internal review
+notes, identifiers and assessment metadata must not change scoring. Typing edits
+are aligned before capitalization is checked, so one insertion or deletion does
+not also invent a capitalization error. Declare further real-word,
 grammatical and vocabulary confusions in `excludedWords`. Never accept changed
 plurality or a different vocabulary word as a typo. Full-credit variants always
 take precedence. The website owns this matcher, not the subject agent.
