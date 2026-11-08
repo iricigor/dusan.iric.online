@@ -5,6 +5,7 @@ function initializeTutorResults(lesson, subject, context) {
     const storageKey = `${subject.storagePrefix}:${lesson.id}`;
     let records = [];
     let storageReadable = true;
+    let hasPreviousResults = false;
     let currentRunId = null;
     const warnStorage = message => {
         $('storage-warning').hidden = false;
@@ -20,6 +21,10 @@ function initializeTutorResults(lesson, subject, context) {
             throw new Error('Invalid tutor session results');
         }
         records = stored;
+        if (subject.previousStoragePrefix) {
+            const previous = sessionStorage.getItem(`${subject.previousStoragePrefix}:${lesson.id}`);
+            hasPreviousResults = previous !== null && previous !== '[]';
+        }
     } catch (error) {
         storageReadable = false;
         console.warn('Tutor: cannot read session results.', error);
@@ -28,6 +33,7 @@ function initializeTutorResults(lesson, subject, context) {
     function renderLeaderboard() {
         const container = $('leaderboard-content');
         container.replaceChildren();
+        if (hasPreviousResults) container.append(node('p', subject.previousResultsNotice));
         if (!records.length) {
             container.append(node('p', 'Zatím žádné výsledky.'));
             return;

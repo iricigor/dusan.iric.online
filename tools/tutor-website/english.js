@@ -15,24 +15,57 @@ function selectExercises(exercises, mode, random = Math.random) {
     });
 }
 
-function editDistance(left, right) {
+function alignLetters(left, right) {
     const a = [...left], b = [...right];
-    const distance = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
-    for (let index = 0; index <= a.length; index++) distance[index][0] = index;
-    for (let index = 0; index <= b.length; index++) distance[0][index] = index;
+    const lowerA = a.map(letter => letter.toLocaleLowerCase('cs'));
+    const lowerB = b.map(letter => letter.toLocaleLowerCase('cs'));
+    const distance = Array.from({ length: a.length + 1 }, () => Array(b.length + 1));
+    const step = (previous, edits, pairs = []) => ({
+        previous, pairs, edits: previous.edits + edits,
+        capitalization: previous.capitalization + pairs.filter(([i, j]) =>
+            lowerA[i] === lowerB[j] && a[i] !== b[j]).length
+    });
+    distance[0][0] = { edits: 0, capitalization: 0, pairs: [] };
+    for (let index = 1; index <= a.length; index++) distance[index][0] = step(distance[index - 1][0], 1);
+    for (let index = 1; index <= b.length; index++) distance[0][index] = step(distance[0][index - 1], 1);
     for (let row = 1; row <= a.length; row++) {
         for (let column = 1; column <= b.length; column++) {
-            distance[row][column] = Math.min(
-                distance[row - 1][column] + 1,
-                distance[row][column - 1] + 1,
-                distance[row - 1][column - 1] + (a[row - 1] === b[column - 1] ? 0 : 1)
-            );
-            if (row > 1 && column > 1 && a[row - 1] === b[column - 2] && a[row - 2] === b[column - 1]) {
-                distance[row][column] = Math.min(distance[row][column], distance[row - 2][column - 2] + 1);
+            const candidates = [
+                step(distance[row - 1][column], 1),
+                step(distance[row][column - 1], 1),
+                step(distance[row - 1][column - 1], Number(lowerA[row - 1] !== lowerB[column - 1]),
+                    [[row - 1, column - 1]])
+            ];
+            if (row > 1 && column > 1 && lowerA[row - 1] === lowerB[column - 2] && lowerA[row - 2] === lowerB[column - 1]) {
+                candidates.push(step(distance[row - 2][column - 2], 1,
+                    [[row - 2, column - 1], [row - 1, column - 2]]));
             }
+            distance[row][column] = candidates.reduce((best, candidate) =>
+                candidate.edits < best.edits ||
+                (candidate.edits === best.edits && candidate.capitalization < best.capitalization) ? candidate : best);
         }
     }
-    return distance[a.length][b.length];
+    const result = distance[a.length][b.length];
+    const pairs = [];
+    for (let current = result; current.previous; current = current.previous) pairs.push(...current.pairs);
+    return { edits: result.edits, capitalization: result.capitalization, pairs: pairs.sort(([i], [j]) => i - j) };
+}
+
+function englishKnownWords(lesson) {
+    const paragraphs = value => (value || []).map(paragraph => paragraph.text);
+    return knownWords([
+        lesson.topic, lesson.subtitle, lesson.comicIntroduction, lesson.comicGuidance,
+        ...(lesson.original || []).flatMap(section =>
+            [section.heading, section.text, section.panelDescription, ...paragraphs(section.paragraphs)]),
+        ...(lesson.chunks || []).flatMap(chunk =>
+            [chunk.heading, ...chunk.sentences, chunk.explanation, chunk.audio?.text, ...paragraphs(chunk.paragraphs)]),
+        ...(lesson.glossary || []).flatMap(entry => [entry.term, entry.definition, ...entry.forms]),
+        ...(lesson.exercises || []).flatMap(exercise => [
+            exercise.prompt, exercise.text, exercise.explanation, exercise.audio?.text,
+            ...(exercise.options || []), ...(exercise.words || []), ...(exercise.acceptedAnswers || [])
+        ]),
+        ...originalNotes(lesson).flatMap(note => [note.quote, note.explanation])
+    ]);
 }
 
 function answerTokens(value) {
@@ -90,16 +123,9 @@ function answerDifferences(raw, expected, exercise, vocabulary) {
         if (answerPositions.some(position => !expectedPositions.includes(position))) return null;
         apostropheMistakes += expectedPositions.filter(position => !answerPositions.includes(position)).length;
 
-        const answerCasedLetters = [...answerToken.replace(/[’']/gu, '')];
-        const expectedCasedLetters = [...expectedToken.replace(/[’']/gu, '')];
-        for (let letter = 0; letter < Math.min(answerCasedLetters.length, expectedCasedLetters.length); letter++) {
-            if (answerCasedLetters[letter] !== expectedCasedLetters[letter] &&
-                answerCasedLetters[letter].toLocaleLowerCase('cs') === expectedCasedLetters[letter].toLocaleLowerCase('cs')) {
-                capitalizationMistakes++;
-            }
-        }
-
-        const edits = editDistance(answerLetters, expectedLetters);
+        const alignment = alignLetters(answerToken.replace(/[’']/gu, ''), expectedToken.replace(/[’']/gu, ''));
+        capitalizationMistakes += alignment.capitalization;
+        const edits = alignment.edits;
         if (edits) {
             if (typo?.type !== 'typo' || exercise.skill !== 'meaning' || exercise.type === 'wordOrder') return null;
             if (!(vocabulary instanceof Set)) throw new Error('Typo assessment requires the lesson vocabulary');
@@ -132,11 +158,11 @@ function evaluateEnglishAnswer(exercise, raw, vocabulary) {
         };
     }
     const result = candidates.reduce((best, candidate) => candidate.count < best.count ? candidate : best);
-    const fraction = result.count === 0 ? 1 : result.count === 1 ? 0.67 : result.count === 2 ? 0.33 : 0;
+    const fraction = [1, 0.8, 0.6, 0.4][result.count] ?? 0;
     const details = result.mistakes.map(mistake =>
         `${mistake.label}${mistake.count > 1 ? ` (${mistake.count})` : ''}`).join(', ');
-    const message = result.count === 0 ? 'Správně.' : result.count >= 3
-        ? `Tentokrát ${result.count} drobné chyby (${details}). Body nezískáváš.`
+    const message = result.count === 0 ? 'Správně.' : result.count >= 4
+        ? `Tentokrát ${result.count} drobných chyb (${details}). Body nezískáváš.`
         : `Částečně správně: ${details}. Získáváš ${Math.round(fraction * 100)} % bodů.`;
     return {
         fraction, correct: fraction === 1, valid: true,
@@ -151,7 +177,7 @@ function scoreExercise(exercise, answers, vocabulary) {
     const assessment = !validChoice ? { fraction: 0, correct: false, valid: false, message: 'Vyber jednu z nabízených odpovědí.' } :
         exercise.options ? evaluate(exercise.assessment, raw, { knownWords: vocabulary }) :
             evaluateEnglishAnswer(exercise, raw, vocabulary);
-    const base = Math.round((POINTS[exercise.difficulty] * assessment.fraction + Number.EPSILON) * 10) / 10;
+    const base = Math.round(POINTS[exercise.difficulty] * assessment.fraction);
     return { fraction: assessment.fraction, base, bonus: 0, total: base, assessment };
 }
 
@@ -186,10 +212,12 @@ function contentSize(lesson) {
 }
 
 function subjectForLesson(lesson) {
-    const vocabulary = knownWords(lesson);
+    const vocabulary = englishKnownWords(lesson);
     const notes = originalNotes(lesson);
     return {
-        storagePrefix: 'english-tutor:v5',
+        storagePrefix: 'english-tutor:v5:integer-v1',
+        previousStoragePrefix: 'english-tutor:v5',
+        previousResultsNotice: 'Starší pokusy zůstávají uložené beze změny pro původní stránku. Nové pokusy mají jiné bodování a samostatné pořadí; starší body nezaokrouhlujeme ani nepřepočítáváme.',
         speedBonus: false,
         listening: true,
         icon: '📚',
@@ -225,7 +253,7 @@ function subjectForLesson(lesson) {
             'Lehká úloha: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
             'Nespěchej. Poslech můžeš opakovat bez omezení a bez ztráty bodů. Nepoužíváme mikrofon.',
             'Závěrečná tečka nevadí. Velká písmena a apostrofy hlídej; u otázek a zvolání nezapomeň na ? nebo !.',
-            'Za jednu drobnou chybu získáš 67 % bodů, za dvě 33 % a za tři nebo více 0 bodů. Chyby ve velkých písmenech v celé odpovědi počítáme jako jednu; každý chybějící apostrof a povinné ? nebo ! jako další.',
+            'Za jednu drobnou chybu získáš 80 % bodů, za dvě 60 %, za tři 40 % a za čtyři nebo více 0 bodů. Body jsou vždy celá čísla. Chyby ve velkých písmenech v celé odpovědi počítáme jako jednu; každý chybějící apostrof a povinné ? nebo ! jako další.',
             'V úlohách na význam: u odpovědí kratších než 10 písmen se jeden překlep počítá jako drobná chyba. U odpovědí s 10 a více písmeny první překlep nevadí, další se počítají.',
             'Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Rychlost ani opakování poslechu nemění body nebo pořadí.'
         ],
@@ -240,7 +268,7 @@ function subjectForLesson(lesson) {
         validRecord: row => Object.hasOwn(MODES, row.mode) &&
             row.maximum === MODES[row.mode].reduce((sum, count, index) => sum + count * [10, 20, 30][index], 0) &&
             Number.isFinite(row.total) && row.total >= 0 && row.total <= row.maximum &&
-            Math.abs(row.total * 10 - Math.round(row.total * 10)) < 1e-8 && row.grade === grade(row.total, row.maximum),
+            Number.isInteger(row.total) && row.grade === grade(row.total, row.maximum),
         renderLearning({ $, node, paragraph, heading, hint, paragraphs, speech }, source) {
             source.chunks.forEach((chunk, index) => {
                 const article = node('article', undefined, 'card');
@@ -288,7 +316,7 @@ function subjectForLesson(lesson) {
             }
         },
         result(answers, questions) {
-            const total = Math.round((answers.reduce((sum, answer) => sum + answer.score.total, 0) + Number.EPSILON) * 10) / 10;
+            const total = answers.reduce((sum, answer) => sum + answer.score.total, 0);
             const maximum = maximumPoints(questions);
             const mark = grade(total, maximum);
             return { total, maximum, grade: mark, text: `Body: ${formatPoints(total)}/${maximum}. Známka: ${mark}` };
@@ -296,7 +324,7 @@ function subjectForLesson(lesson) {
     };
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { selectExercises, scoreExercise, maximumPoints, subjectForLesson, contentSize, originalNotes };
+if (typeof module !== 'undefined' && module.exports) module.exports = { selectExercises, scoreExercise, maximumPoints, subjectForLesson, contentSize, originalNotes, englishKnownWords, alignLetters };
 if (typeof document !== 'undefined') {
     const englishLesson = JSON.parse(document.getElementById('lesson-data').textContent);
     initializeTutor(englishLesson, subjectForLesson(englishLesson));

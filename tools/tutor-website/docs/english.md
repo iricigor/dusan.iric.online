@@ -196,13 +196,25 @@ For otherwise-correct written answers, combine partial mistakes as follows:
 | Partial mistakes | Points awarded |
 |------------------|----------------|
 | 0 | 100% |
-| 1 | 67% |
-| 2 | 33% |
-| 3 or more | 0% |
+| 1 | 80% |
+| 2 | 60% |
+| 3 | 40% |
+| 4 or more | 0% |
+
+The 10/20/30-point difficulty weights produce integer question points at every
+tier. Totals, feedback and newly stored leaderboard scores are integers too;
+there are no fractional thirds or decimal-point artifacts.
 
 Any number of capitalization differences counts as one partial mistake per
 answer. Each missing apostrophe is one mistake; a missing required question or
 exclamation mark is one. Optional final full stops do not count.
+Spelling edits are aligned before comparing capitalization, using the existing
+insertion/deletion/substitution/adjacent-swap distance. Compare case only for
+aligned occurrences of the same letter. Among equally minimal spelling
+alignments, prefer the one with the fewest capitalization differences.
+For example, `jJuly` for `July` is one insertion (80%), not an insertion plus
+a capitalization mistake. `juli` still has a capitalization mistake and one
+substitution (60%).
 
 Every written meaning task explicitly enables typo tolerance:
 
@@ -226,7 +238,7 @@ mistakes combine with capitalization, apostrophe and required end-mark
 mistakes under the schedule above. All other words, word boundaries and
 punctuation must match. Correct alternatives win first.
 
-The English adapter passes `knownWords(lesson)` to the typo matcher; missing
+The English adapter passes `englishKnownWords(lesson)` to the typo matcher; missing
 context raises an explicit error. Known lesson words and authored
 `excludedWords` can never receive typo credit as the changed token. Spelling
 and grammar tasks (including word ordering) cannot receive typo credit. This
@@ -236,6 +248,17 @@ grammatical and vocabulary confusions in `excludedWords`. This is not a
 dictionary or AI grammar checker: educational review must check ambiguous
 pairs. Do not declare a meaning task merely to bypass a grammar or spelling
 requirement.
+
+`englishKnownWords` uses an explicit educational-text allowlist: topic/subtitle,
+comic introduction/guidance, original headings/text/descriptions/paragraph text,
+learning headings/sentences/explanations/audio/paragraph text, glossary
+terms/definitions/forms, exercise prompts/text/explanations/audio/options/word
+banks/accepted answers, and displayed original correction quotes/explanations.
+Internal `review`, audience metadata, lesson/exercise IDs, URLs/source metadata,
+highlight metadata, styles, language/skill labels and assessment configuration
+do not contribute. Authored `excludedWords` are applied separately, not gathered
+as vocabulary from assessment metadata. The shared collector used by other
+subjects is unchanged.
 
 ## Listening and shared UI
 
@@ -286,7 +309,18 @@ get gender labels. Do not infer gender from first names alone or use cloud voice
 
 English keeps Původní text, Učit se, Hrát si, the name/nickname gate, shared
 feedback/results, session-only storage, highlighting, learning progress,
-export and both themes. Its separate storage prefix is `english-tutor:v5`.
+export and both themes. Its integer-scoring storage prefix is
+`english-tutor:v5:integer-v1`, followed by the lesson ID.
+Old `english-tutor:v5:<lesson-id>` records remain untouched, without rounding
+or migration, and remain available to the original generated page in the same
+browser-tab session. When that old key contains records, the new leaderboard
+explains that the scoring changed and its ranking is separate. Old and new
+scores are not mixed; even old integer totals belong to the previous scale.
+Fractional records in the new namespace are invalid and use the shared explicit
+storage warning and no-overwrite behavior.
+Existing standalone pages embed their runtime and retain their old scoring
+until separately approved regeneration/publication; changing the generator
+does not update or deploy those pages.
 No countdown or speed bonus; answering duration is informational and never
 breaks scoring ties. Replay never changes the score.
 

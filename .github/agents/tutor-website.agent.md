@@ -94,10 +94,15 @@ English v5 is documented in `tools\tutor-website\docs\english.md`; read it and
 Keep Czech interface/instructions/explanations with intentional English
 teaching, vocabulary, listening and exercise content. English translations
 support both directions. Follow `tools\tutor-website\docs\english.md` for the
-combined 67%/33%/zero partial-mistake schedule, optional final full stops,
+combined 80%/60%/40%/zero partial-mistake schedule (zero for four or more),
+integer points, optional final full stops,
 required question/exclamation marks and length-based typo tolerance. Meaning
 text answers require explicit typo matchers; spelling and grammar tasks never
-receive typo credit. Do not apply English scoring to history or maths.
+receive typo credit. Align typing edits before capitalization checks and collect
+known words only from educational text, never internal review or metadata.
+Use a separate integer-scoring results namespace, retaining old results unchanged
+with a visible explanation rather than rounding or mixing scoring versions.
+Do not apply English scoring to history or maths.
 The shared `tools\tutor-website\speech.js` owns local English browser speech,
 replay, cancellation and visible playback/voice errors. No microphone or
 speaking activities. English has no speed bonus, uses separate v5 results and

@@ -380,7 +380,12 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
     timeout: 60000
 }, async t => {
     const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    const previousKey = `english-tutor:v5:${lesson.id}`;
+    const previousRecords = JSON.stringify([
+        { id: 'historical-run', name: 'Tester', mode: 'hard', total: 126.8, maximum: 210, grade: 2, time: 'včera' }
+    ]);
     await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
+        sessionStorage.setItem(${JSON.stringify(previousKey)}, ${JSON.stringify(previousRecords)});
         window.speechCalls = [];
         window.cancelledSpeech = 0;
         window.pausedSpeech = 0;
@@ -499,7 +504,7 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
                     const typo = question.id === 'translate-magazine';
                     $('answer-input').value = typo ? 'magazin' : question.acceptedAnswers[0];
                     $('answers').requestSubmit();
-                    if (typo) partial ||= $('feedback').textContent.includes('67 % bodů');
+                    if (typo) partial ||= $('feedback').textContent.includes('80 % bodů');
                 }
                 if (question.audio) transcriptAfter &&= $('feedback').textContent.includes(question.audio.text);
                 const score = $('score').textContent;
@@ -514,10 +519,15 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
             finished.push({ answers, grade: $('grade').textContent, duration: $('answer-duration').textContent });
         }
         selectExercises = originalSelect;
-        const stored = JSON.parse(sessionStorage.getItem('english-tutor:v5:' + lesson.id));
+        const stored = JSON.parse(sessionStorage.getItem(subjectForLesson(lesson).storagePrefix + ':' + lesson.id));
         return { seen: [...seen].sort(), partial, noTranscript, transcriptAfter, noGlossaryLeak, cancellation,
             languageFields, missingVoice, finished, stored: stored.length,
-            validRecords: stored.every(row => subjectForLesson(lesson).validRecord(row)),
+            validRecords: stored.every(row => subjectForLesson(lesson).validRecord(row) && Number.isInteger(row.total)),
+            previous: sessionStorage.getItem(${JSON.stringify(previousKey)}),
+            separateRanking: $('leaderboard-content').textContent.includes('samostatné pořadí') &&
+                !$('leaderboard-content').textContent.includes('126,8') &&
+                !$('leaderboard-content').textContent.includes('126.8') &&
+                $('leaderboard-content').querySelectorAll('tbody tr').length === stored.length,
             otherStorage: sessionStorage.getItem('history-tutor:v1:' + lesson.id) };
     })()`);
     assert.deepEqual(results.seen, ['choice', 'gapFill', 'listening', 'text', 'translation', 'trueFalse', 'wordOrder'].sort());
@@ -525,6 +535,8 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
     assert.deepEqual(results.finished.map(result => result.answers), [3, 5, 10, 10, 10]);
     assert.ok(results.finished.every(result => result.duration.includes('Doba odpovídání:') && result.grade.includes('Známka: 1')));
     assert.equal(results.stored, 5);
+    assert.equal(results.previous, previousRecords);
+    assert.equal(results.separateRanking, true);
     assert.equal(results.otherStorage, null);
     await evaluate(`testVoices = testVoicePair; fireVoicesChanged();`);
 
