@@ -104,6 +104,78 @@ test('subjects author JSON only and website owns shared page behavior and techni
     }
 });
 
+test('English spelling review uses visible source notes without treating dialect variants as errors', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['`originalNotes`', 'kind: "spelling"', 'kind: "spellingVariant"',
+        'Původní text', 'not mistakes', 'one or two', 'three or more', 'not merely because it uses American English']) {
+        assert.ok(english.includes(text), text);
+    }
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    assert.ok(website.includes('orange accents'));
+    assert.ok(website.includes('neutral consistency notes, never mistakes'));
+});
+
+test('English tutor authoring guidance follows the combined partial-mistake schedule', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['80%', '60%', '40%', 'zero for four or more', 'integer points', 'final full stop',
+        'each missing apostrophe', 'ten or more letters', 'first operation is ignored',
+        'explicit `assessment.partial.match` typo matcher']) assert.ok(english.includes(text), text);
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    for (const text of ['80%/60%/40%/zero partial-mistake schedule', 'integer points',
+        'length-based typo tolerance', 'Do not apply English scoring to history or maths']) {
+        assert.ok(website.includes(text), text);
+    }
+});
+
+test('English comics require panel-by-panel descriptions and confirmed verbatim transcription', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['one `original` section per panel', 'reading order', '`panelDescription`',
+        'exact image text', 'verbatim', 'text: ""', 'never invent dialogue',
+        'confirm the panel-by-panel transcription', 'unreadable text']) {
+        assert.ok(english.includes(text), text);
+    }
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    assert.ok(website.includes('Render the description separately from source text'));
+    assert.ok(website.includes('retain silent panels'));
+    assert.ok(english.includes('visibly inside their own panel section'));
+    assert.ok(english.includes('do not add repeated internal titles'));
+    assert.ok(website.includes('Keep each description inside its own panel card'));
+    assert.ok(website.includes('Do not add repeated internal titles'));
+    assert.ok(website.includes('muted text without an attention-grabbing callout'));
+});
+
+test('English listening guidance keeps availability quiet and voice choices conservative', () => {
+    for (const name of ['tutor-english', 'tutor-website']) {
+        const body = profiles.find(profile => profile.name === name).body.replace(/\s+/g, ' ');
+        for (const text of ['routine voice-available notices', 'play/pause/resume',
+            'near the top', 'pairs', 'infer gender from arbitrary']) assert.ok(body.includes(text), `${name}: ${text}`);
+    }
+});
+
+test('comic introductions combine grounded prose and reading guidance beside the QR code', () => {
+    const english = profiles.find(profile => profile.name === 'tutor-english').body.replace(/\s+/g, ' ');
+    for (const text of ['single, subdued opening paragraph', '`comicIntroduction`', '`comicGuidance`',
+        'grounded in the actual comic', 'logical connection', 'no invented characters',
+        'Omit it rather than add generic filler', 'general reading/study guidance', 'Jak číst přepis',
+        'left of the QR code', 'above it on mobile',
+        'Review the introduction for coherence']) assert.ok(english.includes(text), text);
+    const website = profiles.find(profile => profile.name === 'tutor-website').body.replace(/\s+/g, ' ');
+    for (const text of ['without a banner, border or icon',
+        'outside the original text and panel cards', 'one small, muted opening paragraph', 'Jak číst přepis',
+        'not separate headings or guidance callouts',
+        'Do not invent an introduction when omitted']) assert.ok(website.includes(text), text);
+});
+
+test('English original listening uses per-section verbatim text without authored audio fields', () => {
+    for (const name of ['tutor-english', 'tutor-website']) {
+        const body = profiles.find(profile => profile.name === name).body.replace(/\s+/g, ' ');
+        for (const text of ['nonempty English original section', 'correction notes',
+            'authored audio field', 'Silent panels', 'Czech original sections']) {
+            assert.ok(body.toLowerCase().includes(text.toLowerCase()), `${name}: ${text}`);
+        }
+    }
+});
+
 test('common owns shared pedagogy and workflow without duplicating website technical rules', () => {
     const common = profiles.find(profile => profile.name === 'tutor-common').body;
     for (const rule of ['`subtitle`', 'easy to medium to hard', 'full-credit',

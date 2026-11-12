@@ -48,10 +48,10 @@ function capabilities(subject) {
         answerDuration: 'active-answering-only-excludes-feedback-and-hidden-quiz',
         inlineHighlighting: { colors: [...colors], tabs: ['original', 'learning'], childStorage: 'tab-session-including-reloads' },
         optionalTimeline: subject === 'history',
-        ...(subject === 'english' ? { listening: {
-            provider: 'browser-speech-synthesis', voice: 'local-English', replay: 'unrestricted', microphone: false,
-            optionalUi: 'compact', originalParagraphLanguages: ['cs-CZ', 'en-GB']
-        } } : {}),
+        ...(subject === 'english' ? { listening: { provider: 'browser-speech-synthesis', voice: 'local-English',
+            playback: 'single-play-pause-resume-button', availability: 'single-page-warning',
+            voiceSelection: 'documented-local-male-female-pair', replay: 'unrestricted', microphone: false,
+            optionalUi: 'compact', originalParagraphLanguages: ['cs-CZ', 'en-GB'] } } : {}),
         limitations: [
             'Czech language, educational accuracy and taught coverage require subject-tutor review.',
             ...(subject === 'maths' ? ['Arbitrary symbolic answer evaluation and interactive geometry are unsupported; one-step equations with numerical answers are supported.'] : []),

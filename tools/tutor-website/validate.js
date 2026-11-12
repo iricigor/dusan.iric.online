@@ -75,6 +75,9 @@ function validateLesson(subject, lesson) {
                 }
                 if (new Set(expected).size !== expected.length) errors.push(`${at}.acceptedAnswers: duplicate normalized alternatives`);
             }
+            if (exercise.skill === 'meaning' && !policy.partial) {
+                errors.push(`${at}.assessment.partial: meaning answers require explicit typo-tolerance targets`);
+            }
             if (policy.partial) {
                 const typo = policy.partial.match;
                 if (typo.type !== 'typo') errors.push(`${at}.assessment.partial: English only supports bounded typo credit`);
@@ -150,6 +153,11 @@ function validateLesson(subject, lesson) {
             errors.push(`$.original[${index}].paragraphs: text joined by blank lines must exactly preserve the original section text`);
         }
     });
+    if (subject === 'english' && !lesson.original.some(section => section.panelDescription)) {
+        for (const key of ['comicIntroduction', 'comicGuidance']) {
+            if (Object.hasOwn(lesson, key)) errors.push(`$.${key}: requires an original comic panel with panelDescription`);
+        }
+    }
     unique(pool.map(task => task.id), `$.${poolKey} ids`);
     unique(pool.map(task => task.prompt), `$.${poolKey} prompts`);
     unique(lesson.glossary.map(entry => entry.term), '$.glossary terms');
@@ -209,22 +217,26 @@ function validateLesson(subject, lesson) {
                 if (exercise.options) unique(exercise.options, `$.exercises options for ${exercise.id}`);
             });
         }
+    }
+    if (subject === 'history' || subject === 'english') {
+        const key = subject === 'history' ? 'corrections' : 'originalNotes';
+        const urls = new Set((lesson.sources || []).map(source => source.url));
         const ranges = new Map();
-        lesson.corrections.forEach((correction, index) => {
+        (lesson[key] || []).forEach((correction, index) => {
             const text = lesson.original[correction.section]?.text;
             if (!text || !text.includes(correction.quote) || text.indexOf(correction.quote) !== text.lastIndexOf(correction.quote)) {
-                errors.push(`$.corrections[${index}]: must quote exactly one occurrence in its original section`);
+                errors.push(`$.${key}[${index}]: must quote exactly one occurrence in its original section`);
                 return;
             }
-            if (!urls.has(correction.sourceUrl)) errors.push(`$.corrections[${index}]: must refer to a listed source`);
+            if (subject === 'history' && !urls.has(correction.sourceUrl)) errors.push(`$.${key}[${index}]: must refer to a listed source`);
             const paragraphs = lesson.original[correction.section].paragraphs;
             if (paragraphs && !paragraphs.some(block => block.text.includes(correction.quote))) {
-                errors.push(`$.corrections[${index}]: quote must stay within one styled original paragraph`);
+                errors.push(`$.${key}[${index}]: quote must stay within one styled original paragraph`);
             }
             const start = text.indexOf(correction.quote);
             const end = start + correction.quote.length;
             const sectionRanges = ranges.get(correction.section) || [];
-            if (sectionRanges.some(range => start < range.end && end > range.start)) errors.push(`$.corrections[${index}]: overlaps another correction`);
+            if (sectionRanges.some(range => start < range.end && end > range.start)) errors.push(`$.${key}[${index}]: overlaps another correction`);
             sectionRanges.push({ start, end });
             ranges.set(correction.section, sectionRanges);
         });

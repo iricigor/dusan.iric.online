@@ -93,8 +93,16 @@ English v5 is documented in `tools\tutor-website\docs\english.md`; read it and
 `tools\tutor-website\examples\my-collections.json` before authoring or building.
 Keep Czech interface/instructions/explanations with intentional English
 teaching, vocabulary, listening and exercise content. English translations
-support both directions. Use the shared assessment's language normalization and
-bounded, opt-in meaning-task typo credit; never use history spelling rules.
+support both directions. Follow `tools\tutor-website\docs\english.md` for the
+combined 80%/60%/40%/zero partial-mistake schedule (zero for four or more),
+integer points, optional final full stops,
+required question/exclamation marks and length-based typo tolerance. Meaning
+text answers require explicit typo matchers; spelling and grammar tasks never
+receive typo credit. Align typing edits before capitalization checks and collect
+known words only from educational text, never internal review or metadata.
+Use a separate integer-scoring results namespace, retaining old results unchanged
+with a visible explanation rather than rounding or mixing scoring versions.
+Do not apply English scoring to history or maths.
 The shared `tools\tutor-website\speech.js` owns local English browser speech,
 replay, cancellation and visible playback/voice errors. No microphone or
 speaking activities. English has no speed bonus, uses separate v5 results and
@@ -104,6 +112,44 @@ hidden listening transcripts until feedback, voice loading/unavailability,
 replay and cancellation on submission, navigation and hidden pages. Browser
 speech requires a local English voice for offline playback; report actual
 voice/audio verification separately from mocked lifecycle checks.
+Do not show routine voice-available notices. Use one specially formatted
+unavailable-voice warning near the top and one child-friendly play/pause/resume
+button per passage. Keep playback failures explicit.
+On Původní text, automatically add one listening control to each
+nonempty English original section, including comic panels and source
+explanations. Read its exact `text`, excluding headings, Czech descriptions and
+correction notes, without requiring authored audio fields. Silent panels and
+Czech original sections have no English listening control. Pause playback deadlines
+while paused. When documented installed local English male/female voices are
+both available, show one top-right emoji switch with gray inactive and colored
+active states; hide it for unclassified or incomplete pairs. Stop playback when
+switching voice, and never infer gender from arbitrary names or alter pitch.
+English `originalNotes` must preserve quoted source text and explicitly display
+spelling mistakes on Původní text. Validate exact, unique, non-overlapping
+quotes within a single styled paragraph. Ignore one or two UK/US variant
+occurrences across all original sections; show three or more as neutral
+consistency notes, never mistakes. Educational classification belongs to the
+English tutor; the website owns rendering and the threshold.
+Comic panels use separate English `original` sections in reading order, each
+with a Czech `panelDescription` and verbatim image `text`. Render the description
+separately from source text; retain silent panels with `text: ""` rather than
+inventing dialogue. Verify each panel's source preservation and description
+separation. Keep each description inside its own panel card and visually
+secondary to the original text: use smaller,
+muted text without an attention-grabbing callout border or background, maintaining
+readable contrast in both themes. The original English text remains primary.
+Do not add repeated internal titles such as "Autorský popis", "Popis obrázku" or
+"Text z obrázku". Explain Czech descriptions in one small, muted opening paragraph
+under "Jak číst přepis", without a banner, border or icon. Combine the note,
+optional comic introduction and general reading guidance in that paragraph.
+Keep this block left of the QR code on wider screens and above it on mobile.
+Keep optional Czech `comicIntroduction` and `comicGuidance` outside the original
+text and panel cards. Render both as plain prose in the combined paragraph, not
+separate headings or guidance callouts. Do not invent an introduction when omitted;
+return incoherent, generic or unsupported introductory content to the English
+tutor for revision. Both optional fields require a described comic panel.
+Image interpretation and transcription confirmation belong to the
+English tutor.
 
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
 the shared Původní text, Učit se and Hrát si tabs and name/nickname-required
@@ -134,8 +180,9 @@ that preserve historical spelling/year tolerance and maths notation restrictions
 They share grade thresholds and easy-to-hard quiz progression, randomizing
 only within each difficulty. Keep subject themes in the shared stylesheet using
 trusted subject selectors: sepia/amber paper grain for history, blue/teal graph
-paper for maths. Cover entire original/learning cards (headings and padding
-included) with softly visible textures at moderate strength, not strips behind paragraphs. Preserve
+paper for maths, orange accents and lined paper for English. Cover entire
+original/learning cards (headings and padding included) with softly visible
+textures at moderate strength, not strips behind paragraphs. Preserve
 semantic callouts and neutral quiz/results backgrounds, and support dark mode.
 Do not add separate subject stylesheets, assets or quiz engines.
 Use only schema-approved paragraph styles, not HTML/CSS/class names from data.

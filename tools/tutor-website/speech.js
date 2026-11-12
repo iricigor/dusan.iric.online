@@ -1,28 +1,40 @@
 'use strict';
 
-function initializeTutorSpeech({ node, button, compact = false }, host = window) {
+function voiceGender(voice) {
+    if (!voice?.localService || !/^en(?:[-_]|$)/i.test(voice.lang)) return null;
+    // Web Speech exposes no gender. Only recognize documented Microsoft voices.
+    const name = /^Microsoft ([a-z]+)(?: Desktop)?(?: - .+)?$/i.exec(voice.name || '')?.[1].toLowerCase();
+    const genders = {
+        david: 'male', mark: 'male', george: 'male', james: 'male', richard: 'male',
+        ravi: 'male', sean: 'male', guy: 'male', ryan: 'male', prabhat: 'male',
+        zira: 'female', hazel: 'female', susan: 'female', catherine: 'female',
+        linda: 'female', heera: 'female', jenny: 'female', aria: 'female',
+        sonia: 'female', neerja: 'female'
+    };
+    return Object.hasOwn(genders, name) ? genders[name] : null;
+}
+
+function initializeTutorSpeech({ node, button, compact = false, warning, voiceSwitch }, host = window) {
     const synthesis = host.speechSynthesis;
     const available = synthesis && typeof host.SpeechSynthesisUtterance === 'function';
+    let selectedGender = null;
+    let voices = [];
+    let pair = {};
     const controls = new Set();
     let current = null;
     let deadline = null;
-    let voices = [];
-    let selectedGender = null;
     let voiceError = '';
     const englishVoices = () => synthesis.getVoices().filter(voice => /^en(?:[-_]|$)/i.test(voice.lang) && voice.localService);
-    // Microsoft's supported Narrator table identifies these installed US voices.
-    const genderNames = {
-        male: ['Microsoft David - English (United States)', 'Microsoft Mark - English (United States)'],
-        female: ['Microsoft Zira - English (United States)']
-    };
-    const genderOf = voice => voice.lang.toLowerCase() === 'en-us' ?
-        Object.keys(genderNames).find(gender => genderNames[gender].includes(voice.name)) : undefined;
-    const selectedVoice = () => selectedGender ? voices.find(voice => genderOf(voice) === selectedGender) : voices[0];
-    const notice = compact ? node('p', undefined, 'listening-notice') : null;
+    const genderNames = ['male', 'female'];
+    const genderOf = voice => voiceGender(voice) || undefined;
+    const selectedVoice = () => selectedGender ? voices.find(voice => genderOf(voice) === selectedGender) :
+        voices.find(voice => voice.default) || voices[0];
+    const notice = warning;
     const voiceSelector = compact ? node('div', undefined, 'voice-selector') : null;
     const voiceButtons = {};
     if (compact) {
-        notice.id = 'listening-notice';
+        notice.id ||= 'listening-notice';
+        notice.className = `${notice.className || ''} listening-notice`.trim();
         notice.hidden = true;
         notice.setAttribute('role', 'status');
         voiceSelector.setAttribute('role', 'group');
@@ -46,10 +58,9 @@ function initializeTutorSpeech({ node, button, compact = false }, host = window)
         }
     }
     function updateButton(control, state = 'idle') {
-        if (!compact) return;
-        const action = state === 'paused' ? ['▶', 'Pokračovat'] :
-            state === 'playing' && control.mode === 'pause' ? ['⏸', 'Pozastavit'] :
-                state === 'playing' || state === 'starting' ? ['■', 'Zastavit'] : ['▶', 'Přehraj si'];
+        const action = state === 'paused' ? ['▶', 'Pokračuj'] :
+            (state === 'playing' || state === 'starting') && control.mode !== 'stop' ? ['⏸', 'Pauza'] :
+                state === 'playing' || state === 'starting' ? ['■', 'Zastav'] : ['🎧', 'Poslouchej'];
         control.icon.textContent = action[0];
         control.label.textContent = action[1];
         control.play.setAttribute('aria-label', `${action[1]} anglický poslech`);
@@ -61,26 +72,39 @@ function initializeTutorSpeech({ node, button, compact = false }, host = window)
         if (compact) {
             control.status.className = failed ? 'listening-error' : 'visually-hidden';
             control.status.setAttribute('role', failed ? 'alert' : 'status');
+        } else {
+            control.status.hidden = !failed;
+            control.status.className = failed ? 'listening-error' : '';
         }
     }
     function updateAvailability() {
         const voice = selectedVoice();
-        const missing = Object.keys(genderNames).filter(gender => !voices.some(item => genderOf(item) === gender));
+        const missing = genderNames.filter(gender => !voices.some(item => genderOf(item) === gender));
         const message = !available ? 'Tento prohlížeč nepodporuje poslech. Otevři lekci v prohlížeči s podporou hlasového čtení.' :
             voiceError || (!voices.length ? 'Místní anglický hlas není dostupný. Nainstaluj anglický hlas v nastavení zařízení.' :
-                !voice ? 'Zvolený hlas už není dostupný. Vyber dostupný hlas nahoře nebo jej nainstaluj v nastavení zařízení.' :
-                    missing.length === 2 ? 'Anglický poslech je dostupný, ale jeho hlas neumíme označit jako mužský nebo ženský. Přepínač proto není dostupný.' :
-                        missing.length ? `${missing[0] === 'male' ? 'Mužský' : 'Ženský'} hlas není dostupný. Jeho přepínač je vypnutý; můžeš použít druhý hlas.` : '');
-        notice.textContent = message;
+                compact && !voice ? 'Zvolený hlas už není dostupný. Vyber dostupný hlas nahoře nebo jej nainstaluj v nastavení zařízení.' :
+                    compact && missing.length === 2 ? 'Anglický poslech je dostupný, ale jeho hlas neumíme označit jako mužský nebo ženský. Přepínač proto není dostupný.' :
+                        compact && missing.length ? `${missing[0] === 'male' ? 'Mužský' : 'Ženský'} hlas není dostupný. Jeho přepínač je vypnutý; můžeš použít druhý hlas.` : '');
+        notice.textContent = message ? `🎧 ${message}` : '';
         notice.hidden = !message;
-        for (const gender of Object.keys(genderNames)) {
-            const control = voiceButtons[gender];
-            control.disabled = Boolean(voiceError) || missing.includes(gender);
-            control.setAttribute('aria-pressed', String(!control.disabled && selectedGender === gender));
-            control.title = control.disabled ? `${gender === 'male' ? 'Mužský' : 'Ženský'} místní anglický hlas není dostupný.` :
-                `${gender === 'male' ? 'Mužský' : 'Ženský'} hlas`;
+        for (const gender of genderNames) {
+            if (compact) {
+                const control = voiceButtons[gender];
+                control.disabled = Boolean(voiceError) || missing.includes(gender);
+                control.setAttribute('aria-pressed', String(!control.disabled && selectedGender === gender));
+                control.title = control.disabled ? `${gender === 'male' ? 'Mužský' : 'Ženský'} místní anglický hlas není dostupný.` :
+                    `${gender === 'male' ? 'Mužský' : 'Ženský'} hlas`;
+            }
         }
-        controls.forEach(control => { control.play.disabled = !available || Boolean(voiceError) || !voice; });
+        controls.forEach(control => { control.play.disabled = !available || (compact && (Boolean(voiceError) || !voice)); });
+        if (voiceSwitch) {
+            voiceSwitch.hidden = compact || !pair.male || !pair.female;
+            voiceSwitch.disabled = voiceSwitch.hidden;
+            if (!voiceSwitch.hidden) {
+                voiceSwitch.setAttribute('aria-checked', String(selectedGender === 'female'));
+                voiceSwitch.title = selectedGender === 'female' ? 'Přepnout na mužský hlas' : 'Přepnout na ženský hlas';
+            }
+        }
     }
     function refreshVoices() {
         try {
@@ -91,26 +115,34 @@ function initializeTutorSpeech({ node, button, compact = false }, host = window)
             voiceError = 'Seznam hlasů se nepodařilo načíst. Obnov stránku a zkus to znovu.';
             console.error('Tutor: cannot load English voices.', error);
         }
-        if (!selectedGender && voices.length) selectedGender = genderOf(voices[0]) || null;
+        pair = {
+            male: voices.find(voice => genderOf(voice) === 'male'),
+            female: voices.find(voice => genderOf(voice) === 'female')
+        };
+        if (!compact && (!pair.male || !pair.female)) selectedGender = null;
+        if (!selectedGender && voices.length && (compact || (pair.male && pair.female))) {
+            selectedGender = genderOf(voices.find(voice => voice.default)) || genderOf(voices.find(voice => genderOf(voice))) || null;
+        }
         if (current && !voices.includes(current.utterance.voice) &&
             !voices.some(voice => voice.name === current.utterance.voice.name && voice.lang === current.utterance.voice.lang)) stop();
         updateAvailability();
     }
     function stop() {
         if (!current) return true;
-        const playing = current;
+        const playback = current;
         current = null;
         try {
             synthesis.cancel();
+            if (synthesis.paused) synthesis.resume();
         } catch (error) {
-            current = playing;
+            current = playback;
             console.error('Tutor: cannot stop English listening.', error);
-            status(playing.control, 'Poslech se nepodařilo zastavit. Zkus to znovu.', true);
+            status(playback.control, 'Poslech se nepodařilo zastavit. Zkus to znovu.', true);
             return false;
         }
         clearTimeout(deadline);
-        updateButton(playing.control);
-        status(playing.control, 'Poslech zastaven. Můžeš ho přehrát znovu.');
+        updateButton(playback.control);
+        status(playback.control, '', false);
         return true;
     }
     function fail(control, message, error) {
@@ -118,60 +150,48 @@ function initializeTutorSpeech({ node, button, compact = false }, host = window)
         console.error('Tutor: English listening failed.', error || message);
         status(control, message, true);
     }
-    function watchPlayback(playback) {
+    function schedule(playback, remaining, message) {
         clearTimeout(deadline);
+        playback.remaining = remaining;
+        playback.deadlineAt = Date.now() + remaining;
+        playback.timeoutMessage = message;
         deadline = setTimeout(() => {
-            if (current === playback) fail(playback.control, 'Poslech nedokončil přehrávání. Zkus to znovu.');
-        }, 300000);
+            if (current === playback) fail(playback.control, message);
+        }, remaining);
     }
     function togglePlayback(control) {
         const playback = current;
         if (playback?.control !== control) return false;
-        if (control.mode === 'stop' || playback.state === 'starting') {
+        if (control.mode === 'stop') {
             stop();
             return true;
         }
+        const paused = playback.state === 'paused';
         try {
-            if (playback.state === 'paused') {
+            if (paused) {
+                playback.state = playback.beforePause || 'playing';
+                schedule(playback, playback.remaining, playback.timeoutMessage);
                 synthesis.resume();
-                if (current !== playback) return true;
-                playback.state = 'playing';
-                watchPlayback(playback);
-                status(control, 'Poslech pokračuje.');
             } else {
-                synthesis.pause();
-                if (current !== playback) return true;
+                playback.remaining = Math.max(0, playback.deadlineAt - Date.now());
+                playback.beforePause = playback.state;
                 playback.state = 'paused';
                 clearTimeout(deadline);
-                status(control, 'Poslech pozastaven.');
+                synthesis.pause();
             }
-            updateButton(control, playback.state);
+            if (current === playback) updateButton(control, playback.state);
         } catch (error) {
-            fail(control, 'Poslech se nepodařilo pozastavit nebo obnovit. Zkus to znovu.', error);
+            fail(control, paused ? 'Poslech se nepodařilo obnovit. Zkus to znovu.' : 'Poslech se nepodařilo pozastavit. Zkus to znovu.', error);
         }
         return true;
     }
     function playAudio(control, audio) {
-        if (compact && togglePlayback(control)) return;
+        if (togglePlayback(control)) return;
         if (!stop()) return;
-        if (!available) {
-            fail(control, 'Tento prohlížeč nepodporuje poslech.');
-            return;
-        }
-        let voice;
-        try {
-            if (compact) {
-                refreshVoices();
-                voice = selectedVoice();
-            } else voice = englishVoices()[0];
-        } catch (error) {
-            fail(control, 'Seznam hlasů se nepodařilo načíst. Zkus poslech znovu.', error);
-            return;
-        }
-        if (!voice) {
-            if (!compact) fail(control, 'Místní anglický hlas není dostupný. Nainstaluj anglický hlas v nastavení zařízení a zkus poslech znovu.');
-            return;
-        }
+        refreshVoices();
+        const voice = selectedVoice();
+        if (!voice) return;
+        status(control, '', false);
         let utterance;
         try {
             utterance = new host.SpeechSynthesisUtterance(audio.text);
@@ -185,84 +205,73 @@ function initializeTutorSpeech({ node, button, compact = false }, host = window)
         const playback = { control, utterance, state: 'starting' };
         current = playback;
         updateButton(control, playback.state);
-        status(control, 'Spouštíme poslech…');
         utterance.onstart = () => {
             if (current !== playback) return;
-            playback.state = 'playing';
+            if (playback.state === 'paused') {
+                playback.beforePause = 'playing';
+                playback.remaining = 300000;
+                playback.timeoutMessage = 'Poslech nedokončil přehrávání. Zkus to znovu.';
+            } else {
+                playback.state = 'playing';
+                schedule(playback, 300000, 'Poslech nedokončil přehrávání. Zkus to znovu.');
+            }
             updateButton(control, playback.state);
-            status(control, compact ? 'Přehrává se poslech.' : 'Přehrává se poslech. Můžeš ho zastavit nebo zopakovat.');
-            watchPlayback(playback);
         };
         utterance.onend = () => {
             if (current !== playback) return;
             current = null;
             clearTimeout(deadline);
             updateButton(control);
-            status(control, 'Poslech dokončen. Můžeš ho zopakovat.');
+            status(control, '', false);
         };
         utterance.onerror = event => {
             if (current === playback) fail(control, 'Poslech se nepodařilo přehrát. Zkus to znovu.', event.error);
         };
-        deadline = setTimeout(() => {
-            if (current === playback) fail(control, 'Poslech se nespustil. Zkus to znovu.');
-        }, 10000);
+        schedule(playback, 10000, 'Poslech se nespustil. Zkus to znovu.');
         try {
-            if (compact && synthesis.paused) synthesis.resume();
+            if (synthesis.paused) synthesis.resume();
             synthesis.speak(utterance);
         } catch (error) {
             fail(control, 'Poslech se nepodařilo spustit. Zkus to znovu.', error);
         }
     }
     function createControls(audio, { mode = 'pause' } = {}) {
-        const panel = node('div', undefined, compact ? 'listening-controls listening-compact' : 'listening-controls');
-        const message = node('p', compact ? '' : available ? 'Poslech používá místní anglický hlas zařízení.' :
-            'Tento prohlížeč nepodporuje poslech. Otevři lekci v prohlížeči s podporou hlasového čtení.');
+        const panel = node('div', undefined, `listening-controls${compact ? ' listening-compact' : ''}`);
+        const message = node('p');
         message.setAttribute('role', 'status');
         const control = { status: message, mode };
-        const play = button(compact ? '' : 'Přehrát anglický poslech', () => playAudio(control, audio));
+        const play = button('', () => playAudio(control, audio), 'listening-toggle');
         control.play = play;
-        if (compact) {
-            play.className = 'listening-toggle';
-            control.icon = node('span', undefined, 'listening-icon');
-            control.icon.setAttribute('aria-hidden', 'true');
-            control.label = node('span');
-            play.append(control.icon, control.label);
-            updateButton(control);
-            message.className = 'visually-hidden';
-            panel.append(play, message);
-        } else {
-            const cancel = button('Zastavit poslech', stop);
-            if (!available) {
-                play.disabled = true;
-                cancel.disabled = true;
-            }
-            panel.append(play, cancel, message);
-        }
+        play.disabled = !available;
+        control.icon = node('span', undefined, 'listening-icon');
+        control.icon.setAttribute('aria-hidden', 'true');
+        control.label = node('span');
+        play.append(control.icon, control.label);
+        if (compact) message.className = 'visually-hidden';
+        else message.hidden = true;
+        updateButton(control);
+        panel.append(play, message);
         controls.forEach(existing => { if (!existing.status.isConnected) controls.delete(existing); });
         controls.add(control);
         if (compact) updateAvailability();
         return panel;
     }
-    if (available) synthesis.addEventListener('voiceschanged', () => {
-        if (compact) {
-            refreshVoices();
-            return;
-        }
-        let voice;
-        try {
-            voice = englishVoices()[0];
-        } catch (error) {
-            console.error('Tutor: cannot load English voices.', error);
-            controls.forEach(control => { control.status.textContent = 'Seznam hlasů se nepodařilo načíst. Zkus poslech znovu.'; });
-            return;
-        }
-        if (voice) controls.forEach(control => {
-            if (current?.control !== control && control.status.isConnected) control.status.textContent = 'Anglický hlas je připraven. Můžeš spustit poslech.';
+    if (available) synthesis.addEventListener('voiceschanged', refreshVoices);
+    if (voiceSwitch) {
+        const maleIcon = node('span', '👨', 'voice-male');
+        const femaleIcon = node('span', '👩', 'voice-female');
+        maleIcon.setAttribute('aria-hidden', 'true');
+        femaleIcon.setAttribute('aria-hidden', 'true');
+        voiceSwitch.append(maleIcon, femaleIcon);
+        voiceSwitch.addEventListener('click', () => {
+            if (!pair.male || !pair.female || !stop()) return;
+            selectedGender = selectedGender === 'female' ? 'male' : 'female';
+            updateAvailability();
         });
-    });
-    if (compact) refreshVoices();
+    }
+    refreshVoices();
     host.addEventListener('pagehide', stop);
     return { controls: createControls, stop, voiceSelector, notice };
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { initializeTutorSpeech };
+if (typeof module !== 'undefined' && module.exports) module.exports = { initializeTutorSpeech, voiceGender };

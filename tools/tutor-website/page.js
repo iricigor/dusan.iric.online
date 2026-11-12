@@ -26,6 +26,8 @@ function renderPage(lesson, subject, publicationUrl) {
         WEBPAGE_LOGO: fs.readFileSync(path.join(__dirname, 'webpage-logo.svg'), 'utf8'),
         SUBJECT: { history: 'Dějepis', maths: 'Matematika', english: 'Angličtina' }[subject],
         SUBJECT_ID: subject,
+        VOICE_SWITCH: subject === 'english' ? '<button id="voice-switch" class="voice-switch" type="button" role="switch" aria-label="Ženský hlas" aria-checked="false" hidden></button>' : '',
+        VOICE_WARNING: subject === 'english' ? '<p id="voice-warning" class="voice-warning callout callout-warning" role="status" aria-live="polite" aria-atomic="true" hidden></p>' : '',
         TIMING: subject === 'history' ? '<div id="bonus" aria-hidden="true"><div id="bonus-bar"></div></div>' : '',
         SHARE: `<aside class="lesson-share" aria-label="Odkaz na lekci"><div><p>Otevři si tuto lekci na jiném zařízení naskenováním QR kódu nebo kliknutím na odkaz:</p><a href="${escapeHtml(publicationUrl)}">${escapeHtml(publicationUrl)}</a></div>${createQrSvg(publicationUrl)}</aside>`,
         STYLES: fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8'),
@@ -34,7 +36,7 @@ function renderPage(lesson, subject, publicationUrl) {
         APP: readRuntimeSource(subject)
     };
     return fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8')
-        .replace(/@@(TITLE|FAVICON|WEBPAGE_LOGO|SUBJECT|SUBJECT_ID|TIMING|SHARE|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
+        .replace(/@@(TITLE|FAVICON|WEBPAGE_LOGO|SUBJECT|SUBJECT_ID|VOICE_SWITCH|VOICE_WARNING|TIMING|SHARE|STYLES|DATA|APP)@@/g, (_, key) => replacements[key]);
 }
 
 module.exports = { renderPage, readRuntimeSource };

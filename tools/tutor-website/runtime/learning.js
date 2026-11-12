@@ -241,7 +241,8 @@ function initializeTutorLearning(lesson, subject) {
     const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
         styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
             { target: target ? `${target}.${index}.text` : undefined }), block.style));
-    const speech = subject.listening ? initializeTutorSpeech({ node, button, compact: subject.compactListening }) : null;
+    const speech = subject.listening ? initializeTutorSpeech({ node, button,
+        compact: subject.compactListening, warning: $('voice-warning'), voiceSwitch: $('voice-switch') }) : null;
     if (speech?.voiceSelector) {
         document.body.dataset.listeningUi = 'compact';
         $('page-header').querySelector('.lesson-tools').prepend(speech.voiceSelector);
@@ -250,12 +251,19 @@ function initializeTutorLearning(lesson, subject) {
     const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading, speech };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
+    subject.renderOriginalIntroduction?.(context, lesson);
     lesson.original.forEach((section, index) => {
         const article = node('article', undefined, 'card');
         article.append(heading(section.heading, section.icon, '📄'));
+        if (section.panelDescription) {
+            const description = node('aside', undefined, 'comic-panel-description');
+            description.lang = 'cs-CZ';
+            description.append(node('p', section.panelDescription));
+            article.append(description);
+        }
         const text = node('div', undefined, 'original-text');
         if (section.language) text.lang = section.language;
-        const corrections = (lesson.corrections || []).filter(correction => correction.section === index)
+        const corrections = (subject.originalCorrections || lesson.corrections || []).filter(correction => correction.section === index)
             .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
         let paragraphOffset = 0;
         (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
@@ -267,8 +275,9 @@ function initializeTutorLearning(lesson, subject) {
             for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
                 const start = block.text.indexOf(correction.quote);
                 source.append(document.createTextNode(block.text.slice(offset, start)));
-                const mark = definitionButton(correction.quote, 'Historická oprava', correction.explanation, 'correction', '🔎');
-                mark.title = correction.explanation;
+                const mark = definitionButton(correction.quote, correction.title || 'Historická oprava', correction.explanation,
+                    correction.kind === 'spellingVariant' ? 'correction correction-variant' : 'correction', '🔎');
+                mark.title = correction.title ? `${correction.title}: ${correction.explanation}` : correction.explanation;
                 source.append(mark);
                 offset = start + correction.quote.length;
             }
@@ -280,8 +289,11 @@ function initializeTutorLearning(lesson, subject) {
         });
         styleParagraph(article, section.style);
         article.append(text);
-        const audio = subject.originalAudio?.(section);
-        if (audio) article.append(speech.controls(audio, { mode: 'stop' }));
+        if (subject.compactListening) {
+            const audio = subject.originalAudio?.(section);
+            if (audio) article.append(speech.controls(audio, { mode: 'stop' }));
+        } else subject.renderOriginalControls?.(context, article, section, index);
+        subject.renderOriginalNotes?.(context, article, section, index);
         $('original-content').append(article);
     });
     subject.renderLearning(context, lesson);
