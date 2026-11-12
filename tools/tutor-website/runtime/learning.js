@@ -242,7 +242,12 @@ function initializeTutorLearning(lesson, subject) {
         styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
             { target: target ? `${target}.${index}.text` : undefined }), block.style));
     const speech = subject.listening ? initializeTutorSpeech({ node, button,
-        warning: $('voice-warning'), voiceSwitch: $('voice-switch') }) : null;
+        compact: subject.compactListening, warning: $('voice-warning'), voiceSwitch: $('voice-switch') }) : null;
+    if (speech?.voiceSelector) {
+        document.body.dataset.listeningUi = 'compact';
+        $('page-header').querySelector('.lesson-tools').prepend(speech.voiceSelector);
+        document.querySelector('main').prepend(speech.notice);
+    }
     const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading, speech };
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
@@ -264,6 +269,7 @@ function initializeTutorLearning(lesson, subject) {
         (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
             if (blockIndex) text.append(document.createTextNode('\n\n'));
             const content = node(block.style === 'quote' ? 'blockquote' : 'p');
+            if (block.language) content.lang = block.language;
             const source = node('span', undefined, 'highlight-text');
             let offset = 0;
             for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
@@ -283,7 +289,10 @@ function initializeTutorLearning(lesson, subject) {
         });
         styleParagraph(article, section.style);
         article.append(text);
-        subject.renderOriginalControls?.(context, article, section, index);
+        if (subject.compactListening) {
+            const audio = subject.originalAudio?.(section);
+            if (audio) article.append(speech.controls(audio, { mode: 'stop' }));
+        } else subject.renderOriginalControls?.(context, article, section, index);
         subject.renderOriginalNotes?.(context, article, section, index);
         $('original-content').append(article);
     });

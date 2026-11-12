@@ -195,7 +195,8 @@ function originalNotes(lesson) {
 
 function contentSize(lesson) {
     const passages = [
-        ...lesson.original.filter(section => section.language === 'en-GB').map(section => section.text),
+        ...lesson.original.flatMap(section => (section.paragraphs || [section])
+            .filter(block => (block.language || section.language) === 'en-GB').map(block => block.text)),
         ...lesson.chunks.flatMap(chunk => chunk.sentences),
         ...lesson.glossary.map(entry => entry.term),
         ...lesson.exercises.flatMap(exercise => [
@@ -220,6 +221,7 @@ function subjectForLesson(lesson) {
         previousResultsNotice: 'Starší pokusy zůstávají uložené beze změny pro původní stránku. Nové pokusy mají jiné bodování a samostatné pořadí; starší body nezaokrouhlujeme ani nepřepočítáváme.',
         speedBonus: false,
         listening: true,
+        compactListening: lesson.listeningUi === 'compact',
         icon: '📚',
         originalCorrections: notes,
         renderOriginalIntroduction({ $, node }, source) {
@@ -283,6 +285,13 @@ function subjectForLesson(lesson) {
                 if (chunk.audio) article.append(speech.controls(chunk.audio));
                 $('learning-content').append(article);
             });
+        },
+        originalAudio(section) {
+            if (lesson.listeningUi !== 'compact') return null;
+            const text = (section.paragraphs || [section])
+                .filter(block => (block.language || section.language) === 'en-GB')
+                .map(block => block.text).join('\n\n');
+            return text ? { text, language: 'en-GB' } : null;
         },
         renderQuestion({ $, node, speech }, exercise) {
             const material = $('question-material');

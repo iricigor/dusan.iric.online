@@ -262,12 +262,54 @@ subjects is unchanged.
 
 ## Listening and shared UI
 
+### Opt-in compact listening
+
+Set `"listeningUi": "compact"` on an English v5 lesson to opt in to a
+separate male/female voice selector with disabled unavailable choices. English
+original sections additionally get one Play/Stop button each. Without this field,
+lessons keep the standard single Play/Pause/Resume button and documented voice
+switch. Both interfaces share one availability warning near the top of the page.
+This option does not change quizzes, scoring or result storage.
+
+For styled original sections, declare `language` on **every paragraph** when
+opting in. Playback includes only `en-GB` paragraphs; Czech descriptions and
+guidance are omitted. Paragraph text must still reconstruct `original.text`
+exactly with blank-line separators. For example:
+
+```json
+{
+  "heading": "Komiks — obrázek 1",
+  "language": "en-GB",
+  "text": "Dvě děti slaví narozeniny.\n\nIt's our birthday!",
+  "paragraphs": [
+    { "style": "comment", "language": "cs-CZ", "text": "Dvě děti slaví narozeniny." },
+    { "style": "plain", "language": "en-GB", "text": "It's our birthday!" }
+  ]
+}
+```
+
+Original playback reads the preserved text, not unavailable textbook recordings
+or answers to blanks. It uses the same local device voice as authored listening.
+The browser does not provide voice gender. Both selectors recognize only
+documented local Microsoft English voices; unknown voices are not guessed or
+mislabeled. A usable unrecognized voice can still play, with compact gender
+choices disabled and an explanation. Missing choices are disabled. If a selected
+voice disappears, playback does not silently switch to another voice.
+Availability updates when voices load.
+
+Pause/resume keeps the same utterance. Starting another clip or switching voices
+cancels the current one, including paused playback. Playback errors remain visible at the affected clip; routine state announcements
+are accessible but not repeated as visible availability comments. Completion,
+navigation and quiz submission reset playback. No microphone, remote voice or
+automatic speaking assessment is added.
+
 On **Původní text**, every nonempty `original` section marked `en-GB`
-automatically receives its own listening control. Use one section per comic
-panel or original explanation section. Playback reads that section's exact
-`text`, including original spelling and punctuation, not headings, Czech panel
-descriptions, styled paragraph labels or correction notes. No new audio field
-is required. Silent panels and Czech original sections have no English
+automatically receives its own listening control unless compact playback is
+enabled, in which case only its explicitly English paragraphs are read. Use one
+section per comic panel or original explanation section. Playback reads exact
+source text, including original spelling and punctuation, not headings, Czech
+panel descriptions, styled paragraph labels or correction notes. No new audio
+field is required. Silent panels and Czech original sections have no English
 listening control. These controls reuse the same player as learning and quizzes.
 
 `speech.js` owns browser Speech Synthesis, with a local English voice and a

@@ -7,13 +7,15 @@ const { initializeTutorSpeech, voiceGender } = require('../speech.js');
 const male = { name: 'Microsoft David Desktop - English (United States)', lang: 'en-US', localService: true };
 const female = { name: 'Microsoft Zira Desktop - English (United States)', lang: 'en-US', localService: true };
 
-function fixture(voices = [{ lang: 'en-GB', localService: true }], supported = true) {
+function fixture(voices = [{ lang: 'en-GB', localService: true }], supported = true, compact = false) {
     const node = (tag, text = '', className) => ({ tag, textContent: text, className, isConnected: true,
-        children: [], attributes: {}, events: {},
+        dataset: {}, hidden: true, children: [], attributes: {}, events: {},
         append(...children) { this.children.push(...children); },
         setAttribute(name, value) { this.attributes[name] = value; },
         addEventListener(name, action) { this.events[name] = action; } });
-    const button = (text, action, className) => ({ ...node('button', text, className), click: action });
+    const button = (text, action, className) => Object.assign(node('button', text, className), {
+        click() { if (!this.disabled) action(); }
+    });
     const events = {};
     const utterances = [];
     let cancelled = 0;
@@ -23,19 +25,19 @@ function fixture(voices = [{ lang: 'en-GB', localService: true }], supported = t
     const synthesis = {
         getVoices: () => voiceList, addEventListener: (event, action) => { events[event] = action; },
         speak: utterance => { utterances.push(utterance); },
+        cancel: () => { cancelled++; },
         pause: () => { paused++; synthesis.paused = true; },
-        resume: () => { resumed++; synthesis.paused = false; },
-        cancel: () => { cancelled++; }
+        resume: () => { resumed++; synthesis.paused = false; }
     };
     const host = { speechSynthesis: supported ? synthesis : undefined, SpeechSynthesisUtterance: function(text) { this.text = text; },
         addEventListener: (event, action) => { events[event] = action; } };
     const warning = node('p');
     const voiceSwitch = node('button');
-    const controller = initializeTutorSpeech({ node, button, warning, voiceSwitch }, host);
+    const controller = initializeTutorSpeech({ node, button, compact, warning, voiceSwitch }, host);
     const audio = { text: 'I have got a comic.', language: 'en-GB' };
     const panel = controller.controls(audio);
-    return { controller, host, synthesis, utterances, events, panel, audio,
-        play: panel.children[0], icon: panel.children[0].children[0], label: panel.children[0].children[1],
+    return { controller, host, synthesis, utterances, events, panel, audio, play: panel.children[0],
+        icon: panel.children[0].children[0], label: panel.children[0].children[1],
         status: panel.children[1], warning, voiceSwitch,
         cancelled: () => cancelled, paused: () => paused, resumed: () => resumed,
         voices: value => { voiceList = value; } };
@@ -202,4 +204,179 @@ test('voice-list, preparation, pause, resume and cancellation failures remain ex
     page.controller.stop();
     assert.match(page.status.textContent, /zastavit/);
     assert.ok(console.error.mock.calls.length >= 5);
+});
+
+test('compact controls pause and resume the same utterance, exclude paused time and reset after completion', t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = fixture([male, female], true, true);
+    assert.equal(page.controller.notice.hidden, true);
+    assert.equal(page.status.textContent, '');
+    page.play.click();
+    const utterance = page.utterances[0];
+    assert.equal(page.play.dataset.state, 'starting');
+    utterance.onstart();
+    assert.equal(page.play.dataset.state, 'playing');
+    page.play.click();
+    assert.equal(page.paused(), 1);
+    assert.equal(page.play.dataset.state, 'paused');
+    t.mock.timers.tick(600000);
+    assert.equal(page.play.dataset.state, 'paused');
+    page.play.click();
+    assert.equal(page.resumed(), 1);
+    assert.equal(page.utterances.length, 1);
+    assert.equal(page.play.dataset.state, 'playing');
+    utterance.onend();
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.equal(page.status.className, 'visually-hidden');
+});
+
+test('original playback stops instead of pausing and another clip safely replaces paused speech', () => {
+    const page = fixture([male, female], true, true);
+    const original = page.controller.controls({ text: "It's our birthday!", language: 'en-GB' }, { mode: 'stop' });
+    const play = original.children[0];
+    play.click();
+    page.utterances.at(-1).onstart();
+    play.click();
+    assert.equal(page.cancelled(), 1);
+    assert.equal(page.paused(), 0);
+    assert.equal(play.dataset.state, 'idle');
+    page.play.click();
+    const old = page.utterances.at(-1);
+    old.onstart();
+    page.play.click();
+    play.click();
+    const next = page.utterances.at(-1);
+    next.onstart();
+    assert.equal(page.synthesis.paused, false);
+    assert.equal(page.play.dataset.state, 'idle');
+    old.onend();
+    old.onerror({ error: 'cancelled' });
+    assert.equal(play.dataset.state, 'playing');
+    page.events.pagehide();
+    assert.equal(play.dataset.state, 'idle');
+});
+
+test('compact voice selection recognizes only verified local voices and never silently replaces a missing selection', () => {
+    const page = fixture([male, female], true, true);
+    const [man, woman] = page.controller.voiceSelector.children;
+    assert.equal(man.attributes['aria-pressed'], 'true');
+    assert.equal(woman.attributes['aria-pressed'], 'false');
+    page.play.click();
+    page.utterances.at(-1).onstart();
+    woman.click();
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.equal(page.cancelled(), 1);
+    assert.equal(woman.attributes['aria-pressed'], 'true');
+    page.play.click();
+    assert.equal(page.utterances.at(-1).voice, female);
+    page.voices([male]);
+    page.events.voiceschanged();
+    assert.equal(woman.disabled, true);
+    assert.equal(man.attributes['aria-pressed'], 'false');
+    assert.equal(page.play.disabled, true);
+    assert.match(page.controller.notice.textContent, /Zvolený hlas/);
+    const count = page.utterances.length;
+    page.play.click();
+    assert.equal(page.utterances.length, count);
+    man.click();
+    page.play.click();
+    assert.equal(page.utterances.at(-1).voice, male);
+    page.controller.stop();
+    page.voices([{ name: 'Microsoft Zira - English (United States)', lang: 'en-US', localService: false },
+        { name: 'Unknown woman voice', lang: 'en-GB', localService: true }]);
+    page.events.voiceschanged();
+    assert.equal(man.disabled, true);
+    assert.equal(woman.disabled, true);
+    assert.equal(page.play.disabled, true);
+});
+
+test('compact missing, unsupported, unknown and late voices use one shared warning without per-clip chatter', t => {
+    t.mock.method(console, 'error', () => {});
+    const unsupported = fixture([], false, true);
+    assert.equal(unsupported.play.disabled, true);
+    assert.match(unsupported.controller.notice.textContent, /nepodporuje/);
+    assert.equal(unsupported.status.textContent, '');
+    const page = fixture([], true, true);
+    const another = page.controller.controls({ text: 'Hello.', language: 'en-GB' });
+    assert.match(page.controller.notice.textContent, /není dostupný/);
+    assert.equal(page.status.textContent, '');
+    assert.equal(another.children[1].textContent, '');
+    page.voices([{ name: 'Unknown', lang: 'en-GB', localService: true }]);
+    page.events.voiceschanged();
+    assert.match(page.controller.notice.textContent, /neumíme označit/);
+    assert.equal(page.play.disabled, false);
+    page.play.click();
+    assert.equal(page.utterances.length, 1);
+    page.controller.stop();
+    page.voices([male, female]);
+    page.events.voiceschanged();
+    assert.equal(page.controller.notice.hidden, true);
+    page.synthesis.getVoices = () => { throw new Error('voices failed'); };
+    page.events.voiceschanged();
+    assert.match(page.controller.notice.textContent, /Seznam hlasů/);
+    assert.equal(page.play.disabled, true);
+    assert.equal(page.status.className, 'visually-hidden');
+});
+
+test('compact playback exposes failures and recovers with idle buttons', t => {
+    t.mock.method(console, 'error', () => {});
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = fixture([male, female], true, true);
+    page.play.click();
+    t.mock.timers.tick(10000);
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.equal(page.status.className, 'listening-error');
+    assert.match(page.status.textContent, /nespustil/);
+    page.play.click();
+    page.utterances.at(-1).onstart();
+    page.synthesis.pause = () => { throw new Error('pause failed'); };
+    page.play.click();
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.match(page.status.textContent, /pozastavit/);
+    page.play.click();
+    page.utterances.at(-1).onerror({ error: 'audio-busy' });
+    assert.equal(page.status.attributes.role, 'alert');
+    assert.match(page.status.textContent, /přehrát/);
+    page.synthesis.speak = () => { throw new Error('start failed'); };
+    page.play.click();
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.match(page.status.textContent, /spustit/);
+});
+
+test('compact cancellation failures are explicit and do not start overlapping clips', t => {
+    t.mock.method(console, 'error', () => {});
+    const page = fixture([male, female], true, true);
+    const other = page.controller.controls({ text: 'Hello.', language: 'en-GB' });
+    page.play.click();
+    page.utterances.at(-1).onstart();
+    const cancel = page.synthesis.cancel;
+    page.synthesis.cancel = () => { throw new Error('cancel failed'); };
+    other.children[0].click();
+    assert.equal(page.utterances.length, 1);
+    assert.match(page.status.textContent, /zastavit/);
+    assert.equal(page.status.attributes.role, 'alert');
+    page.synthesis.cancel = cancel;
+    other.children[0].click();
+    assert.equal(page.utterances.length, 2);
+    page.controller.stop();
+});
+
+test('failed cancellation preserves the original startup deadline', t => {
+    t.mock.method(console, 'error', () => {});
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = fixture([male, female], true, true);
+    const other = page.controller.controls({ text: 'Hello.', language: 'en-GB' });
+    page.play.click();
+    t.mock.timers.tick(5000);
+    const cancel = page.synthesis.cancel;
+    page.synthesis.cancel = () => { throw new Error('cancel failed'); };
+    other.children[0].click();
+    assert.equal(page.utterances.length, 1);
+    assert.match(page.status.textContent, /zastavit/);
+    page.synthesis.cancel = cancel;
+    t.mock.timers.tick(4999);
+    assert.equal(page.play.dataset.state, 'starting');
+    t.mock.timers.tick(1);
+    assert.equal(page.play.dataset.state, 'idle');
+    assert.match(page.status.textContent, /nespustil/);
 });
