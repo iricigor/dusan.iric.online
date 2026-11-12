@@ -186,6 +186,10 @@ failed verification; ask before substituting foreign-language references.
 Mark corrections with an exact, uniquely occurring quote, its zero-based original
 section, explanation and listed source URL. Describe sourced additions in
 `review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
+For each history lesson, consider 3–5 accurate, topic-related facts and select
+the strongest one or two. Explain each in 2–3 concise sentences a 10-year-old
+can understand; place one at the end of the lesson and, if including a second,
+put it beside the material it deepens.
 At each person's first mention in authored teaching content, explain their
 title/role, birth–death dates, father and, where relevant, reign dates and
 territory. Verify the biography against consulted references and disclose
