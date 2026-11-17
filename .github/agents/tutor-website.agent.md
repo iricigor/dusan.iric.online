@@ -151,6 +151,22 @@ tutor for revision. Both optional fields require a described comic panel.
 Image interpretation and transcription confirmation belong to the
 English tutor.
 
+For English, follow the optional `original[].group`, `chunks[].chapter` and
+`chunks[].layout` contract in `tools\tutor-website\docs\english.md`.
+Render source groups and learning chapters without changing original ordering,
+section indices, highlighting targets or completion-card indices. Keep legacy
+JSON valid and other subjects' presentation unchanged. Verify reading,
+dialogue and example layouts with glossary popups and authored/child highlights.
+English uses quieter notebook lines and card boundaries; listening pills
+straddle card bottoms alongside existing learning actions rather than consume
+a separate tall row. Preserve the explanation action, accessible labels and
+44px touch targets, including compact narrow-screen controls, and keep playback
+errors readable inside the card above its footer. Verify both themes and narrow
+widths. Do not add a next-unexplored-section button or new visuals.
+On a successful tab change, reveal the destination and reset document scroll
+to its beginning before updating learning progress; preserve active-quiz leave
+confirmation and reduced-motion behavior.
+
 Subject tutors provide JSON only; this agent owns HTML generation. Always use
 the shared Původní text, Učit se and Hrát si tabs and name/nickname-required
 quiz flow. Maths Učit se contains only guided worked examples; keep the full

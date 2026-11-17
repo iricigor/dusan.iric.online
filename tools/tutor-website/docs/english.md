@@ -64,6 +64,12 @@ přepis**, to the left of the QR code on wider screens and above it on mobile.
 It is not a banner. Do not duplicate it in an authored introduction or invent
 a source section for it.
 It appears only for lessons with a described comic panel.
+Keep comic groups/cards full-width below the introduction/QR row, not beside
+the QR code. On English pages at least 1100px wide, the QR column is 22rem
+instead of 15rem, reducing wrapping and the height of that opening row.
+The prepared example's instruction and URL occupy three lines in total;
+longer URLs still wrap safely. On mobile, guidance, QR block and source
+material remain stacked in that order.
 
 An optional top-level `comicIntroduction` can provide one or two child-friendly
 Czech sentences about the actual comic. Make the paragraph logical and coherent:
@@ -132,6 +138,60 @@ v5 lessons without notes remain valid; other subjects cannot use this field.
 grammar, readings/dialogues and worked examples, not the independent quiz bank.
 Optional `audio` is `{ "text": "Reviewed English script.", "language": "en-GB" }`.
 Every tested word, construction and permitted answer variant must be taught.
+
+### Source groups, learning chapters and text layout
+
+These optional English-only fields preserve v5 compatibility; existing JSON
+needs no migration:
+
+- `original[].group`: a Czech textbook-page/activity heading that starts a
+  source group at this section and continues through following sections until
+  the next `group`.
+- `chunks[].chapter`: a Czech heading that starts a learning chapter at this
+  chunk and continues until the next `chapter`.
+- `chunks[].layout`: `reading` (default), `dialogue` or `examples`.
+
+Use the heading only on the first member, not repeatedly on every member.
+Sections before the first group/chapter remain ungrouped. Group and chapter
+headings are semantic level-two headings; their individual cards use level
+three. Original sections and learning chunks retain their array order and
+indices, including notes, highlighting targets and completion tracking.
+Source grouping never merges comic panels, changes transcription or adds
+speaker labels that are absent from the source.
+
+Structure authored learning around vocabulary, worked grammar examples, then
+connected reading/listening where appropriate. Give each card one coherent
+teaching goal and group related cards into meaningful chapters, without
+padding or imposing that sequence on unsuitable source material.
+
+```json
+{
+  "chapter": "Rozhovor a otázky",
+  "heading": "Ptáme se na sbírku",
+  "layout": "dialogue",
+  "sentences": ["Anna: What do you collect?", "Ben: I collect stamps."],
+  "explanation": "Otázkou What do you collect? se ptáme, co někdo sbírá."
+}
+```
+
+In `reading`, sentences form one connected paragraph. In `dialogue` and
+`examples`, each array entry is a complete turn or worked example rendered on
+its own line, not necessarily a single grammatical sentence. All layouts keep
+the canonical `chunks.<index>.sentences` highlighting target and its
+space-joined text, including offsets for selections across displayed lines.
+Glossary buttons remain available in each passage. Layout identifiers are not
+educational vocabulary; displayed group and chapter headings are.
+
+English cards use subtler notebook lines and boundaries in both themes.
+Listening controls use compact 44px-minimum pills on the lower card border,
+alongside the existing hint and manual-completion actions in Učit se.
+On narrow learning cards, listening and completion text is visually hidden
+while accessible names remain; the listening icon still changes for
+play/pause/resume and the explanation action retains its visible label.
+Playback errors appear inside the card above the controls, never as an
+overlapping floating message. Genuine source spelling notes remain before
+the original card's listening footer. No next-unexplored-section button,
+new visuals or published-page changes are introduced.
 
 Topic-only lessons target approximately 800-1,000 English words, with Czech
 explanations separately; source-driven lessons follow the supplied coverage.

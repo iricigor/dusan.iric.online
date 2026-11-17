@@ -74,8 +74,8 @@ function initializeTutorLearning(lesson, subject) {
         hints.push({ content, setOpen, get open() { return trigger.getAttribute('aria-expanded') === 'true'; } });
         return block;
     };
-    const heading = (text, icon, fallback) => {
-        const element = node('h2');
+    const heading = (text, icon, fallback, tag = 'h2') => {
+        const element = node(tag);
         element.append(iconNode(icon || fallback), node('span', text, 'heading-text'));
         return element;
     };
@@ -218,7 +218,7 @@ function initializeTutorLearning(lesson, subject) {
         container.append(document.createTextNode(text.slice(offset)));
         if (highlight.target) {
             element.append(container);
-            highlighting.register(container, highlight.target);
+            highlighting.register(container, highlight.target, highlight.offset || 0);
         }
         return element;
     };
@@ -247,9 +247,18 @@ function initializeTutorLearning(lesson, subject) {
     $('topic').textContent = lesson.topic;
     $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
     subject.renderOriginalIntroduction?.(context, lesson);
+    let originalGroup;
     lesson.original.forEach((section, index) => {
+        if (lesson.subject === 'english' && section.group) {
+            originalGroup = node('section', undefined, 'lesson-section source-group');
+            const title = node('h2', section.group, 'lesson-section-heading');
+            title.id = `original-group-${index}`;
+            originalGroup.setAttribute('aria-labelledby', title.id);
+            originalGroup.append(title);
+            $('original-content').append(originalGroup);
+        }
         const article = node('article', undefined, 'card');
-        article.append(heading(section.heading, section.icon, '📄'));
+        article.append(heading(section.heading, section.icon, '📄', originalGroup ? 'h3' : 'h2'));
         if (section.panelDescription) {
             const description = node('aside', undefined, 'comic-panel-description');
             description.lang = 'cs-CZ';
@@ -283,9 +292,9 @@ function initializeTutorLearning(lesson, subject) {
         });
         styleParagraph(article, section.style);
         article.append(text);
-        subject.renderOriginalControls?.(context, article, section, index);
         subject.renderOriginalNotes?.(context, article, section, index);
-        $('original-content').append(article);
+        subject.renderOriginalControls?.(context, article, section, index);
+        (originalGroup || $('original-content')).append(article);
     });
     subject.renderLearning(context, lesson);
     const learning = initializeLearning(lesson, document);
