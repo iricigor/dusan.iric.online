@@ -187,10 +187,12 @@ Mark corrections with an exact, uniquely occurring quote, its zero-based origina
 section, explanation and listed source URL. Describe sourced additions in
 `review`, use simple Czech, teach every quiz answer, and avoid duplicate padding.
 For each newly authored history lesson, research 3–5 accurate, topic-related
-facts and include the strongest one or two. Explain each in 2–3 concise
-sentences a 10-year-old can understand; place one at the end of the lesson and,
-if including a second, put it beside the material it deepens. Do not add facts
-to a prepared default that must be reused unchanged.
+facts and select the strongest one or two that are both interesting and
+important to understanding the topic. Present them in a clearly separate
+related-facts section outside the lesson's core teaching content; do not weave
+them into the lesson explanations or quiz. Explain each in 2–3 concise
+sentences a 10-year-old can understand. Do not add facts to a prepared default
+that must be reused unchanged.
 For maths and English, do not add unrelated trivia or require a fact in every
 lesson. Suggest a concise, accurate, age-appropriate related fact as an optional
 addition only when it clearly reinforces the lesson.
