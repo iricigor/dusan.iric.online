@@ -138,9 +138,8 @@ test('English groups, chapters and line layouts preserve source, highlights and 
                         const share = document.querySelector('.lesson-share').getBoundingClientRect();
                         const original = document.getElementById('original').getBoundingClientRect();
                         const lines = element => {
-                            const range = document.createRange();
-                            range.selectNodeContents(element);
-                            return new Set([...range.getClientRects()].map(rect => Math.round(rect.top))).size;
+                            const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+                            return Math.round(element.getBoundingClientRect().height / lineHeight);
                         };
                         return { below: group.top >= share.bottom,
                             fullWidth: Math.abs(group.width - original.width) <= 1,
