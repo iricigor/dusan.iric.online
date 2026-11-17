@@ -317,6 +317,9 @@ a { color: var(--primary); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
 @media (pointer: coarse) { #learning-content summary { min-height: 44px; } }
 @media (min-width: 761px) {
+    body[data-subject="english"] #original:has(.comic-context) { grid-template-rows: min-content auto; }
+    body[data-subject="english"] #original:has(.comic-context) > .lesson-share { grid-row: 1 / span 2; }
+    body[data-subject="english"] #original-content > .comic-context + * { grid-column: 1; }
     #learning.has-timeline:has(#timeline-details:not([open])) { grid-template-columns: minmax(0, 1fr) 6.5rem; }
     #timeline-details:not([open]) summary { font-size: .75rem; gap: .15rem; }
     #timeline-details:not([open]) + .timeline-track .timeline-year { padding: .05rem 0; }

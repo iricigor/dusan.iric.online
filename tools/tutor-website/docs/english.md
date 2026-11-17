@@ -64,6 +64,10 @@ přepis**, to the left of the QR code on wider screens and above it on mobile.
 It is not a banner. Do not duplicate it in an authored introduction or invent
 a source section for it.
 It appears only for lessons with a described comic panel.
+On wider screens the QR block spans the guidance and first source group/card,
+so the comic begins directly below its guidance rather than waiting for the
+QR block's bottom. Later source groups/cards use the full content width.
+On mobile, guidance, QR block and source material remain stacked in that order.
 
 An optional top-level `comicIntroduction` can provide one or two child-friendly
 Czech sentences about the actual comic. Make the paragraph logical and coherent:
