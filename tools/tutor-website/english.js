@@ -263,6 +263,7 @@ function subjectForLesson(lesson) {
         select: (source, mode) => selectExercises(source.exercises, mode),
         maximum: maximumPoints,
         score: (exercise, answers) => scoreExercise(exercise, answers, vocabulary),
+        correctOption: exercise => exercise.options ? exercise.answer : undefined,
         acceptSubmission: values => typeof values[0] === 'number' || Boolean(values[0]?.trim()),
         optionLanguage: exercise => exercise.type === 'trueFalse' ? 'cs-CZ' : 'en-GB',
         fields: exercise => [{ id: 'answer-input', label: exercise.answerLanguage === 'cs-CZ' ? 'Tvoje odpověď česky' : 'Tvoje odpověď anglicky', language: exercise.answerLanguage }],
@@ -325,8 +326,9 @@ function subjectForLesson(lesson) {
             const correct = question.options ? question.options[question.answer] : question.acceptedAnswers[0];
             const actual = question.options ? question.options[values[0]] : values[0];
             const points = formatPoints(score.total);
-            container.append(node('p', score.assessment.message),
-                node('p', `Tvoje odpověď: ${actual || '(bez odpovědi)'}`),
+            const status = score.fraction === 1 ? [] : [node('p', score.assessment.message)];
+            const response = score.fraction === 1 ? [] : [node('p', `Tvoje odpověď: ${actual || '(bez odpovědi)'}`)];
+            container.append(...status, ...response,
                 ...(score.fraction === 1 ? [] : [node('p', `Správná odpověď: ${correct}`)]),
                 node('p', question.explanation), node('p', `Body: ${points}.`));
             if (question.audio) {
