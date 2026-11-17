@@ -1,5 +1,10 @@
 # Shared page behavior and ownership
 
+Successful tab changes reveal the destination at the beginning of the document,
+not the outgoing tab's scroll position; this also applies to keyboard navigation
+and reduced-motion switching. Active-quiz leave confirmation still runs first:
+cancelling it preserves the quiz and does not reset document scroll.
+
 [Generator quick start and contract index](../README.md).
 
 ## Shared page and quiz ownership

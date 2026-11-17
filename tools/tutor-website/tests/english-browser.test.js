@@ -10,6 +10,200 @@ const { renderLesson } = require('../build.js');
 const lesson = require('../examples/my-collections.json');
 const { browserPath, openBrowser } = require('./helpers/browser.js');
 
+test('English groups, chapters and line layouts preserve source, highlights and compact card actions', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 60000
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
+        window.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
+        Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {
+            getVoices: () => [{ name: 'Test English', lang: 'en-GB', localService: true, default: true }],
+            addEventListener() {}, cancel() {}, pause() {}, resume() {},
+            speak(utterance) { window.lastUtterance = utterance; utterance.onstart(); }
+        } });
+    ` });
+    const source = structuredClone(lesson);
+    source.original = [
+        { group: 'Komiks', heading: 'Obrázek 1', language: 'en-GB', panelDescription: 'Dítě ukazuje sbírku.', text: 'My collektion!' },
+        { heading: 'Obrázek 2', language: 'en-GB', panelDescription: 'Kamarád se usmívá.', text: '' },
+        { group: 'Vysvětlení', heading: 'Sbírka', language: 'en-GB', text: 'This is my collection.' }
+    ];
+    source.originalNotes = [{ section: 0, quote: 'collektion', kind: 'spelling', explanation: 'Správně je collection.' }];
+    source.chunks[0].chapter = 'Slova a příklady';
+    source.chunks[0].layout = 'examples';
+    source.chunks[0].sentences = ['I have a collection.', 'It is my collection.'];
+    source.chunks[0].audio = { text: source.chunks[0].sentences.join(' '), language: 'en-GB' };
+    source.chunks[1].layout = 'dialogue';
+    source.chunks[2].chapter = 'Čtení a poslech';
+    source.chunks[2].layout = 'reading';
+    source.highlights = [{ target: 'chunks.0.sentences', quote: source.chunks[0].sentences[1], color: 'yellow' }];
+    const file = path.join(directory, 'english-structure.html');
+    fs.writeFileSync(file, renderLesson('english', source));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    for (let attempt = 0; attempt < 100; attempt++) {
+        if (await evaluate(`!!document.querySelector('[data-learning-card]')`)) break;
+        await delay(20);
+    }
+    const structure = await evaluate(`(async () => {
+        const originals = [...document.querySelectorAll('#original-content article')];
+        const groups = [...document.querySelectorAll('.source-group')];
+        await window.switchTutorTab('learning');
+        const first = document.getElementById('learning-chunk-0');
+        first.querySelector('.hint-toggle').click();
+        const explanation = first.querySelector('.hint-toggle').getAttribute('aria-expanded') === 'true';
+        first.querySelector('.explored-control input').click();
+        const glossary = first.querySelector('.term');
+        glossary.click();
+        const popup = document.getElementById('definition').matches(':popover-open');
+        document.getElementById('definition-close').click();
+        const passage = first.querySelector('.english-passage');
+        const authored = [...passage.querySelectorAll('mark[data-highlight-color="yellow"]')].map(mark => mark.textContent).join('');
+        const range = document.createRange();
+        range.selectNodeContents(passage);
+        document.getSelection().removeAllRanges();
+        document.getSelection().addRange(range);
+        document.dispatchEvent(new Event('selectionchange'));
+        document.querySelector('[data-highlight-action="blue"]').click();
+        const saved = JSON.parse(sessionStorage.getItem('tutor-highlights:v1:english:' +
+            JSON.parse(document.getElementById('lesson-data').textContent).id));
+        return {
+            originals: originals.map(card => card.querySelector('.original-text').textContent),
+            groups: groups.map(group => ({ title: group.querySelector('h2').textContent, cards: group.querySelectorAll('article').length })),
+            silent: !originals[1].querySelector('.listening-toggle'),
+            noteBeforeFooter: !!(originals[0].querySelector('.original-note').compareDocumentPosition(
+                originals[0].querySelector('.original-card-footer')) & Node.DOCUMENT_POSITION_FOLLOWING),
+            chapters: [...document.querySelectorAll('.learning-chapter > h2')].map(title => title.textContent),
+            headings: [...document.querySelectorAll('[data-learning-card]')].every(card => !!card.querySelector('h3')),
+            examples: first.querySelectorAll('.english-examples > p').length,
+            dialogue: document.querySelectorAll('#learning-chunk-1 .english-dialogue > p').length,
+            reading: document.querySelectorAll('#learning-chunk-2 .english-reading > p').length,
+            blue: [...passage.querySelectorAll('mark[data-highlight-color="blue"]')].map(mark => mark.textContent).join(''),
+            saved: saved.edits[0], authored, explanation, popup,
+            complete: first.dataset.explored === 'true',
+            counter: document.getElementById('learning-counter').textContent,
+            warning: !document.getElementById('highlight-warning').hidden
+        };
+    })()`);
+    assert.deepEqual(structure.originals, source.original.map(section => section.text));
+    assert.deepEqual(structure.groups, [{ title: 'Komiks', cards: 2 }, { title: 'Vysvětlení', cards: 1 }]);
+    assert.deepEqual(structure.chapters, ['Slova a příklady', 'Čtení a poslech']);
+    assert.equal(structure.examples, 2);
+    assert.equal(structure.dialogue, source.chunks[1].sentences.length);
+    assert.equal(structure.reading, 1);
+    assert.equal(structure.blue, source.chunks[0].sentences.join(''));
+    assert.equal(structure.authored, source.chunks[0].sentences[1]);
+    assert.deepEqual(structure.saved, {
+        target: 'chunks.0.sentences', text: source.chunks[0].sentences.join(' '),
+        ranges: [
+            { start: 0, end: source.chunks[0].sentences[0].length, color: 'blue' },
+            { start: source.chunks[0].sentences[0].length + 1, end: source.chunks[0].sentences.join(' ').length, color: 'blue' }
+        ]
+    });
+    for (const key of ['silent', 'noteBeforeFooter', 'headings', 'explanation', 'popup', 'complete']) {
+        assert.equal(structure[key], true, key);
+    }
+    assert.equal(structure.warning, false);
+    assert.equal(structure.counter, `1/${source.chunks.length} Prozkoumáno`);
+    for (const width of [320, 375, 760, 1280]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
+            for (const tab of ['original', 'learning']) {
+                await evaluate(`window.switchTutorTab('${tab}')`);
+                const geometry = await evaluate(`(() => {
+                    const cards = [...document.querySelectorAll('#${tab}-content article')];
+                    return {
+                        overflow: document.documentElement.scrollWidth > innerWidth,
+                        invalid: cards.flatMap(card => {
+                            const footer = card.querySelector('.original-card-footer, .learning-card-footer');
+                            if (!footer) return [];
+                            const bounds = card.getBoundingClientRect();
+                            const controls = [...footer.querySelectorAll('.listening-toggle, .hint-toggle, .explored-control')]
+                                .map(control => control.getBoundingClientRect());
+                            const fits = controls.every(control => control.height >= 44 &&
+                                Math.abs((control.top + control.bottom) / 2 - bounds.bottom) <= 2 &&
+                                control.left >= bounds.left && control.right <= bounds.right) &&
+                                controls.every((control, index) => !index || controls[index - 1].right + 3 <= control.left);
+                            return fits ? [] : [{ card: card.id, bounds: bounds.toJSON(), controls: controls.map(rect => rect.toJSON()) }];
+                        }),
+                        compact: [...document.querySelectorAll('#${tab}-content .listening-toggle')]
+                            .every(control => control.getBoundingClientRect().height <= 48)
+                    };
+                })()`);
+                assert.deepEqual(geometry, { overflow: false, invalid: [], compact: true }, `${width}/${theme}/${tab}`);
+                if ((width === 375 || width === 1280) && theme === 'dark') await capture(`english-structure-${tab}-${width}`);
+            }
+        }
+    }
+    const playbackError = await evaluate(`(() => {
+        const card = document.getElementById('learning-chunk-0');
+        const button = card.querySelector('.listening-toggle');
+        button.click();
+        const text = window.lastUtterance.text;
+        window.lastUtterance.onerror({ error: 'synthesis-failed' });
+        const status = card.querySelector('.listening-controls [role="status"]');
+        const message = status.getBoundingClientRect(), bounds = card.getBoundingClientRect(), toggle = button.getBoundingClientRect();
+        return { text, visible: !status.hidden && !!status.textContent,
+            fits: message.left >= bounds.left && message.right <= bounds.right && message.bottom <= toggle.top };
+    })()`);
+    assert.deepEqual(playbackError, { text: source.chunks[0].audio.text, visible: true, fits: true });
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
+test('successful tab switches reset scroll after long source pages in animated and reduced-motion modes', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
+    timeout: 120000
+}, async t => {
+    const { directory, client, evaluate, exceptions } = await openBrowser(t);
+    for (const [subject, prepared] of [
+        ['english', lesson], ['history', require('../examples/defenestrace.json')],
+        ['maths', require('../examples/zlomky-a-prevody-delky.json')]
+    ]) {
+        const source = structuredClone(prepared);
+        source.original.push(...Array.from({ length: 20 }, () => structuredClone(source.original[0])));
+        const file = path.join(directory, `${subject}-scroll.html`);
+        fs.writeFileSync(file, renderLesson(subject, source));
+        await client.send('Page.navigate', { url: pathToFileURL(file).href });
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (await evaluate(`!!document.querySelector('[data-learning-card]')`)) break;
+            await delay(20);
+        }
+        for (const width of [375, 1280]) {
+            await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+            for (const motion of ['reduce', 'no-preference']) {
+                await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: motion }] });
+                for (const destination of ['learning', 'quiz']) {
+                    const result = await evaluate(`(async () => {
+                        await window.switchTutorTab('original');
+                        window.scrollTo(0, document.documentElement.scrollHeight);
+                        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                        const before = scrollY;
+                        await window.switchTutorTab('${destination}');
+                        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                        return { before, after: scrollY, visible: !document.getElementById('${destination}').hidden };
+                    })()`);
+                    assert.ok(result.before > 100, 'fixture exercises a genuinely scrolled outgoing tab');
+                    assert.equal(result.after, 0, `${subject}/${width}/${motion}/${destination}`);
+                    assert.equal(result.visible, true);
+                }
+                const keyboard = await evaluate(`(async () => {
+                    await window.switchTutorTab('original');
+                    window.scrollTo(0, document.documentElement.scrollHeight);
+                    document.getElementById('tab-original').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+                    await window.waitForTutorTab();
+                    return { y: scrollY, visible: !document.getElementById('learning').hidden,
+                        current: document.querySelector('.learning-segment[aria-current]')?.getAttribute('aria-controls') };
+                })()`);
+                assert.deepEqual(keyboard, { y: 0, visible: true,
+                    current: subject === 'maths' ? 'learning-example-0' : 'learning-chunk-0' });
+            }
+        }
+    }
+    assert.deepEqual(exceptions, []);
+});
+
 test('comic context combines opening prose under its heading beside the QR code', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
@@ -557,7 +751,8 @@ test('English real page covers all exercise formats, listening lifecycle, gradin
                 return { overflow: document.documentElement.scrollWidth > innerWidth,
                     paper: getComputedStyle(card).backgroundColor,
                     oneButton: [...document.querySelectorAll('.listening-controls')].every(panel => panel.querySelectorAll('button').length === 1),
-                    childFriendly: toggle.getBoundingClientRect().height >= 52 && parseFloat(getComputedStyle(toggle).borderRadius) >= 20,
+                    childFriendly: toggle.getBoundingClientRect().height >= 44 &&
+                        toggle.getBoundingClientRect().height <= 48 && parseFloat(getComputedStyle(toggle).borderRadius) >= 20,
                     switchVisible: voice.checkVisibility() && voice.getAttribute('role') === 'switch' && !!voice.getAttribute('aria-label'),
                     activeFilter: getComputedStyle(active).filter, inactiveFilter: getComputedStyle(inactive).filter,
                     noOverlap: voiceBounds.right <= themeBounds.left &&

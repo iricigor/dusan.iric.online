@@ -32,12 +32,12 @@
 }
 body[data-subject="history"] { --subject-accent: var(--history-accent); --subject-paper: var(--history-paper); --subject-pattern: radial-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) .675px, transparent .9px); --subject-pattern-size: 5px 7px; }
 body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-paper: var(--maths-paper); --subject-pattern: linear-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px); --subject-pattern-size: 1rem 1rem; }
-body[data-subject="english"] { --subject-accent: var(--english-accent); --subject-paper: var(--card); --subject-pattern: linear-gradient(transparent 95%, color-mix(in srgb, var(--subject-accent) 8%, transparent) 95%); --subject-pattern-size: 100% 1.5rem; }
+body[data-subject="english"] { --subject-accent: var(--english-accent); --subject-paper: var(--card); --subject-pattern: linear-gradient(transparent 97%, color-mix(in srgb, var(--subject-accent) 4%, transparent) 97%); --subject-pattern-size: 100% 1.75rem; }
 body[data-subject="english"] .original-note.callout-note { --callout: var(--subject-accent); }
 .listening-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
 .listening-controls p { flex-basis: 100%; margin: 0; }
-body[data-subject="english"] .listening-toggle { display: inline-flex; align-items: center; gap: .65rem; min-height: 52px; border: 2px solid var(--english-accent); border-radius: 2rem; padding: .5rem 1.1rem; color: var(--english-accent); background: color-mix(in srgb, var(--english-accent) 9%, var(--card)); font-weight: 600; }
-.listening-icon { font-size: 1.4em; }
+body[data-subject="english"] .listening-toggle { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 44px; border: 1px solid var(--english-accent); border-radius: 2rem; padding: .35rem .6rem; color: var(--english-accent); background: color-mix(in srgb, var(--english-accent) 6%, var(--card)); font-size: .85rem; font-weight: 600; }
+.listening-icon { font-size: 1.1em; }
 .voice-warning { color: var(--warning); }
 .voice-switch { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex: 0 0 92px; min-width: 92px; padding: .2rem .5rem; border-radius: 2rem; }
 .voice-switch span { font-size: 1.4rem; filter: grayscale(1); opacity: .5; }
@@ -166,6 +166,22 @@ summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height:
 .explored-control { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: .6rem; background: var(--card); color: var(--primary); font-size: .85rem; white-space: nowrap; cursor: pointer; user-select: none; }
 .explored-control input { width: 20px; height: 20px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
 .explored-control:has(:checked) { background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
+body[data-subject="english"] :is(#original-content, #learning-content) .card:not(.callout) { border-color: color-mix(in srgb, var(--border) 65%, var(--card)); box-shadow: none; }
+body[data-subject="english"] #original-content .card:has(.original-card-footer) { margin-bottom: 2rem; }
+body[data-subject="english"] .lesson-section { min-width: 0; margin-block: 0 2.5rem; }
+body[data-subject="english"] .lesson-section-heading { margin: 0 0 1.25rem; padding-top: .5rem; color: var(--text); font-size: 1.5rem; line-height: 1.4; text-wrap: balance; overflow-wrap: anywhere; }
+body[data-subject="english"] .lesson-section .card > h3:first-child { margin-top: 0; font-size: 1.15rem; line-height: 1.4; color: var(--primary); }
+body[data-subject="english"] .english-passage { max-width: 70ch; }
+body[data-subject="english"] .english-dialogue p { margin-block: .6rem; }
+body[data-subject="english"] .english-examples p { margin-block: .85rem; }
+body[data-subject="english"] .original-card-footer { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .5rem; margin: .75rem 0 calc(-1 * var(--card-padding) - 22px); }
+body[data-subject="english"] .learning-card-footer { grid-template-columns: auto auto minmax(0, 1fr); }
+body[data-subject="english"] :is(.original-card-footer, .learning-card-footer) .listening-controls { display: contents; }
+body[data-subject="english"] :is(.original-card-footer, .learning-card-footer) .listening-controls p { grid-column: 1 / -1; grid-row: 1; margin: 0; text-align: left; color: var(--bad); }
+body[data-subject="english"] :is(.original-card-footer, .learning-card-footer) .listening-toggle { grid-column: 1; grid-row: 2; }
+body[data-subject="english"] .learning-card-footer :is(.hint-toggle, .explored-control) { grid-row: 2; }
+body[data-subject="english"] .learning-card-footer .explored-control { grid-column: 3; }
+body[data-subject="english"] .original-note { margin-block: 1rem; }
 #learning.has-timeline { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 1rem; }
 #learning-content { min-width: 0; }
 .learning-timeline { position: sticky; top: var(--learning-offset, 12rem); max-height: calc(100dvh - var(--learning-offset, 12rem) - 1rem); overflow: auto; align-self: start; padding-right: 2rem; }
@@ -340,6 +356,12 @@ a { color: var(--primary); }
     .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
     .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .2rem; }
     .explored-control { grid-column: 2; padding-inline: .2rem; }
+    body[data-subject="english"] .learning-card-footer { margin-inline: -.5rem; }
+    body[data-subject="english"] .learning-card-footer :is(.listening-toggle, .explored-control) { min-width: 44px; padding-inline: .35rem; }
+    body[data-subject="english"] .learning-card-footer .listening-toggle > span:last-child,
+    body[data-subject="english"] .learning-card-footer .explored-control > span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    body[data-subject="english"] .learning-card-footer .explored-control { justify-content: center; }
+    body[data-subject="english"] .learning-card-footer .hint-toggle { grid-column: 2; padding-inline: .6rem; }
     .tab-bar { gap: 0; }
     .tab-bar nav { gap: 0; }
     .lesson-tools { gap: 0; }

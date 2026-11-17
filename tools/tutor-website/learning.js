@@ -17,12 +17,13 @@ function initializeLearning(lesson, document) {
     let activeCardId;
     let selectedTimelineRow;
     let mousePosition;
+    const cardHeading = card => card.querySelector('h2, h3').textContent;
     const sync = () => {
         cards.forEach((card, index) => {
             const complete = explored.has(card.id);
             card.dataset.explored = String(complete);
             segments[index].dataset.explored = String(complete);
-            segments[index].setAttribute('aria-label', `${card.querySelector('h2').textContent}: ${complete ? 'prozkoumáno' : 'neprozkoumáno'}`);
+            segments[index].setAttribute('aria-label', `${cardHeading(card)}: ${complete ? 'prozkoumáno' : 'neprozkoumáno'}`);
             controls[index].checked = complete;
         });
         $('learning-counter').textContent = `${explored.size}/${cards.length} Prozkoumáno`;
@@ -35,6 +36,10 @@ function initializeLearning(lesson, document) {
     cards.forEach(card => {
         card.tabIndex = -1;
         const footer = node('div', undefined, 'learning-card-footer');
+        if (lesson.subject === 'english') {
+            const listening = card.querySelector('.listening-controls');
+            if (listening) footer.append(listening);
+        }
         const hints = [...card.children].filter(child => child.classList.contains('hint'));
         if (hints.length === 1) {
             const prompt = hints[0].querySelector('.hint-prompt');
@@ -44,13 +49,14 @@ function initializeLearning(lesson, document) {
         }
         const control = node('input');
         control.type = 'checkbox';
-        control.setAttribute('aria-label', `Prozkoumáno: ${card.querySelector('h2').textContent}`);
+        control.setAttribute('aria-label', `Prozkoumáno: ${cardHeading(card)}`);
         control.addEventListener('change', () => {
             if (control.checked) explored.add(card.id);
             else explored.delete(card.id);
             sync();
         });
         const label = node('label', undefined, 'explored-control');
+        if (lesson.subject === 'english') label.title = control.getAttribute('aria-label');
         label.append(control, node('span', 'Prozkoumáno'));
         footer.append(label);
         card.append(footer);
@@ -58,7 +64,7 @@ function initializeLearning(lesson, document) {
         const segment = node('button', undefined, 'learning-segment');
         segment.type = 'button';
         segment.setAttribute('aria-controls', card.id);
-        segment.setAttribute('title', card.querySelector('h2').textContent);
+        segment.setAttribute('title', cardHeading(card));
         segment.addEventListener('click', () => focusCard(card));
         $('learning-segments').append(segment);
         segments.push(segment);

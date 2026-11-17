@@ -107,6 +107,7 @@ function page(subject = 'history', stored = [], lessonOverride) {
         Math: Object.assign(Object.create(Math), { random: () => .999999 }),
         innerHeight: 900,
         window: {
+            scrollTo() {},
             addEventListener: (event, listener) => { windowListeners.set(event, listener); },
             removeEventListener: (event, listener) => {
                 if (windowListeners.get(event) === listener) windowListeners.delete(event);

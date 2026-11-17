@@ -231,7 +231,10 @@ test('original listening passes exact English section text to the shared player 
     const adapter = subjectForLesson(lesson);
     const audio = [];
     const children = [];
-    const context = { speech: { controls: value => { audio.push(value); return value; } } };
+    const context = {
+        node: (tag, text, className) => ({ tag, className, children: [], append(child) { this.children.push(child); } }),
+        speech: { controls: value => { audio.push(value); return value; } }
+    };
     const article = { append: child => children.push(child) };
     const sections = [
         { language: 'en-GB', text: 'Look!\nMy collektion!', panelDescription: 'Dítě ukazuje sbírku.' },
@@ -248,8 +251,38 @@ test('original listening passes exact English section text to the shared player 
     assert.deepEqual(audio, sections.slice(0, 3).map(section => ({
         text: section.text, language: 'en-GB'
     })));
-    assert.deepEqual(children, audio);
+    assert.deepEqual(children.map(footer => footer.children[0]), audio);
     assert.deepEqual(sections, before);
+});
+
+test('English grouping and layouts are optional plain-text metadata without changing indices or source', () => {
+    const source = structuredClone(lesson);
+    source.original[0].group = 'Strana 12';
+    source.chunks[0].chapter = 'Slova a příklady';
+    source.chunks[0].layout = 'examples';
+    source.chunks[1].layout = 'dialogue';
+    source.chunks[2].layout = 'reading';
+    const before = structuredClone(source);
+    assert.equal(validateLesson('english', source), source);
+    assert.deepEqual(JSON.parse(renderLesson('english', source).match(/type="application\/json">([\s\S]*?)<\/script>/)[1]), before);
+    assert.deepEqual(source, before);
+    for (const [collection, field, invalid] of [
+        ['original', 'group', ' '], ['original', 'group', {}],
+        ['chunks', 'chapter', ' '], ['chunks', 'chapter', []],
+        ['chunks', 'layout', 'unknown'], ['chunks', 'layout', {}]
+    ]) {
+        const bad = structuredClone(source);
+        bad[collection][0][field] = invalid;
+        assert.throws(() => validateLesson('english', bad), /Invalid english lesson/);
+    }
+    const history = structuredClone(require('../examples/defenestrace.json'));
+    for (const [collection, field, value] of [
+        ['original', 'group', 'Skupina'], ['chunks', 'chapter', 'Kapitola'], ['chunks', 'layout', 'reading']
+    ]) {
+        const other = structuredClone(history);
+        other[collection][0][field] = value;
+        assert.throws(() => validateLesson('history', other), /forbidden properties/);
+    }
 });
 
 test('English comics preserve separate panel descriptions and exact image text, including silent panels', () => {
