@@ -85,6 +85,7 @@ const mathsSubject = {
     select: (lesson, mode) => selectExercises(lesson.exercises, mode),
     maximum: maximumPoints,
     score: scoreExercise,
+    correctOption: exercise => exercise.options ? exercise.answer : undefined,
     acceptSubmission: () => true,
     fields: (exercise, index) => exercise.steps.map((step, stepIndex) => ({
         id: `answer-${stepIndex}`,
@@ -123,15 +124,17 @@ const mathsSubject = {
             const result = score.steps[0];
             const display = exercise.options[values[0]] ?? '(bez odpovědi)';
             const correction = result.correct ? '' : ` Správná odpověď: ${exercise.options[exercise.answer]}.`;
-            container.append(node('p', `${result.message} Tvoje odpověď: ${display}.${correction}`,
+            const response = result.correct ? '' : ` Tvoje odpověď: ${display}.${correction}`;
+            container.append(node('p', `${result.message}${response}`,
                 result.correct ? 'correct' : 'incorrect'), node('p', exercise.solution));
         }
         (exercise.steps || []).forEach((step, index) => {
             const label = exercise.difficulty === 'easy' ? `${number}${'abcd'[index]}` : `${number}.${index + 1}`;
             const result = score.steps[index];
             const correction = result.correct ? '' : ` Správná odpověď: ${formatAnswer(step.answer)}.`;
+            const response = result.correct ? '' : ` Tvoje odpověď: ${values[index] || '(bez odpovědi)'}.${correction}`;
             container.append(node('h3', `${label}: ${step.prompt}`),
-                node('p', `${result.message} Tvoje odpověď: ${values[index] || '(bez odpovědi)'}.${correction} Body za výpočet: ${points(result.fraction * POINTS[exercise.difficulty] / exercise.steps.length)}.`,
+                node('p', `${result.message}${response} Body za výpočet: ${points(result.fraction * POINTS[exercise.difficulty] / exercise.steps.length)}.`,
                     result.fraction > 0 ? 'correct' : 'incorrect'),
                 node('p', step.solution));
         });

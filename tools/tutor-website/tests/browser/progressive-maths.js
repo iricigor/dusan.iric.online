@@ -81,7 +81,9 @@ async function checkProgressiveMaths({ client, evaluate, lesson }) {
                     const selected = wrong ? (task.answer + 1) % task.options.length : task.answer;
                     if (wrong) earned = 0;
                     buttons[selected].click();
-                    if (!$('feedback').textContent.includes('Tvoje odpověď: ' + task.options[selected])) throw new Error('Feedback lost selected label');
+                    if ($('feedback').textContent.includes('Tvoje odpověď: ' + task.options[selected]) !== wrong) throw new Error('Redundant or missing selected label');
+                    if (buttons[selected].dataset.answerState !== (wrong ? 'incorrect' : 'correct')) throw new Error('Selected choice state not shown');
+                    if (wrong && buttons[task.answer].dataset.answerState !== 'correct') throw new Error('Correct choice not revealed');
                     if (!$('feedback').textContent.includes(task.solution)) throw new Error('Missing choice explanation');
                     if ($('feedback').textContent.includes('Správná odpověď:') !== wrong) throw new Error('Redundant or missing choice correction');
                     if (!buttons.every(button => button.disabled)) throw new Error('Choice not locked');

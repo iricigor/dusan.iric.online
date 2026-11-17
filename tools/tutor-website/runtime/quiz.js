@@ -32,6 +32,28 @@ function initializeTutorQuiz(lesson, subject, context) {
         }
     });
     const results = initializeTutorResults(lesson, subject, context);
+    function feedbackDetails(container, answer, number) {
+        const full = answer.score.total === subject.maximum([answer.question]) ||
+            answer.score.fraction === 1;
+        const state = full ? 'success' : answer.score.total > 0 ? 'partial' : 'incorrect';
+        const labels = {
+            success: ['✓', 'Správně!'],
+            partial: ['!', 'Částečně správně'],
+            incorrect: ['×', 'Tentokrát ne']
+        };
+        const heading = node('div', undefined, `feedback-heading feedback-heading-${state}`);
+        const icon = node('span', labels[state][0], 'feedback-icon');
+        icon.setAttribute('aria-hidden', 'true');
+        const title = node('strong', labels[state][1], 'feedback-title');
+        const pointsLabel = answer.score.total > 0 ? `+${points(answer.score.total)} b` : '0 b';
+        const earned = node('span', pointsLabel, 'feedback-points');
+        heading.append(icon, title, earned);
+        container.append(heading);
+        subject.feedback(context, container, answer, number);
+        if (container === $('feedback')) {
+            container.className = full ? 'success' : answer.score.total > 0 ? 'encouragement' : 'try-again';
+        }
+    }
     let quiz = null;
     let timer = null;
     const warnBeforeUnload = event => {
@@ -90,7 +112,7 @@ function initializeTutorQuiz(lesson, subject, context) {
         quiz.answers.forEach((answer, index) => {
             const item = node('li');
             item.append(node('strong', answer.question.prompt));
-            subject.feedback(context, item, answer, index + 1);
+            feedbackDetails(item, answer, index + 1);
             $('summary').append(item);
         });
         results.save(quiz.name, quiz.mode, result, answerDurationMs);
@@ -116,11 +138,22 @@ function initializeTutorQuiz(lesson, subject, context) {
         $('score').textContent = `Skóre: ${points(quiz.answers.reduce((sum, item) => sum + item.score.total, 0))} b`;
         $('quiz-progress').value = quiz.answers.length;
         $('answers').querySelectorAll('input, button').forEach(control => { control.disabled = true; });
+        if (question.options && subject.correctOption) {
+            const correct = subject.correctOption(question);
+            [...$('answers').querySelectorAll('button')].forEach((control, index) => {
+                const selected = index === values[0];
+                const isCorrect = index === correct;
+                if (!selected && !isCorrect) return;
+                const state = isCorrect ? 'correct' : 'incorrect';
+                const label = isCorrect ? (selected ? 'Správně' : 'Správná odpověď') : 'Tvoje odpověď';
+                control.className = `${control.className || ''} answer-${state}${selected ? ' answer-selected' : ''}`.trim();
+                control.dataset.answerState = state;
+                const mark = node('span', `${isCorrect ? '✓' : '×'} ${label}`, 'answer-state-label');
+                control.append(mark);
+            });
+        }
         $('feedback').replaceChildren();
-        subject.feedback(context, $('feedback'), answer, quiz.index + 1);
-        const full = answer.score.total === subject.maximum([question]) ||
-            answer.score.fraction === 1;
-        $('feedback').className = full ? 'success' : answer.score.total > 0 ? 'encouragement' : 'try-again';
+        feedbackDetails($('feedback'), answer, quiz.index + 1);
         $('feedback').hidden = false;
         $('next').textContent = quiz.index === quiz.questions.length - 1 ? 'Zobrazit výsledek' : 'Další úloha';
         $('next').hidden = false;
