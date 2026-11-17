@@ -317,9 +317,6 @@ a { color: var(--primary); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
 @media (pointer: coarse) { #learning-content summary { min-height: 44px; } }
 @media (min-width: 761px) {
-    body[data-subject="english"] #original:has(.comic-context) { grid-template-rows: min-content auto; }
-    body[data-subject="english"] #original:has(.comic-context) > .lesson-share { grid-row: 1 / span 2; }
-    body[data-subject="english"] #original-content > .comic-context + * { grid-column: 1; }
     #learning.has-timeline:has(#timeline-details:not([open])) { grid-template-columns: minmax(0, 1fr) 6.5rem; }
     #timeline-details:not([open]) summary { font-size: .75rem; gap: .15rem; }
     #timeline-details:not([open]) + .timeline-track .timeline-year { padding: .05rem 0; }
@@ -330,6 +327,9 @@ a { color: var(--primary); }
     #timeline-details:not([open]) + .timeline-track .timeline-year-link::before { content: ""; position: absolute; z-index: -1; inset: 6px 4px; border: 1px solid var(--year-border, var(--border)); border-radius: .4rem; background: var(--year-background, var(--card)); pointer-events: none; }
     #timeline-details:not([open]) + .timeline-track .timeline-year-link:hover { --year-background: color-mix(in srgb, var(--primary) 8%, var(--card)); --year-border: var(--primary); }
     #timeline-details:not([open]) + .timeline-track .timeline-year:has([aria-current]) .timeline-year-link { --year-background: color-mix(in srgb, var(--primary) 12%, var(--card)); --year-border: var(--primary); color: var(--primary); }
+}
+@media (min-width: 1100px) {
+    body[data-subject="english"] #original { grid-template-columns: minmax(0, 1fr) 22rem; }
 }
 @media (max-width: 760px) {
     #learning.has-timeline { display: flex; flex-direction: column; gap: .5rem; }

@@ -105,7 +105,7 @@ test('English groups, chapters and line layouts preserve source, highlights and 
     }
     assert.equal(structure.warning, false);
     assert.equal(structure.counter, `1/${source.chunks.length} Prozkoumáno`);
-    for (const width of [320, 375, 760, 1280]) {
+    for (const width of [320, 375, 760, 1100, 1280]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
         for (const theme of ['light', 'dark']) {
             await evaluate(`document.documentElement.dataset.theme = '${theme}'`);
@@ -132,19 +132,28 @@ test('English groups, chapters and line layouts preserve source, highlights and 
                     };
                 })()`);
                 assert.deepEqual(geometry, { overflow: false, invalid: [], compact: true }, `${width}/${theme}/${tab}`);
-                if (tab === 'original' && width > 760) {
+                if (tab === 'original') {
                     const flow = await evaluate(`(() => {
-                        const introduction = document.querySelector('.comic-context').getBoundingClientRect();
                         const group = document.querySelector('.source-group').getBoundingClientRect();
-                        const title = document.querySelector('.source-group > h2').getBoundingClientRect();
                         const share = document.querySelector('.lesson-share').getBoundingClientRect();
-                        return { gap: title.top - introduction.bottom,
-                            beside: group.right <= share.left && title.top < share.bottom,
-                            separate: title.top >= introduction.bottom };
+                        const original = document.getElementById('original').getBoundingClientRect();
+                        const lines = element => {
+                            const range = document.createRange();
+                            range.selectNodeContents(element);
+                            return new Set([...range.getClientRects()].map(rect => Math.round(rect.top))).size;
+                        };
+                        return { below: group.top >= share.bottom,
+                            fullWidth: Math.abs(group.width - original.width) <= 1,
+                            shareWidth: share.width,
+                            textLines: lines(document.querySelector('.lesson-share p')) +
+                                lines(document.querySelector('.lesson-share a')) };
                     })()`);
-                    assert.ok(flow.gap <= 40, `${width}/${theme}: comic starts directly after guidance (${flow.gap}px gap)`);
-                    assert.equal(flow.beside, true);
-                    assert.equal(flow.separate, true);
+                    assert.equal(flow.below, true, 'comic stays below the introduction/QR row');
+                    assert.equal(flow.fullWidth, true, 'comic retains the full content width');
+                    if (width >= 1100) {
+                        assert.equal(flow.shareWidth, 352);
+                        assert.equal(flow.textLines, 3, 'QR instruction and example URL occupy three lines on wide screens');
+                    }
                 }
                 if ((width === 375 || width === 1280) && theme === 'dark') await capture(`english-structure-${tab}-${width}`);
             }
@@ -294,12 +303,8 @@ test('comic context combines opening prose under its heading beside the QR code'
                     readable: note.checkVisibility() && share.checkVisibility(),
                     positioned: innerWidth > 760 ? b.left >= a.right && Math.abs(b.top - a.top) < 1 :
                         b.top >= a.bottom && Math.abs(b.left - a.left) < 1,
-                    sourceFlow: [...document.querySelectorAll('#original-content .card')].every(card => {
-                        const bounds = card.getBoundingClientRect();
-                        return bounds.top >= b.bottom || (innerWidth > 760 && bounds.right <= b.left);
-                    }),
-                    compactStart: innerWidth <= 760 ||
-                        document.querySelector('#original-content .card').getBoundingClientRect().top - a.bottom <= 40,
+                    cardsBelowQr: [...document.querySelectorAll('#original-content .card')].every(card =>
+                        card.getBoundingClientRect().top >= b.bottom),
                     sizes: [note, text].map(element => parseFloat(getComputedStyle(element).fontSize)),
                     colors: [note, text].map(element => getComputedStyle(element).color),
                     noDecoration: [note].every(element => {
@@ -312,8 +317,7 @@ test('comic context combines opening prose under its heading beside the QR code'
             })()`);
             assert.equal(layout.readable, true);
             assert.equal(layout.positioned, true);
-            assert.equal(layout.sourceFlow, true);
-            assert.equal(layout.compactStart, true);
+            assert.equal(layout.cardsBelowQr, true);
             assert.ok(layout.sizes[0] < layout.sizes[1]);
             assert.notEqual(layout.colors[0], layout.colors[1]);
             assert.equal(layout.noDecoration, true);
