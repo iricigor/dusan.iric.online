@@ -188,6 +188,8 @@ a povinný krátký motivační podtitulek `subtitle`. Pravidlo povzbudivého ja
 patří do `tutor-common`; schéma a zobrazení vlastní `tutor-website`.
 Styly `plain`, `note`, `example`, `tip`, `warning`, `comment`, `fun`, `quote`
 odliší běžný text, poznámku, příklad, tip, upozornění, komentář, zajímavost a citaci.
+Ve výukových odstavcích lze použít i `extra` (**Zajímavost navíc**) pro volitelné
+související fakty mimo jádro lekce; v původním textu není povolen.
 V původním textu nastav `original[].style`; jeho znění se nemění.
 Pro jednotlivé původní odstavce lze použít `original[].paragraphs`: jejich text
 spojený dvěma konci řádku musí přesně odpovídat `original[].text`.

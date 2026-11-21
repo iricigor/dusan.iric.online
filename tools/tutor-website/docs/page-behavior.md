@@ -89,7 +89,9 @@ and history learning chunks may add an optional `paragraphs` array:
 ```
 
 Allowed styles are `plain`, `note`, `example`, `tip`, `warning`, `comment`, `fun`
-(fun fact) and `quote` (quotation). Labels are Czech
+(fun fact) and `quote` (quotation). Teaching `paragraphs` also accept `extra`
+(**Zajímavost navíc**), a dashed, labelled callout for optional related facts
+outside the core lesson; it is rejected in `original`. Labels are Czech
 text, not color alone; source labels sit outside the preserved source paragraph.
 All values remain inert plain text with glossary support in teaching notes.
 No author-supplied HTML, CSS, class names or scripts are accepted.

@@ -230,7 +230,9 @@ Keep expanded state accessible and disable motion when requested. Native numbere
 are compact and borderless, retaining touch access. All learning hints, steps,
 results and solutions start collapsed in both subjects; keep the main lesson
 text visible and offer help on demand.
-Support comment/fun/quote alongside existing paragraph styles.
+Support comment/fun/quote alongside existing paragraph styles. Teaching
+paragraphs also support `extra` (label „Zajímavost navíc“): a dashed, labelled
+callout with a pill label, distinct from comment and fun; not allowed in original text.
 Fun-fact boxes use golden/amber styling, rounded icon badges and subtle CSS
 sparkles, not purple. The subject badge and title share one row on desktop while
 retaining their distinct typography; stack them within the text column on mobile.

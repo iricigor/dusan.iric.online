@@ -108,6 +108,8 @@ main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; paddi
 .callout-fun::after { top: 1.6rem; right: .65rem; width: .55rem; height: .55rem; }
 .callout-fun > .callout-label { display: table; padding: .1rem .6rem; margin-bottom: .5rem; border-radius: 2rem; background: color-mix(in srgb, var(--fun) 16%, transparent); }
 .callout-fun .card-icon { display: inline-grid; place-items: center; min-width: 2rem; min-height: 2rem; border-radius: 50%; background: color-mix(in srgb, var(--fun) 20%, transparent); }
+.callout-extra { --callout: var(--primary); border-left-style: dashed; background: color-mix(in srgb, var(--callout) 7%, var(--card)); }
+.callout-extra > .callout-label { display: table; padding: .1rem .6rem; margin-bottom: .5rem; border: 1px solid var(--callout); border-radius: 2rem; }
 .callout-quote { --callout: var(--teal); font-style: italic; margin-inline: 0; }
 .comic-context { overflow-wrap: anywhere; }
 .comic-context h2 { margin-top: 0; color: var(--primary); }
