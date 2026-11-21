@@ -67,8 +67,10 @@ It appears only for lessons with a described comic panel.
 Keep comic groups/cards full-width below the introduction/QR row, not beside
 the QR code. On English pages at least 1100px wide, the QR column is 22rem
 instead of 15rem, reducing wrapping and the height of that opening row.
-The prepared example's instruction and URL occupy three lines in total;
-longer URLs still wrap safely. On mobile, guidance, QR block and source
+The instruction and complete URL wrap within the QR column above the code;
+line counts depend on the platform's font metrics. Browser validation also
+checks a wider fallback font rather than requiring an exact line count.
+Longer URLs still wrap safely. On mobile, guidance, QR block and source
 material remain stacked in that order.
 
 An optional top-level `comicIntroduction` can provide one or two child-friendly
