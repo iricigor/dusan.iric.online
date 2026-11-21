@@ -155,7 +155,7 @@ summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height:
 .hint-content:not([hidden]) { animation: reveal .3s ease-out; }
 .learning-progress { display: flex; align-items: center; gap: .75rem; padding: .25rem 0; font-size: .85rem; }
 #learning-segments { display: flex; flex: 1; align-items: center; min-width: 0; gap: 3px; height: 52px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
-.learning-segment { flex: 1 0 44px; min-width: 44px; height: 44px; padding: 0 2px; border: 0; background: transparent; }
+.learning-segment { flex: 1 1 44px; min-width: 15px; height: 44px; padding: 0 2px; border: 0; background: transparent; }
 .learning-segment::before { content: ""; display: block; height: .6rem; border-radius: .2rem; background: var(--border); }
 .learning-segment[data-explored="true"]::before { background: color-mix(in srgb, var(--subject-accent) var(--completion-intensity), var(--border)); }
 .learning-segment[aria-current]::before { outline: 2px solid var(--primary); outline-offset: 1px; }
