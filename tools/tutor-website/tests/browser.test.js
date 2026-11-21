@@ -83,6 +83,64 @@ test('topic-sized guided learning stays compact and transparent on phones', {
     assert.deepEqual(network, []);
 });
 
+test('many learning segments shrink to fit before scrolling at their minimum width', {
+    skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification'
+}, async t => {
+    const { directory, client, evaluate, capture, exceptions, network } = await openBrowser(t);
+    const lesson = structuredClone(defaultMaths);
+    lesson.examples = Array.from({ length: 26 }, (_, index) => ({
+        ...structuredClone(defaultMaths.examples[index % defaultMaths.examples.length]),
+        heading: `Example ${index + 1}`,
+        prompt: `${defaultMaths.examples[index % defaultMaths.examples.length].prompt} (${index + 1})`
+    }));
+    const file = path.join(directory, 'many-learning-segments.html');
+    fs.writeFileSync(file, renderLesson('maths', lesson));
+    await client.send('Page.navigate', { url: pathToFileURL(file).href });
+    for (let attempt = 0; attempt < 100; attempt++) {
+        if (await evaluate('document.querySelectorAll(".learning-segment").length === 26')) break;
+        await delay(20);
+    }
+    await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    await evaluate('window.switchTutorTab("learning")');
+    for (const width of [1172, 768, 320]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
+        const geometry = await evaluate(`(() => {
+            const bar = document.getElementById('learning-segments');
+            return { widths: [...bar.children].map(button => button.getBoundingClientRect().width),
+                heights: [...bar.children].map(button => button.getBoundingClientRect().height),
+                overflow: bar.scrollWidth > bar.clientWidth, pageOverflow: document.documentElement.scrollWidth > innerWidth };
+        })()`);
+        assert.equal(geometry.widths.length, 26);
+        assert.ok(geometry.widths.every(value => value >= 15), `${width}: indicators never shrink below 15px`);
+        assert.ok(geometry.heights.every(value => value >= 44), `${width}: indicator height is preserved`);
+        assert.equal(geometry.pageOverflow, false, `${width}: overflow stays within the strip`);
+        assert.equal(geometry.overflow, width === 320, `${width}: scrolling is only needed at the minimum width`);
+        if (width === 320) {
+            assert.ok(geometry.widths.every(value => Math.abs(value - 15) < .01));
+            await evaluate('document.querySelector(".learning-segment:last-child").focus()');
+            await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r' });
+            await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+            await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
+            assert.equal(await evaluate(`(() => {
+                const bar = document.getElementById('learning-segments');
+                const segment = bar.lastElementChild;
+                const button = segment.getBoundingClientRect();
+                const bounds = bar.getBoundingClientRect();
+                return bar.scrollLeft > 0 && button.left >= bounds.left - 1 &&
+                    button.right <= bounds.left + bar.clientWidth + 1 &&
+                    document.activeElement.id === segment.getAttribute('aria-controls') &&
+                    segment.getAttribute('aria-current') === 'step';
+            })()`), true, 'keyboard navigation keeps the active minimum-width indicator visible');
+        } else {
+            assert.ok(geometry.widths.every(value => value < 44), `${width}: all indicators shrink instead of scrolling`);
+        }
+        await capture(`learning-segments-26-${width}`);
+    }
+    assert.deepEqual(exceptions, []);
+    assert.deepEqual(network, []);
+});
+
 test('history bonus track and bar fade before the scoring deadline in the real page', {
     skip: !browserPath && 'No local Edge/Chrome; set TUTOR_BROWSER_PATH for browser verification',
     timeout: 60000
@@ -1201,7 +1259,7 @@ test('learning navigation, completion tones and timeline scrolling stay coordina
             const bar = document.getElementById('learning-segments');
             const button = bar.lastElementChild.getBoundingClientRect();
             const bounds = bar.getBoundingClientRect();
-            return bar.scrollLeft > 0 && button.left >= bounds.left - 1 &&
+            return (bar.scrollWidth <= bar.clientWidth || bar.scrollLeft > 0) && button.left >= bounds.left - 1 &&
                 button.right <= bounds.left + bar.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth;
         })()`), true, `${subject}: the active segment stays visible in the narrow scrollable strip`);
         if (subject === 'history') {

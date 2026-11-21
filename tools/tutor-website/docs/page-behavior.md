@@ -193,8 +193,9 @@ tabs; reloading the page resets it. It does not affect quiz results.
 Explored cards use subdued text without dimming their controls or markers;
 unchecking restores the normal text color. Header segments are keyboard-accessible
 buttons that navigate to their cards below the sticky header. The active card
-has an outlined segment, independent of completion. On narrow screens the segment strip
-scrolls horizontally to retain 44px targets and keep the active segment visible.
+has an outlined segment, independent of completion. Segments shrink to fit the available
+width down to a 15px minimum while retaining their 44px height. When they cannot fit
+at that minimum, the strip scrolls horizontally and keeps the active segment visible.
 Completed segments grow more strongly colored as overall lesson completion
 increases, reaching the full subject color at 100%; unchecked segments stay neutral.
 The live counter retains the progressbar's accessible value and total.
