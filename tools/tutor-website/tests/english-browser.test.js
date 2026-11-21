@@ -133,26 +133,34 @@ test('English groups, chapters and line layouts preserve source, highlights and 
                 })()`);
                 assert.deepEqual(geometry, { overflow: false, invalid: [], compact: true }, `${width}/${theme}/${tab}`);
                 if (tab === 'original') {
-                    const flow = await evaluate(`(() => {
-                        const group = document.querySelector('.source-group').getBoundingClientRect();
-                        const share = document.querySelector('.lesson-share').getBoundingClientRect();
-                        const original = document.getElementById('original').getBoundingClientRect();
-                        const lines = element => {
-                            const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
-                            return Math.round(element.getBoundingClientRect().height / lineHeight);
-                        };
-                        return { below: group.top >= share.bottom,
-                            fullWidth: Math.abs(group.width - original.width) <= 1,
-                            shareWidth: share.width,
-                            textLines: lines(document.querySelector('.lesson-share p')) +
-                                lines(document.querySelector('.lesson-share a')) };
-                    })()`);
-                    assert.equal(flow.below, true, 'comic stays below the introduction/QR row');
-                    assert.equal(flow.fullWidth, true, 'comic retains the full content width');
-                    if (width >= 1100) {
-                        assert.equal(flow.shareWidth, 352);
-                        assert.equal(flow.textLines, 3, 'QR instruction and example URL occupy three lines on wide screens');
+                    for (const font of width >= 1100 ? ['', 'monospace'] : ['']) {
+                        await evaluate(`document.querySelector('.lesson-share').style.fontFamily = '${font}'`);
+                        const flow = await evaluate(`(() => {
+                            const group = document.querySelector('.source-group').getBoundingClientRect();
+                            const share = document.querySelector('.lesson-share').getBoundingClientRect();
+                            const original = document.getElementById('original').getBoundingClientRect();
+                            const qr = document.querySelector('.lesson-share svg').getBoundingClientRect();
+                            const textBounds = [...document.querySelectorAll('.lesson-share p, .lesson-share a')]
+                                .flatMap(element => {
+                                    const range = document.createRange();
+                                    range.selectNodeContents(element);
+                                    return [...range.getClientRects()];
+                                });
+                            return { below: group.top >= share.bottom,
+                                fullWidth: Math.abs(group.width - original.width) <= 1,
+                                shareWidth: share.width,
+                                textFits: textBounds.length > 0 && textBounds.every(rect =>
+                                    rect.width > 0 && rect.height > 0 && rect.left >= share.left &&
+                                    rect.right <= share.right && rect.top >= share.top && rect.bottom <= qr.top) };
+                        })()`);
+                        assert.equal(flow.below, true, 'comic stays below the introduction/QR row');
+                        assert.equal(flow.fullWidth, true, 'comic retains the full content width');
+                        assert.equal(flow.textFits, true, `${width}/${theme}/${font || 'system-ui'}: QR instruction and URL fit above the code`);
+                        if (width >= 1100) {
+                            assert.equal(flow.shareWidth, 352);
+                        }
                     }
+                    await evaluate(`document.querySelector('.lesson-share').style.fontFamily = ''`);
                 }
                 if ((width === 375 || width === 1280) && theme === 'dark') await capture(`english-structure-${tab}-${width}`);
             }
