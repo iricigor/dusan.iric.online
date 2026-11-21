@@ -43,6 +43,29 @@ For a first mention in preserved original text, provide the explanation
 separately through a glossary entry with matching name forms; do not insert
 biographical text into the original. Reuse that entry for later mentions.
 
+## Related facts ("Zajímavost navíc")
+
+For each newly authored lesson, offer optional related facts outside the core
+teaching. Never add them to a prepared default that is reused unchanged.
+
+- **Candidates:** research 3–5 facts that are related to the topic but absent from
+  the original text. Each must be accurate and sourced, important or illuminating
+  for the topic, and explainable to a 10–11-year-old in 2–3 simple sentences.
+  Wider context (other countries, science, medicine, engineering, people alive
+  at the time) may be a candidate; state caveats, e.g. a shared city does not mean
+  people met. Prefer surprising, concrete facts that appeal to children in
+  Czechia over the most familiar ones, such as the Christmas truce.
+- **Choice:** briefly present the shortlist, recommend the strongest, and let the
+  user pick one or two. Do not choose silently. If the user rejects the options,
+  research different ones instead of defending them.
+- **Placement:** add each chosen fact as its own final card of **Učit se** with a
+  heading that begins „Zajímavost navíc:“. Put a short two-sentence lead-in in
+  `sentences` and the 2–3 factual sentences in a `paragraphs` entry with
+  `style: "extra"`. Do not place extras mid-lesson, in the original text or in
+  quiz questions, and do not weave them into core explanations.
+- **Sources:** list consulted references in `sources` and describe the additions in
+  `review`, following the usual verification and disclosure rules.
+
 ## Difficulty and answer authoring
 
 The website's `authoringRequirements` defines bank size and difficulty quotas;

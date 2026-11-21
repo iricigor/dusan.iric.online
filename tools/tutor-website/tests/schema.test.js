@@ -95,8 +95,19 @@ test('semantic paragraphs are shared, plain-text only and reject arbitrary styli
         }
         const lesson = structuredClone(source);
         lesson.original[0].style = 'note" onclick="alert(1)';
-        assert.throws(() => validateLesson(subject, lesson), /style/);
     }
+});
+
+test('extra paragraphs are allowed in teaching content but not in original text', () => {
+    const lesson = structuredClone(history);
+    lesson.chunks[0].paragraphs = [{ style: 'extra', text: 'Zajímavost.' }];
+    assert.equal(validateLesson('history', lesson), lesson);
+    assert.match(renderLesson('history', lesson), /Zajímavost navíc/);
+    lesson.original[0].style = 'extra';
+    assert.throws(() => validateLesson('history', lesson), /style/);
+    delete lesson.original[0].style;
+    lesson.original[0].paragraphs = [{ style: 'extra', text: lesson.original[0].text }];
+    assert.throws(() => validateLesson('history', lesson), /style/);
 });
 
 test('styled original paragraphs preserve exact source text and correction boundaries', () => {

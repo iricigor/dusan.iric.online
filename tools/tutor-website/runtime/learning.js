@@ -223,7 +223,7 @@ function initializeTutorLearning(lesson, subject) {
         return element;
     };
     const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor',
-        comment: 'Komentář', fun: 'Zajímavost', quote: 'Citace', important: 'Důležité' };
+        comment: 'Komentář', fun: 'Zajímavost', extra: 'Zajímavost navíc', quote: 'Citace', important: 'Důležité' };
     const styleParagraph = (element, style = 'plain', labelled = true) => {
         if (style !== 'plain') {
             element.className = `${element.className || ''} callout callout-${style}`.trim();
