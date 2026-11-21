@@ -56,9 +56,9 @@ function englishKnownWords(lesson) {
     return knownWords([
         lesson.topic, lesson.subtitle, lesson.comicIntroduction, lesson.comicGuidance,
         ...(lesson.original || []).flatMap(section =>
-            [section.heading, section.text, section.panelDescription, ...paragraphs(section.paragraphs)]),
+            [section.group, section.heading, section.text, section.panelDescription, ...paragraphs(section.paragraphs)]),
         ...(lesson.chunks || []).flatMap(chunk =>
-            [chunk.heading, ...chunk.sentences, chunk.explanation, chunk.audio?.text, ...paragraphs(chunk.paragraphs)]),
+            [chunk.chapter, chunk.heading, ...chunk.sentences, chunk.explanation, chunk.audio?.text, ...paragraphs(chunk.paragraphs)]),
         ...(lesson.glossary || []).flatMap(entry => [entry.term, entry.definition, ...entry.forms]),
         ...(lesson.exercises || []).flatMap(exercise => [
             exercise.prompt, exercise.text, exercise.explanation, exercise.audio?.text,
@@ -233,9 +233,11 @@ function subjectForLesson(lesson) {
             ].filter(Boolean).join(' '), 'comic-description-note'));
             $('original-content').append(introduction);
         },
-        renderOriginalControls({ speech }, article, section) {
+        renderOriginalControls({ node, speech }, article, section) {
             if (section.language === 'en-GB' && section.text.trim()) {
-                article.append(speech.controls({ text: section.text, language: section.language }));
+                const footer = node('div', undefined, 'original-card-footer');
+                footer.append(speech.controls({ text: section.text, language: section.language }));
+                article.append(footer);
             }
         },
         renderOriginalNotes({ node }, article, section, index) {
@@ -261,6 +263,7 @@ function subjectForLesson(lesson) {
         select: (source, mode) => selectExercises(source.exercises, mode),
         maximum: maximumPoints,
         score: (exercise, answers) => scoreExercise(exercise, answers, vocabulary),
+        correctOption: exercise => exercise.options ? exercise.answer : undefined,
         acceptSubmission: values => typeof values[0] === 'number' || Boolean(values[0]?.trim()),
         optionLanguage: exercise => exercise.type === 'trueFalse' ? 'cs-CZ' : 'en-GB',
         fields: exercise => [{ id: 'answer-input', label: exercise.answerLanguage === 'cs-CZ' ? 'Tvoje odpověď česky' : 'Tvoje odpověď anglicky', language: exercise.answerLanguage }],
@@ -270,18 +273,36 @@ function subjectForLesson(lesson) {
             Number.isFinite(row.total) && row.total >= 0 && row.total <= row.maximum &&
             Number.isInteger(row.total) && row.grade === grade(row.total, row.maximum),
         renderLearning({ $, node, paragraph, heading, hint, paragraphs, speech }, source) {
+            let chapter;
             source.chunks.forEach((chunk, index) => {
+                if (chunk.chapter) {
+                    chapter = node('section', undefined, 'lesson-section learning-chapter');
+                    const title = node('h2', chunk.chapter, 'lesson-section-heading');
+                    title.id = `learning-chapter-${index}`;
+                    chapter.setAttribute('aria-labelledby', title.id);
+                    chapter.append(title);
+                    $('learning-content').append(chapter);
+                }
                 const article = node('article', undefined, 'card');
                 article.id = `learning-chunk-${index}`;
                 article.dataset.learningCard = 'true';
                 article.tabIndex = -1;
-                const english = paragraph(chunk.sentences.join(' '), 'p', { target: `chunks.${index}.sentences` });
+                const layout = chunk.layout || 'reading';
+                const english = node('div', undefined, `english-passage english-${layout}`);
                 english.lang = 'en-GB';
-                article.append(heading(chunk.heading, chunk.icon, '📚'), english,
+                let offset = 0;
+                const passages = layout === 'reading' ? [chunk.sentences.join(' ')] : chunk.sentences;
+                passages.forEach(text => {
+                    const line = paragraph(text, 'p', { target: `chunks.${index}.sentences`, offset });
+                    line.lang = 'en-GB';
+                    english.append(line);
+                    offset += text.length + 1;
+                });
+                article.append(heading(chunk.heading, chunk.icon, '📚', chapter ? 'h3' : 'h2'), english,
                     hint('Jak tomu rozumět?', chunk.explanation, 'p', { explanation: `chunks.${index}.explanation` }),
                     ...paragraphs(chunk.paragraphs, `chunks.${index}.paragraphs`));
                 if (chunk.audio) article.append(speech.controls(chunk.audio));
-                $('learning-content').append(article);
+                (chapter || $('learning-content')).append(article);
             });
         },
         renderQuestion({ $, node, speech }, exercise) {
@@ -305,8 +326,9 @@ function subjectForLesson(lesson) {
             const correct = question.options ? question.options[question.answer] : question.acceptedAnswers[0];
             const actual = question.options ? question.options[values[0]] : values[0];
             const points = formatPoints(score.total);
-            container.append(node('p', score.assessment.message),
-                node('p', `Tvoje odpověď: ${actual || '(bez odpovědi)'}`),
+            const status = score.fraction === 1 ? [] : [node('p', score.assessment.message)];
+            const response = score.fraction === 1 ? [] : [node('p', `Tvoje odpověď: ${actual || '(bez odpovědi)'}`)];
+            container.append(...status, ...response,
                 ...(score.fraction === 1 ? [] : [node('p', `Správná odpověď: ${correct}`)]),
                 node('p', question.explanation), node('p', `Body: ${points}.`));
             if (question.audio) {

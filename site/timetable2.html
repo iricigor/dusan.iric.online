@@ -1093,7 +1093,7 @@
   </footer>
   <h2 class="timetable-heading" id="petar-heading">Rozvrh Petar</h2>
   <div class="schedule-window">
-    <div class="schedule" id="petar" role="table" aria-label="Týdenní rozvrh Petar" style="--period-count: 9"></div>
+    <div class="schedule" id="petar" role="table" aria-label="Týdenní rozvrh Petar" style="--period-count: 10"></div>
   </div>
   <footer class="page-footer">
     <a href="https://petar.iric.online/" target="_blank" rel="noopener noreferrer">Petar</a>
@@ -1149,6 +1149,7 @@
     // https://www.oegp.cz/wp-content/uploads/Lehrer-Tutoriumstunden_26_27.pdf
     // https://www.oegp.cz/wp-content/uploads/J_SVP-OEGP-09-2025_CZ.pdf
     const petarSubjects = {
+      GeoGebra: "GeoGebra",
       M: "Matematika", AJ: "Anglický jazyk", NJ: "Německý jazyk", SJ: "Španělský jazyk",
       CH: "Chemie", D: "Dějepis", CJL: "Český jazyk a literatura",
       OSZ: "Občanský a společenskovědní základ", HO: "Hudební obor",
@@ -1170,26 +1171,27 @@
     );
     petarRooms.TURN = "Tělocvična";
     const petarTimes = [
+      ["7:45", "8:30"],
       ["8:30", "9:15"], ["9:25", "10:10"], ["10:25", "11:10"],
       ["11:20", "12:05"], ["12:10", "12:55"], ["13:00", "13:45"], ["13:50", "14:35"],
       ["14:40", "15:25"], ["15:30", "16:15"]
     ];
     const petarDays = [
-      [["M", "Sti", "101"], ["AJ", "Saj", "206"], ["SJ", "Oma", "E14", "4SJ1"],
+      [null, ["M", "Sti", "101"], ["AJ", "Saj", "206"], ["SJ", "Oma", "E14", "4SJ1"],
         ["CH", "Kut", "205"], ["D", "Far", "204"], null, ["CJL", "Ahm", "201"],
         ["OSZ", "Boc", "112"], ["HO", "Kad", "E14", "4AHO"]],
-      [["NJ", "Kal", "109"],
+      [null, ["NJ", "Kal", "109"],
         ["TV", "Luk, Pri", "TURN"],
         ["TV", "Luk, Pri", "TURN"],
         ["M", "Sti", "101"], ["G", "Sti", "101"], ["AJ", "Saj", "209"], null,
         ["SPSV", "Schi", "106"], ["HO", "Kad", "E14", "4AHO"]],
-      [["NJ", "Kal", "206"], ["NJ", "Kal", "109"], ["M", "Sti", "102"],
+      [null, ["NJ", "Kal", "206"], ["NJ", "Kal", "109"], ["M", "Sti", "102"],
         ["SJ", "Brh, Oma", "209"],
         null, ["G", "Sti", "105"], ["F", "Wura", "102"], ["CJL", "Ahm", "110"], ["CH", "Kut", "110"]],
-      [["D", "Far", "206"], ["NJ", "Kal", "109"], ["NJ", "Kal", "109"],
+      [null, ["D", "Far", "206"], ["NJ", "Kal", "109"], ["NJ", "Kal", "109"],
         ["SJ", "Oma", "110", "4S1A"], null, ["CJL", "Ahm", "106"], ["F", "Wura", "102"],
         ["NOD", "Kri", "112", "NOD1"], null],
-      [["M", "Sti", "102"],
+      [["GeoGebra", "Sti", "104"], ["M", "Sti", "102"],
         ["IVT", "Wura", "104", "4ITK"],
         ["IVT", "Wura", "104", "4ITK"],
         ["AJ", "Saj", "210"], null, null, null, null, null]
@@ -1240,7 +1242,7 @@
       });
     }
     renderSchedule("marko", "1.T", 1, markoTimes, markoDays, markoSubjects, markoTeachers, markoRooms);
-    renderSchedule("petar", "4.A", 1, petarTimes, petarDays, petarSubjects, petarTeachers, petarRooms);
+    renderSchedule("petar", "4.A", 0, petarTimes, petarDays, petarSubjects, petarTeachers, petarRooms);
 
     function addSubjectBlocks(schedule) {
       const slots = [...schedule.querySelectorAll(".slot")];

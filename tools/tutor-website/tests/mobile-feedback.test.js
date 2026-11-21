@@ -40,9 +40,17 @@ test('correct feedback omits redundant expected answers; incorrect feedback reta
             const task = (subject === 'history' ? history.questions : maths.exercises).find(task => task.prompt === prompt);
             runtime.get('answers').children[correct ? task.answer : (task.answer + 1) % task.options.length].dispatch('click');
             const feedback = runtime.get('feedback').textContent;
-            assert.match(feedback, /Tvoje odpověď:/);
+            assert.equal(feedback.includes('Tvoje odpověď:'), !correct);
             assert.equal(feedback.includes('Správná odpověď:'), !correct);
             assert.ok(feedback.includes(task.explanation));
+            const selected = runtime.get('answers').children[correct ? task.answer : (task.answer + 1) % task.options.length];
+            assert.equal(selected.dataset.answerState, correct ? 'correct' : 'incorrect');
+            assert.match(selected.textContent, correct ? /Správně/ : /Tvoje odpověď/);
+            if (!correct) {
+                assert.equal(runtime.get('answers').children[task.answer].dataset.answerState, 'correct');
+                assert.match(runtime.get('answers').children[task.answer].textContent, /Správná odpověď/);
+            }
+            assert.match(feedback, correct ? /Správně!/ : /Tentokrát ne/);
         }
     }
 });

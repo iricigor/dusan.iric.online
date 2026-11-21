@@ -1,5 +1,10 @@
 # Shared page behavior and ownership
 
+Successful tab changes reveal the destination at the beginning of the document,
+not the outgoing tab's scroll position; this also applies to keyboard navigation
+and reduced-motion switching. Active-quiz leave confirmation still runs first:
+cancelling it preserves the quiz and does not reset document scroll.
+
 [Generator quick start and contract index](../README.md).
 
 ## Shared page and quiz ownership
@@ -415,6 +420,14 @@ learner still explicitly advances after every question. The session leaderboard
 is collapsed in quiz setup, expands automatically at completion, and can still
 be manually collapsed. Restarting closes it again. The latest attempt's position
 stays inside it rather than emphasized in the main completion summary.
+
+Submitted choice questions lock all options and mark the selected and correct
+answers with text, icons and theme-aware colors. Correct selections are not
+repeated as **Tvoje odpověď** in the feedback because the marked option already
+communicates them. Incorrect and partial attempts retain the learner response
+and the expected answer or worked solution. A shared verdict header shows the
+outcome and points before the subject-specific explanation, including in the
+final answer review. These states do not change scoring or answer assessment.
 
 Both subjects save `answerDurationMs`: the sum of active question-answering
 intervals, stopped on submission and restarted when the next question is shown.

@@ -38,7 +38,6 @@ function initializeTutorNavigation(context, quiz) {
             $('learning-controls').hidden = tab.dataset.tab !== 'learning';
             $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
             highlighting.setTab(tab.dataset.tab);
-            learning.setTab(tab.dataset.tab);
             if ($('quiz-tools').hidden) $('quiz-tools').open = false;
             pauseAnswerClock();
             tabs.forEach(other => {
@@ -47,6 +46,8 @@ function initializeTutorNavigation(context, quiz) {
                 other.tabIndex = active ? 0 : -1;
                 $(other.dataset.tab).hidden = !active;
             });
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            learning.setTab(tab.dataset.tab);
             resumeAnswerClock();
         };
         if (typeof document.startViewTransition === 'function' && !reducedMotion.matches) {

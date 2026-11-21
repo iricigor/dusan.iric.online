@@ -47,6 +47,7 @@
         "type": "object", "additionalProperties": false, "required": ["heading", "text"],
         "properties": {
           "heading": { "$ref": "#/$defs/text" },
+          "group": { "$ref": "#/$defs/text" },
           "icon": { "$ref": "#/$defs/icon" },
           "text": { "type": "string" },
           "panelDescription": { "$ref": "#/$defs/text" },
@@ -115,6 +116,8 @@
         "type": "object", "additionalProperties": false, "required": ["heading", "sentences", "explanation"],
         "properties": {
           "heading": { "$ref": "#/$defs/text" },
+          "chapter": { "$ref": "#/$defs/text" },
+          "layout": { "enum": ["reading", "dialogue", "examples"] },
           "icon": { "$ref": "#/$defs/icon" },
           "sentences": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/text" } },
           "explanation": { "$ref": "#/$defs/text" },
@@ -163,7 +166,12 @@
       "else": {
         "properties": {
           "subject": { "enum": ["history", "maths"] },
-          "original": { "items": { "not": { "required": ["panelDescription"] } } }
+          "original": { "items": { "not": { "anyOf": [
+            { "required": ["panelDescription"] }, { "required": ["group"] }
+          ] } } },
+          "chunks": { "items": { "not": { "anyOf": [
+            { "required": ["chapter"] }, { "required": ["layout"] }
+          ] } } }
         },
         "not": { "anyOf": [
           { "required": ["originalNotes"] }, { "required": ["comicIntroduction"] }, { "required": ["comicGuidance"] }

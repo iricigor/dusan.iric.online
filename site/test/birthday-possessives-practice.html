@@ -1,0 +1,2505 @@
+<!doctype html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Narozeniny, přivlastňování a Skotsko</title>
+    <link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0D%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23f1f5f9%22%2F%3E%0D%0A%20%20%3Cg%20id%3D%22mark%22%20transform%3D%22matrix(1.47619%200%200%201.47619%20-4.66666%20-11.30952)%22%3E%0D%0A%20%20%20%20%3Cpath%20fill%3D%22%231e3c72%22%20fill-rule%3D%22evenodd%22%20d%3D%22M10%2012h5c5.5%200%209%203%209%208.5S20.5%2029%2015%2029h-5a1%201%200%200%201-1-1V13a1%201%200%200%201%201-1zm4%204.5v8h1c2.5%200%204-1.5%204-4s-1.5-4-4-4z%22%2F%3E%0D%0A%20%20%20%20%3Cpath%20d%3D%22M17%209%205%2014v5%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0D%0A%20%20%3C%2Fg%3E%0D%0A%3C%2Fsvg%3E%0D%0A">
+    <style>:root {
+    color-scheme: light;
+    --bg: #f1f5f9; --card: #fff; --text: #172033; --muted: #475569;
+    --primary: #174cb5; --border: #cbd5e1; --good: #146b3a; --bad: #b42318;
+    --warning: #875300; --shadow: 0 4px 12px #1720330d;
+    --violet: #7036b0; --teal: #087574;
+    --history-accent: #80551d; --maths-accent: #086e79; --english-accent: #a34400;
+    --history-paper: #f9f0dd; --maths-paper: #eaf4f7;
+    --fun: #955900; --fun-paper: #fff0c2;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #101827; --card: #1c293c; --text: #f1f5f9; --muted: #cbd5e1;
+        --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
+        --warning: #ffd082; --shadow: 0 4px 12px #0003;
+        --violet: #d7b1ff; --teal: #77dfda;
+        --history-accent: #e2c28f; --maths-accent: #8bd5df; --english-accent: #ffb675;
+        --history-paper: #2c2e2f; --maths-paper: #1e343f;
+        --fun: #ffd47b; --fun-paper: #46371f;
+    }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #101827; --card: #1c293c; --text: #f1f5f9; --muted: #cbd5e1;
+    --primary: #9fc1ff; --border: #52657e; --good: #75e2a2; --bad: #ffaaa1;
+    --warning: #ffd082; --shadow: 0 4px 12px #0003;
+    --violet: #d7b1ff; --teal: #77dfda;
+    --history-accent: #e2c28f; --maths-accent: #8bd5df; --english-accent: #ffb675;
+    --history-paper: #2c2e2f; --maths-paper: #1e343f;
+    --fun: #ffd47b; --fun-paper: #46371f;
+}
+body[data-subject="history"] { --subject-accent: var(--history-accent); --subject-paper: var(--history-paper); --subject-pattern: radial-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) .675px, transparent .9px); --subject-pattern-size: 5px 7px; }
+body[data-subject="maths"] { --subject-accent: var(--maths-accent); --subject-paper: var(--maths-paper); --subject-pattern: linear-gradient(color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 8.5%, transparent) 1px, transparent 1px); --subject-pattern-size: 1rem 1rem; }
+body[data-subject="english"] { --subject-accent: var(--english-accent); --subject-paper: var(--card); --subject-pattern: linear-gradient(transparent 95%, color-mix(in srgb, var(--subject-accent) 8%, transparent) 95%); --subject-pattern-size: 100% 1.5rem; }
+body[data-subject="english"] .original-note.callout-note { --callout: var(--subject-accent); }
+.listening-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
+.listening-controls p { flex-basis: 100%; margin: 0; }
+body[data-subject="english"] .listening-toggle { display: inline-flex; align-items: center; gap: .65rem; min-height: 52px; border: 2px solid var(--english-accent); border-radius: 2rem; padding: .5rem 1.1rem; color: var(--english-accent); background: color-mix(in srgb, var(--english-accent) 9%, var(--card)); font-weight: 600; }
+.listening-icon { font-size: 1.4em; }
+.voice-warning { color: var(--warning); }
+.voice-switch { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex: 0 0 92px; min-width: 92px; padding: .2rem .5rem; border-radius: 2rem; }
+.voice-switch span { font-size: 1.4rem; filter: grayscale(1); opacity: .5; }
+.voice-switch[aria-checked="false"] .voice-male, .voice-switch[aria-checked="true"] .voice-female { filter: none; opacity: 1; }
+#question-material { overflow-wrap: anywhere; }
+body[data-subject] :is(header, #original, #learning, #glossary-toggle, #glossary-drawer, #definition) { --primary: var(--subject-accent); }
+body[data-subject] :is(#original-content .card:not(.callout), #learning-content .card:not(.callout)) { background-color: var(--subject-paper); background-image: var(--subject-pattern); background-size: var(--subject-pattern-size); }
+* { box-sizing: border-box; }
+html { scrollbar-gutter: stable; view-transition-name: none; }
+@supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1.1rem/1.7 system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 2; background: var(--card); padding: 1rem max(1rem, calc((100% - 1120px) / 2 + 1rem)) 0; }
+.heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.lesson-identity { display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 0; }
+.lesson-title-group { min-width: 0; }
+.lesson-header-mark, .lesson-footer-mark { display: block; flex-shrink: 0; color: var(--primary); }
+.lesson-header-mark { width: 64px; height: 64px; }
+.lesson-footer { display: flex; justify-content: center; padding: 0 1rem 1.5rem; }
+.lesson-footer-mark { width: 96px; height: 96px; }
+.lesson-heading { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.lesson-heading .badge { flex-shrink: 0; }
+.lesson-heading h1 { min-width: 0; overflow-wrap: anywhere; }
+h1 { font-size: clamp(1.15rem, 3vw, 1.8rem); line-height: 1.3; margin: .4rem 0; }
+h2 { font-size: 1.3rem; line-height: 1.4; }
+header p { margin: .3rem 0; font-size: .9rem; }
+.motivation { color: var(--primary); font-weight: bold; }
+.badge { display: inline-block; border: 1px solid var(--border); border-radius: 2rem; padding: .15rem .75rem; }
+.badge { color: var(--primary); font-weight: bold; }
+nav, .modes { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+button, input { font: inherit; }
+button { cursor: pointer; min-height: 44px; border: 1px solid var(--border); border-radius: .6rem; padding: .6rem .9rem; background: var(--card); color: var(--text); transition: background-color .2s, border-color .2s, transform .2s; }
+button:where(:not(:disabled):not(.term):not(.correction)):hover { background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
+button:hover { border-color: var(--primary); color: var(--primary); }
+.tab-bar { display: flex; align-items: stretch; gap: .5rem; margin-top: .75rem; border-bottom: 1px solid var(--border); }
+.lesson-tools { display: flex; justify-content: flex-end; align-items: center; gap: .5rem; }
+.lesson-tools:not(:has(> :not([hidden]))) { display: none; }
+nav { flex: 1; min-width: 0; gap: .35rem; flex-wrap: nowrap; }
+.tab-bar nav { margin-top: 0; }
+nav button { display: flex; flex: 1 1 0; max-width: 12rem; align-items: center; justify-content: center; gap: .5rem; min-width: 0; border: 1px solid transparent; border-radius: .65rem .65rem 0 0; margin-bottom: -1px; color: var(--muted); background: var(--bg); font-weight: bold; line-height: 1.4; }
+nav button[aria-selected="true"] { position: relative; background: var(--card); color: var(--primary); border-color: var(--border); border-bottom-color: var(--card); box-shadow: inset 0 3px var(--primary); }
+.tab-icon { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
+#theme { position: relative; flex: 0 0 74px; width: 74px; height: 44px; border-radius: 2rem; padding: 0; background: var(--bg); }
+#theme::before { content: ""; position: absolute; top: 6px; left: 6px; width: 30px; height: 30px; border-radius: 50%; background: var(--card); box-shadow: var(--shadow); transition: transform .2s; }
+#theme[aria-checked="true"]::before { transform: translateX(30px); }
+#theme svg { position: absolute; top: 11px; width: 20px; height: 20px; color: var(--muted); }
+#theme .theme-sun { left: 11px; }
+#theme .theme-moon { right: 11px; }
+#theme[aria-checked="false"] .theme-sun, #theme[aria-checked="true"] .theme-moon { color: var(--primary); }
+button:disabled { cursor: default; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+main { max-width: 1088px; width: calc(100% - 2rem); margin: 0 auto 1.5rem; padding: 1rem; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--card); view-transition-name: lesson-panel; }
+.card { --card-padding: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: var(--card-padding); margin-bottom: 1rem; overflow-wrap: anywhere; box-shadow: var(--shadow); }
+.card > h2:first-child { margin-top: 0; color: var(--primary); }
+.card-icon { display: inline-block; flex-shrink: 0; margin-right: .55em; font-size: 1.15em; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
+.callout { --callout: var(--primary); border-left: 5px solid var(--callout); border-radius: .5rem; padding: .8rem 1rem; background: color-mix(in srgb, var(--callout) 9%, var(--card)); }
+.callout-label { color: var(--callout); }
+.callout-note { --callout: var(--violet); }
+.callout-example { --callout: var(--teal); }
+.callout-tip { --callout: var(--good); }
+.callout-warning { --callout: var(--warning); }
+.callout-important { --callout: var(--primary); outline: 2px solid transparent; outline-offset: 2px; }
+#original:not([hidden]) .callout-important { animation: important-glow .8s ease-out; }
+.original-text .callout-important::before { content: "⭐ Důležité"; display: block; color: var(--callout); font-weight: bold; margin-bottom: .5rem; white-space: normal; }
+.callout-comment { --callout: var(--muted); }
+.callout-fun { --callout: var(--fun); position: relative; background: var(--fun-paper); border: 1px solid color-mix(in srgb, var(--fun) 55%, var(--border)); border-left: 5px solid var(--fun); }
+.callout-fun::before, .callout-fun::after { content: ""; position: absolute; pointer-events: none; background: var(--fun); opacity: .65; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.callout-fun::before { top: .8rem; right: 1.2rem; width: .9rem; height: .9rem; }
+.callout-fun::after { top: 1.6rem; right: .65rem; width: .55rem; height: .55rem; }
+.callout-fun > .callout-label { display: table; padding: .1rem .6rem; margin-bottom: .5rem; border-radius: 2rem; background: color-mix(in srgb, var(--fun) 16%, transparent); }
+.callout-fun .card-icon { display: inline-grid; place-items: center; min-width: 2rem; min-height: 2rem; border-radius: 50%; background: color-mix(in srgb, var(--fun) 20%, transparent); }
+.callout-quote { --callout: var(--teal); font-style: italic; margin-inline: 0; }
+.comic-context { overflow-wrap: anywhere; }
+.comic-context h2 { margin-top: 0; color: var(--primary); }
+.comic-panel-description, .comic-description-note { color: var(--muted); font-size: .95rem; line-height: 1.6; margin-block: .75rem; }
+.comic-panel-description p { margin: .25rem 0; }
+.original-text { white-space: pre-wrap; }
+.original-text:has(> :nth-child(2)) { white-space: normal; }
+.original-text > * { white-space: pre-wrap; }
+#glossary-toggle { position: fixed; z-index: 3; right: max(0px, calc((100% - 1088px) / 2 - 44px)); top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: center; gap: .4rem; width: 44px; min-width: 44px; padding: .6rem .4rem; border-radius: .75rem 0 0 .75rem; color: var(--primary); box-shadow: var(--shadow); }
+#glossary-toggle > span:last-child { writing-mode: vertical-rl; font-size: .9rem; }
+#glossary-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(22rem, calc(100vw - 1rem)); max-width: none; height: 100dvh; max-height: none; padding: 1rem; border: 0; border-left: 1px solid var(--border); background: var(--card); color: var(--text); box-shadow: -8px 0 24px #0003; opacity: 0; transform: translateX(100%); transition: transform .2s ease, opacity .2s ease, display .2s allow-discrete, overlay .2s allow-discrete; }
+#glossary-drawer:popover-open { display: flex; flex-direction: column; opacity: 1; transform: translateX(0); }
+@starting-style { #glossary-drawer:popover-open { opacity: 0; transform: translateX(100%); } }
+.drawer-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.drawer-heading h2 { margin: 0; color: var(--primary); }
+#glossary-close { flex-shrink: 0; font-size: 1.4rem; line-height: 1; }
+.learning-controls { display: flex; align-items: center; gap: .25rem; }
+.learning-controls button { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; border-color: transparent; background: transparent; color: var(--muted); }
+.learning-controls svg { width: 1.2rem; height: 1.2rem; }
+.learning-controls button:disabled { opacity: .5; }
+.term, .correction { display: inline; min-height: 0; padding: .1em 0; border: 0; border-radius: .2rem; background: transparent; font: inherit; color: var(--primary); text-decoration: underline dotted; text-underline-offset: .2em; }
+.correction { color: var(--bad); white-space: pre-wrap; text-align: left; }
+body[data-subject="english"] .correction-variant { color: var(--subject-accent); }
+#glossary { display: flex; flex-direction: column; gap: .25rem; padding-top: 1rem; overflow-y: auto; min-height: 0; }
+#glossary button { text-align: left; background: transparent; border-color: transparent; padding: .35rem .5rem; overflow-wrap: anywhere; font-size: .95rem; }
+details { border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: .5rem; padding: .5rem 1rem; margin-top: 1rem; }
+details[open] { background: var(--bg); }
+details[open] > :not(summary) { animation: reveal .3s ease-out; }
+summary { cursor: pointer; color: var(--primary); padding: .35rem 0; min-height: 44px; }
+#learning-content details { border: 0; padding: 0; margin: .15rem 0; }
+#learning-content details[open] { background: transparent; }
+#learning-content summary { width: fit-content; min-height: 32px; padding: .1rem .25rem; font-size: .95rem; }
+#learning-content summary:hover { text-decoration: underline; }
+#learning-content details > :not(summary) { margin: .35rem 0; }
+#learning-content ol { padding-left: 1.4rem; margin: .4rem 0; }
+.hint-prompt { display: flow-root; }
+.hint { text-align: center; margin-top: .75rem; }
+.hint-prompt, .hint-drawer { text-align: left; }
+.hint-toggle { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; max-width: 100%; margin: .4rem 0; border-radius: 2rem; padding: .4rem .8rem; background: color-mix(in srgb, var(--primary) 10%, var(--card)); color: var(--primary); font-size: .9rem; }
+.hint-toggle .card-icon { margin-right: 0; }
+.hint-drawer { overflow: hidden; border-left: 3px solid var(--primary); border-radius: .5rem; background: color-mix(in srgb, var(--primary) 7%, var(--card)); }
+.hint-content { margin: 0; padding: .75rem 1rem; }
+.hint-content:not([hidden]) { animation: reveal .3s ease-out; }
+.learning-progress { display: flex; align-items: center; gap: .75rem; padding: .25rem 0; font-size: .85rem; }
+#learning-segments { display: flex; flex: 1; align-items: center; min-width: 0; gap: 3px; height: 52px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.learning-segment { flex: 1 0 44px; min-width: 44px; height: 44px; padding: 0 2px; border: 0; background: transparent; }
+.learning-segment::before { content: ""; display: block; height: .6rem; border-radius: .2rem; background: var(--border); }
+.learning-segment[data-explored="true"]::before { background: color-mix(in srgb, var(--subject-accent) var(--completion-intensity), var(--border)); }
+.learning-segment[aria-current]::before { outline: 2px solid var(--primary); outline-offset: 1px; }
+.learning-segment:focus-visible { outline-offset: -2px; }
+#learning-counter { flex-shrink: 0; color: var(--text); }
+#learning-content .card[data-learning-card] { margin-bottom: 2rem; }
+#learning-content .card[data-explored="true"] { color: var(--muted); }
+.learning-card-footer { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .5rem; min-height: 44px; margin: .75rem -.5rem calc(-1 * var(--card-padding) - 22px); }
+.learning-card-footer .hint-toggle { grid-column: 2; margin: 0; padding: .35rem .6rem; font-size: .85rem; white-space: nowrap; }
+.explored-control { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: .6rem; background: var(--card); color: var(--primary); font-size: .85rem; white-space: nowrap; cursor: pointer; user-select: none; }
+.explored-control input { width: 20px; height: 20px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.explored-control:has(:checked) { background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
+#learning.has-timeline { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 1rem; }
+#learning-content { min-width: 0; }
+.learning-timeline { position: sticky; top: var(--learning-offset, 12rem); max-height: calc(100dvh - var(--learning-offset, 12rem) - 1rem); overflow: auto; align-self: start; padding-right: 2rem; }
+.learning-timeline details { position: sticky; top: 0; z-index: 1; border: 0; margin: 0; padding: .25rem; background: var(--bg); }
+.learning-timeline summary { display: flex; align-items: center; gap: .35rem; min-height: 44px; }
+.learning-timeline summary::-webkit-details-marker { display: none; }
+.learning-timeline summary::before { content: "▶"; font-size: .7rem; flex-shrink: 0; }
+.learning-timeline details[open] summary::before { content: "▼"; }
+.timeline-title { min-width: 0; overflow-wrap: anywhere; }
+.timeline-track { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); margin: .5rem 0; padding-left: .75rem; gap: 0; }
+.timeline-track::before { content: ""; position: absolute; left: .25rem; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.timeline-year { position: relative; grid-column: 1; padding: .15rem 0 .3rem .2rem; min-width: 0; }
+.timeline-year:has(.timeline-node)::before { content: ""; position: absolute; left: -.6875rem; top: .4rem; width: .5rem; height: .5rem; border: 1px solid var(--bg); border-radius: 50%; background: var(--muted); }
+.timeline-year:has([aria-current])::before { background: var(--primary); }
+.timeline-date { display: block; color: var(--muted); font-size: .75rem; line-height: 1.25; }
+.timeline-year-link { display: none; }
+.timeline-node { position: relative; display: block; width: 100%; margin: .1rem 0; padding: .25rem .35rem; font-size: .8rem; line-height: 1.35; text-align: left; overflow-wrap: anywhere; background: transparent; border-color: transparent; }
+.timeline-node[aria-current] { background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary); border-color: var(--primary); }
+#learning-content .card[data-timeline-active="true"] { outline: 2px solid var(--primary); outline-offset: -2px; }
+.highlight-tools { position: relative; flex-shrink: 0; align-self: center; border: 0; padding: 0; margin: 0; background: transparent; }
+.highlight-tools > summary { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; list-style: none; border-radius: .5rem; }
+.highlight-tools > summary::-webkit-details-marker { display: none; }
+.highlight-panel { position: fixed; right: max(1rem, calc((100% - 1120px) / 2 + 1rem)); width: max-content; max-width: calc(100vw - 2rem); padding: .4rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); color: var(--text); box-shadow: var(--shadow); z-index: 4; }
+.highlight-panel [role="group"] { display: flex; flex-wrap: nowrap; gap: .25rem; }
+.highlight-panel button { flex: 0 0 auto; min-width: 44px; padding: .4rem .35rem; font-size: .85rem; white-space: nowrap; }
+.highlight-panel button:disabled { opacity: .5; }
+button[data-highlight-action]:not([data-highlight-action="remove"]) { color: #17212b; border-radius: .15em; background: var(--marker); }
+[data-highlight-color="yellow"], [data-highlight-action="yellow"] { --marker: #ffe589; }
+[data-highlight-color="blue"], [data-highlight-action="blue"] { --marker: #b5ddff; }
+[data-highlight-color="green"], [data-highlight-action="green"] { --marker: #b9edbd; }
+mark[data-highlight-color="yellow"] { --marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath fill='%23ffd54f' fill-opacity='.35' d='M3 5L15 4 27 2 40 3 53 1 67 3 81 2 94 4 107 2 118 4 117 9 120 12 116 16 119 22 116 27 103 28 91 27 77 30 65 28 52 29 40 27 26 29 14 27 2 28 3 22 1 19 4 14 1 10Z'/%3E%3C/svg%3E"); }
+mark[data-highlight-color="blue"] { --marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath fill='%2374c4ff' fill-opacity='.35' d='M3 5L15 4 27 2 40 3 53 1 67 3 81 2 94 4 107 2 118 4 117 9 120 12 116 16 119 22 116 27 103 28 91 27 77 30 65 28 52 29 40 27 26 29 14 27 2 28 3 22 1 19 4 14 1 10Z'/%3E%3C/svg%3E"); }
+mark[data-highlight-color="green"] { --marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 32' preserveAspectRatio='none'%3E%3Cpath fill='%237fda87' fill-opacity='.35' d='M3 5L15 4 27 2 40 3 53 1 67 3 81 2 94 4 107 2 118 4 117 9 120 12 116 16 119 22 116 27 103 28 91 27 77 30 65 28 52 29 40 27 26 29 14 27 2 28 3 22 1 19 4 14 1 10Z'/%3E%3C/svg%3E"); }
+mark[data-highlight-color] { color: var(--text); border-radius: 0; background: transparent var(--marker-stroke) center / 100% 100% no-repeat; padding: .04em .12em; margin-inline: .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.card > summary { font-size: 1.15rem; font-weight: bold; }
+label { display: block; }
+input[type="text"] { width: 100%; max-width: 35rem; border: 1px solid var(--border); border-radius: .5rem; padding: .75rem; background: var(--bg); color: var(--text); }
+.player-row { display: flex; align-items: center; gap: .75rem; }
+.player-row label { flex-shrink: 0; }
+#player { flex: 1; min-width: 0; width: auto; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#name-error:empty { margin: 0; }
+#quiz-tools { position: relative; flex-shrink: 0; align-self: center; margin: 0; padding: 0; border: 0; background: transparent; }
+#quiz-tools > summary { display: grid; place-items: center; width: 44px; height: 44px; padding: .5rem; border-radius: .5rem; list-style: none; color: var(--muted); opacity: .65; }
+#quiz-tools > summary::-webkit-details-marker { display: none; }
+#quiz-tools > summary:hover { background: var(--bg); }
+#quiz-tools[open] > summary, #quiz-tools > summary:is(:hover, :focus-visible) { opacity: 1; }
+#quiz-tools svg { width: 1rem; height: 1rem; }
+#quiz-tools-panel { position: absolute; z-index: 1; top: calc(100% + .25rem); right: 0; width: max-content; max-width: min(14rem, calc(100vw - 2rem)); padding: .5rem; background: var(--card); border: 1px solid var(--border); border-radius: .6rem; box-shadow: var(--shadow); }
+#quiz-export { padding: .35rem .65rem; font-size: .9rem; }
+#export-error { color: var(--bad); margin: .5rem 0 0; font-size: .85rem; line-height: 1.5; }
+.modes > button { flex: 1 1 10rem; padding: .8rem 1.2rem; border-radius: 1.5rem; font-weight: bold; }
+.modes > button { border-color: var(--mode-color); background: color-mix(in srgb, var(--mode-color) 24%, var(--card)); }
+.modes > [data-mode="easy"] { --mode-color: var(--good); }
+.modes > [data-mode="medium"] { --mode-color: var(--warning); }
+.modes > [data-mode="hard"] { --mode-color: var(--bad); }
+.modes > button:hover { background: color-mix(in srgb, var(--mode-color) 32%, var(--card)); }
+.mode-count { display: block; font-size: .9rem; font-weight: normal; color: var(--muted); }
+#scoring li { margin: .6rem 0; }
+.difficulty { width: fit-content; border-radius: 2rem; padding: .15rem .8rem; color: var(--good); background: color-mix(in srgb, currentColor 10%, var(--card)); font-weight: bold; }
+.difficulty[data-level="medium"] { color: var(--warning); }
+.difficulty[data-level="hard"] { color: var(--violet); }
+.quiz-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; color: var(--muted); font-weight: bold; }
+.quiz-status p { margin: 0; }
+#quiz-progress { display: block; width: 100%; height: .75rem; margin: .75rem 0 1.5rem; accent-color: var(--primary); }
+#bonus { height: 3px; border-radius: 2px; overflow: hidden; background: var(--bg); margin: .75rem 0; }
+#bonus-bar { height: 100%; background: var(--teal); transform-origin: left; transition: transform .1s linear; }
+.question-heading { display: flex; align-items: baseline; }
+.question-heading h2 { min-width: 0; }
+#answers { display: grid; gap: .75rem; }
+#answers button { text-align: left; }
+#feedback { padding: 1rem; margin: 1rem 0; border: 2px solid var(--border); border-radius: .6rem; }
+#feedback.success { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--card)); }
+#feedback.encouragement, #feedback.try-again { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--card)); }
+.correct { color: var(--good); }
+.incorrect, #name-error, #storage-warning { color: var(--bad); }
+.grade { font-size: 1.4rem; font-weight: bold; text-align: center; padding: 1rem; border-radius: .75rem; background: var(--bg); color: var(--primary); }
+#results { position: relative; overflow: hidden; }
+#restart { margin-top: 1rem; }
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.confetti span { --x: 8%; --drift: 20px; --delay: 0s; position: absolute; top: 0; left: var(--x); width: 7px; height: 12px; background: var(--primary); opacity: 0; }
+.confetti span:nth-child(6n + 2) { --x: 25%; --drift: -30px; background: var(--teal); }
+.confetti span:nth-child(6n + 3) { --x: 42%; --drift: 35px; background: var(--violet); }
+.confetti span:nth-child(6n + 4) { --x: 58%; --drift: -25px; background: var(--good); }
+.confetti span:nth-child(6n + 5) { --x: 75%; --drift: 30px; background: var(--warning); }
+.confetti span:nth-child(6n) { --x: 92%; --drift: -20px; background: var(--teal); }
+.confetti span:nth-child(n + 7) { --delay: .15s; width: 5px; }
+.confetti span:nth-child(n + 13) { --delay: .3s; height: 7px; }
+#results:not([hidden]) .confetti span { animation: confetti 1.4s ease-out var(--delay) both; }
+@keyframes confetti { 0% { opacity: 0; transform: translateY(-15px) rotate(0); } 15% { opacity: .8; } 100% { opacity: 0; transform: translate(var(--drift), 230px) rotate(240deg); } }
+#summary li { margin-bottom: 1rem; }
+#summary p { margin: .25rem 0; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+caption { text-align: left; white-space: normal; color: var(--muted); font-size: .85rem; padding-bottom: .75rem; }
+th, td { text-align: left; border-bottom: 1px solid var(--border); padding: .5rem; white-space: nowrap; }
+tr.current { background: var(--bg); font-weight: bold; outline: 2px solid var(--primary); outline-offset: -2px; }
+#definition { position: fixed; inset: auto; margin: 0; width: min(24rem, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; box-shadow: 0 8px 32px #0003; overflow-wrap: anywhere; }
+#definition h2 { margin-top: 0; }
+#quiz-leave-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; background: var(--card); color: var(--text); font: inherit; border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 8px 32px #0003; }
+#quiz-leave-dialog::backdrop { background: #0008; }
+#quiz-leave-dialog h2 { margin-top: 0; }
+.quiz-leave-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.quiz-leave-actions button { flex: 1 1 12rem; }
+#quiz-stay { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 16%, var(--card)); color: var(--primary); font-weight: bold; }
+#quiz-stay:hover { background: color-mix(in srgb, var(--primary) 24%, var(--card)); }
+a { color: var(--primary); }
+#original { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; column-gap: 1rem; }
+#original-content { display: contents; }
+#original-content > * { grid-column: 1 / -1; min-width: 0; }
+#original-content > :first-child { grid-column: 1; grid-row: 1; }
+.lesson-share { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; align-items: stretch; gap: .75rem; min-width: 0; margin: 0 0 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); overflow-wrap: anywhere; font-size: .9rem; }
+.lesson-share p { margin: 0 0 .4rem; }
+.lesson-share a { word-break: break-word; }
+.lesson-share svg { display: block; align-self: center; width: 11rem; max-width: 100%; height: auto; padding: .5rem; border: 1px solid var(--border); border-radius: .5rem; background: #fff; }
+[hidden] { display: none !important; }
+@keyframes pop { 50% { transform: scale(1.015); } }
+@keyframes shake { 25%, 75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+@keyframes reveal { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes important-glow { 0%, 100% { outline-color: transparent; } 45% { outline-color: var(--callout); } }
+@keyframes definition-flip { from { opacity: .2; transform: perspective(900px) rotateY(-70deg) scale(.85); } to { opacity: 1; transform: none; } }
+@keyframes tab-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tab-leave { to { opacity: 0; transform: translateY(-4px); } }
+::view-transition { pointer-events: none; }
+::view-transition-group(lesson-panel) { animation-duration: .3s; animation-timing-function: ease-out; }
+::view-transition-old(lesson-panel) { animation: tab-leave .18s ease-out both; }
+::view-transition-new(lesson-panel) { animation: tab-enter .3s ease-out both; }
+.success { animation: pop .3s ease; }
+.failure { animation: shake .3s ease; }
+.question-enter, #answers > *, .encouragement, .try-again, #results:not([hidden]), #definition:popover-open { animation: reveal .25s ease-out; }
+#definition.definition-flip:popover-open { animation: definition-flip .3s ease-out; }
+.question-enter { display: block; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } button:not(:disabled):hover { transform: none !important; } }
+@media (pointer: coarse) { #learning-content summary { min-height: 44px; } }
+@media (min-width: 761px) {
+    #learning.has-timeline:has(#timeline-details:not([open])) { grid-template-columns: minmax(0, 1fr) 6.5rem; }
+    #timeline-details:not([open]) summary { font-size: .75rem; gap: .15rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year { padding: .05rem 0; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year::before { top: 50%; transform: translateY(-50%); }
+    #timeline-details:not([open]) + .timeline-track .timeline-node,
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has(.timeline-year-link) > span.timeline-date { display: none; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link { display: block; position: relative; z-index: 0; width: 100%; min-width: 44px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; font-size: .8rem; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link::before { content: ""; position: absolute; z-index: -1; inset: 6px 4px; border: 1px solid var(--year-border, var(--border)); border-radius: .4rem; background: var(--year-background, var(--card)); pointer-events: none; }
+    #timeline-details:not([open]) + .timeline-track .timeline-year-link:hover { --year-background: color-mix(in srgb, var(--primary) 8%, var(--card)); --year-border: var(--primary); }
+    #timeline-details:not([open]) + .timeline-track .timeline-year:has([aria-current]) .timeline-year-link { --year-background: color-mix(in srgb, var(--primary) 12%, var(--card)); --year-border: var(--primary); color: var(--primary); }
+}
+@media (max-width: 760px) {
+    #learning.has-timeline { display: flex; flex-direction: column; gap: .5rem; }
+    .learning-timeline { order: -1; position: static; width: 100%; padding-right: 0; max-height: none; overflow: visible; }
+    .learning-timeline details { position: static; }
+    .learning-timeline .timeline-track { max-height: 18rem; overflow: auto; }
+    #timeline-details:not([open]) + .timeline-track { display: none; }
+    #original { grid-template-columns: minmax(0, 1fr); }
+    .lesson-share { grid-column: 1; grid-row: 2; }
+}
+@media (max-width: 550px) {
+    body { font-size: 1rem; }
+    header { padding: .5rem 1rem 0; }
+    .heading { position: relative; align-items: flex-start; }
+    .lesson-identity { gap: .5rem; }
+    .lesson-title-group { flex: 1; }
+    .lesson-header-mark { width: 48px; height: 48px; }
+    .lesson-footer-mark { width: 64px; height: 64px; }
+    .lesson-heading { flex-direction: column; align-items: flex-start; gap: .6rem; }
+    .lesson-heading .badge { max-width: calc(100% - 84px); padding: .1rem .4rem; font-size: .8rem; }
+    .lesson-heading h1 { margin-top: .6rem; }
+    .heading .motivation { line-height: 1.5; }
+    #theme { position: absolute; top: 0; right: 0; }
+    .heading:has(.voice-switch:not([hidden])) { padding-top: 3.5rem; }
+    .voice-switch { position: absolute; top: 0; right: 84px; }
+    .card { --card-padding: 1rem; }
+    .learning-card-footer { grid-template-columns: auto auto; justify-content: space-between; gap: .25rem; margin-inline: calc(-1 * var(--card-padding)); }
+    .learning-card-footer .hint-toggle { grid-column: 1; padding-inline: .2rem; }
+    .explored-control { grid-column: 2; padding-inline: .2rem; }
+    .tab-bar { gap: 0; }
+    .tab-bar nav { gap: 0; }
+    .lesson-tools { gap: 0; }
+    .learning-controls { gap: 0; }
+    nav { gap: .2rem; }
+    nav button { flex: 1; gap: .25rem; padding: .5rem .3rem; font-size: .85rem; }
+    .tab-icon { width: 1rem; height: 1rem; }
+    .player-row { gap: .5rem; }
+}
+</style>
+</head>
+<body data-subject="english">
+    <header id="page-header">
+        <div class="heading">
+            <div class="lesson-identity">
+                <svg class="lesson-header-mark" aria-hidden="true" focusable="false" viewBox="0 0 32 32" width="64" height="64"><g transform="matrix(1.47619 0 0 1.47619 -4.66666 -11.30952)">
+    <path fill="currentColor" fill-rule="evenodd" d="M10 12h5c5.5 0 9 3 9 8.5S20.5 29 15 29h-5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1zm4 4.5v8h1c2.5 0 4-1.5 4-4s-1.5-4-4-4z"/>
+    <path d="M17 9 5 14v5" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
+                <div class="lesson-title-group">
+                    <div class="lesson-heading"><span class="badge">Angličtina</span><h1 id="topic"></h1></div>
+                    <p id="subtitle" class="motivation"></p>
+                </div>
+            </div>
+            <button id="voice-switch" class="voice-switch" type="button" role="switch" aria-label="Ženský hlas" aria-checked="false" hidden></button>
+            <button id="theme" type="button" role="switch" aria-checked="false" aria-label="Tmavý režim" title="Přepnout světlý nebo tmavý režim">
+                <svg class="theme-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                <svg class="theme-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 13A9 9 0 0 1 11 3.5 9 9 0 1 0 20.5 13Z"/></svg>
+            </button>
+        </div>
+        <div class="tab-bar">
+        <nav role="tablist" aria-label="Části lekce">
+            <button id="tab-original" type="button" role="tab" data-tab="original" aria-controls="original" aria-selected="true" tabindex="0"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Původní text</span></button>
+            <button id="tab-learning" type="button" role="tab" data-tab="learning" aria-controls="learning" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v16m0-16C9 3 5 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 1Z"/></svg><span>Učit se</span></button>
+            <button id="tab-quiz" type="button" role="tab" data-tab="quiz" aria-controls="quiz" aria-selected="false" tabindex="-1"><svg class="tab-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10c3 0 5 11 3 12-1 1-4-3-4-3H8s-3 4-4 3C2 18 4 7 7 7ZM6 11h6m-3-3v6"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="14" r="1"/></svg><span>Hrát si</span></button>
+        </nav>
+        </div>
+        <div class="lesson-tools" role="group" aria-label="Nástroje lekce">
+        <details id="highlight-tools" class="highlight-tools">
+            <summary aria-label="Zvýraznění textu" aria-keyshortcuts="Alt+H" title="Zvýraznění textu (Alt+H)">🖍️</summary>
+            <div class="highlight-panel">
+                <p id="highlight-help" class="visually-hidden">Vyber text a zvol barvu. Klávesová zkratka: Alt+H. Změny zůstávají jen v této kartě prohlížeče, i po obnovení stránky. Neodesílají se online.</p>
+                <div role="group" aria-label="Barva zvýraznění" aria-describedby="highlight-help">
+                    <button type="button" data-highlight-action="yellow">Žlutě</button>
+                    <button type="button" data-highlight-action="blue">Modře</button>
+                    <button type="button" data-highlight-action="green">Zeleně</button>
+                    <button type="button" data-highlight-action="remove">Odstranit</button>
+                </div>
+                <p id="highlight-status" class="visually-hidden" role="status" aria-live="polite"></p>
+            </div>
+        </details>
+        <div id="learning-controls" class="learning-controls" role="group" aria-label="Nápovědy a řešení" hidden>
+            <button id="expand-learning" type="button" aria-controls="learning-content" aria-label="Rozbalit vše" title="Rozbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9V3m-4 4 4-4 4 4M12 15v6m-4-4 4 4 4-4"/></svg></button>
+            <button id="collapse-learning" type="button" aria-controls="learning-content" aria-label="Sbalit vše" title="Sbalit vše"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6m-4-4 4 4 4-4M12 21v-6m-4 4 4-4 4 4"/></svg></button>
+        </div>
+        <details id="quiz-tools" hidden>
+            <summary aria-label="Nástroje kvízu" title="Nástroje kvízu"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 3h3l1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-3Z"/><circle cx="11.5" cy="10.5" r="3"/></svg></summary>
+            <div id="quiz-tools-panel">
+                <button id="quiz-export" type="button" title="Celá lekce včetně původního textu, učiva a všech otázek se správnými odpověďmi." aria-describedby="quiz-export-help">Stáhnout lekci (JSON)</button>
+                <span id="quiz-export-help" class="visually-hidden">Export obsahuje celou lekci včetně všech otázek a správných odpovědí.</span>
+                <p id="export-error" role="alert" hidden></p>
+            </div>
+        </details>
+        </div>
+        <div id="learning-progress" class="learning-progress" hidden>
+            <div id="learning-segments" role="navigation" aria-label="Přejít na kartu lekce"></div>
+            <span id="learning-counter" role="progressbar" aria-label="Prozkoumané karty" aria-valuemin="0" aria-valuenow="0" aria-live="polite" aria-atomic="true"></span>
+        </div>
+    </header>
+    <main>
+        <noscript>Pro interaktivní lekci zapni JavaScript v prohlížeči.</noscript>
+        <p id="voice-warning" class="voice-warning callout callout-warning" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+        <p id="storage-warning" role="alert" hidden></p>
+        <p id="highlight-warning" role="alert" hidden></p>
+        <section id="original" role="tabpanel" aria-labelledby="tab-original" tabindex="0">
+            <div id="original-content"></div>
+            <aside class="lesson-share" aria-label="Odkaz na lekci"><div><p>Otevři si tuto lekci na jiném zařízení naskenováním QR kódu nebo kliknutím na odkaz:</p><a href="https://dusan.iric.online/test/birthday-possessives-practice.html">https://dusan.iric.online/test/birthday-possessives-practice.html</a></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" shape-rendering="crispEdges"><path fill="#fff" d="M0 0h41v41H0z"/><path fill="#000" d="M4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM20 4h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM27 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM33 4h1v1h-1zM34 4h1v1h-1zM35 4h1v1h-1zM36 4h1v1h-1zM4 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM25 5h1v1h-1zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM23 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM33 6h1v1h-1zM34 6h1v1h-1zM36 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM16 7h1v1h-1zM17 7h1v1h-1zM19 7h1v1h-1zM21 7h1v1h-1zM24 7h1v1h-1zM26 7h1v1h-1zM30 7h1v1h-1zM32 7h1v1h-1zM33 7h1v1h-1zM34 7h1v1h-1zM36 7h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM13 8h1v1h-1zM17 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM36 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM24 9h1v1h-1zM30 9h1v1h-1zM36 9h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM33 10h1v1h-1zM34 10h1v1h-1zM35 10h1v1h-1zM36 10h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM19 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM27 11h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM29 12h1v1h-1zM31 12h1v1h-1zM33 12h1v1h-1zM35 12h1v1h-1zM6 13h1v1h-1zM9 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM20 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM29 13h1v1h-1zM30 13h1v1h-1zM34 13h1v1h-1zM35 13h1v1h-1zM36 13h1v1h-1zM6 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM19 14h1v1h-1zM21 14h1v1h-1zM22 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM33 14h1v1h-1zM35 14h1v1h-1zM4 15h1v1h-1zM9 15h1v1h-1zM16 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM25 15h1v1h-1zM30 15h1v1h-1zM31 15h1v1h-1zM32 15h1v1h-1zM34 15h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM28 16h1v1h-1zM29 16h1v1h-1zM31 16h1v1h-1zM32 16h1v1h-1zM33 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM18 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM27 17h1v1h-1zM30 17h1v1h-1zM35 17h1v1h-1zM36 17h1v1h-1zM4 18h1v1h-1zM7 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM31 18h1v1h-1zM32 18h1v1h-1zM35 18h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM8 19h1v1h-1zM9 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM27 19h1v1h-1zM29 19h1v1h-1zM32 19h1v1h-1zM34 19h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM21 20h1v1h-1zM23 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM29 20h1v1h-1zM31 20h1v1h-1zM32 20h1v1h-1zM35 20h1v1h-1zM7 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM16 21h1v1h-1zM17 21h1v1h-1zM20 21h1v1h-1zM21 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM27 21h1v1h-1zM30 21h1v1h-1zM31 21h1v1h-1zM33 21h1v1h-1zM35 21h1v1h-1zM36 21h1v1h-1zM5 22h1v1h-1zM7 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM31 22h1v1h-1zM32 22h1v1h-1zM33 22h1v1h-1zM35 22h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM9 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM25 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM30 23h1v1h-1zM32 23h1v1h-1zM34 23h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM35 24h1v1h-1zM4 25h1v1h-1zM8 25h1v1h-1zM14 25h1v1h-1zM17 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM27 25h1v1h-1zM30 25h1v1h-1zM33 25h1v1h-1zM35 25h1v1h-1zM36 25h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM11 26h1v1h-1zM12 26h1v1h-1zM13 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM19 26h1v1h-1zM21 26h1v1h-1zM24 26h1v1h-1zM25 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM33 26h1v1h-1zM35 26h1v1h-1zM4 27h1v1h-1zM7 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM15 27h1v1h-1zM22 27h1v1h-1zM25 27h1v1h-1zM26 27h1v1h-1zM30 27h1v1h-1zM31 27h1v1h-1zM33 27h1v1h-1zM34 27h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM15 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM30 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM36 28h1v1h-1zM12 29h1v1h-1zM16 29h1v1h-1zM17 29h1v1h-1zM20 29h1v1h-1zM22 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM28 29h1v1h-1zM32 29h1v1h-1zM33 29h1v1h-1zM34 29h1v1h-1zM36 29h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM9 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM13 30h1v1h-1zM14 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM32 30h1v1h-1zM34 30h1v1h-1zM35 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM13 31h1v1h-1zM14 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM19 31h1v1h-1zM24 31h1v1h-1zM25 31h1v1h-1zM27 31h1v1h-1zM28 31h1v1h-1zM32 31h1v1h-1zM33 31h1v1h-1zM34 31h1v1h-1zM35 31h1v1h-1zM4 32h1v1h-1zM6 32h1v1h-1zM7 32h1v1h-1zM8 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM16 32h1v1h-1zM18 32h1v1h-1zM19 32h1v1h-1zM20 32h1v1h-1zM21 32h1v1h-1zM26 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM30 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM33 32h1v1h-1zM4 33h1v1h-1zM6 33h1v1h-1zM7 33h1v1h-1zM8 33h1v1h-1zM10 33h1v1h-1zM12 33h1v1h-1zM13 33h1v1h-1zM20 33h1v1h-1zM23 33h1v1h-1zM24 33h1v1h-1zM25 33h1v1h-1zM26 33h1v1h-1zM29 33h1v1h-1zM31 33h1v1h-1zM32 33h1v1h-1zM33 33h1v1h-1zM34 33h1v1h-1zM4 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM12 34h1v1h-1zM15 34h1v1h-1zM16 34h1v1h-1zM19 34h1v1h-1zM20 34h1v1h-1zM21 34h1v1h-1zM22 34h1v1h-1zM25 34h1v1h-1zM26 34h1v1h-1zM27 34h1v1h-1zM30 34h1v1h-1zM33 34h1v1h-1zM34 34h1v1h-1zM35 34h1v1h-1zM4 35h1v1h-1zM10 35h1v1h-1zM12 35h1v1h-1zM14 35h1v1h-1zM15 35h1v1h-1zM18 35h1v1h-1zM19 35h1v1h-1zM20 35h1v1h-1zM25 35h1v1h-1zM29 35h1v1h-1zM30 35h1v1h-1zM32 35h1v1h-1zM33 35h1v1h-1zM34 35h1v1h-1zM4 36h1v1h-1zM5 36h1v1h-1zM6 36h1v1h-1zM7 36h1v1h-1zM8 36h1v1h-1zM9 36h1v1h-1zM10 36h1v1h-1zM12 36h1v1h-1zM14 36h1v1h-1zM15 36h1v1h-1zM21 36h1v1h-1zM22 36h1v1h-1zM23 36h1v1h-1zM26 36h1v1h-1zM27 36h1v1h-1zM28 36h1v1h-1zM29 36h1v1h-1zM30 36h1v1h-1zM31 36h1v1h-1zM33 36h1v1h-1zM35 36h1v1h-1z"/></svg></aside>
+        </section>
+        <section id="learning" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden>
+            <div id="learning-content"></div>
+        </section>
+        <section id="quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden>
+            <article id="setup" class="card">
+                <h2><span class="card-icon" aria-hidden="true">🎯</span>Vyber si kvíz</h2>
+                <div class="player-row">
+                    <label for="player" title="Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků.">Přezdívka</label>
+                    <input id="player" name="player-name" type="text" autocomplete="on" maxlength="60" placeholder="Napiš sem" title="Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků." aria-describedby="name-help name-error">
+                </div>
+                <span id="name-help" class="visually-hidden">Jméno nebo přezdívka: alespoň 3 písmena, nejvýše 60 znaků.</span>
+                <p id="name-error" role="alert"></p>
+                <div class="modes">
+                    <button type="button" data-mode="easy"><span aria-hidden="true">🟢</span> Lehká <span class="mode-count">3 úlohy</span></button>
+                    <button type="button" data-mode="medium"><span aria-hidden="true">🟡</span> Střední <span class="mode-count">5 úloh</span></button>
+                    <button type="button" data-mode="hard"><span aria-hidden="true">🔴</span> Těžká <span class="mode-count">10 úloh</span></button>
+                </div>
+                <details id="scoring-rules"><summary>Jak se počítají body?</summary><ul id="scoring"></ul></details>
+            </article>
+            <article id="game" class="card" hidden>
+                <div class="quiz-status">
+                    <p id="progress"></p>
+                    <p id="score" role="status" aria-atomic="true"></p>
+                </div>
+                <progress id="quiz-progress" aria-labelledby="progress" max="1" value="0"></progress>
+                
+                <p id="difficulty" class="difficulty"></p>
+                <div class="question-heading"><span id="question-icon" class="card-icon" aria-hidden="true"></span><h2 id="question" tabindex="-1"></h2></div>
+                <div id="question-material" hidden></div>
+                <details id="answer-guide" hidden><summary>Jak odpovídat?</summary><p id="answer-help"></p></details>
+                <form id="answers" novalidate></form>
+                <div id="feedback" role="status" hidden></div>
+                <button id="next" type="button" hidden>Další úloha</button>
+            </article>
+            <article id="results" class="card" hidden>
+                <div class="confetti" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <h2 id="results-title" tabindex="-1"><span class="card-icon" aria-hidden="true">🎉</span>Hotovo! Kvíz máš za sebou.</h2>
+                <p>Každý pokus ti pomáhá učit se. Podívej se, co už umíš a co si ještě procvičíš.</p>
+                <p id="grade" class="grade"></p>
+                <p id="answer-duration"></p>
+                <details><summary>Prohlédnout odpovědi a vysvětlení</summary><ol id="summary"></ol></details>
+                <button id="restart" type="button">Nový kvíz</button>
+            </article>
+            <details id="leaderboard" class="card">
+                <summary><span class="card-icon" aria-hidden="true">🏅</span>Síň slávy této lekce</summary>
+                <p>Výsledky se ukládají jen v této kartě prohlížeče, ne online ani na jiných zařízeních. Po zavření karty se mohou ztratit.</p>
+                <p id="leaderboard-rank" hidden></p>
+                <div id="leaderboard-content" class="table-scroll"></div>
+            </details>
+        </section>
+    </main>
+    <footer class="lesson-footer">
+        <svg class="lesson-footer-mark" aria-hidden="true" focusable="false" viewBox="0 0 32 32" width="96" height="96"><g transform="matrix(1.47619 0 0 1.47619 -4.66666 -11.30952)">
+    <path fill="currentColor" fill-rule="evenodd" d="M10 12h5c5.5 0 9 3 9 8.5S20.5 29 15 29h-5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1zm4 4.5v8h1c2.5 0 4-1.5 4-4s-1.5-4-4-4z"/>
+    <path d="M17 9 5 14v5" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
+    </footer>
+    <button id="glossary-toggle" type="button" aria-haspopup="dialog" aria-controls="glossary-drawer" aria-expanded="false" title="Otevřít slovníček" hidden><span aria-hidden="true">🔖</span><span>Slovníček</span></button>
+    <aside id="glossary-drawer" popover="manual" role="dialog" aria-modal="false" aria-labelledby="glossary-title">
+        <div class="drawer-heading">
+            <h2 id="glossary-title"><span class="card-icon" aria-hidden="true">🔖</span>Slovníček</h2>
+            <button id="glossary-close" type="button" aria-label="Zavřít slovníček" title="Zavřít slovníček">×</button>
+        </div>
+        <div id="glossary"></div>
+    </aside>
+    <div id="definition" popover="auto" role="dialog" aria-labelledby="definition-title" aria-describedby="definition-text">
+        <h2 id="definition-title"></h2>
+        <p id="definition-text"></p>
+        <button id="definition-close" type="button">Zavřít</button>
+    </div>
+    <dialog id="quiz-leave-dialog" aria-labelledby="quiz-leave-title" aria-describedby="quiz-leave-description">
+        <h2 id="quiz-leave-title">Pokračovat v kvízu?</h2>
+        <p id="quiz-leave-description">Kvíz ještě není hotový. Zůstaň a pokračuj tam, kde jsi skončil. Pokud přepneš záložku, tento pokus se ukončí a jeho odpovědi, body a postup se ztratí.</p>
+        <div class="quiz-leave-actions">
+            <button id="quiz-stay" type="button" autofocus>Pokračovat v kvízu</button>
+            <button id="quiz-leave" type="button">Ukončit kvíz a přepnout</button>
+        </div>
+    </dialog>
+    <script id="lesson-data" type="application/json">{"version":5,"subject":"english","language":"cs-CZ","id":"birthday-possessives-practice","topic":"Narozeniny, přivlastňování a Skotsko","subtitle":"Zkoušej vyprávět o narozeninách, oblíbených věcech a nových místech.","audience":"Začátečníci A1 kolem deseti let, s českou podporou.","original":[{"heading":"Téma a podklad","text":"Přivlastňování a slovní zásoba. Podkladem je dodaná fotografie učebnicové stránky o narozeninách, datech a oblíbených věcech. Tato lekce obsahuje nové autorské příklady a cvičení, nikoli přepis stránky.","language":"cs-CZ"},{"heading":"Skotsko – strana 12, nadpis a zadání","language":"en-GB","text":"GEOGRAPHY | W Track 7\n\nANNA MEETS NEW FRIENDS\nSCOTLAND\n\nKahoot!\n\nTask 1\nRead the conversation*.\nAnna is in Scotland now. She meets a new friend, Sarah."},{"heading":"Skotsko – úvodní bublina","language":"en-GB","text":"Hi! I’m Anna. I am going around the world.\nNow I’m in Scotland. Let’s meet my new friend, Sarah!"},{"heading":"Rozhovor – bublina 1","language":"en-GB","text":"Anna: Hi, I’m Anna.\nWhat’s your name?"},{"heading":"Rozhovor – bublina 2","language":"en-GB","text":"Sarah: My name’s Sarah."},{"heading":"Rozhovor – bublina 3","language":"en-GB","text":"Anna: Where do you live?"},{"heading":"Rozhovor – bublina 4","language":"en-GB","text":"Sarah: I live in Edinburgh – the capital* of Scotland."},{"heading":"Rozhovor – bublina 5","language":"en-GB","text":"Anna: What is your favourite place in Scotland?"},{"heading":"Rozhovor – bublina 6","language":"en-GB","text":"Sarah: I like going to the Highlands*!\nThere are lots of lakes, and Nessie* lives there!"},{"heading":"Skotsko – mapa a popisky fotografií","language":"en-GB","text":"SCOTLAND\nEdinburgh\nNORTHERN IRELAND\nENGLAND\nWALES\n\nEDINBURGH CASTLE\nLOCH NESS\nBAGPIPER\nHIGHLAND COW"},{"heading":"Skotsko – původní slovníček a zápatí strany 12","language":"en-GB","text":"*GLOSSARY\nconversation – when two or more people talk\ncapital – like Prague in the Czech Republic or Bratislava in Slovakia\nThe Highlands – a place in Scotland with lots of mountains\nNessie – a monster that people say lives in Loch Ness\nmashed – when you mix potatoes with butter and milk\n\n12 PLAY"},{"heading":"Skotsko – strana 13, Sarah o sobě a své zemi","language":"en-GB","text":"Task 2\nListen (W Track 7) and read about Sarah.\n\nHello from Scotland!\n\nMy name is Sarah. I’m 11 years old, and I live in Edinburgh.\nI like going to school. I have good friends there. We start school at 9 o’clock. My favourite part of the day is when we have lunch. Some children bring their lunch but some children eat school lunch. My favourite school lunch is shepherd’s pie. They make it from meat and mashed* potatoes.\nScotland has got many lakes. We call them lochs. Do you know Loch Ness? Some people think a monster called Nessie lives there! What do you think?\nSome people wear a kilt on special days. Do you know the bagpipes? You can hear them in Scotland. Bagpipers often wear kilts.\nThere are many old castles in Scotland. My favourite is Edinburgh Castle. It is on a big rock. Look up in Edinburgh and you can see it.\nDo you know what the favourite sport in Scotland is? It’s rugby. I play rugby with my friends.\nWould you like to visit Scotland one day?\nBye,\nSarah"},{"heading":"Skotsko – původní cvičení na straně 13","language":"en-GB","text":"Task 3\nYou can see lots of Highland cows in Scotland. What other animals can you see there? Circle the correct answer and write the letters on the line. Then draw a picture of the animal.\n\nThe colours of the Scottish flag are:\nblue and white — S\nred and white — F\n\nThe capital is:\nEdinburgh — H\nGlasgow — A\n\nPeople wear:\nfunny clothes — L\nkilts — E\n\nEdinburgh Castle is on:\na rock — E\na bridge — S\n\nIn the Highlands, there are:\ncows — P\nlions — E\n\nThere are lots of cows and _ _ _ _ _ in the Highlands.\n\nSolutions online\nPLAY 13"},{"heading":"Poznámky k novým podkladům","language":"cs-CZ","text":"Anglické oddíly za úvodním tématem přepisují nově dodané strany 12 a 13. Zalomení řádků je sjednocené a obrázkové symboly nejsou nahrazené vymyšlenými slovy. Strana 12 obsahuje mapu, vlajku, fotografie dívek, hradu, jezera, dudáka a skotského náhorního skotu a kresbu Nessie. Strana 13 obsahuje portrét Sarah, kresbu skotu a ruční kresbu ovce. Ručně jsou zakroužkovaná písmena S, H, E, E, P a dole je doplněno SHEEP. Ruční odpovědi nejsou tištěnou předlohou. Přesné znění ruční zvukové bubliny u ovce není dost jisté a není přepsané. W je značka u nahrávky. Track 7 nebyl dodán; přehrávač zde čte text hlasem prohlížeče, nepřehrává originální nahrávku. Nessie je legenda. Tvrzení o oblíbeném sportu ponecháváme v předloze; otázky na ragby ověřují Sarahin text, nikoli oblíbenost sportů u všech obyvatel Skotska. Původní úvodní oddíl zůstal beze změny a popisuje první, narozeninovou část lekce."}],"review":"První narozeninová část je původní autorská lekce podle první fotografie; její chybějící příběh a nahrávky 1.25–1.28 nejsou domýšlené. Rozšíření vychází z dalších dvou dodaných fotografií, stran 12–13 o Skotsku. Uživatel výslovně potvrdil přepis v souboru scotland-transcription-for-review.txt před jeho začleněním. Dosavadní original[0], všechny dosavadní výukové karty a všech 30 dosavadních úloh zůstávají zachované. Nové zdrojové oddíly jdou za původním oddílem v pořadí strana 12, strana 13; jednotlivé bubliny rozhovoru jsou oddělené a obsahují pouze skutečné popisky mluvčích. Stránky nejsou komiksové panely: obsahují rozhovor s portréty a souvislý dopis. Obrazové symboly, kresby a ruční řešení jsou popsány zvlášť, nikoli přimíchány do přepisu. Ve zdroji nebyla zjištěna pravopisná chyba ani nesoulad britských a amerických variant. Původní obecné tvrzení o oblíbenosti ragby se neopravuje uvnitř přepisu, ale nové učivo ho vztahuje výslovně k Sarahinu textu. Nessie je výslovně legendární, ne prokázané zvíře. Track 7 není k dispozici. Poslechové úlohy rozšíření používají autorské scénáře s údaji z textu; ovládání poslechu u originálu čte jeho přepis místním hlasem prohlížeče. Nejde o původní nahrávky, mikrofon ani hodnocení mluvení. Přivlastňovací výrazy samostatného typu mine nejsou součástí procvičování.","glossary":[{"term":"birthday","definition":"Narozeniny.","forms":["birthdays"]},{"term":"present","definition":"Dárek.","forms":["presents"]},{"term":"cake","definition":"Dort nebo koláč; zde narozeninový dort.","forms":["cakes"]},{"term":"favourite","definition":"Oblíbený; britský pravopis.","forms":[]},{"term":"colour","definition":"Barva; britský pravopis.","forms":["colours"]},{"term":"game","definition":"Hra.","forms":["games"]},{"term":"food","definition":"Jídlo.","forms":[]},{"term":"lucky number","definition":"Šťastné číslo.","forms":["lucky numbers"]},{"term":"month","definition":"Měsíc v kalendáři.","forms":["months"]},{"term":"date","definition":"Datum.","forms":["dates"]},{"term":"when","definition":"Kdy.","forms":[]},{"term":"whose","definition":"Čí; otázka na vlastníka.","forms":[]},{"term":"Scotland","definition":"Skotsko, jedna ze zemí Spojeného království.","forms":[]},{"term":"Scottish","definition":"Skotský.","forms":[]},{"term":"Edinburgh","definition":"Edinburgh, hlavní město Skotska.","forms":[]},{"term":"capital","definition":"Hlavní město.","forms":[]},{"term":"conversation","definition":"Rozhovor.","forms":["conversations"]},{"term":"lake","definition":"Jezero.","forms":["lakes"]},{"term":"loch","definition":"Skotské označení jezera; někdy také mořského zálivu. V tomto textu označuje jezero.","forms":["lochs"]},{"term":"the Highlands","definition":"Skotská vysočina, oblast na severu Skotska s mnoha horami.","forms":["The Highlands","Highlands"]},{"term":"mountain","definition":"Hora.","forms":["mountains"]},{"term":"Nessie","definition":"Přezdívka legendární příšery z jezera Loch Ness. Její existence není doložená.","forms":[]},{"term":"castle","definition":"Hrad.","forms":["castles"]},{"term":"rock","definition":"Skála nebo kámen; zde skála pod hradem.","forms":["rocks"]},{"term":"kilt","definition":"Tradiční skládaný oděv podobný sukni, spojovaný se Skotskem.","forms":["kilts"]},{"term":"bagpipes","definition":"Dudy, hudební nástroj.","forms":[]},{"term":"bagpiper","definition":"Dudák, člověk hrající na dudy.","forms":["bagpipers","Bagpipers"]},{"term":"cow","definition":"Kráva.","forms":["cows"]},{"term":"sheep","definition":"Ovce. Jednotné i množné číslo má stejný tvar.","forms":[]},{"term":"lunch","definition":"Oběd.","forms":["lunches"]},{"term":"shepherd's pie","definition":"Zapékaný pokrm s masem a vrstvou bramborové kaše.","forms":["shepherd’s pie"]},{"term":"mashed potatoes","definition":"Bramborová kaše.","forms":[]},{"term":"meat","definition":"Maso.","forms":[]},{"term":"rugby","definition":"Ragby, míčový sport. V této lekci hra, kterou Sarah hraje s kamarády.","forms":[]},{"term":"flag","definition":"Vlajka.","forms":["flags"]},{"term":"white","definition":"Bílý.","forms":[]},{"term":"nine","definition":"Devět.","forms":[]},{"term":"eleven","definition":"Jedenáct.","forms":[]},{"term":"live","definition":"Bydlet nebo žít.","forms":["lives"]},{"term":"where","definition":"Kde nebo kam; v otázce Where do you live? znamená kde.","forms":[]}],"chunks":[{"heading":"Měsíce jdou za sebou","sentences":["A year has twelve months. January is the first month. February comes after January. March comes after February. April comes after March. May comes after April. June comes after May. July comes after June. August comes after July. September comes after August. October comes after September. November comes after October. December is the last month.","My birthday is in April. Your birthday is in October. We use in with a month. Write month names with a capital letter: April, not april. A date tells us the day and the month."],"explanation":"Měsíce: January leden, February únor, March březen, April duben, May květen, June červen, July červenec, August srpen, September září, October říjen, November listopad, December prosinec. After znamená po. U měsíce říkáme in April. Názvy měsíců píšeme s velkým písmenem."},{"heading":"Data: první, druhý, třetí","sentences":["Ordinal numbers tell us the order. We write 1st and say first. We write 2nd and say second. We write 3rd and say third. We write 4th and say fourth. We write 5th and say fifth.","We write 11th, 12th and 13th: eleventh, twelfth and thirteenth. We write 20th: twentieth. Then come 21st, 22nd and 23rd: twenty-first, twenty-second and twenty-third. We write 31st: thirty-first. Look at these dates in calendar order: 2nd January, 5th April, 21st August, 3rd December.","Look at two dates in the same month: 3rd May and 12th May. The third of May comes first. The twelfth of May comes after it. In one month, compare the day numbers."],"explanation":"Řadová číslovka označuje pořadí, například first = první. Koncovky jsou st, nd, rd nebo th. Pozor: 11th, 12th a 13th mají th, ale 21st, 22nd, 23rd a 31st se řídí poslední číslicí. V této lekci zapisujeme datum jako den a měsíc, například 5th April. Při řazení různých měsíců rozhoduje nejdřív měsíc. U stejného měsíce porovnáme dny: 3. květen je před 12. květnem."},{"heading":"Jak se zeptat na narozeniny","sentences":["When is your birthday? My birthday is on the first of April. We can write the same date as 1st April. When's your birthday? It's on the second of June. We can write 2nd June. When's means when is. It's means it is.","When is his birthday? His birthday is in March. When is her birthday? Her birthday is on the third of May. We use on with a full date, but in with a month. Listen for both the day and the month."],"explanation":"When is your birthday? = Kdy máš narozeniny? When's je zkrácené When is. It's je It is. S celým datem používáme on: on the first of April. Psané 1st April čteme the first of April. Jen s měsícem používáme in: in March. Otázka končí otazníkem.","audio":{"text":"When is your birthday? My birthday is on the first of April. When is her birthday? Her birthday is on the third of May.","language":"en-GB"}},{"heading":"Kdo a čí: I → my, he → his","sentences":["I am Nora. My birthday is in March. You are Leo. Your birthday is in July. He is Leo. His present is blue. She is Nora. Her present is green. It is a toy dog. Its nose is black.","We are friends. Our cake is big. They are friends too. Their cake is small. Put the possessive before the thing: my present, your cake, his birthday, her game, its nose, our food, their number. The word tells us whose thing it is."],"explanation":"Dvojice: I (já) → my (můj), you (ty/vy) → your (tvůj/váš), he (on) → his (jeho), she (ona) → her (její), it (to) → its (jeho), we (my) → our (náš), they (oni/ony) → their (jejich). Přivlastňovací výraz stojí před názvem věci. Rozhoduje vlastník, nikoli věc. Its nemá apostrof; it's znamená it is. Toy dog je pejsek na hraní, nose čenich, blue modrý, green zelený, black černý, big velký a small malý."},{"heading":"Jméno s apostrofem: Nora's a Leo's","sentences":["This is Nora's present. This is her present. This is Leo's cake. This is his cake. Add an apostrophe and s to a person's name to show whose thing it is. Whose present is this? It is Nora's present.","Nora and Leo share one game. This is Nora and Leo's game. This is their game. For their shared game, put the apostrophe and s on the last name only. The game belongs to both children."],"explanation":"Nora's present = Nořin dárek = her present. Leo's cake = Leův dort = his cake. U jedné společné věci dvou lidí přidáme 's až za poslední jméno: Nora and Leo's game = jejich společná hra. Whose znamená čí. Nejde o přivlastnění dvěma odděleným věcem."},{"heading":"Oblíbené věci: malá kartička o dětech","sentences":["Nora's birthday is in March. Her favourite colour is green. Her favourite food is pasta. Her lucky number is twelve. Leo's birthday is in July. His favourite colour is blue. His favourite food is pizza. His lucky number is seven.","Their favourite game is chess. They play chess together. Their cake is yellow. Nora has a green present and Leo has a blue present. The presents have different owners, but the game belongs to both of them."],"explanation":"Favourite znamená oblíbený, colour barva, food jídlo, lucky number šťastné číslo a game hra. Pasta jsou těstoviny, pizza pizza, chess šachy, twelve dvanáct a seven sedm. Yellow znamená žlutý. Nora má narozeniny v březnu, Leo v červenci; jejich společnou oblíbenou hrou jsou šachy. Nezaměň oblíbené jídlo s barvou ani číslo s datem.","audio":{"text":"Nora's birthday is in March. Her favourite colour is green. Leo's birthday is in July. His favourite colour is blue. Their favourite game is chess.","language":"en-GB"}},{"heading":"Čti, poslouchej a potom piš","sentences":["Nora asks, 'When is your birthday, Leo?' Leo says, 'It's in July. When is your birthday?' Nora says, 'My birthday is in March.' Leo points to a blue present. 'Is this your present?' Nora says, 'No, my present is green. The blue present is your present.'","Now look for the owner before you choose his, her or their. Look for the month before you order dates. A birthday question asks when. A favourite food question asks about food. You can listen again before you answer."],"explanation":"Nejprve zjisti, o kom se mluví. His odkazuje na Lea, her na Noru a their na oba. Pro datum ověř den i měsíc. Poslechy v této lekci jsou nové autorské texty, ne nahrávky z učebnice. Můžeš je opakovat; mluvení se nenahrává ani nehodnotí."},{"heading":"Noví přátelé ve Skotsku","sentences":["Anna meets Sarah in Scotland. Scotland is one of the countries of the United Kingdom. Edinburgh is the capital of Scotland. Glasgow is another city, but it is not the capital. The Scottish flag is blue and white.","What is your name? My name is Sarah. Where do you live? I live in Edinburgh. Sarah lives in Edinburgh. She lives in the capital. She is eleven years old. Eleven is 11."],"explanation":"Scotland je Skotsko, Edinburgh jeho hlavní město a capital znamená hlavní město. Glasgow je jiné skotské město. Scottish flag je skotská vlajka a white znamená bílý. V rozhovoru Sarah bydlí v Edinburghu a je jí jedenáct let. Where do you live? znamená Kde bydlíš? I live = já bydlím, she lives = ona bydlí. What is your name? = Jak se jmenuješ?"},{"heading":"Jezera, hory a legenda o Nessie","sentences":["Sarah likes going to the Highlands. There are mountains and lakes there. A lake is a large area of water. In this reading, lochs means lakes. Loch Ness is a lake in Scotland.","Some people tell stories about Nessie, a monster in Loch Ness. Nessie is part of a legend, not a proven animal. There are cows and sheep in the Highlands. One sheep, two sheep: the word does not change."],"explanation":"The Highlands je Skotská vysočina, mountain hora, lake jezero a loch v tomto textu také jezero. Nessie patří k legendě; text nedokazuje její existenci. Cow je kráva a sheep ovce. U slova sheep je stejné jednotné i množné číslo. Tajenka na původní straně dává S–H–E–E–P, tedy sheep."},{"heading":"Sarahin školní den a její oběd","sentences":["Sarah and her friends start school at nine o'clock. Nine is 9. Some children bring their lunch. Other children eat school lunch. Sarah's favourite school lunch is shepherd's pie. It has meat and mashed potatoes.","Sarah says, 'My favourite school lunch is shepherd's pie.' We can say, 'Her favourite school lunch is shepherd's pie.' My changes to her because we are talking about Sarah. They bring their lunch. We use their for things belonging to them."],"explanation":"Podle Sarahina textu začíná škola v devět. Lunch je oběd, meat maso a mashed potatoes bramborová kaše. Shepherd's pie je zapékané jídlo s masem a vrstvou kaše. Sarah o sobě říká my; když o ní mluvíme my, použijeme her. They → their znamená oni → jejich. Nejde o popis všech škol ve Skotsku.","audio":{"text":"Sarah starts school at nine o'clock. Some children bring their lunch. Her favourite school lunch is shepherd's pie.","language":"en-GB"}},{"heading":"Hrady, dudy a sport podle Sarah","sentences":["Edinburgh Castle is an old castle. It is on a big rock. A castle is a large old building. A rock is not a bridge. Some people wear kilts on special days. Bagpipers play the bagpipes. Bagpipers often wear kilts.","Sarah plays rugby with her friends. In her text, she names rugby as Scotland's favourite sport. This is what the reading says; it does not mean that every person in Scotland likes rugby. Her favourite castle is Edinburgh Castle."],"explanation":"Castle je hrad, rock skála a bridge most. Kilt je tradiční skládaný oděv, bagpipes dudy a bagpiper dudák. Ne všichni Skotové nosí kilt. Sarah píše, že hraje ragby s kamarády. Otázky na sport odpovídají jejímu textu, nikoli průzkumu oblíbenosti sportů. Ve spojení Sarah's favourite castle můžeme jméno nahradit výrazem her."}],"exercises":[{"id":"march-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Znamená March březen?","options":["Ano","Ne"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Ano. March je březen."},{"id":"july-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Přeložíme červenec jako June?","options":["Ano","Ne"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Ne. Červenec je July. June je červen."},{"id":"present-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Znamená present v této lekci dárek?","options":["Ano","Ne"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Ano. Birthday present je narozeninový dárek."},{"id":"our-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Přeložíme náš dort jako their cake?","options":["Ano","Ne"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Ne. Náš dort je our cake. Their cake je jejich dort."},{"id":"first-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Označuje first první místo v pořadí?","options":["Ano","Ne"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Ano. First je první a zapisuje se také 1st."},{"id":"food-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Je pizza v této lekci barva?","options":["Ano","Ne"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Ne. Pizza je jídlo. Příklady barev jsou blue a green."},{"id":"his-choice","difficulty":"medium","type":"choice","skill":"grammar","prompt":"Leo je chlapec. Nahraď jeho jméno přivlastňovacím výrazem.","text":"This is Leo's present. This is ____ present.","options":["her","his","their"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Leo's present můžeme nahradit his present."},{"id":"her-gap","difficulty":"medium","type":"gapFill","skill":"grammar","prompt":"Nora je dívka. Doplň jedno přivlastňovací slovo.","text":"This is Nora's cake. This is ____ cake.","answerLanguage":"en-GB","acceptedAnswers":["her"],"assessment":{"input":"text","exact":{"type":"string","value":"her","normalization":"language"}},"explanation":"Nora's cake = her cake, její dort."},{"id":"their-gap","difficulty":"medium","type":"gapFill","skill":"grammar","prompt":"Jde o společnou hru Nory a Lea. Doplň jedno přivlastňovací slovo.","text":"This is Nora and Leo's game. This is ____ game.","answerLanguage":"en-GB","acceptedAnswers":["their"],"assessment":{"input":"text","exact":{"type":"string","value":"their","normalization":"language"}},"explanation":"Hra patří oběma dětem, proto their game."},{"id":"our-choice","difficulty":"medium","type":"choice","skill":"grammar","prompt":"Doplň výraz pro náš dort.","text":"We have a cake. This is ____ cake.","options":["our","their","my"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"We patří k our: náš."},{"id":"its-gap","difficulty":"medium","type":"gapFill","skill":"grammar","prompt":"Doplň its nebo it's jako přivlastnění. Napiš jen jedno slovo.","text":"It is a toy dog. ____ nose is black.","answerLanguage":"en-GB","acceptedAnswers":["Its"],"assessment":{"input":"text","exact":{"type":"string","value":"Its","normalization":"language"}},"explanation":"Its nose = jeho čenich. Na začátku věty má Its velké I a nemá apostrof."},{"id":"you-choice","difficulty":"medium","type":"choice","skill":"grammar","prompt":"Který přivlastňovací výraz patří k you?","options":["my","your","her"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"You → your. Platí pro ty i vy."},{"id":"my-gap","difficulty":"medium","type":"gapFill","skill":"grammar","prompt":"Mluvíš o vlastních narozeninách. Doplň přivlastňovací výraz.","text":"I am Nora. ____ birthday is in March.","answerLanguage":"en-GB","acceptedAnswers":["My"],"assessment":{"input":"text","exact":{"type":"string","value":"My","normalization":"language"}},"explanation":"I → my. Na začátku věty píšeme My."},{"id":"ordinal-choice","difficulty":"medium","type":"choice","skill":"grammar","prompt":"Vyber správný zápis řadové číslovky dvacátý druhý.","options":["22th","22nd","22st"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Dvacátý druhý je 22nd, twenty-second."},{"id":"eleventh-choice","difficulty":"medium","type":"choice","skill":"grammar","prompt":"Vyber správný zápis řadové číslovky jedenáctý.","options":["11st","11rd","11th"],"answer":2,"assessment":{"input":"number","exact":{"type":"number","value":"2"}},"explanation":"Jedenáctý je 11th, eleventh. Čísla 11, 12 a 13 mají th."},{"id":"date-order-choice","difficulty":"medium","type":"choice","skill":"meaning","prompt":"Které datum přijde v kalendářním roce nejdříve?","options":["3rd December","21st August","5th April"],"answer":2,"assessment":{"input":"number","exact":{"type":"number","value":"2"}},"explanation":"Duben je před srpnem a prosincem. Nejdřív rozhoduje měsíc, ne číslo dne."},{"id":"month-translation","difficulty":"medium","type":"translation","skill":"meaning","prompt":"Přelož měsíc do angličtiny. Nezapomeň velké písmeno.","text":"únor","direction":"cs-en","answerLanguage":"en-GB","acceptedAnswers":["February"],"assessment":{"input":"text","exact":{"type":"string","value":"February","normalization":"language"},"partial":{"match":{"type":"typo","values":["February"],"excludedWords":[]}}},"explanation":"Únor je February. Anglické názvy měsíců mají velké počáteční písmeno."},{"id":"present-translation","difficulty":"medium","type":"translation","skill":"meaning","prompt":"Přelož anglické slovo do češtiny v narozeninovém významu.","text":"present","direction":"en-cs","answerLanguage":"cs-CZ","acceptedAnswers":["dárek"],"assessment":{"input":"text","exact":{"type":"string","value":"dárek","normalization":"language"},"partial":{"match":{"type":"typo","values":["dárek"],"excludedWords":["dárky","dáreček","párek"]}}},"explanation":"Present zde znamená dárek."},{"id":"food-text","difficulty":"medium","type":"text","skill":"meaning","prompt":"Jak se anglicky řekne jídlo? Napiš jedno slovo z lekce.","answerLanguage":"en-GB","acceptedAnswers":["food"],"assessment":{"input":"text","exact":{"type":"string","value":"food","normalization":"language"},"partial":{"match":{"type":"typo","values":["food"],"excludedWords":["foods","foot","good","fool","mood","wood","fold","fond","feed","flood"]}}},"explanation":"Jídlo je food. Foot je jiné slovo, nikoli překlep uznávaný za jídlo."},{"id":"listen-month","difficulty":"medium","type":"listening","skill":"meaning","prompt":"Ve kterém měsíci má Leo narozeniny? Napiš anglický název měsíce s velkým písmenem.","audio":{"text":"My name is Leo. My birthday is in July. My favourite colour is blue.","language":"en-GB"},"answerLanguage":"en-GB","acceptedAnswers":["July"],"assessment":{"input":"text","exact":{"type":"string","value":"July","normalization":"language"},"partial":{"match":{"type":"typo","values":["July"],"excludedWords":["Julie","Judy"]}}},"explanation":"Leo říká in July, tedy v červenci."},{"id":"order-birthday","difficulty":"medium","type":"wordOrder","skill":"grammar","prompt":"Sestav otázku Kdy máš narozeniny? Použij všechna slova a přidej otazník.","words":["your","When","birthday","is"],"answerLanguage":"en-GB","acceptedAnswers":["When is your birthday?"],"assessment":{"input":"text","exact":{"type":"string","value":"When is your birthday?","normalization":"language"}},"explanation":"Otázka má pořadí When is your birthday a končí otazníkem."},{"id":"translate-his-birthday","difficulty":"hard","type":"translation","skill":"grammar","prompt":"Přelož celou větu do angličtiny. Použij His birthday is.","text":"Jeho narozeniny jsou v červenci.","direction":"cs-en","answerLanguage":"en-GB","acceptedAnswers":["His birthday is in July."],"assessment":{"input":"text","exact":{"type":"string","value":"His birthday is in July.","normalization":"language"}},"explanation":"His birthday je v angličtině jednotné číslo, proto is. S měsícem píšeme in July."},{"id":"translate-name","difficulty":"hard","type":"translation","skill":"grammar","prompt":"Přelož s This is a jménem majitelky. Zachovej apostrof.","text":"Toto je Nořin dárek.","direction":"cs-en","answerLanguage":"en-GB","acceptedAnswers":["This is Nora's present."],"assessment":{"input":"text","exact":{"type":"string","value":"This is Nora's present.","normalization":"language"}},"explanation":"Ke jménu Nora přidáme apostrof a s."},{"id":"order-shared","difficulty":"hard","type":"wordOrder","skill":"grammar","prompt":"Sestav větu Toto je společná hra Nory a Lea. Zachovej pořadí jmen Nora a Leo. Použij všechna slova.","words":["game","Leo's","is","Nora","This","and"],"answerLanguage":"en-GB","acceptedAnswers":["This is Nora and Leo's game."],"assessment":{"input":"text","exact":{"type":"string","value":"This is Nora and Leo's game.","normalization":"language"}},"explanation":"U společné hry přidáme 's až za poslední jméno: Nora and Leo's game."},{"id":"order-date","difficulty":"hard","type":"wordOrder","skill":"grammar","prompt":"Sestav větu Mám narozeniny prvního dubna. Použij všechna slova.","words":["April","on","birthday","first","My","the","is","of"],"answerLanguage":"en-GB","acceptedAnswers":["My birthday is on the first of April."],"assessment":{"input":"text","exact":{"type":"string","value":"My birthday is on the first of April.","normalization":"language"}},"explanation":"S celým datem použijeme on the first of April."},{"id":"read-shared-game","difficulty":"hard","type":"text","skill":"meaning","prompt":"Kterou hru mají obě děti nejraději? Napiš jedno anglické slovo.","text":"Nora's favourite colour is green. Leo's favourite food is pizza. Their favourite game is chess. They play together.","answerLanguage":"en-GB","acceptedAnswers":["chess"],"assessment":{"input":"text","exact":{"type":"string","value":"chess","normalization":"language"},"partial":{"match":{"type":"typo","values":["chess"],"excludedWords":["chest","cress","cheese"]}}},"explanation":"Their odkazuje na obě děti. Jejich oblíbenou hrou jsou šachy: chess."},{"id":"read-owner","difficulty":"hard","type":"text","skill":"meaning","prompt":"Komu patří zelený dárek? Napiš jen jméno vlastníka.","text":"Leo has a blue present. Nora's present is green. Their cake is yellow. The cake belongs to both children.","answerLanguage":"en-GB","acceptedAnswers":["Nora"],"assessment":{"input":"text","exact":{"type":"string","value":"Nora","normalization":"language"},"partial":{"match":{"type":"typo","values":["Nora"],"excludedWords":["Norah","Nova","Norma","Nona"]}}},"explanation":"Nora's present je Nořin dárek. Společný je dort, nikoli zelený dárek."},{"id":"listen-date","difficulty":"hard","type":"listening","skill":"meaning","prompt":"Kdy má mluvčí narozeniny? Zapiš datum ve tvaru 1st April, ale podle poslechu.","audio":{"text":"My favourite month is April, but my birthday is on the third of May. My present is green.","language":"en-GB"},"answerLanguage":"en-GB","acceptedAnswers":["3rd May"],"assessment":{"input":"text","exact":{"type":"string","value":"3rd May","normalization":"language"},"partial":{"match":{"type":"typo","values":["3rd May"],"excludedWords":["Mary","Max","Ray","Jay","bay","hay","say","way","day","mad","map","mat","man","pay","lay","many"]}}},"explanation":"The third of May zapisujeme 3rd May. April je zde oblíbený měsíc, ne měsíc narozenin."},{"id":"listen-favourites","difficulty":"hard","type":"listening","skill":"meaning","prompt":"Jaké je Nořino šťastné číslo? Napiš jedno anglické slovo, nikoli číslici.","audio":{"text":"Nora's favourite food is pasta. Her lucky number is twelve. Leo's lucky number is seven. Their favourite game is chess.","language":"en-GB"},"answerLanguage":"en-GB","acceptedAnswers":["twelve"],"assessment":{"input":"text","exact":{"type":"string","value":"twelve","normalization":"language"},"partial":{"match":{"type":"typo","values":["twelve"],"excludedWords":["twelfth","twelves"]}}},"explanation":"Her lucky number is twelve odkazuje na Noru. Twelve znamená dvanáct."},{"id":"read-replace-shared","difficulty":"hard","type":"gapFill","skill":"grammar","prompt":"Obě děti mají jeden společný dort. Nahraď jména jedním přivlastňovacím slovem.","text":"Nora's present is green. Leo's present is blue. Nora and Leo's cake is yellow. This is ____ cake.","answerLanguage":"en-GB","acceptedAnswers":["their"],"assessment":{"input":"text","exact":{"type":"string","value":"their","normalization":"language"}},"explanation":"Dárky patří jednotlivým dětem, ale dort oběma, proto their cake."},{"id":"scotland-capital-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Znamená capital v této lekci hlavní město?","options":["Ano","Ne"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Ano. Edinburgh je hlavní město Skotska: the capital of Scotland."},{"id":"scotland-sheep-meaning","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Přeložíme ovce jako cows?","options":["Ano","Ne"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Ne. Ovce jsou sheep. Cows jsou krávy."},{"id":"scotland-nessie-legend","difficulty":"easy","type":"trueFalse","skill":"meaning","prompt":"Je Nessie podle vysvětlení v učivu prokázané skutečné zvíře?","options":["Ano","Ne"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Ne. Nessie patří k legendě. Vyprávění o ní není důkaz, že existuje."},{"id":"scotland-capital-choice","difficulty":"medium","type":"choice","skill":"meaning","prompt":"Které město je hlavním městem Skotska?","options":["Glasgow","Edinburgh"],"answer":1,"assessment":{"input":"number","exact":{"type":"number","value":"1"}},"explanation":"Hlavním městem Skotska je Edinburgh, ne Glasgow."},{"id":"scotland-flag-choice","difficulty":"medium","type":"choice","skill":"meaning","prompt":"Jaké barvy má skotská vlajka na dodané stránce?","options":["blue and white","red and white","green and yellow"],"answer":0,"assessment":{"input":"number","exact":{"type":"number","value":"0"}},"explanation":"Skotská vlajka je modrá a bílá: blue and white."},{"id":"scotland-live-gap","difficulty":"medium","type":"gapFill","skill":"grammar","prompt":"Doplň live nebo lives. Mluví Sarah sama o sobě.","text":"I ____ in Edinburgh.","answerLanguage":"en-GB","acceptedAnswers":["live"],"assessment":{"input":"text","exact":{"type":"string","value":"live","normalization":"language"}},"explanation":"S I použijeme live. S she by bylo lives."},{"id":"scotland-lake-translation","difficulty":"medium","type":"translation","skill":"meaning","prompt":"Přelož anglické slovo do češtiny v jednotném čísle.","text":"lake","direction":"en-cs","answerLanguage":"cs-CZ","acceptedAnswers":["jezero"],"assessment":{"input":"text","exact":{"type":"string","value":"jezero","normalization":"language"},"partial":{"match":{"type":"typo","values":["jezero"],"excludedWords":["jezera","jezer","jezeru"]}}},"explanation":"Lake je jezero. Ve skotském textu se pro jezera používá také lochs."},{"id":"scotland-bagpipes-translation","difficulty":"medium","type":"translation","skill":"meaning","prompt":"Přelož název hudebního nástroje do angličtiny. Napiš jedno slovo z lekce.","text":"dudy","direction":"cs-en","answerLanguage":"en-GB","acceptedAnswers":["bagpipes"],"assessment":{"input":"text","exact":{"type":"string","value":"bagpipes","normalization":"language"},"partial":{"match":{"type":"typo","values":["bagpipes"],"excludedWords":["bagpipe","bagpiper","bagpipers"]}}},"explanation":"Dudy jsou bagpipes. Bagpiper označuje dudáka, ne nástroj."},{"id":"scotland-listen-school","difficulty":"medium","type":"listening","skill":"meaning","prompt":"V kolik hodin začíná Sarah škola? Napiš jedno anglické slovo pro číslo, ne číslici.","audio":{"text":"Sarah is eleven years old. Her school starts at nine o'clock. She has lunch at school.","language":"en-GB"},"answerLanguage":"en-GB","acceptedAnswers":["nine"],"assessment":{"input":"text","exact":{"type":"string","value":"nine","normalization":"language"},"partial":{"match":{"type":"typo","values":["nine"],"excludedWords":["nines","nice","line","wine","fine","mine","dine","none","pine","sine"]}}},"explanation":"At nine o'clock znamená v devět hodin. Eleven je zde Sarahin věk, ne čas."},{"id":"scotland-order-where","difficulty":"medium","type":"wordOrder","skill":"grammar","prompt":"Sestav otázku Kde bydlíš? Použij všechna slova a přidej otazník.","words":["live","you","Where","do"],"answerLanguage":"en-GB","acceptedAnswers":["Where do you live?"],"assessment":{"input":"text","exact":{"type":"string","value":"Where do you live?","normalization":"language"}},"explanation":"Po Where následuje do you live. Na konci je otazník."},{"id":"scotland-their-lunch","difficulty":"medium","type":"gapFill","skill":"grammar","prompt":"Doplň přivlastňovací výraz, který patří k they.","text":"They bring ____ lunch.","answerLanguage":"en-GB","acceptedAnswers":["their"],"assessment":{"input":"text","exact":{"type":"string","value":"their","normalization":"language"}},"explanation":"They → their: nosí si svůj oběd. V angličtině použijeme their."},{"id":"scotland-read-rugby","difficulty":"hard","type":"text","skill":"meaning","prompt":"Který sport hraje Sarah podle tohoto textu s kamarády? Napiš jedno anglické slovo.","text":"Sarah lives in Edinburgh. Her favourite castle is Edinburgh Castle. She plays rugby with her friends. She likes school lunch too.","answerLanguage":"en-GB","acceptedAnswers":["rugby"],"assessment":{"input":"text","exact":{"type":"string","value":"rugby","normalization":"language"},"partial":{"match":{"type":"typo","values":["rugby"],"excludedWords":["ruby"]}}},"explanation":"Text říká, že Sarah hraje rugby, tedy ragby. Odpověď se týká Sarah, ne všech obyvatel Skotska."},{"id":"scotland-listen-rock","difficulty":"hard","type":"listening","skill":"meaning","prompt":"Na čem stojí hrad podle poslechu? Napiš jedno anglické podstatné jméno bez členu.","audio":{"text":"Sarah lives in Edinburgh. Her favourite castle is Edinburgh Castle. It is on a big rock, not on a bridge.","language":"en-GB"},"answerLanguage":"en-GB","acceptedAnswers":["rock"],"assessment":{"input":"text","exact":{"type":"string","value":"rock","normalization":"language"},"partial":{"match":{"type":"typo","values":["rock"],"excludedWords":["rocks","rack","rook","sock","lock","dock","mock","cock","rick","ruck","rocket"]}}},"explanation":"Hrad je on a big rock, na velké skále. Není na mostě."},{"id":"scotland-translate-lives","difficulty":"hard","type":"translation","skill":"grammar","prompt":"Přelož celou větu do angličtiny. Začni slovem She a použij sloveso live ve správném tvaru.","text":"Ona bydlí v Edinburghu.","direction":"cs-en","answerLanguage":"en-GB","acceptedAnswers":["She lives in Edinburgh."],"assessment":{"input":"text","exact":{"type":"string","value":"She lives in Edinburgh.","normalization":"language"}},"explanation":"Se she použijeme lives. U města stojí in Edinburgh."},{"id":"scotland-order-lunch","difficulty":"hard","type":"wordOrder","skill":"grammar","prompt":"Sestav větu Sarahin oblíbený školní oběd je shepherd's pie. Použij všechna slova a zachovej oba apostrofy.","words":["pie","school","Sarah's","is","lunch","shepherd's","favourite"],"answerLanguage":"en-GB","acceptedAnswers":["Sarah's favourite school lunch is shepherd's pie."],"assessment":{"input":"text","exact":{"type":"string","value":"Sarah's favourite school lunch is shepherd's pie.","normalization":"language"}},"explanation":"Sarah's označuje, čí oběd to je. Shepherd's pie je celý název jídla a také obsahuje apostrof."}]}</script>
+    <script>'use strict';
+
+const tutorAssessment = (() => {
+    const UNITS = { mm: 1n, cm: 10n, dm: 100n, m: 1000n, km: 1000000n };
+    const WHOLE = '-?(?:0|[1-9][0-9]{0,11})';
+    const DECIMAL = `${WHOLE}(?:[.,][0-9]{1,12})?`;
+    const numericHelp = 'Napiš celé nebo desetinné číslo, zlomek (1/2) či smíšené číslo (1 3/4). Jmenovatel nesmí být nula.';
+    const normalizeAnswer = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase('cs').replace(/y/g, 'i').replace(/\s+/g, '');
+    const normalizeLanguage = value => value.normalize('NFC').toLocaleLowerCase('cs').trim().replace(/\s+/g, ' ');
+    const words = text => normalizeLanguage(text).match(/\p{L}+/gu) || [];
+    function knownWords(value, result = new Set()) {
+        if (typeof value === 'string') words(value).forEach(word => result.add(word));
+        else if (Array.isArray(value)) value.forEach(item => knownWords(item, result));
+        else if (value && typeof value === 'object') Object.values(value).forEach(item => knownWords(item, result));
+        return result;
+    }
+    function oneLetterApart(left, right) {
+        const a = [...left], b = [...right];
+        if (a.length < 4 || Math.abs(a.length - b.length) > 1 || left === right) return false;
+        if (a.length === b.length) {
+            const different = a.map((letter, index) => letter === b[index] ? -1 : index).filter(index => index >= 0);
+            return different.length === 1 || (different.length === 2 && different[1] === different[0] + 1 &&
+                a[different[0]] === b[different[1]] && a[different[1]] === b[different[0]]);
+        }
+        const longer = a.length > b.length ? a : b;
+        const shorter = a.length > b.length ? b : a;
+        const index = shorter.findIndex((letter, at) => letter !== longer[at]);
+        const remove = index < 0 ? shorter.length : index;
+        return longer.filter((_, at) => at !== remove).join('') === shorter.join('');
+    }
+    function typoMatches(matcher, raw, context) {
+        if (!(context.knownWords instanceof Set)) throw new Error('Typo assessment requires the lesson vocabulary');
+        const actual = normalizeLanguage(raw);
+        const tokens = actual.match(/\p{L}+|[^\p{L}]+/gu) || [];
+        const excluded = new Set(matcher.excludedWords.map(normalizeLanguage));
+        return matcher.values.some(value => {
+            const expected = normalizeLanguage(value).match(/\p{L}+|[^\p{L}]+/gu) || [];
+            if (tokens.length !== expected.length) return false;
+            let differences = 0;
+            return expected.every((token, index) => {
+                if (token === tokens[index]) return true;
+                differences++;
+                return differences === 1 && /^\p{L}+$/u.test(token) && /^\p{L}+$/u.test(tokens[index]) &&
+                    !excluded.has(tokens[index]) && !context.knownWords.has(tokens[index]) &&
+                    oneLetterApart(token, tokens[index]);
+            }) && differences === 1;
+        });
+    }
+    function rational(text) {
+        const [whole, part = ''] = text.replace(',', '.').split('.');
+        return { numerator: BigInt(whole + part), denominator: 10n ** BigInt(part.length) };
+    }
+    function parseNumber(text) {
+        if (new RegExp(`^${DECIMAL}$`).test(text)) return rational(text);
+        const fraction = text.match(new RegExp(`^(${WHOLE})\\s*/\\s*(${WHOLE})$`));
+        if (fraction) {
+            const numerator = BigInt(fraction[1]);
+            const denominator = BigInt(fraction[2]);
+            if (denominator === 0n) return null;
+            return denominator < 0n ? { numerator: -numerator, denominator: -denominator } : { numerator, denominator };
+        }
+        const mixed = text.match(/^(-?)(0|[1-9][0-9]{0,11})\s+([1-9][0-9]{0,11})\s*\/\s*([1-9][0-9]{0,11})$/);
+        if (!mixed) return null;
+        const [, sign, whole, part, denominator] = mixed;
+        if (BigInt(part) >= BigInt(denominator)) return null;
+        return {
+            numerator: (BigInt(whole) * BigInt(denominator) + BigInt(part)) * (sign ? -1n : 1n),
+            denominator: BigInt(denominator)
+        };
+    }
+    const compare = (a, b) => {
+        const difference = a.numerator * b.denominator - b.numerator * a.denominator;
+        return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+    };
+    function parseInput(policy, raw) {
+        if (typeof raw !== 'string') return { error: 'Odpověď musí být text.' };
+        const text = raw.trim();
+        if (!text) return { error: 'Odpověď chybí.' };
+        if (text.length > 80) return { error: 'Odpověď je příliš dlouhá.' };
+        if (policy.input === 'text') return { text };
+        if (policy.input === 'length') {
+            if (new RegExp(`^${DECIMAL}$`).test(text)) return { error: 'Doplň jednotku délky: mm, cm, dm, m nebo km.' };
+            const match = text.match(new RegExp(`^(${DECIMAL})\\s*(mm|cm|dm|m|km)$`));
+            if (!match || match[1].startsWith('-')) return { error: 'Napiš nezápornou délku s jednotkou mm, cm, dm, m nebo km, například 1,5 m.' };
+            const value = rational(match[1]);
+            value.numerator *= UNITS[match[2]];
+            value.denominator *= UNITS[policy.unit];
+            return { text, value };
+        }
+        const formats = {
+            integer: [`^${WHOLE}$`, 'Napiš celé číslo bez jednotky, například -12.'],
+            fraction: [`^(${WHOLE})\\s*/\\s*(${WHOLE})$`, 'Napiš zlomek, například 1/2. Jmenovatel nesmí být nula.'],
+            decimal: [`^${DECIMAL}$`, 'Napiš číslo s jednou desetinnou čárkou nebo tečkou, bez jednotky.'],
+            year: ['^[0-9]{1,4}$', 'Napiš letopočet pomocí jedné až čtyř číslic.']
+        };
+        if (formats[policy.input] && !new RegExp(formats[policy.input][0]).test(text)) {
+            return { error: formats[policy.input][1] };
+        }
+        if (policy.input !== 'number' && !Object.hasOwn(formats, policy.input)) throw new Error(`Unsupported answer input: ${policy.input}`);
+        const value = policy.input === 'year' ? rational(String(Number(text))) : parseNumber(text);
+        return value ? { text, value } : { error: numericHelp };
+    }
+    function matches(matcher, parsed, context = {}) {
+        switch (matcher.type) {
+            case 'string': {
+                const normalize = matcher.normalization === 'czech' ? normalizeAnswer :
+                    matcher.normalization === 'language' ? normalizeLanguage : text => text.trim().normalize('NFC');
+                return normalize(parsed.text) === normalize(matcher.value);
+            }
+            case 'number': {
+                const actual = parsed.value || parseNumber(parsed.text);
+                return Boolean(actual && compare(actual, parseNumber(matcher.value)) === 0);
+            }
+            case 'range': {
+                const actual = parsed.value || parseNumber(parsed.text);
+                if (!actual) return false;
+                const lower = compare(actual, parseNumber(matcher.min));
+                const upper = compare(actual, parseNumber(matcher.max));
+                return (lower > 0 || (lower === 0 && matcher.includeMin)) &&
+                    (upper < 0 || (upper === 0 && matcher.includeMax));
+            }
+            case 'array':
+                return matcher.items.some(item => matches(item, parsed, context));
+            case 'typo':
+                return typoMatches(matcher, parsed.text, context);
+            default:
+                throw new Error(`Unsupported answer matcher: ${matcher.type}`);
+        }
+    }
+    function evaluate(policy, raw, context = {}) {
+        const parsed = parseInput(policy, raw);
+        if (parsed.error) return { fraction: 0, correct: false, valid: false, status: 'invalid', message: parsed.error };
+        const fraction = matches(policy.exact, parsed, context) ? 1 :
+            policy.partial && matches(policy.partial.match, parsed, context) ? policy.partial.credit : 0;
+        return {
+            fraction, correct: fraction === 1, valid: true,
+            status: fraction === 1 ? 'correct' : fraction > 0 ? 'partial' : 'incorrect',
+            message: fraction === 1 ? 'Správně.' : fraction > 0 ? 'Částečně správně. Získáváš polovinu bodů.' :
+                'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.'
+        };
+    }
+    function legacyMathsPolicy(answer) {
+        if (!['integer', 'fraction', 'decimal', 'length'].includes(answer.format)) throw new Error(`Unsupported maths answer format: ${answer.format}`);
+        return {
+            input: answer.format,
+            ...(answer.format === 'length' ? { unit: answer.unit } : {}),
+            exact: { type: 'number', value: answer.format === 'fraction' ? `${answer.numerator}/${answer.denominator}` : answer.value }
+        };
+    }
+    function legacyHistoryPolicy(question) {
+        if (question.type !== 'text') return { input: 'integer', exact: { type: 'number', value: String(question.answer) } };
+        if (!question.year) return {
+            input: 'text', exact: { type: 'array', items: question.acceptedAnswers.map(value => ({ type: 'string', value, normalization: 'czech' })) }
+        };
+        const year = Number(question.acceptedAnswers[0]);
+        return {
+            input: 'year', exact: { type: 'number', value: String(year) },
+            partial: { credit: .5, match: { type: 'range', min: String(year - 9), max: String(year + 9), includeMin: true, includeMax: true } }
+        };
+    }
+    return { parseNumber, parseInput, compare, evaluate, normalizeAnswer, normalizeLanguage, knownWords,
+        oneLetterApart, legacyMathsPolicy, legacyHistoryPolicy };
+})();
+
+if (typeof module !== 'undefined') module.exports = tutorAssessment;
+
+'use strict';
+
+const tutorHighlights = (() => {
+    const colors = ['yellow', 'blue', 'green'];
+    const targets = lesson => {
+        const result = new Map();
+        const add = (key, text) => result.set(key, text);
+        const paragraphs = (item, key) => (item.paragraphs || []).forEach((block, index) =>
+            add(`${key}.paragraphs.${index}.text`, block.text));
+        lesson.original.forEach((section, index) => add(`original.${index}.text`, section.text));
+        (lesson.chunks || []).forEach((chunk, index) => {
+            const key = `chunks.${index}`;
+            add(`${key}.sentences`, chunk.sentences.join(' '));
+            add(`${key}.explanation`, chunk.explanation);
+            paragraphs(chunk, key);
+        });
+        (lesson.examples || []).forEach((example, index) => {
+            const key = `examples.${index}`;
+            ['prompt', 'hint', 'answer'].forEach(field => add(`${key}.${field}`, example[field]));
+            paragraphs(example, key);
+            example.steps.forEach((step, stepIndex) => ['calculation', 'explanation'].forEach(field =>
+                add(`${key}.steps.${stepIndex}.${field}`, step[field])));
+        });
+        (lesson.exercises || []).forEach((exercise, index) => {
+            const key = `exercises.${index}`;
+            ['prompt', 'explanation'].forEach(field => add(`${key}.${field}`, exercise[field]));
+            if (exercise.options) ['hint', 'solution'].forEach(field => add(`${key}.${field}`, exercise[field]));
+            (exercise.steps || []).forEach((step, stepIndex) => ['prompt', 'hint', 'solution'].forEach(field =>
+                add(`${key}.steps.${stepIndex}.${field}`, step[field])));
+        });
+        return result;
+    };
+    const boundary = (text, index) => index === 0 || index === text.length ||
+        !(/[\uD800-\uDBFF]/.test(text[index - 1]) && /[\uDC00-\uDFFF]/.test(text[index]));
+    const validRange = (range, text, allowRemoval = false) => range && Number.isInteger(range.start) &&
+        Number.isInteger(range.end) && range.start >= 0 && range.end > range.start && range.end <= text.length &&
+        boundary(text, range.start) && boundary(text, range.end) &&
+        (colors.includes(range.color) || (allowRemoval && range.color === null));
+    const replaceRange = (ranges, replacement) => {
+        const next = [];
+        for (const range of ranges) {
+            if (range.end <= replacement.start || range.start >= replacement.end) next.push({ ...range });
+            else {
+                if (range.start < replacement.start) next.push({ ...range, end: replacement.start });
+                if (range.end > replacement.end) next.push({ ...range, start: replacement.end });
+            }
+        }
+        next.push({ ...replacement });
+        next.sort((a, b) => a.start - b.start);
+        return next.reduce((merged, range) => {
+            const last = merged.at(-1);
+            if (last && last.end === range.start && last.color === range.color) last.end = range.end;
+            else merged.push(range);
+            return merged;
+        }, []);
+    };
+    const authored = lesson => {
+        const textTargets = targets(lesson);
+        const ranges = new Map();
+        const errors = [];
+        (lesson.highlights || []).forEach((highlight, index) => {
+            const at = `$.highlights[${index}]`;
+            const text = textTargets.get(highlight.target);
+            if (text === undefined) {
+                errors.push(`${at}.target: expected a supported original or learning text target`);
+                return;
+            }
+            const start = text.indexOf(highlight.quote);
+            const range = { start, end: start + highlight.quote.length, color: highlight.color };
+            if (start < 0 || start !== text.lastIndexOf(highlight.quote) || !validRange(range, text)) {
+                errors.push(`${at}.quote: must match exactly one complete passage in the target text`);
+                return;
+            }
+            const previous = ranges.get(highlight.target) || [];
+            if (previous.some(item => item.start < range.end && item.end > range.start)) {
+                errors.push(`${at}.quote: overlaps another authored highlight`);
+            } else ranges.set(highlight.target, replaceRange(previous, range));
+        });
+        return { ranges, errors };
+    };
+
+    function initialize(lesson, document) {
+        const $ = id => document.getElementById(id);
+        const source = targets(lesson);
+        const defaults = authored(lesson).ranges;
+        const roots = [];
+        const edits = new Map();
+        const tools = $('highlight-tools');
+        const actions = [...tools.querySelectorAll('[data-highlight-action]')];
+        const key = `tutor-highlights:v1:${lesson.subject || 'history'}:${lesson.id}`;
+        let tab = 'original';
+        let pending = [];
+        let storageUsable = true;
+        const warn = (message, error) => {
+            $('highlight-warning').hidden = false;
+            $('highlight-warning').textContent = message;
+            console.warn(message, error);
+        };
+        try {
+            const saved = sessionStorage.getItem(key);
+            if (saved !== null) {
+                const record = JSON.parse(saved);
+                if (!record || record.version !== 1 || !Array.isArray(record.edits)) throw new Error('Invalid highlight record');
+                for (const edit of record.edits) {
+                    const text = source.get(edit.target);
+                    if (text === undefined || edit.text !== text || edits.has(edit.target) || !Array.isArray(edit.ranges) ||
+                        edit.ranges.some((range, index) => !validRange(range, text, true) ||
+                            (index && range.start < edit.ranges[index - 1].end))) throw new Error('Invalid or outdated highlight ranges');
+                    edits.set(edit.target, edit.ranges);
+                }
+            }
+        } catch (error) {
+            edits.clear();
+            storageUsable = false;
+            warn('Uložené zvýraznění nelze načíst. Nové změny zůstanou jen do obnovení stránky; původní uložená data ponecháváme.', error);
+        }
+        const effective = target => {
+            let ranges = defaults.get(target) || [];
+            for (const edit of edits.get(target) || []) ranges = replaceRange(ranges, edit);
+            return ranges.filter(range => range.color !== null);
+        };
+        const paint = entry => {
+            const { root, target, offset } = entry;
+            for (const mark of root.querySelectorAll('mark[data-highlight-color]')) mark.replaceWith(...mark.childNodes);
+            root.normalize();
+            const ranges = effective(target);
+            if (!ranges.length) return;
+            const walker = document.createTreeWalker(root, 4);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            let position = offset;
+            for (const textNode of nodes) {
+                const text = textNode.textContent;
+                const end = position + text.length;
+                const matches = ranges.filter(range => range.start < end && range.end > position);
+                if (matches.length) {
+                    const fragment = document.createDocumentFragment();
+                    let consumed = 0;
+                    for (const range of matches) {
+                        const start = Math.max(0, range.start - position);
+                        const stop = Math.min(text.length, range.end - position);
+                        fragment.append(document.createTextNode(text.slice(consumed, start)));
+                        const mark = document.createElement('mark');
+                        mark.dataset.highlightColor = range.color;
+                        mark.textContent = text.slice(start, stop);
+                        fragment.append(mark);
+                        consumed = stop;
+                    }
+                    fragment.append(document.createTextNode(text.slice(consumed)));
+                    textNode.replaceWith(fragment);
+                }
+                position = end;
+            }
+        };
+        const sync = () => actions.forEach(action => { action.disabled = !pending.length; });
+        const capture = () => {
+            const selection = document.getSelection();
+            if (selection?.isCollapsed && tools.contains(document.activeElement)) return;
+            pending = [];
+            if (selection && !selection.isCollapsed && selection.rangeCount === 1 && tab !== 'quiz') {
+                const range = selection.getRangeAt(0);
+                for (const entry of roots) {
+                    if (entry.root.closest('[role="tabpanel"]').id !== tab || !entry.root.checkVisibility() ||
+                        !range.intersectsNode(entry.root)) continue;
+                    const whole = document.createRange();
+                    whole.selectNodeContents(entry.root);
+                    let start = 0;
+                    let end = entry.root.textContent.length;
+                    const prefix = document.createRange();
+                    prefix.selectNodeContents(entry.root);
+                    if (range.compareBoundaryPoints(0, whole) > 0) {
+                        prefix.setEnd(range.startContainer, range.startOffset);
+                        start = prefix.toString().length;
+                    }
+                    if (range.compareBoundaryPoints(2, whole) < 0) {
+                        prefix.setEnd(range.endContainer, range.endOffset);
+                        end = prefix.toString().length;
+                    }
+                    start += entry.offset;
+                    end += entry.offset;
+                    const text = source.get(entry.target);
+                    if (!boundary(text, start)) start--;
+                    if (!boundary(text, end)) end++;
+                    if (end > start) pending.push({ target: entry.target, start, end });
+                }
+            }
+            sync();
+        };
+        const save = () => {
+            if (!storageUsable) return false;
+            try {
+                sessionStorage.setItem(key, JSON.stringify({ version: 1, edits: [...edits].map(([target, ranges]) =>
+                    ({ target, text: source.get(target), ranges })) }));
+                $('highlight-warning').hidden = true;
+                return true;
+            } catch (error) {
+                warn('Zvýraznění se nepodařilo uložit. Tato změna zůstane jen do obnovení stránky.', error);
+                return false;
+            }
+        };
+        for (const action of actions) {
+            action.addEventListener('pointerdown', event => event.preventDefault());
+            action.addEventListener('click', () => {
+                if (!pending.length) return;
+                const color = action.dataset.highlightAction === 'remove' ? null : action.dataset.highlightAction;
+                const changed = new Set();
+                for (const range of pending) {
+                    edits.set(range.target, replaceRange(edits.get(range.target) || [], { start: range.start, end: range.end, color }));
+                    changed.add(range.target);
+                }
+                for (const entry of roots) if (changed.has(entry.target)) paint(entry);
+                pending = [];
+                document.getSelection().removeAllRanges();
+                sync();
+                const saved = save();
+                $('highlight-status').textContent = `${color === null ? 'Zvýraznění odstraněno.' : 'Text zvýrazněn.'} ${saved
+                    ? 'Uloženo v této kartě prohlížeče.' : 'Změna není uložená pro obnovení stránky.'}`;
+                tools.querySelector('summary').focus({ preventScroll: true });
+            });
+        }
+        document.addEventListener('selectionchange', capture);
+        document.addEventListener('pointerup', () => {
+            capture();
+            if (pending.length) tools.open = true;
+        });
+        document.addEventListener('keydown', event => {
+            if (event.altKey && event.code === 'KeyH' && tab !== 'quiz') {
+                event.preventDefault();
+                capture();
+                tools.open = true;
+                (actions.find(action => !action.disabled) || tools.querySelector('summary')).focus();
+            } else if (event.key === 'Escape' && tools.open) {
+                tools.open = false;
+                if (tools.contains(document.activeElement)) tools.querySelector('summary').focus();
+            }
+        });
+        document.addEventListener('pointerdown', event => {
+            if (!tools.contains(event.target)) {
+                tools.open = false;
+                pending = [];
+                sync();
+            }
+        });
+        sync();
+        return {
+            register(root, target, offset = 0) {
+                root.dataset.highlightTarget = target;
+                const entry = { root, target, offset };
+                roots.push(entry);
+                paint(entry);
+            },
+            setTab(name) {
+                tab = name;
+                tools.hidden = name === 'quiz';
+                tools.open = false;
+                pending = [];
+                sync();
+            }
+        };
+    }
+    return { colors, targets, authored, boundary, validRange, replaceRange, initialize };
+})();
+
+if (typeof module !== 'undefined' && module.exports) module.exports = tutorHighlights;
+
+'use strict';
+
+function initializeLearning(lesson, document) {
+    const $ = id => document.getElementById(id);
+    const node = (tag, text, className) => {
+        const element = document.createElement(tag);
+        if (text !== undefined) element.textContent = text;
+        if (className) element.className = className;
+        return element;
+    };
+    const cards = [...$('learning-content').querySelectorAll('[data-learning-card]')];
+    const explored = new Set();
+    const segments = [];
+    const controls = [];
+    const timelineNodes = [];
+    let timeline;
+    let activeCardId;
+    let selectedTimelineRow;
+    let mousePosition;
+    const sync = () => {
+        cards.forEach((card, index) => {
+            const complete = explored.has(card.id);
+            card.dataset.explored = String(complete);
+            segments[index].dataset.explored = String(complete);
+            segments[index].setAttribute('aria-label', `${card.querySelector('h2').textContent}: ${complete ? 'prozkoumáno' : 'neprozkoumáno'}`);
+            controls[index].checked = complete;
+        });
+        $('learning-counter').textContent = `${explored.size}/${cards.length} Prozkoumáno`;
+        $('learning-counter').setAttribute('aria-valuenow', String(explored.size));
+        $('learning-counter').setAttribute('aria-valuetext', $('learning-counter').textContent);
+        const fraction = cards.length ? explored.size / cards.length : 0;
+        $('learning-segments').style.setProperty('--completion-intensity', `${30 + 70 * fraction}%`);
+    };
+    $('learning-counter').setAttribute('aria-valuemax', String(cards.length));
+    cards.forEach(card => {
+        card.tabIndex = -1;
+        const footer = node('div', undefined, 'learning-card-footer');
+        const hints = [...card.children].filter(child => child.classList.contains('hint'));
+        if (hints.length === 1) {
+            const prompt = hints[0].querySelector('.hint-prompt');
+            hints[0].before(prompt);
+            card.append(hints[0]);
+            footer.append(hints[0].querySelector('.hint-toggle'));
+        }
+        const control = node('input');
+        control.type = 'checkbox';
+        control.setAttribute('aria-label', `Prozkoumáno: ${card.querySelector('h2').textContent}`);
+        control.addEventListener('change', () => {
+            if (control.checked) explored.add(card.id);
+            else explored.delete(card.id);
+            sync();
+        });
+        const label = node('label', undefined, 'explored-control');
+        label.append(control, node('span', 'Prozkoumáno'));
+        footer.append(label);
+        card.append(footer);
+        controls.push(control);
+        const segment = node('button', undefined, 'learning-segment');
+        segment.type = 'button';
+        segment.setAttribute('aria-controls', card.id);
+        segment.setAttribute('title', card.querySelector('h2').textContent);
+        segment.addEventListener('click', () => focusCard(card));
+        $('learning-segments').append(segment);
+        segments.push(segment);
+    });
+    sync();
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const offset = () => {
+        const top = $('page-header').getBoundingClientRect().height + 16;
+        $('learning').style.setProperty('--learning-offset', `${top}px`);
+        return top;
+    };
+    const focusCard = (card, row) => {
+        selectedTimelineRow = row;
+        card.style.scrollMarginTop = `${offset()}px`;
+        card.focus({ preventScroll: true });
+        card.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+        setActive(card.id, row);
+    };
+    if (lesson.timeline?.length) {
+        $('learning').classList.add('has-timeline');
+        const aside = node('aside', undefined, 'learning-timeline');
+        aside.setAttribute('aria-label', 'Časová osa');
+        const details = node('details');
+        details.id = 'timeline-details';
+        const summary = node('summary');
+        summary.setAttribute('aria-label', 'Časová osa');
+        summary.setAttribute('aria-controls', 'timeline-track');
+        summary.setAttribute('title', 'Rozbalit nebo sbalit časovou osu');
+        summary.append(node('span', 'Časová osa', 'timeline-title'));
+        details.append(summary);
+        const track = node('nav', undefined, 'timeline-track');
+        track.id = 'timeline-track';
+        track.setAttribute('aria-label', 'Časová osa');
+        const years = [...new Set(lesson.timeline.flatMap(event =>
+            [event.year, ...(event.lifespan ? [event.lifespan.birth, event.lifespan.death] : [])]))].sort((a, b) => a - b);
+        const rows = new Map();
+        years.forEach((year, index) => {
+            const row = node('div', undefined, 'timeline-year');
+            row.style.gridRow = String(index + 1);
+            row.dataset.year = String(year);
+            row.append(node('span', String(year), 'timeline-date'));
+            track.append(row);
+            rows.set(year, row);
+        });
+        lesson.timeline.forEach(event => {
+            const card = $(`learning-chunk-${event.chunk}`);
+            const control = node('button', event.label, 'timeline-node');
+            control.type = 'button';
+            const label = `${event.year}: ${event.label}${event.lifespan ? `; život: ${event.lifespan.birth}–${event.lifespan.death}` : ''}`;
+            control.setAttribute('aria-label', label);
+            control.setAttribute('title', label);
+            control.setAttribute('aria-controls', card.id);
+            control.addEventListener('click', () => focusCard(card, control.parentElement));
+            rows.get(event.year).append(control);
+            timelineNodes.push({ card, control });
+        });
+        rows.forEach((row, year) => {
+            const entries = timelineNodes.filter(({ control }) => control.parentElement === row);
+            if (!entries.length) return;
+            const yearControl = node('button', String(year), 'timeline-date timeline-year-link');
+            yearControl.type = 'button';
+            const label = entries.map(({ control }) => control.getAttribute('aria-label')).join('; ');
+            yearControl.setAttribute('aria-label', label);
+            yearControl.setAttribute('title', label);
+            yearControl.addEventListener('click', () => {
+                if (entries.length === 1) entries[0].control.click();
+                else {
+                    details.open = true;
+                    entries[0].control.focus({ preventScroll: true });
+                }
+            });
+            row.append(yearControl);
+        });
+        aside.append(details, track);
+        $('learning').append(aside);
+        const mobile = matchMedia('(max-width: 760px)');
+        timeline = { aside, track, mobile };
+        details.open = !mobile.matches;
+        mobile.addEventListener('change', event => { details.open = !event.matches; });
+        details.addEventListener('toggle', () => {
+            if (activeCardId) setActive(activeCardId, document.activeElement?.closest('.timeline-year'), true);
+        });
+    }
+    function setActive(id, preferredRow, force = false) {
+        const changed = activeCardId !== id;
+        activeCardId = id;
+        segments.forEach((segment, index) => {
+            if (cards[index].id === id) segment.setAttribute('aria-current', 'step');
+            else segment.removeAttribute('aria-current');
+            cards[index].dataset.timelineActive = String(cards[index].id === id);
+        });
+        timelineNodes.forEach(({ card, control }) => {
+            const active = card.id === id;
+            if (active) control.setAttribute('aria-current', 'step');
+            else control.removeAttribute('aria-current');
+        });
+        if (!changed && !preferredRow && !force) return;
+        const segment = segments[cards.findIndex(card => card.id === id)];
+        if (segment?.checkVisibility()) {
+            const bar = $('learning-segments');
+            const bounds = segment.getBoundingClientRect();
+            const left = bar.getBoundingClientRect().left;
+            const right = left + bar.clientWidth;
+            const delta = bounds.left < left ? bounds.left - left : bounds.right > right ? bounds.right - right : 0;
+            if (delta) bar.scrollBy({ left: delta, behavior: 'instant' });
+        }
+        if (!timeline?.track.checkVisibility()) return;
+        const selectedRow = preferredRow || (timelineNodes.some(entry =>
+            entry.card.id === id && entry.control.parentElement === selectedTimelineRow) ? selectedTimelineRow : undefined);
+        const rows = selectedRow ? [selectedRow] :
+            [...new Set(timelineNodes.filter(entry => entry.card.id === id).map(entry => entry.control.parentElement))];
+        if (!rows.length) return;
+        const scroller = timeline.mobile.matches ? timeline.track : timeline.aside;
+        const scrollerTop = scroller.getBoundingClientRect().top + scroller.clientTop;
+        const viewTop = scrollerTop + (timeline.mobile.matches ? 0 : $('timeline-details').getBoundingClientRect().height);
+        const viewBottom = scrollerTop + scroller.clientHeight;
+        const bounds = rows.map(row => row.getBoundingClientRect());
+        let top = Math.min(...bounds.map(row => row.top));
+        let bottom = Math.max(...bounds.map(row => row.bottom));
+        if (bottom - top > viewBottom - viewTop) {
+            top = bounds[0].top;
+            bottom = bounds[0].bottom;
+        }
+        const delta = top < viewTop ? top - viewTop : bottom > viewBottom ? bottom - viewBottom : 0;
+        if (delta) scroller.scrollBy({ top: delta < 0 ? Math.floor(delta) : Math.ceil(delta), behavior: 'instant' });
+    }
+    const onScroll = (force = false) => {
+        if ($('learning').hidden || !cards.length) return;
+        const top = offset();
+        const hovered = mousePosition && document.elementFromPoint(mousePosition.x, mousePosition.y)
+            ?.closest('[data-learning-card]');
+        const card = cards.includes(hovered) ? hovered :
+            cards.find(card => card.getBoundingClientRect().bottom > top) || cards.at(-1);
+        setActive(card.id, undefined, force);
+    };
+    const clearMouse = () => {
+        mousePosition = undefined;
+        onScroll();
+    };
+    document.addEventListener('pointermove', event => {
+        if (event.pointerType !== 'mouse') return clearMouse();
+        mousePosition = { x: event.clientX, y: event.clientY };
+        onScroll();
+    }, { passive: true });
+    document.addEventListener('pointerdown', event => {
+        if (event.pointerType !== 'mouse') clearMouse();
+    }, { passive: true });
+    document.addEventListener('pointerout', event => {
+        if (event.pointerType === 'mouse' && !event.relatedTarget) clearMouse();
+    }, { passive: true });
+    window.addEventListener('blur', clearMouse);
+    document.addEventListener('scroll', () => onScroll(), { passive: true });
+    window.addEventListener('resize', () => onScroll(true));
+    return { setTab(name) {
+        $('learning-progress').hidden = name !== 'learning';
+        if (name === 'learning') onScroll(true);
+    } };
+}
+
+'use strict';
+
+function voiceGender(voice) {
+    if (!voice?.localService || !/^en(?:[-_]|$)/i.test(voice.lang)) return null;
+    // Web Speech exposes no gender. Only recognize documented Microsoft voices.
+    const name = /^Microsoft ([a-z]+)(?: Desktop)?(?: - .+)?$/i.exec(voice.name || '')?.[1].toLowerCase();
+    const genders = {
+        david: 'male', mark: 'male', george: 'male', james: 'male', richard: 'male',
+        ravi: 'male', sean: 'male', guy: 'male', ryan: 'male', prabhat: 'male',
+        zira: 'female', hazel: 'female', susan: 'female', catherine: 'female',
+        linda: 'female', heera: 'female', jenny: 'female', aria: 'female',
+        sonia: 'female', neerja: 'female'
+    };
+    return Object.hasOwn(genders, name) ? genders[name] : null;
+}
+
+function initializeTutorSpeech({ node, button, warning, voiceSwitch }, host = window) {
+    const synthesis = host.speechSynthesis;
+    const available = synthesis && typeof host.SpeechSynthesisUtterance === 'function';
+    let selectedGender = null;
+    let voices = [];
+    let pair = {};
+    let current = null;
+    let deadline = null;
+    const showWarning = message => {
+        warning.textContent = message ? `🎧 ${message}` : '';
+        warning.hidden = !message;
+    };
+    const reset = control => {
+        control.icon.textContent = '🎧';
+        control.label.textContent = 'Poslouchej';
+        control.toggle.setAttribute('aria-label', 'Přehrát anglický poslech');
+        control.toggle.setAttribute('aria-pressed', 'false');
+    };
+    const updateButton = playback => {
+        const paused = playback.phase === 'paused';
+        playback.control.icon.textContent = paused ? '▶️' : '⏸️';
+        playback.control.label.textContent = paused ? 'Pokračuj' : 'Pauza';
+        playback.control.toggle.setAttribute('aria-label', paused ? 'Pokračovat v anglickém poslechu' : 'Pozastavit anglický poslech');
+        playback.control.toggle.setAttribute('aria-pressed', String(!paused));
+    };
+    const showError = (control, message, error) => {
+        console.error('Tutor: English listening failed.', error || message);
+        control.status.textContent = message;
+        control.status.hidden = false;
+    };
+    function stop() {
+        if (!current) return;
+        const playing = current;
+        current = null;
+        clearTimeout(deadline);
+        reset(playing.control);
+        try {
+            synthesis.cancel();
+            if (synthesis.paused) synthesis.resume();
+        } catch (error) {
+            showError(playing.control, 'Poslech se nepodařilo zastavit. Zkus to znovu.', error);
+        }
+    }
+    function fail(control, message, error) {
+        if (current?.control === control) stop();
+        showError(control, message, error);
+    }
+    function refreshVoices() {
+        if (!available) {
+            showWarning('Tento prohlížeč nepodporuje poslech. Otevři lekci v prohlížeči s podporou hlasového čtení.');
+            voiceSwitch.hidden = true;
+            return false;
+        }
+        try {
+            voices = synthesis.getVoices().filter(voice => /^en(?:[-_]|$)/i.test(voice.lang) && voice.localService);
+        } catch (error) {
+            console.error('Tutor: cannot load English voices.', error);
+            showWarning('Seznam hlasů se nepodařilo načíst. Zkus poslech znovu.');
+            voiceSwitch.hidden = true;
+            return false;
+        }
+        pair = {
+            male: voices.find(voice => voiceGender(voice) === 'male'),
+            female: voices.find(voice => voiceGender(voice) === 'female')
+        };
+        const hasPair = Boolean(pair.male && pair.female);
+        voiceSwitch.hidden = !hasPair;
+        voiceSwitch.disabled = !hasPair;
+        if (hasPair) {
+            selectedGender ||= voiceGender(voices.find(voice => voice.default)) || voiceGender(voices.find(voice => voiceGender(voice)));
+            voiceSwitch.setAttribute('aria-checked', String(selectedGender === 'female'));
+            voiceSwitch.title = selectedGender === 'female' ? 'Přepnout na mužský hlas' : 'Přepnout na ženský hlas';
+        } else selectedGender = null;
+        showWarning(voices.length ? '' : 'Místní anglický hlas není dostupný. Nainstaluj anglický hlas v nastavení zařízení a zkus poslech znovu.');
+        if (!voices.length) stop();
+        return voices.length > 0;
+    }
+    function schedule(playback, remaining, message) {
+        clearTimeout(deadline);
+        playback.remaining = remaining;
+        playback.deadlineAt = Date.now() + remaining;
+        playback.timeoutMessage = message;
+        deadline = setTimeout(() => {
+            if (current === playback) fail(playback.control, message);
+        }, remaining);
+    }
+    function togglePause(playback) {
+        const paused = playback.phase === 'paused';
+        try {
+            if (paused) {
+                playback.phase = playback.beforePause;
+                schedule(playback, playback.remaining, playback.timeoutMessage);
+                synthesis.resume();
+            } else {
+                playback.remaining = Math.max(0, playback.deadlineAt - Date.now());
+                playback.beforePause = playback.phase;
+                playback.phase = 'paused';
+                clearTimeout(deadline);
+                synthesis.pause();
+            }
+            if (current === playback) updateButton(playback);
+        } catch (error) {
+            fail(playback.control, paused ? 'Poslech se nepodařilo obnovit. Zkus to znovu.' : 'Poslech se nepodařilo pozastavit. Zkus to znovu.', error);
+        }
+    }
+    function createControls(audio) {
+        const panel = node('div', undefined, 'listening-controls');
+        const status = node('p');
+        status.hidden = true;
+        status.setAttribute('role', 'status');
+        const icon = node('span', undefined, 'listening-icon');
+        icon.setAttribute('aria-hidden', 'true');
+        const label = node('span');
+        const control = { status, icon, label };
+        const toggle = button('', () => {
+            if (current?.control === control) {
+                togglePause(current);
+                return;
+            }
+            stop();
+            status.textContent = '';
+            status.hidden = true;
+            if (!refreshVoices()) return;
+            const voice = selectedGender ? pair[selectedGender] : voices.find(voice => voice.default) || voices[0];
+            let utterance;
+            try {
+                utterance = new host.SpeechSynthesisUtterance(audio.text);
+            } catch (error) {
+                fail(control, 'Poslech se nepodařilo připravit. Zkus to znovu.', error);
+                return;
+            }
+            utterance.lang = audio.language;
+            utterance.voice = voice;
+            utterance.rate = 0.85;
+            const playback = { control, utterance, phase: 'starting' };
+            current = playback;
+            utterance.onstart = () => {
+                if (current !== playback) return;
+                if (playback.phase === 'paused') {
+                    playback.beforePause = 'playing';
+                    playback.remaining = 300000;
+                    playback.timeoutMessage = 'Poslech nedokončil přehrávání. Zkus to znovu.';
+                } else {
+                    playback.phase = 'playing';
+                    schedule(playback, 300000, 'Poslech nedokončil přehrávání. Zkus to znovu.');
+                }
+            };
+            utterance.onend = () => {
+                if (current !== playback) return;
+                current = null;
+                clearTimeout(deadline);
+                reset(control);
+            };
+            utterance.onerror = event => {
+                if (current === playback) fail(control, 'Poslech se nepodařilo přehrát. Zkus to znovu.', event.error);
+            };
+            schedule(playback, 10000, 'Poslech se nespustil. Zkus to znovu.');
+            updateButton(playback);
+            try {
+                if (synthesis.paused) synthesis.resume();
+                synthesis.speak(utterance);
+            } catch (error) {
+                fail(control, 'Poslech se nepodařilo spustit. Zkus to znovu.', error);
+            }
+        }, 'listening-toggle');
+        control.toggle = toggle;
+        toggle.append(icon, label);
+        toggle.disabled = !available;
+        reset(control);
+        panel.append(toggle, status);
+        return panel;
+    }
+    const maleIcon = node('span', '👨', 'voice-male');
+    const femaleIcon = node('span', '👩', 'voice-female');
+    maleIcon.setAttribute('aria-hidden', 'true');
+    femaleIcon.setAttribute('aria-hidden', 'true');
+    voiceSwitch.append(maleIcon, femaleIcon);
+    voiceSwitch.addEventListener('click', () => {
+        if (!refreshVoices() || voiceSwitch.hidden) return;
+        stop();
+        selectedGender = selectedGender === 'female' ? 'male' : 'female';
+        refreshVoices();
+    });
+    if (available) synthesis.addEventListener('voiceschanged', refreshVoices);
+    refreshVoices();
+    host.addEventListener('pagehide', stop);
+    return { controls: createControls, stop };
+}
+
+if (typeof module !== 'undefined' && module.exports) module.exports = { initializeTutorSpeech, voiceGender };
+
+'use strict';
+
+const tutorQuiz = {
+    MODES: { easy: [1, 1, 1], medium: [1, 2, 2], hard: [2, 5, 3] },
+    POINTS: { easy: 10, medium: 20, hard: 30 },
+    shuffle(items, random = Math.random) {
+        const result = [...items];
+        for (let index = result.length - 1; index > 0; index--) {
+            const other = Math.floor(random() * (index + 1));
+            [result[index], result[other]] = [result[other], result[index]];
+        }
+        return result;
+    },
+    grade(total, maximum) {
+        return total >= maximum * 80 / 100 ? 1 : total >= maximum * 60 / 100 ? 2 :
+            total >= maximum * 40 / 100 ? 3 : total >= maximum * 20 / 100 ? 4 : 5;
+    },
+    formatDuration(milliseconds) {
+        if (milliseconds < 1000) return 'méně než 1 s';
+        const seconds = Math.round(milliseconds / 1000);
+        return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
+    }
+};
+
+if (typeof module !== 'undefined') module.exports = tutorQuiz;
+
+function initializeTutor(lesson, subject) {
+    const context = {
+        ...initializeTutorLearning(lesson, subject),
+        points: value => String(value).replace('.', ',')
+    };
+    let quiz;
+    // Register navigation before quiz setup; handlers resolve the controller on interaction.
+    initializeTutorNavigation(context, {
+        isActive: () => quiz.isActive(),
+        pauseAnswerClock: () => quiz.pauseAnswerClock(),
+        resumeAnswerClock: () => quiz.resumeAnswerClock(),
+        abandonQuiz: () => quiz.abandonQuiz()
+    });
+    quiz = initializeTutorQuiz(lesson, subject, context);
+}
+
+'use strict';
+
+function initializeTutorLearning(lesson, subject) {
+    const $ = id => document.getElementById(id);
+    const node = (tag, text, className) => {
+        const element = document.createElement(tag);
+        if (text !== undefined) element.textContent = text;
+        if (className) element.className = className;
+        return element;
+    };
+    const button = (text, action, className) => {
+        const element = node('button', text, className);
+        element.type = 'button';
+        element.addEventListener('click', action);
+        return element;
+    };
+    const disclose = (label, ...content) => {
+        const details = node('details');
+        details.append(node('summary', label), ...content);
+        return details;
+    };
+    const iconNode = icon => {
+        const element = node('span', icon, 'card-icon');
+        element.setAttribute('aria-hidden', 'true');
+        return element;
+    };
+    const highlighting = tutorHighlights.initialize(lesson, document);
+    const hints = [];
+    const hint = (text, explanation, tag = 'p', targets = {}) => {
+        const block = node('div', undefined, 'hint');
+        const prompt = paragraph(text, tag, { target: targets.prompt, prefix: targets.prefix });
+        prompt.className = 'hint-prompt';
+        const content = paragraph(explanation, 'p', { target: targets.explanation });
+        content.className = 'hint-content';
+        content.id = `hint-content-${hints.length + 1}`;
+        const drawer = node('div', undefined, 'hint-drawer');
+        drawer.append(content);
+        let animation;
+        const setOpen = (expanded, animate = true) => {
+            const from = drawer.getBoundingClientRect().height;
+            animation?.cancel();
+            trigger.setAttribute('aria-expanded', String(expanded));
+            drawer.inert = !expanded;
+            content.hidden = false;
+            drawer.hidden = false;
+            const finish = () => {
+                content.hidden = !expanded;
+                drawer.hidden = !expanded;
+                animation = undefined;
+            };
+            if (!animate || !drawer.checkVisibility() || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                finish();
+                return;
+            }
+            const current = drawer.animate([
+                { height: `${from}px`, opacity: expanded ? .4 : 1 },
+                { height: `${expanded ? drawer.getBoundingClientRect().height : 0}px`, opacity: expanded ? 1 : 0 }
+            ], { duration: 220, easing: 'ease-out' });
+            animation = current;
+            current.finished.then(() => {
+                if (animation === current) finish();
+            }).catch(error => {
+                if (error.name !== 'AbortError') console.error('Animaci nápovědy se nepodařilo dokončit.', error);
+            });
+        };
+        const trigger = button('', () => {
+            setOpen(trigger.getAttribute('aria-expanded') !== 'true');
+            syncLearningControls();
+        }, 'hint-toggle');
+        trigger.append(iconNode('💡'), document.createTextNode(' '), node('span', 'Nápověda'));
+        trigger.setAttribute('aria-controls', content.id);
+        block.append(prompt, trigger, drawer);
+        setOpen(false, false);
+        hints.push({ content, setOpen, get open() { return trigger.getAttribute('aria-expanded') === 'true'; } });
+        return block;
+    };
+    const heading = (text, icon, fallback) => {
+        const element = node('h2');
+        element.append(iconNode(icon || fallback), node('span', text, 'heading-text'));
+        return element;
+    };
+    const focusContent = element => {
+        element.focus({ preventScroll: true });
+        const top = $('page-header').getBoundingClientRect().bottom + 16;
+        const bounds = element.getBoundingClientRect();
+        if (bounds.top < top || bounds.bottom > innerHeight) {
+            element.style.scrollMarginTop = `${top}px`;
+            element.scrollIntoView({ block: 'start' });
+        }
+    };
+    let definitionTrigger = null;
+    const positionDefinition = () => {
+        if (!definitionTrigger || !$('definition').matches(':popover-open')) return;
+        const anchor = definitionTrigger.getBoundingClientRect();
+        const panel = $('definition');
+        // Layout dimensions stay stable while the popup's flip transforms its painted bounds.
+        const bounds = { width: panel.offsetWidth, height: panel.offsetHeight };
+        const gap = 12;
+        const top = anchor.bottom + gap + bounds.height <= innerHeight
+            ? anchor.bottom + gap : anchor.top - gap - bounds.height;
+        panel.style.left = `${Math.max(gap, Math.min(anchor.left, innerWidth - bounds.width - gap))}px`;
+        panel.style.top = `${Math.max(gap, Math.min(top, innerHeight - bounds.height - gap))}px`;
+    };
+    const closeDefinition = (restoreFocus = false) => {
+        const trigger = definitionTrigger;
+        $('definition').hidePopover();
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        definitionTrigger = null;
+        if (restoreFocus && trigger) trigger.focus({ preventScroll: true });
+    };
+    const definition = (trigger, title, text, icon = '📖') => {
+        if (definitionTrigger === trigger && $('definition').matches(':popover-open')) {
+            closeDefinition(true);
+            return;
+        }
+        if (definitionTrigger) definitionTrigger.setAttribute('aria-expanded', 'false');
+        definitionTrigger = trigger;
+        trigger.setAttribute('aria-controls', 'definition');
+        trigger.setAttribute('aria-expanded', 'true');
+        $('definition-title').replaceChildren(iconNode(icon), node('span', title));
+        $('definition-text').textContent = text;
+        const panel = $('definition');
+        panel.classList.remove('definition-flip');
+        if (trigger.classList.contains('term') && trigger.closest('#learning-content')) {
+            // Replay the entrance when another term replaces an already-open popup.
+            void panel.offsetWidth;
+            panel.classList.add('definition-flip');
+        }
+        $('definition').showPopover();
+        positionDefinition();
+        $('definition-close').focus({ preventScroll: true });
+    };
+    const definitionButton = (label, title, text, className, icon) => {
+        const trigger = button(label, () => definition(trigger, title, text, icon), className);
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.setAttribute('aria-controls', 'definition');
+        trigger.setAttribute('aria-expanded', 'false');
+        return trigger;
+    };
+    $('definition-close').addEventListener('click', () => closeDefinition(true));
+    $('definition').addEventListener('toggle', event => {
+        if (event.newState === 'closed' && definitionTrigger) {
+            const restoreFocus = $('definition').contains(document.activeElement) || document.activeElement === document.body;
+            closeDefinition(restoreFocus);
+        }
+    });
+    const closeGlossary = (restoreFocus = true) => {
+        closeDefinition();
+        $('glossary-drawer').hidePopover();
+        $('glossary-toggle').setAttribute('aria-expanded', 'false');
+        if (restoreFocus && !$('glossary-toggle').hidden) $('glossary-toggle').focus({ preventScroll: true });
+    };
+    $('glossary-toggle').addEventListener('click', () => {
+        if ($('glossary-drawer').matches(':popover-open')) {
+            closeGlossary();
+            return;
+        }
+        closeDefinition();
+        $('glossary-drawer').showPopover();
+        $('glossary-toggle').setAttribute('aria-expanded', 'true');
+        $('glossary-close').focus({ preventScroll: true });
+    });
+    $('glossary-close').addEventListener('click', () => closeGlossary());
+    const closeQuizTools = (restoreFocus = false) => {
+        if (!$('quiz-tools').open) return;
+        $('quiz-tools').open = false;
+        if (restoreFocus) $('quiz-tools').querySelector('summary').focus({ preventScroll: true });
+    };
+    const dismissGlossaryOutside = event => {
+        if ($('glossary-drawer').matches(':popover-open') &&
+            !$('glossary-drawer').contains(event.target) &&
+            !$('definition').contains(event.target) &&
+            !$('glossary-toggle').contains(event.target)) closeGlossary(false);
+    };
+    document.addEventListener('pointerdown', dismissGlossaryOutside);
+    document.addEventListener('focusin', dismissGlossaryOutside);
+    const dismissQuizToolsOutside = event => {
+        if (!$('quiz-tools').contains(event.target)) closeQuizTools();
+    };
+    document.addEventListener('pointerdown', dismissQuizToolsOutside);
+    document.addEventListener('focusin', dismissQuizToolsOutside);
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && $('definition').matches(':popover-open')) {
+            event.preventDefault();
+            closeDefinition(true);
+        } else if (event.key === 'Escape' && $('glossary-drawer').matches(':popover-open')) {
+            event.preventDefault();
+            closeGlossary();
+        } else if (event.key === 'Escape' && $('quiz-tools').open) {
+            event.preventDefault();
+            closeQuizTools(true);
+        }
+    });
+    window.addEventListener('resize', positionDefinition);
+    document.addEventListener('scroll', positionDefinition, true);
+    const forms = new Map();
+    lesson.glossary.forEach(entry => [entry.term, ...entry.forms].forEach(form => forms.set(form.toLocaleLowerCase('cs'), entry)));
+    const escapeRegex = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(${[...forms.keys()].sort((a, b) => b.length - a.length).map(escapeRegex).join('|')})(?![\\p{L}\\p{N}])`, 'giu');
+    const paragraph = (text, tag = 'p', highlight = {}) => {
+        const element = node(tag);
+        const prefix = highlight.prefix || 0;
+        if (prefix) element.append(document.createTextNode(text.slice(0, prefix)));
+        text = text.slice(prefix);
+        const container = highlight.target ? node('span', undefined, 'highlight-text') : element;
+        const linkedEntries = new Set();
+        let offset = 0;
+        for (const match of text.matchAll(pattern)) {
+            container.append(document.createTextNode(text.slice(offset, match.index)));
+            const entry = forms.get(match[0].toLocaleLowerCase('cs'));
+            if (linkedEntries.has(entry)) container.append(document.createTextNode(match[0]));
+            else {
+                container.append(definitionButton(match[0], entry.term, entry.definition, 'term', entry.icon));
+                linkedEntries.add(entry);
+            }
+            offset = match.index + match[0].length;
+        }
+        container.append(document.createTextNode(text.slice(offset)));
+        if (highlight.target) {
+            element.append(container);
+            highlighting.register(container, highlight.target);
+        }
+        return element;
+    };
+    const styles = { note: 'Poznámka', example: 'Příklad', tip: 'Tip', warning: 'Pozor',
+        comment: 'Komentář', fun: 'Zajímavost', quote: 'Citace', important: 'Důležité' };
+    const styleParagraph = (element, style = 'plain', labelled = true) => {
+        if (style !== 'plain') {
+            element.className = `${element.className || ''} callout callout-${style}`.trim();
+            if (labelled) {
+                const label = node('strong', `${styles[style]}: `, 'callout-label');
+                if (style === 'important') label.prepend(iconNode('⭐'));
+                element.prepend(label);
+            } else {
+                element.setAttribute('aria-label', styles[style]);
+                if (style === 'important') element.setAttribute('role', 'note');
+            }
+        }
+        return element;
+    };
+    const paragraphs = (blocks, target) => (blocks || []).map((block, index) =>
+        styleParagraph(paragraph(block.text, block.style === 'quote' ? 'blockquote' : 'p',
+            { target: target ? `${target}.${index}.text` : undefined }), block.style));
+    const speech = subject.listening ? initializeTutorSpeech({ node, button,
+        warning: $('voice-warning'), voiceSwitch: $('voice-switch') }) : null;
+    const context = { $, node, button, disclose, hint, paragraph, paragraphs, heading, speech };
+    $('topic').textContent = lesson.topic;
+    $('subtitle').textContent = lesson.subtitle || 'Každým krokem objevíš něco nového. Zkus to!';
+    subject.renderOriginalIntroduction?.(context, lesson);
+    lesson.original.forEach((section, index) => {
+        const article = node('article', undefined, 'card');
+        article.append(heading(section.heading, section.icon, '📄'));
+        if (section.panelDescription) {
+            const description = node('aside', undefined, 'comic-panel-description');
+            description.lang = 'cs-CZ';
+            description.append(node('p', section.panelDescription));
+            article.append(description);
+        }
+        const text = node('div', undefined, 'original-text');
+        if (section.language) text.lang = section.language;
+        const corrections = (subject.originalCorrections || lesson.corrections || []).filter(correction => correction.section === index)
+            .sort((a, b) => section.text.indexOf(a.quote) - section.text.indexOf(b.quote));
+        let paragraphOffset = 0;
+        (section.paragraphs || [{ style: 'plain', text: section.text }]).forEach((block, blockIndex) => {
+            if (blockIndex) text.append(document.createTextNode('\n\n'));
+            const content = node(block.style === 'quote' ? 'blockquote' : 'p');
+            const source = node('span', undefined, 'highlight-text');
+            let offset = 0;
+            for (const correction of corrections.filter(item => block.text.includes(item.quote))) {
+                const start = block.text.indexOf(correction.quote);
+                source.append(document.createTextNode(block.text.slice(offset, start)));
+                const mark = definitionButton(correction.quote, correction.title || 'Historická oprava', correction.explanation,
+                    correction.kind === 'spellingVariant' ? 'correction correction-variant' : 'correction', '🔎');
+                mark.title = correction.title ? `${correction.title}: ${correction.explanation}` : correction.explanation;
+                source.append(mark);
+                offset = start + correction.quote.length;
+            }
+            source.append(document.createTextNode(block.text.slice(offset)));
+            content.append(source);
+            highlighting.register(source, `original.${index}.text`, paragraphOffset);
+            paragraphOffset += block.text.length + 2;
+            text.append(styleParagraph(content, block.style, false));
+        });
+        styleParagraph(article, section.style);
+        article.append(text);
+        subject.renderOriginalControls?.(context, article, section, index);
+        subject.renderOriginalNotes?.(context, article, section, index);
+        $('original-content').append(article);
+    });
+    subject.renderLearning(context, lesson);
+    const learning = initializeLearning(lesson, document);
+    const learningDetails = [...$('learning-content').querySelectorAll('details')];
+    const syncLearningControls = () => {
+        $('expand-learning').disabled = learningDetails.every(details => details.open) && hints.every(hint => hint.open);
+        $('collapse-learning').disabled = learningDetails.every(details => !details.open) && hints.every(hint => !hint.open);
+    };
+    const setLearningOpen = open => {
+        learningDetails.forEach(details => { details.open = open; });
+        hints.forEach(hint => hint.setOpen(open));
+        syncLearningControls();
+    };
+    $('expand-learning').addEventListener('click', () => setLearningOpen(true));
+    $('collapse-learning').addEventListener('click', () => setLearningOpen(false));
+    $('learning-content').addEventListener('toggle', syncLearningControls, true);
+    syncLearningControls();
+    lesson.glossary.forEach(entry => {
+        const trigger = definitionButton(entry.term, entry.term, entry.definition, undefined, entry.icon);
+        trigger.prepend(iconNode(entry.icon || '📖'));
+        $('glossary').append(trigger);
+    });
+    return { ...context, focusContent, closeGlossary, closeQuizTools, highlighting, learning,
+        finishLearningAnimations: () => hints.forEach(hint => hint.setOpen(hint.open, false)) };
+}
+
+'use strict';
+
+function initializeTutorNavigation(context, quiz) {
+    const { $, closeGlossary, closeQuizTools, highlighting, learning, finishLearningAnimations } = context;
+    const { pauseAnswerClock, resumeAnswerClock, abandonQuiz } = quiz;
+    const tabs = [...document.querySelectorAll('[data-tab]')];
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let requestedTab = tabs[0];
+    let pendingTab = null;
+    let tabTransition;
+    let tabEntrance;
+    reducedMotion.addEventListener('change', event => {
+        if (event.matches) {
+            tabTransition?.skipTransition();
+            tabEntrance?.cancel();
+            finishLearningAnimations();
+        }
+    });
+    const activateTab = tab => {
+        if (tab === requestedTab) return true;
+        if (quiz.isActive()) {
+            if ($('quiz-leave-dialog').open) return false;
+            pauseAnswerClock();
+            closeGlossary(false);
+            closeQuizTools();
+            pendingTab = tab;
+            $('quiz-leave-dialog').showModal();
+            $('quiz-stay').focus({ preventScroll: true });
+            return false;
+        }
+        requestedTab = tab;
+        tabTransition?.skipTransition();
+        tabEntrance?.cancel();
+        const update = () => {
+            if (tab !== requestedTab) return;
+            closeGlossary(false);
+            $('glossary-toggle').hidden = tab.dataset.tab !== 'learning';
+            $('learning-controls').hidden = tab.dataset.tab !== 'learning';
+            $('quiz-tools').hidden = tab.dataset.tab !== 'quiz';
+            highlighting.setTab(tab.dataset.tab);
+            learning.setTab(tab.dataset.tab);
+            if ($('quiz-tools').hidden) $('quiz-tools').open = false;
+            pauseAnswerClock();
+            tabs.forEach(other => {
+                const active = other === tab;
+                other.setAttribute('aria-selected', String(active));
+                other.tabIndex = active ? 0 : -1;
+                $(other.dataset.tab).hidden = !active;
+            });
+            resumeAnswerClock();
+        };
+        if (typeof document.startViewTransition === 'function' && !reducedMotion.matches) {
+            tabTransition = document.startViewTransition(update);
+            tabTransition.ready.catch(error => {
+                if (error.name !== 'AbortError') console.error('Animaci přepnutí záložky se nepodařilo spustit.', error);
+            });
+        } else {
+            update();
+            const panel = $(tab.dataset.tab);
+            if (!reducedMotion.matches && typeof panel.animate === 'function') {
+                tabEntrance = panel.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+                    { duration: 300, easing: 'ease-out' });
+            }
+        }
+        return true;
+    };
+    const stayInQuiz = () => {
+        if (!pendingTab) return;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        resumeAnswerClock();
+        requestedTab.focus({ preventScroll: true });
+    };
+    $('quiz-stay').addEventListener('click', stayInQuiz);
+    $('quiz-leave-dialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        stayInQuiz();
+    });
+    $('quiz-leave').addEventListener('click', () => {
+        if (!pendingTab) return;
+        const tab = pendingTab;
+        pendingTab = null;
+        $('quiz-leave-dialog').close();
+        abandonQuiz();
+        if (activateTab(tab)) tab.focus({ preventScroll: true });
+    });
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activateTab(tab));
+        tab.addEventListener('keydown', event => {
+            if (event.altKey || event.ctrlKey || event.metaKey) return;
+            const target = {
+                ArrowRight: (index + 1) % tabs.length,
+                ArrowLeft: (index + tabs.length - 1) % tabs.length,
+                Home: 0,
+                End: tabs.length - 1
+            }[event.key];
+            if (target === undefined) return;
+            event.preventDefault();
+            if (activateTab(tabs[target])) tabs[target].focus();
+        });
+    });
+    const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+    const isDark = () => document.documentElement.dataset.theme === 'dark' ||
+        (!document.documentElement.dataset.theme && systemTheme.matches);
+    const syncTheme = () => $('theme').setAttribute('aria-checked', String(isDark()));
+    syncTheme();
+    systemTheme.addEventListener('change', syncTheme);
+    $('theme').addEventListener('click', () => {
+        document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+        syncTheme();
+    });
+}
+
+'use strict';
+
+function initializeTutorResults(lesson, subject, context) {
+    const { $, node, points } = context;
+    const storageKey = `${subject.storagePrefix}:${lesson.id}`;
+    let records = [];
+    let storageReadable = true;
+    let hasPreviousResults = false;
+    let currentRunId = null;
+    const warnStorage = message => {
+        $('storage-warning').hidden = false;
+        $('storage-warning').textContent = message;
+    };
+    try {
+        const stored = JSON.parse(sessionStorage.getItem(storageKey) || '[]');
+        if (!Array.isArray(stored) || stored.some(row =>
+            !row || typeof row.id !== 'string' || typeof row.name !== 'string' ||
+            (row.name.match(/\p{L}/gu) || []).length < 3 || row.name.length > 60 ||
+            typeof row.time !== 'string' || !subject.validRecord(row) ||
+            (row.answerDurationMs !== undefined && (!Number.isSafeInteger(row.answerDurationMs) || row.answerDurationMs < 0)))) {
+            throw new Error('Invalid tutor session results');
+        }
+        records = stored;
+        if (subject.previousStoragePrefix) {
+            const previous = sessionStorage.getItem(`${subject.previousStoragePrefix}:${lesson.id}`);
+            hasPreviousResults = previous !== null && previous !== '[]';
+        }
+    } catch (error) {
+        storageReadable = false;
+        console.warn('Tutor: cannot read session results.', error);
+        warnStorage('Uložené výsledky nelze načíst. Nové výsledky zůstanou jen v této stránce; původní úložiště nepřepíšeme.');
+    }
+    function renderLeaderboard() {
+        const container = $('leaderboard-content');
+        container.replaceChildren();
+        if (hasPreviousResults) container.append(node('p', subject.previousResultsNotice));
+        if (!records.length) {
+            container.append(node('p', 'Zatím žádné výsledky.'));
+            return;
+        }
+        const table = node('table');
+        table.append(node('caption', 'Pořadí pokusů v této relaci. Doba odpovídání nezahrnuje čtení zpětné vazby. Starší pokusy ji nemají zaznamenanou.'));
+        const head = node('thead');
+        const labels = node('tr');
+        ['Pořadí', 'Hráč', 'Kdy', 'Doba odpovídání', 'Obtížnost', 'Body', 'Známka'].forEach(label => {
+            const cell = node('th', label);
+            cell.scope = 'col';
+            labels.append(cell);
+        });
+        head.append(labels);
+        const body = node('tbody');
+        [...records].sort(subject.compareResults).forEach((record, index) => {
+            const row = node('tr');
+            if (record.id === currentRunId) {
+                row.className = 'current';
+                row.setAttribute('aria-current', 'true');
+                $('leaderboard-rank').textContent = `Tvůj poslední pokus: ${index + 1}. místo z ${records.length} pokusů v této relaci.`;
+                $('leaderboard-rank').hidden = false;
+            }
+            [`${index + 1}.`, record.name, record.time,
+                record.answerDurationMs === undefined ? 'Nezaznamenáno' : tutorQuiz.formatDuration(record.answerDurationMs),
+                { easy: 'Lehká', medium: 'Střední', hard: 'Těžká' }[record.mode], `${points(record.total)} b`, String(record.grade)]
+                .forEach(value => row.append(node('td', value)));
+            body.append(row);
+        });
+        table.append(head, body);
+        container.append(table);
+    }
+    function save(name, mode, result, answerDurationMs) {
+        currentRunId = crypto.randomUUID();
+        records.push({
+            id: currentRunId, name, mode, total: result.total, grade: result.grade,
+            time: new Date().toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' }),
+            answerDurationMs,
+            ...(subject.speedBonus ? { duration: Math.round(answerDurationMs / 1000) } : { maximum: result.maximum })
+        });
+        if (storageReadable) {
+            try {
+                sessionStorage.setItem(storageKey, JSON.stringify(records));
+                $('storage-warning').hidden = true;
+                $('storage-warning').textContent = '';
+            } catch (error) {
+                console.warn('Tutor: cannot save session results.', error);
+                warnStorage('Výsledky se nepodařilo uložit. Nové výsledky jsou vidět jen do obnovení této stránky.');
+            }
+        }
+        renderLeaderboard();
+    }
+    return { save, renderLeaderboard };
+}
+
+'use strict';
+
+function initializeTutorQuiz(lesson, subject, context) {
+    const { $, node, button, points, focusContent, closeQuizTools } = context;
+    subject.rules.forEach(rule => $('scoring').append(node('li', rule)));
+    if (subject.modeCounts) document.querySelectorAll('[data-mode]').forEach(control => {
+        const count = subject.modeCounts[control.dataset.mode];
+        control.querySelector('.mode-count').textContent = `${count} ${count < 5 ? 'úlohy' : 'úloh'}`;
+    });
+    $('answer-help').textContent = subject.answerHelp || '';
+    $('answer-guide').hidden = !subject.answerHelp;
+    $('quiz-export').addEventListener('click', () => {
+        $('export-error').hidden = true;
+        let url;
+        let link;
+        try {
+            const json = JSON.stringify(lesson, null, 2) + '\n';
+            url = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
+            link = node('a');
+            link.href = url;
+            link.download = `${lesson.id}-lekce.json`;
+            document.body.append(link);
+            link.click();
+            closeQuizTools(true);
+        } catch (error) {
+            console.error('Tutor: cannot export lesson.', error);
+            $('export-error').textContent = 'JSON se nepodařilo stáhnout. Zkus to znovu.';
+            $('export-error').hidden = false;
+        } finally {
+            if (link) link.remove();
+            if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+    });
+    const results = initializeTutorResults(lesson, subject, context);
+    let quiz = null;
+    let timer = null;
+    const warnBeforeUnload = event => {
+        if (!quiz || quiz.finished) return;
+        event.preventDefault();
+        event.returnValue = '';
+    };
+    function abandonQuiz() {
+        pauseAnswerClock();
+        clearInterval(timer);
+        timer = null;
+        quiz = null;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
+        $('game').hidden = true;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('answers').replaceChildren();
+        $('answer-guide').open = false;
+        $('feedback').replaceChildren();
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        $('score').textContent = 'Skóre: 0 b';
+        $('quiz-progress').value = 0;
+        $('leaderboard').hidden = false;
+        $('leaderboard').open = false;
+    }
+    function pauseAnswerClock() {
+        context.speech?.stop();
+        if (quiz && quiz.answerStarted !== null) {
+            quiz.questionElapsedMs += Math.max(0, performance.now() - quiz.answerStarted);
+            quiz.answerStarted = null;
+        }
+    }
+    function resumeAnswerClock() {
+        if (quiz && !quiz.locked && !quiz.finished && !$('quiz').hidden && !document.hidden &&
+            !$('quiz-leave-dialog').open && quiz.answerStarted === null) {
+            quiz.answerStarted = performance.now();
+        }
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseAnswerClock();
+        else resumeAnswerClock();
+    });
+    function finish() {
+        context.speech?.stop();
+        quiz.finished = true;
+        window.removeEventListener('beforeunload', warnBeforeUnload);
+        clearInterval(timer);
+        $('game').hidden = true;
+        $('results').hidden = false;
+        const result = subject.result(quiz.answers, quiz.questions);
+        $('grade').textContent = result.text;
+        const answerDurationMs = Math.round(quiz.answerDurationMs);
+        $('answer-duration').textContent = `Doba odpovídání: ${tutorQuiz.formatDuration(answerDurationMs)}. Čtení vysvětlení se nepočítá.`;
+        $('summary').replaceChildren();
+        quiz.answers.forEach((answer, index) => {
+            const item = node('li');
+            item.append(node('strong', answer.question.prompt));
+            subject.feedback(context, item, answer, index + 1);
+            $('summary').append(item);
+        });
+        results.save(quiz.name, quiz.mode, result, answerDurationMs);
+        $('leaderboard').open = true;
+        $('leaderboard').hidden = false;
+        focusContent($('results-title'));
+    }
+    function submit(values) {
+        if (!quiz || quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
+        if (!subject.acceptSubmission(values)) {
+            $('feedback').textContent = 'Nejdřív napiš odpověď.';
+            $('feedback').hidden = false;
+            return;
+        }
+        pauseAnswerClock();
+        quiz.locked = true;
+        quiz.answerDurationMs += quiz.questionElapsedMs;
+        clearInterval(timer);
+        const question = quiz.questions[quiz.index];
+        const elapsed = subject.speedBonus ? performance.now() - quiz.questionStarted : 0;
+        const answer = { question, values, score: subject.score(question, values, elapsed) };
+        quiz.answers.push(answer);
+        $('score').textContent = `Skóre: ${points(quiz.answers.reduce((sum, item) => sum + item.score.total, 0))} b`;
+        $('quiz-progress').value = quiz.answers.length;
+        $('answers').querySelectorAll('input, button').forEach(control => { control.disabled = true; });
+        $('feedback').replaceChildren();
+        subject.feedback(context, $('feedback'), answer, quiz.index + 1);
+        const full = answer.score.total === subject.maximum([question]) ||
+            answer.score.fraction === 1;
+        $('feedback').className = full ? 'success' : answer.score.total > 0 ? 'encouragement' : 'try-again';
+        $('feedback').hidden = false;
+        $('next').textContent = quiz.index === quiz.questions.length - 1 ? 'Zobrazit výsledek' : 'Další úloha';
+        $('next').hidden = false;
+        $('next').focus();
+    }
+    function showQuestion() {
+        context.speech?.stop();
+        clearInterval(timer);
+        quiz.locked = false;
+        quiz.questionElapsedMs = 0;
+        quiz.answerStarted = null;
+        const question = quiz.questions[quiz.index];
+        $('progress').textContent = `Úloha ${quiz.index + 1} / ${quiz.questions.length} · nejvýše ${subject.maximum([question])} b`;
+        $('quiz-progress').max = quiz.questions.length;
+        $('quiz-progress').value = quiz.answers.length;
+        $('question').replaceChildren(node('span', question.prompt, 'question-enter'));
+        $('question-icon').textContent = question.icon || subject.icon || (subject.speedBonus ? '🏰' : '📐');
+        $('difficulty').textContent = (subject.difficultyLabels ||
+            { easy: 'Lehký začátek', medium: 'Další krok', hard: 'Závěrečná výzva' })[question.difficulty];
+        $('difficulty').dataset.level = question.difficulty;
+        $('answers').replaceChildren();
+        $('question-material').replaceChildren();
+        $('question-material').hidden = true;
+        subject.renderQuestion?.(context, question);
+        $('feedback').hidden = true;
+        $('next').hidden = true;
+        $('answer-guide').open = false;
+        $('answer-guide').hidden = !subject.answerHelp || !!question.options;
+        if (question.options) {
+            question.options.forEach((option, index) => {
+                const control = button(option, () => submit([index]));
+                if (subject.optionLanguage) control.lang = subject.optionLanguage(question);
+                $('answers').append(control);
+            });
+        } else {
+            subject.fields(question, quiz.index).forEach(field => {
+                const label = node('label', field.label);
+                label.htmlFor = field.id;
+                const input = node('input');
+                input.type = 'text';
+                input.id = field.id;
+                input.autocomplete = 'off';
+                input.maxLength = 80;
+                input.spellcheck = false;
+                if (field.language) input.lang = field.language;
+                if (field.inputMode) input.inputMode = field.inputMode;
+                if (subject.answerHelp) input.setAttribute('aria-describedby', 'answer-help');
+                $('answers').append(label, input);
+            });
+            const send = node('button', 'Odpovědět');
+            send.type = 'submit';
+            $('answers').append(send);
+        }
+        if (subject.speedBonus) {
+            quiz.questionStarted = performance.now();
+            const update = () => {
+                const elapsed = performance.now() - quiz.questionStarted;
+                const remaining = Math.max(0, 1 - elapsed / 15000);
+                $('bonus').style.opacity = String(Math.max(0, 1 - elapsed / 12000));
+                $('bonus-bar').style.transform = `scaleX(${remaining})`;
+                if (!remaining) clearInterval(timer);
+            };
+            update();
+            timer = setInterval(update, 100);
+        }
+        focusContent($('question'));
+        resumeAnswerClock();
+    }
+    $('answers').addEventListener('submit', event => {
+        event.preventDefault();
+        if (quiz && !quiz.questions[quiz.index]?.options) {
+            submit([...$('answers').querySelectorAll('input')].map(input => input.value.trim()));
+        }
+    });
+    document.querySelectorAll('[data-mode]').forEach(control => control.addEventListener('click', () => {
+        if ($('quiz-leave-dialog').open) return;
+        if (quiz && !quiz.finished && $('setup').hidden) return;
+        const name = $('player').value.trim();
+        if ((name.match(/\p{L}/gu) || []).length < 3 || name.length > 60) {
+            $('name-error').textContent = 'Napiš jméno nebo přezdívku s alespoň třemi písmeny, nejvýše 60 znaků.';
+            $('player').setAttribute('aria-invalid', 'true');
+            $('player').focus();
+            return;
+        }
+        $('name-error').textContent = '';
+        $('player').removeAttribute('aria-invalid');
+        quiz = {
+            name, mode: control.dataset.mode, questions: subject.select(lesson, control.dataset.mode),
+            index: 0, answers: [], locked: false, finished: false,
+            answerDurationMs: 0, questionElapsedMs: 0, answerStarted: null
+        };
+        window.addEventListener('beforeunload', warnBeforeUnload);
+        $('quiz-tools').open = false;
+        $('setup').hidden = true;
+        $('results').hidden = true;
+        $('leaderboard').hidden = true;
+        $('game').hidden = false;
+        $('score').textContent = 'Skóre: 0 b';
+        showQuestion();
+    }));
+    $('next').addEventListener('click', () => {
+        if (!quiz || !quiz.locked || quiz.finished || $('quiz-leave-dialog').open) return;
+        quiz.index++;
+        if (quiz.index === quiz.questions.length) finish();
+        else showQuestion();
+    });
+    $('restart').addEventListener('click', () => {
+        if (!quiz?.finished) return;
+        $('results').hidden = true;
+        $('setup').hidden = false;
+        $('leaderboard').open = false;
+        $('player').focus();
+    });
+    results.renderLeaderboard();
+    return { isActive: () => !!quiz && !quiz.finished, pauseAnswerClock, resumeAnswerClock, abandonQuiz };
+}
+
+'use strict';
+
+const { MODES, POINTS, shuffle, grade } = typeof module !== 'undefined' && module.exports
+    ? require('./runtime.js') : tutorQuiz;
+const { evaluate, parseInput, normalizeLanguage, knownWords } = typeof module !== 'undefined' && module.exports
+    ? require('./assessment.js') : tutorAssessment;
+
+function selectExercises(exercises, mode, random = Math.random) {
+    if (!Object.hasOwn(MODES, mode)) throw new Error(`Unknown English quiz mode: ${mode}`);
+    if (new Set(exercises.map(exercise => exercise.id)).size !== exercises.length) throw new Error('Duplicate English task ids');
+    return ['easy', 'medium', 'hard'].flatMap((level, index) => {
+        const pool = exercises.filter(exercise => exercise.difficulty === level);
+        if (pool.length < MODES[mode][index]) throw new Error(`Not enough ${level} English tasks`);
+        return shuffle(pool, random).slice(0, MODES[mode][index]);
+    });
+}
+
+function alignLetters(left, right) {
+    const a = [...left], b = [...right];
+    const lowerA = a.map(letter => letter.toLocaleLowerCase('cs'));
+    const lowerB = b.map(letter => letter.toLocaleLowerCase('cs'));
+    const distance = Array.from({ length: a.length + 1 }, () => Array(b.length + 1));
+    const step = (previous, edits, pairs = []) => ({
+        previous, pairs, edits: previous.edits + edits,
+        capitalization: previous.capitalization + pairs.filter(([i, j]) =>
+            lowerA[i] === lowerB[j] && a[i] !== b[j]).length
+    });
+    distance[0][0] = { edits: 0, capitalization: 0, pairs: [] };
+    for (let index = 1; index <= a.length; index++) distance[index][0] = step(distance[index - 1][0], 1);
+    for (let index = 1; index <= b.length; index++) distance[0][index] = step(distance[0][index - 1], 1);
+    for (let row = 1; row <= a.length; row++) {
+        for (let column = 1; column <= b.length; column++) {
+            const candidates = [
+                step(distance[row - 1][column], 1),
+                step(distance[row][column - 1], 1),
+                step(distance[row - 1][column - 1], Number(lowerA[row - 1] !== lowerB[column - 1]),
+                    [[row - 1, column - 1]])
+            ];
+            if (row > 1 && column > 1 && lowerA[row - 1] === lowerB[column - 2] && lowerA[row - 2] === lowerB[column - 1]) {
+                candidates.push(step(distance[row - 2][column - 2], 1,
+                    [[row - 2, column - 1], [row - 1, column - 2]]));
+            }
+            distance[row][column] = candidates.reduce((best, candidate) =>
+                candidate.edits < best.edits ||
+                (candidate.edits === best.edits && candidate.capitalization < best.capitalization) ? candidate : best);
+        }
+    }
+    const result = distance[a.length][b.length];
+    const pairs = [];
+    for (let current = result; current.previous; current = current.previous) pairs.push(...current.pairs);
+    return { edits: result.edits, capitalization: result.capitalization, pairs: pairs.sort(([i], [j]) => i - j) };
+}
+
+function englishKnownWords(lesson) {
+    const paragraphs = value => (value || []).map(paragraph => paragraph.text);
+    return knownWords([
+        lesson.topic, lesson.subtitle, lesson.comicIntroduction, lesson.comicGuidance,
+        ...(lesson.original || []).flatMap(section =>
+            [section.heading, section.text, section.panelDescription, ...paragraphs(section.paragraphs)]),
+        ...(lesson.chunks || []).flatMap(chunk =>
+            [chunk.heading, ...chunk.sentences, chunk.explanation, chunk.audio?.text, ...paragraphs(chunk.paragraphs)]),
+        ...(lesson.glossary || []).flatMap(entry => [entry.term, entry.definition, ...entry.forms]),
+        ...(lesson.exercises || []).flatMap(exercise => [
+            exercise.prompt, exercise.text, exercise.explanation, exercise.audio?.text,
+            ...(exercise.options || []), ...(exercise.words || []), ...(exercise.acceptedAnswers || [])
+        ]),
+        ...originalNotes(lesson).flatMap(note => [note.quote, note.explanation])
+    ]);
+}
+
+function answerTokens(value) {
+    return value.match(/[\p{L}]+(?:['’][\p{L}]+)*|[^\p{L}]+/gu) || [];
+}
+
+function terminalPunctuation(value) {
+    const mark = value.match(/[.!?]$/)?.[0] || '';
+    return { body: mark ? value.slice(0, -1) : value, mark };
+}
+
+const normalizeWhitespace = value => value.normalize('NFC').trim().replace(/\s+/g, ' ');
+
+function apostrophePositions(word) {
+    const positions = [];
+    let letters = 0;
+    for (const character of word) {
+        if (/[’']/u.test(character)) positions.push(letters);
+        else letters++;
+    }
+    return positions;
+}
+
+function answerDifferences(raw, expected, exercise, vocabulary) {
+    const actualText = normalizeWhitespace(raw);
+    const expectedText = normalizeWhitespace(expected);
+    const actual = terminalPunctuation(actualText);
+    const target = terminalPunctuation(expectedText);
+    const punctuationMistakes = target.mark === '?' || target.mark === '!'
+        ? Number(actual.mark !== target.mark)
+        : Number(actual.mark === '?' || actual.mark === '!');
+    const actualTokens = answerTokens(actual.body);
+    const expectedTokens = answerTokens(target.body);
+    if (actualTokens.length !== expectedTokens.length) return null;
+
+    let capitalizationMistakes = 0;
+    let apostropheMistakes = 0;
+    let typoOperations = 0;
+    const typo = exercise.assessment.partial?.match;
+    const excluded = new Set((typo?.excludedWords || []).map(normalizeLanguage));
+
+    for (let index = 0; index < actualTokens.length; index++) {
+        const answerToken = actualTokens[index];
+        const expectedToken = expectedTokens[index];
+        const isWord = /^\p{L}/u.test(answerToken) && /^\p{L}/u.test(expectedToken);
+        if (!isWord) {
+            if (answerToken.replace(/[’']/gu, "'") !== expectedToken.replace(/[’']/gu, "'")) return null;
+            continue;
+        }
+
+        const answerLetters = answerToken.replace(/[’']/gu, '').toLocaleLowerCase('cs');
+        const expectedLetters = expectedToken.replace(/[’']/gu, '').toLocaleLowerCase('cs');
+        const answerPositions = apostrophePositions(answerToken);
+        const expectedPositions = apostrophePositions(expectedToken);
+        if (answerPositions.some(position => !expectedPositions.includes(position))) return null;
+        apostropheMistakes += expectedPositions.filter(position => !answerPositions.includes(position)).length;
+
+        const alignment = alignLetters(answerToken.replace(/[’']/gu, ''), expectedToken.replace(/[’']/gu, ''));
+        capitalizationMistakes += alignment.capitalization;
+        const edits = alignment.edits;
+        if (edits) {
+            if (typo?.type !== 'typo' || exercise.skill !== 'meaning' || exercise.type === 'wordOrder') return null;
+            if (!(vocabulary instanceof Set)) throw new Error('Typo assessment requires the lesson vocabulary');
+            if (vocabulary.has(answerLetters) || excluded.has(answerLetters)) return null;
+            typoOperations += edits;
+        }
+    }
+
+    const letterCount = (expectedText.match(/\p{L}/gu) || []).length;
+    const typoMistakes = letterCount >= 10 ? Math.max(0, typoOperations - 1) : typoOperations;
+    const mistakes = [
+        ...(capitalizationMistakes ? [{ count: 1, label: 'velká a malá písmena' }] : []),
+        ...(apostropheMistakes ? [{ count: apostropheMistakes, label: 'chybějící apostrofy' }] : []),
+        ...(punctuationMistakes ? [{ count: punctuationMistakes, label: 'koncové znaménko' }] : []),
+        ...(typoMistakes ? [{ count: typoMistakes, label: 'překlepy' }] : [])
+    ];
+    return { mistakes, count: mistakes.reduce((sum, mistake) => sum + mistake.count, 0) };
+}
+
+function evaluateEnglishAnswer(exercise, raw, vocabulary) {
+    const parsed = parseInput(exercise.assessment, raw);
+    if (parsed.error) return { fraction: 0, correct: false, valid: false, status: 'invalid', message: parsed.error };
+
+    const candidates = exercise.acceptedAnswers.map(answer =>
+        answerDifferences(parsed.text, answer, exercise, vocabulary)).filter(Boolean);
+    if (!candidates.length) {
+        return {
+            fraction: 0, correct: false, valid: true, status: 'incorrect',
+            message: 'Tentokrát to nevyšlo. Porovnej svůj postup s řešením.'
+        };
+    }
+    const result = candidates.reduce((best, candidate) => candidate.count < best.count ? candidate : best);
+    const fraction = [1, 0.8, 0.6, 0.4][result.count] ?? 0;
+    const details = result.mistakes.map(mistake =>
+        `${mistake.label}${mistake.count > 1 ? ` (${mistake.count})` : ''}`).join(', ');
+    const message = result.count === 0 ? 'Správně.' : result.count >= 4
+        ? `Tentokrát ${result.count} drobných chyb (${details}). Body nezískáváš.`
+        : `Částečně správně: ${details}. Získáváš ${Math.round(fraction * 100)} % bodů.`;
+    return {
+        fraction, correct: fraction === 1, valid: true,
+        status: fraction === 1 ? 'correct' : fraction > 0 ? 'partial' : 'incorrect',
+        message, mistakes: result.mistakes
+    };
+}
+
+function scoreExercise(exercise, answers, vocabulary) {
+    const raw = exercise.options ? String(answers[0]) : answers[0];
+    const validChoice = !exercise.options || (Number.isInteger(answers[0]) && answers[0] >= 0 && answers[0] < exercise.options.length);
+    const assessment = !validChoice ? { fraction: 0, correct: false, valid: false, message: 'Vyber jednu z nabízených odpovědí.' } :
+        exercise.options ? evaluate(exercise.assessment, raw, { knownWords: vocabulary }) :
+            evaluateEnglishAnswer(exercise, raw, vocabulary);
+    const base = Math.round(POINTS[exercise.difficulty] * assessment.fraction);
+    return { fraction: assessment.fraction, base, bonus: 0, total: base, assessment };
+}
+
+const maximumPoints = exercises => exercises.reduce((sum, exercise) => sum + POINTS[exercise.difficulty], 0);
+const formatPoints = value => String(value).replace('.', ',');
+
+function originalNotes(lesson) {
+    const notes = lesson.originalNotes || [];
+    const variants = notes.filter(note => note.kind === 'spellingVariant').length;
+    return notes.filter(note => note.kind !== 'spellingVariant' || variants >= 3).map(note => ({
+        ...note,
+        title: note.kind === 'spelling' ? 'Pravopisná chyba' : 'Pravopisná varianta (UK/US)'
+    }));
+}
+
+function contentSize(lesson) {
+    const passages = [
+        ...lesson.original.filter(section => section.language === 'en-GB').map(section => section.text),
+        ...lesson.chunks.flatMap(chunk => chunk.sentences),
+        ...lesson.glossary.map(entry => entry.term),
+        ...lesson.exercises.flatMap(exercise => [
+            ...(exercise.text && exercise.direction !== 'cs-en' ? [exercise.text] : []),
+            ...(exercise.audio ? [exercise.audio.text] : []),
+            ...(exercise.words || []),
+            ...(exercise.type === 'choice' ? exercise.options : [])
+        ])
+    ];
+    return {
+        englishWords: passages.reduce((sum, text) => sum + (text.match(/\p{L}+(?:['’]\p{L}+)*/gu) || []).length, 0),
+        englishSentences: passages.reduce((sum, text) => sum + (text.match(/[.!?]+(?=\s|$)/g) || []).length, 0)
+    };
+}
+
+function subjectForLesson(lesson) {
+    const vocabulary = englishKnownWords(lesson);
+    const notes = originalNotes(lesson);
+    return {
+        storagePrefix: 'english-tutor:v5:integer-v1',
+        previousStoragePrefix: 'english-tutor:v5',
+        previousResultsNotice: 'Starší pokusy zůstávají uložené beze změny pro původní stránku. Nové pokusy mají jiné bodování a samostatné pořadí; starší body nezaokrouhlujeme ani nepřepočítáváme.',
+        speedBonus: false,
+        listening: true,
+        icon: '📚',
+        originalCorrections: notes,
+        renderOriginalIntroduction({ $, node }, source) {
+            if (!source.original.some(section => section.panelDescription)) return;
+            const introduction = node('div', undefined, 'comic-context');
+            introduction.lang = 'cs-CZ';
+            introduction.append(node('h2', 'Jak číst přepis'), node('p', [
+                source.comicIntroduction,
+                'Menší český text popisuje obrázky. Text z komiksu je přepsaný beze změn.',
+                source.comicGuidance || 'Čti obrázky postupně. Anglický text každého obrázku si můžeš také poslechnout.'
+            ].filter(Boolean).join(' '), 'comic-description-note'));
+            $('original-content').append(introduction);
+        },
+        renderOriginalControls({ speech }, article, section) {
+            if (section.language === 'en-GB' && section.text.trim()) {
+                article.append(speech.controls({ text: section.text, language: section.language }));
+            }
+        },
+        renderOriginalNotes({ node }, article, section, index) {
+            notes.filter(note => note.section === index).forEach(note => {
+                const block = node('aside', undefined,
+                    `original-note callout callout-${note.kind === 'spelling' ? 'warning' : 'note'}`);
+                block.append(node('strong', `${note.title}: `, 'callout-label'));
+                const quote = node('q', note.quote);
+                quote.lang = section.language;
+                block.append(quote, node('p', note.explanation));
+                article.append(block);
+            });
+        },
+        rules: [
+            'Lehká úloha: 10 bodů. Střední: 20 bodů. Těžká: 30 bodů.',
+            'Nespěchej. Poslech můžeš opakovat bez omezení a bez ztráty bodů. Nepoužíváme mikrofon.',
+            'Závěrečná tečka nevadí. Velká písmena a apostrofy hlídej; u otázek a zvolání nezapomeň na ? nebo !.',
+            'Za jednu drobnou chybu získáš 80 % bodů, za dvě 60 %, za tři 40 % a za čtyři nebo více 0 bodů. Body jsou vždy celá čísla. Chyby ve velkých písmenech v celé odpovědi počítáme jako jednu; každý chybějící apostrof a povinné ? nebo ! jako další.',
+            'V úlohách na význam: u odpovědí kratších než 10 písmen se jeden překlep počítá jako drobná chyba. U odpovědí s 10 a více písmeny první překlep nevadí, další se počítají.',
+            'Známka: 1 od 80 %, 2 od 60 %, 3 od 40 %, 4 od 20 %, jinak 5. Rychlost ani opakování poslechu nemění body nebo pořadí.'
+        ],
+        answerHelp: 'Piš podle zadání anglicky nebo česky. U překladu může být více správných variant. U řazení použij všechna nabízená slova. Po odeslání už odpověď nezměníš.',
+        select: (source, mode) => selectExercises(source.exercises, mode),
+        maximum: maximumPoints,
+        score: (exercise, answers) => scoreExercise(exercise, answers, vocabulary),
+        acceptSubmission: values => typeof values[0] === 'number' || Boolean(values[0]?.trim()),
+        optionLanguage: exercise => exercise.type === 'trueFalse' ? 'cs-CZ' : 'en-GB',
+        fields: exercise => [{ id: 'answer-input', label: exercise.answerLanguage === 'cs-CZ' ? 'Tvoje odpověď česky' : 'Tvoje odpověď anglicky', language: exercise.answerLanguage }],
+        compareResults: (a, b) => b.total - a.total,
+        validRecord: row => Object.hasOwn(MODES, row.mode) &&
+            row.maximum === MODES[row.mode].reduce((sum, count, index) => sum + count * [10, 20, 30][index], 0) &&
+            Number.isFinite(row.total) && row.total >= 0 && row.total <= row.maximum &&
+            Number.isInteger(row.total) && row.grade === grade(row.total, row.maximum),
+        renderLearning({ $, node, paragraph, heading, hint, paragraphs, speech }, source) {
+            source.chunks.forEach((chunk, index) => {
+                const article = node('article', undefined, 'card');
+                article.id = `learning-chunk-${index}`;
+                article.dataset.learningCard = 'true';
+                article.tabIndex = -1;
+                const english = paragraph(chunk.sentences.join(' '), 'p', { target: `chunks.${index}.sentences` });
+                english.lang = 'en-GB';
+                article.append(heading(chunk.heading, chunk.icon, '📚'), english,
+                    hint('Jak tomu rozumět?', chunk.explanation, 'p', { explanation: `chunks.${index}.explanation` }),
+                    ...paragraphs(chunk.paragraphs, `chunks.${index}.paragraphs`));
+                if (chunk.audio) article.append(speech.controls(chunk.audio));
+                $('learning-content').append(article);
+            });
+        },
+        renderQuestion({ $, node, speech }, exercise) {
+            const material = $('question-material');
+            if (exercise.text) {
+                const text = node('p', exercise.text);
+                text.lang = exercise.direction === 'cs-en' ? 'cs-CZ' : 'en-GB';
+                material.append(text);
+            }
+            if (exercise.words) {
+                const bank = node('p', 'Slova: ');
+                const words = node('span', exercise.words.join(' / '));
+                words.lang = 'en-GB';
+                bank.append(words);
+                material.append(bank);
+            }
+            if (exercise.audio) material.append(speech.controls(exercise.audio));
+            material.hidden = !material.children.length;
+        },
+        feedback({ node }, container, { question, values, score }) {
+            const correct = question.options ? question.options[question.answer] : question.acceptedAnswers[0];
+            const actual = question.options ? question.options[values[0]] : values[0];
+            const points = formatPoints(score.total);
+            container.append(node('p', score.assessment.message),
+                node('p', `Tvoje odpověď: ${actual || '(bez odpovědi)'}`),
+                ...(score.fraction === 1 ? [] : [node('p', `Správná odpověď: ${correct}`)]),
+                node('p', question.explanation), node('p', `Body: ${points}.`));
+            if (question.audio) {
+                const transcript = node('p', `Text poslechu: ${question.audio.text}`);
+                transcript.lang = question.audio.language;
+                container.append(transcript);
+            }
+        },
+        result(answers, questions) {
+            const total = answers.reduce((sum, answer) => sum + answer.score.total, 0);
+            const maximum = maximumPoints(questions);
+            const mark = grade(total, maximum);
+            return { total, maximum, grade: mark, text: `Body: ${formatPoints(total)}/${maximum}. Známka: ${mark}` };
+        }
+    };
+}
+
+if (typeof module !== 'undefined' && module.exports) module.exports = { selectExercises, scoreExercise, maximumPoints, subjectForLesson, contentSize, originalNotes, englishKnownWords, alignLetters };
+if (typeof document !== 'undefined') {
+    const englishLesson = JSON.parse(document.getElementById('lesson-data').textContent);
+    initializeTutor(englishLesson, subjectForLesson(englishLesson));
+}
+</script>
+</body>
+</html>

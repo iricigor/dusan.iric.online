@@ -97,6 +97,34 @@ Do not pad the lesson with repetition. Connect learning cards, explain grammar
 through worked English examples and teach every tested construction and answer
 variant. Keep the independent practice bank out of learning cards.
 
+## Lesson structure and presentation
+
+Organize learning into a purposeful vocabulary → worked grammar examples →
+connected reading/listening sequence when it suits the material, with one
+coherent teaching goal per card. Use short, specific Czech headings and optional
+`chapter` on the first chunk of each meaningful learning chapter; subsequent
+chunks belong to it until the next `chapter`. Do not repeat the chapter heading
+on every card or invent chapters merely to decorate a short lesson.
+
+Set chunk `layout` to `reading` for a connected passage (also the default),
+`dialogue` for separate dialogue turns, or `examples` for separate worked
+examples. For the latter two, each `sentences` entry is one turn or example,
+not an arbitrary sentence split; keep connected prose together. Write complete,
+reviewed teaching content rather than splitting cards to increase their count.
+
+On Původní text, optional `group` on an original section starts a textbook-page
+or activity group that continues until the next `group`. Use grounded Czech
+group headings without altering original wording, reading order or individual
+comic panels. Group metadata is separate from the transcription; preserve
+section indices used by spelling notes and highlights. Never merge transcripts
+or add source text just to obtain a particular layout.
+
+The website owns the quieter English presentation, compact overlapping
+listening/explanation/completion controls and responsive layout. Preserve the
+explanation action and automatic original-section listening; do not author
+duplicate controls, custom HTML or new visuals. Keep learning freely navigable,
+with manual completion and no next-unexplored-section button.
+
 ## Difficulty and answer authoring
 
 The website's `authoringRequirements` owns bank sizes and `quizModes` owns

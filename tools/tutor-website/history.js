@@ -50,6 +50,7 @@ const historySubject = {
     select: (lesson, mode) => selectQuestions(lesson.questions, mode),
     maximum: questions => questions.reduce((sum, question) => sum + POINTS[question.difficulty], 0),
     score: (question, values, elapsed) => scoreAnswer(question, values[0], elapsed),
+    correctOption: question => question.options ? question.answer : undefined,
     acceptSubmission: values => typeof values[0] !== 'string' || Boolean(values[0].trim()),
     fields: question => [{ id: 'answer-input', label: 'Tvoje odpověď', inputMode: question.year ? 'numeric' : undefined }],
     compareResults,
@@ -74,9 +75,11 @@ const historySubject = {
     feedback({ node }, container, { question, values, score }) {
         const correct = question.type === 'text' ? question.acceptedAnswers[0] : question.options[question.answer];
         const display = question.type === 'text' ? values[0] : question.options[values[0]];
-        const label = score.fraction === 1 ? 'Správně!' : score.fraction > 0 ? 'Blízko! Máš polovinu bodů.' : 'Tentokrát ne. Zkus to příště!';
         const correction = score.fraction === 1 ? '' : ` Správná odpověď: ${correct}.`;
-        container.append(node('p', `${score.assessment.valid ? label : score.assessment.message} Tvoje odpověď: ${display}.${correction} ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`,
+        const response = score.fraction === 1 ? '' : ` Tvoje odpověď: ${display}.${correction}`;
+        const message = score.fraction === 1 ? '' :
+            score.fraction > 0 || !score.assessment.valid ? `${score.assessment.message} ` : '';
+        container.append(node('p', `${message}${response} ${question.explanation} Body: ${score.total}${score.bonus ? ` (bonus +${score.bonus})` : ''}.`.trim(),
             score.fraction > 0 ? 'correct' : 'incorrect'));
     },
     result(answers, questions) {
